@@ -1,2 +1,2 @@
 # tekno-kizil
-Teknofest 2023 Yonga Tasarımı
+KASIRGA - KIZIL Takımı Teknofest 2023 Yonga Tasarımı
