@@ -1,6 +1,8 @@
 # tekno-kizil
 KASIRGA - KIZIL Takımı Teknofest 2023 Yonga Tasarımı
 
+KIZIL İşlemci Projesi
+
 Danışman: Prof. Dr. Oğuz Ergin
 
 Takım Kaptanı: Seyyid Hikmet Çelik
