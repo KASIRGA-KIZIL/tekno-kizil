@@ -1,9 +1,9 @@
-// tb_coz.v
+// tb_coz_yazmacoku.v
 `timescale 1ns / 1ps
 
 `include "tanimlamalar.vh"
 
-module tb_coz();
+module tb_coz_yazmacoku();
     reg clk_i = 0;
     reg rst_i = 0;
 
@@ -18,10 +18,9 @@ module tb_coz();
     wire [31:0] b_imm_o;
     wire [31:0] u_imm_o;
     wire [31:0] j_imm_o;
-    wire [9:0] nzuimm_o;
 
 
-    coz cz(
+    coz_yazmacoku cyo(
         .clk_i(clk_i),
         .rst_i(rst_i),
 
@@ -37,9 +36,7 @@ module tb_coz();
         .s_imm_o(s_imm_o),
         .b_imm_o(b_imm_o),
         .u_imm_o(u_imm_o),
-        .j_imm_o(j_imm_o),
-
-        .nzuimm_o(nzuimm_o)
+        .j_imm_o(j_imm_o)
     );
 
     always begin
