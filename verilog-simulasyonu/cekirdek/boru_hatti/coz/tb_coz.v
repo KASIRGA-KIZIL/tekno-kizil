@@ -1,9 +1,9 @@
-// tb_coz_yazmacoku.v
+// tb_coz.v
 `timescale 1ns / 1ps
 
 `include "tanimlamalar.vh"
 
-module tb_coz_yazmacoku();
+module tb_coz();
 
     localparam [31:0] ADD                = 32'b0000000??????????000?????0110011;
     localparam [31:0] ADDI               = 32'b?????????????????000?????0010011;
@@ -116,7 +116,7 @@ module tb_coz_yazmacoku();
     wire [9:0] nzuimm_o;
 
 
-    coz_yazmacoku cyo(
+    coz cz(
         .clk_i(clk_i),
         .rst_i(rst_i),
 

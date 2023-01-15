@@ -1,4 +1,4 @@
-// coz_yazmacoku.v
+// coz.v
 `timescale 1ns / 1ps
 
 `include "tanimlamalar.vh"
@@ -9,7 +9,7 @@
 // buyruklarin gecersizligi de burada verilmeli caddi4spn gibi
 
 // bitleri ayarla
-module coz_yazmacoku(
+module coz(
     input clk_i,
     input rst_i,
 

@@ -1,14 +1,14 @@
-// tb_yurut.v
+// tb_yazmacoku_yurut.v
 `timescale 1ns / 1ps
 
 `include "tanimlamalar.vh"
 
-module tb_yurut();
+module tb_yazmacoku_yurut();
 
     reg clk_i = 0;
     reg rst_i = 0;
 
-    yurut yrt(
+    yazmacoku_yurut yoy(
         .clk_i(clk_i),
         .rst_i(rst_i)
 
