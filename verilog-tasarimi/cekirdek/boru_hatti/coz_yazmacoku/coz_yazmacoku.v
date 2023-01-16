@@ -42,18 +42,18 @@ module coz_yazmacoku(
 
 );
     // 30:29, 27, 25, 21:20, 14:12, 6:2
-    wire [`BUYRUK_COZ_BIT-1:0] buyruk_coz_w = {buyruk_i[30:29], buyruk_i[27], buyruk_i[25], buyruk_i[21:20], buyruk_i[14:12], buyruk_i[6:2]}
+    wire [`BUYRUK_COZ_BIT-1:0] buyruk_coz_w = {buyruk_i[30:29], buyruk_i[27], buyruk_i[25], buyruk_i[21:20], buyruk_i[14:12], buyruk_i[6:2]};
 
-    assign rd_adres_o = buyruk_w[11:7];
-    wire [4:0] rs1_adres_w = buyruk_w[19:15];
-    wire [4:0] rs2_adres_w = buyruk_w[24:20];
+    assign rd_adres_o = buyruk_i[11:7];
+    wire [4:0] rs1_adres_w = buyruk_i[19:15];
+    wire [4:0] rs2_adres_w = buyruk_i[24:20];
 
     // anlik degerleri tek bir degiskene atamak yerine hepsi bir sonraki asamaya giris olarak gecsin
-    assign i_imm_o = {{20{buyruk_w[31]}}, buyruk_w[31:20]};
-    assign s_imm_o = {{20{buyruk_w[31]}}, buyruk_w[31:25], buyruk_w[11:7]};
-    assign b_imm_o = {{19{buyruk_w[31]}}, buyruk_w[31], buyruk_w[7], buyruk_w[30:25], buyruk_w[11:8], 1'b0};
-    assign u_imm_o = {buyruk_w[31:12], {12{1'b0}}};
-    assign j_imm_o = {{11{buyruk_w[31]}}, buyruk_w[31], buyruk_w[19:12], buyruk_w[20], buyruk_w[30:21], 1'b0};
+    assign i_imm_o = {{20{buyruk_i[31]}}, buyruk_i[31:20]};
+    assign s_imm_o = {{20{buyruk_i[31]}}, buyruk_i[31:25], buyruk_i[11:7]};
+    assign b_imm_o = {{19{buyruk_i[31]}}, buyruk_i[31], buyruk_i[7], buyruk_i[30:25], buyruk_i[11:8], 1'b0};
+    assign u_imm_o = {buyruk_i[31:12], {12{1'b0}}};
+    assign j_imm_o = {{11{buyruk_i[31]}}, buyruk_i[31], buyruk_i[19:12], buyruk_i[20], buyruk_i[30:21], 1'b0};
 
     reg [`MI_BIT-1:0] mikroislem_r = 0;
     reg [`MI_BIT-1:0] buyruk_mikroislem_r = 0;
@@ -265,7 +265,7 @@ module coz_yazmacoku(
         .oku1_adr_i   (rs1_adres_w),
         .oku2_adr_i   (rs2_adres_w),
         .oku1_deger_o (rs1_deger_o),
-        .oku2_deger_o (rs2_deger_o,
+        .oku2_deger_o (rs2_deger_o),
         .yaz_adr_i    (yaz_adres_i),
         .yaz_deger_i  (yaz_deger_i),
         .yaz_i        (yaz_yazmac_i)
