@@ -71,7 +71,7 @@ wire   prog_system_reset;
 wire   rst_n;
 assign rst_n = prog_system_reset & rst_ni;
 
-user_processor soc (
+islemci soc ( //user_processor soc (
   .clk           (clk_i        ),
   .resetn        (rst_n        ),
   .iomem_valid   (iomem_valid  ),

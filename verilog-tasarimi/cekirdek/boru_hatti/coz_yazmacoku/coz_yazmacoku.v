@@ -8,6 +8,8 @@
 
 // buyruklarin gecersizligine dikkat edilmeli
 
+// denetim durum birimi ile iliskisinin kurulmasi gerek
+
 // bitleri ayarla
 module coz_yazmacoku(
     input clk_i,
@@ -37,7 +39,6 @@ module coz_yazmacoku(
     output [31:0] rs1_deger_o, // ayni zamanda uimm icin kullan
     output [31:0] rs2_deger_o, // ayni zamanda shamt icin kullan
 
-    // anliklarda burada extend etmek yerine yurutte yapmak hizlandirabilir
     output [31:0] i_imm_o, // fencete ve csrlarda kullan
     output [31:0] s_imm_o,
     output [31:0] b_imm_o,
@@ -54,6 +55,7 @@ module coz_yazmacoku(
     wire [4:0] rs1_adres_w = buyruk_i[19:15];
     wire [4:0] rs2_adres_w = buyruk_i[24:20];
 
+    // anliklarda burada extend etmek yerine yurutte yapmak hizlandirabilir, buradan az bit cikar
     // anlik degerleri tek bir degiskene atamak yerine hepsi bir sonraki asamaya giris olarak gecsin
     assign i_imm_o = {{20{buyruk_i[31]}}, buyruk_i[31:20]};
     assign s_imm_o = {{20{buyruk_i[31]}}, buyruk_i[31:25], buyruk_i[11:7]};
