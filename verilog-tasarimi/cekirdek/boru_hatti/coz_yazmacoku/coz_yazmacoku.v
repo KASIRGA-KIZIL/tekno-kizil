@@ -15,6 +15,10 @@ module coz_yazmacoku(
 
     // compressed buyruklar getirde normal buyruklara donusturulecek
     input [31:0] buyruk_i,
+    input [31:0] buyruk_gecerli_i,
+    input buyruk_compressed_i,
+    
+    output buyruk_compressed_o,
 
     // geri yazdan gelenler
     input [4:0] yaz_adres_i,
@@ -41,6 +45,8 @@ module coz_yazmacoku(
     output [31:0] j_imm_o
 
 );
+    assign buyruk_compressed_o = buyruk_compressed_i;
+
     // 30:29, 27, 25, 21:20, 14:12, 6:2
     wire [`BUYRUK_COZ_BIT-1:0] buyruk_coz_w = {buyruk_i[30:29], buyruk_i[27], buyruk_i[25], buyruk_i[21:20], buyruk_i[14:12], buyruk_i[6:2]};
 
@@ -248,6 +254,9 @@ module coz_yazmacoku(
                 $display("default");
             end
         endcase
+        
+        if(~buyruk_gecerli_i)
+                mikroislem_r = `GECERSIZ;
     end
 
     always @(posedge clk_i) begin
