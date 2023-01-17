@@ -8,11 +8,11 @@
 module geri_yaz(
     input clk_i,
     input rst_i,
-    
+
     input [4:0] rd_adres_i,
     input [31:0] rd_deger_i,
     input yaz_yazmac_i,
-    
+
     output [4:0] yaz_adres_o,
     output [31:0] yaz_deger_o,
     output yaz_yazmac_o
@@ -21,7 +21,7 @@ module geri_yaz(
 );
     reg [4:0] rd_adres_r = 0;
     assign rd_adres_o = rd_adres_r;
-    
+
     reg [31:0] rd_deger_r = 0;
     assign rd_deger_o = rd_deger_r;
 

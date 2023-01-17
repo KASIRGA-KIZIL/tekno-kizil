@@ -19,7 +19,7 @@ module coz_yazmacoku(
     input [31:0] buyruk_i,
     input [31:0] buyruk_gecerli_i,
     input buyruk_compressed_i,
-    
+
     output buyruk_compressed_o,
 
     // geri yazdan gelenler
@@ -31,7 +31,7 @@ module coz_yazmacoku(
 
     // mikroislem buyruklara ait tum bilgiyi bitleriyle veriyor
     output [`MI_BIT-1:0] buyruk_mikroislem_o, // 0 olursa gecersiz
-    
+
     // geriye sadece yazmac adresleri ve anlik degerler cikis olarak verilmeli
 
     output [4:0] rd_adres_o, // geri yaza kadar gitmesi lazim
@@ -256,7 +256,7 @@ module coz_yazmacoku(
                 $display("default");
             end
         endcase
-        
+
         if(~buyruk_gecerli_i)
                 mikroislem_r = `GECERSIZ;
     end

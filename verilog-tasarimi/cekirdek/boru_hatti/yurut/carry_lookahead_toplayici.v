@@ -4,14 +4,14 @@
 `include "tanimlamalar.vh"
 
 module carry_lookahead_toplayici #(parameter BIT = 32)(
-input  [BIT-1:0] a_i, b_i, 
-input   giren_elde_i, 
+input  [BIT-1:0] a_i, b_i,
+input   giren_elde_i,
 output reg [BIT-1:0] toplam_o
 );
 
 reg [BIT-1:0] elde_r=0;
 integer i;
-  
+
 always@(*)begin
     elde_r[0] = a_i[0] & b_i[0];
     toplam_o[0] = a_i[0] ^ b_i[0] ^ giren_elde_i;
