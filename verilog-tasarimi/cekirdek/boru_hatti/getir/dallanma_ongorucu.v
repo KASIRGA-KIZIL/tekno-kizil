@@ -1,12 +1,13 @@
+// dallanma_ongorucu.v
 `timescale 1ns / 1ps
 
-`define JAL     7'b1101111
-`define JALR    7'b1100111
-`define BRANCH  7'b1100011
-`define C_JALR  4'b1001
-`define BUYRUK_BIT 32'd32
+`include "tanimlamalar.vh"
 
-//`include "sabitler.vh"
+`define JAL_OP     7'b1101111
+`define JALR_OP    7'b1100111
+`define BRANCH  7'b1100011
+`define C_JALR_FUNC4  4'b1001
+`define BUYRUK_BIT 32'd32
 
 module dallanma_ongorucu(
 input rst_g,
@@ -60,7 +61,7 @@ input i_ongoru_yanlis
     assign eski_dallanma_buyrugu = i_eski_buyruk[6:0] == `BRANCH;
     assign yeni_ongoru_adresi = ((yeni_dallanma_buyrugu && guncelle_gecerli_g) ? ({bht[4:1], i_buyruk_atladi}) : (bht[4:0])) ^ i_buyruk_adresi[6:2]; // once tahmin iceren bht elemanini guncelle
     assign eski_ongoru_adresi = bht_next[(bht_pointer)+:4] ^ i_eski_buyruk_adresi; // kontrol et*************
-    assign eski_uncond_buyruk = (i_eski_buyruk[6:0] == `JALR) || (is_comp &&  (i_eski_buyruk[15:12] == `C_JALR ));  // BTB'ye erisecek jump buyruklari
+    assign eski_uncond_buyruk = (i_eski_buyruk[6:0] == `JALR_OP) || (is_comp &&  (i_eski_buyruk[15:12] == `C_JALR_FUNC4 ));  // BTB'ye erisecek jump buyruklari
     // Modul Cikislari
     assign o_atlanan_adres = btb[yeni_ongoru_adresi][31:0];
     assign o_buyruk_ongoru = btb[yeni_ongoru_adresi][33];

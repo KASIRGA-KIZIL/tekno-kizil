@@ -286,8 +286,8 @@
 
 // Out-of-order BIB buyruklari
 // Bizim islemci in-order oldugu icin bu buyruklari implement etmemize gerek yok, bos birakin
-`define FENCE_MI   {4'b_1_0_0_0, `IMMYOK, `SISYOK, `YAPYOK, `SIFYOK, `DALYOK, `BIBVAR, `BOLYOK, `BDCYOK, `CLAYOK, `AMBYOK}
-`define FENCE_I_MI {4'b_1_0_0_1, `IMMYOK, `SISYOK, `YAPYOK, `SIFYOK, `DALYOK, `BIBVAR, `BOLYOK, `BDCYOK, `CLAYOK, `AMBYOK}
+`define FENCE_MI   {4'b1_0_0_0, `IMMYOK, `SISYOK, `YAPYOK, `SIFYOK, `DALYOK, `BIBVAR, `BOLYOK, `BDCYOK, `CLAYOK, `AMBYOK}
+`define FENCE_I_MI {4'b1_0_0_1, `IMMYOK, `SISYOK, `YAPYOK, `SIFYOK, `DALYOK, `BIBVAR, `BOLYOK, `BDCYOK, `CLAYOK, `AMBYOK}
 
 // Dallanma buyruklari
 `define BEQ_MI  {4'b0_0_0_0, `IMMYOK, `SISYOK, `YAPYOK, `SIFYOK, `DALVAR, `BIBYOK, `BOLYOK, `BDCYOK, `CLAYOK, `AMBYOK}
