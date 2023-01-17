@@ -39,12 +39,8 @@ module coz_yazmacoku(
     output [31:0] rs1_deger_o, // ayni zamanda uimm icin kullan
     output [31:0] rs2_deger_o, // ayni zamanda shamt icin kullan
 
-    output [31:0] i_imm_o, // fencete ve csrlarda kullan
-    output [31:0] s_imm_o,
-    output [31:0] b_imm_o,
-    output [31:0] u_imm_o,
-    output [31:0] j_imm_o,
-    
+    output [31:0] imm_o,
+
     output yz_en_o
 
 );
@@ -59,14 +55,7 @@ module coz_yazmacoku(
 
     // anliklarda burada extend etmek yerine yurutte yapmak hizlandirabilir, buradan az bit cikar
     // anlik degerleri tek bir degiskene atamak yerine hepsi bir sonraki asamaya giris olarak gecsin
-    
-    // bunlari reglere, regleri de clockta atayacagiz
-    assign i_imm_o = {{20{buyruk_i[31]}}, buyruk_i[31:20]};
-    assign s_imm_o = {{20{buyruk_i[31]}}, buyruk_i[31:25], buyruk_i[11:7]};
-    assign b_imm_o = {{19{buyruk_i[31]}}, buyruk_i[31], buyruk_i[7], buyruk_i[30:25], buyruk_i[11:8], 1'b0};
-    assign u_imm_o = {buyruk_i[31:12], {12{1'b0}}};
-    assign j_imm_o = {{11{buyruk_i[31]}}, buyruk_i[31], buyruk_i[19:12], buyruk_i[20], buyruk_i[30:21], 1'b0};
-    
+
     // yapay zeka buyruklari con.ld.w ve conv.ld.x icin enable biti yurute ve yurutten yapay zeka birimine gidecek
     assign yz_en_o = buyruk_i[31];
 
@@ -267,6 +256,36 @@ module coz_yazmacoku(
 
         if(~buyruk_gecerli_i)
                 mikroislem_r = `GECERSIZ;
+    end
+
+    // anlik secmek icin buyruk tipini belirle
+    reg [2:0] buyruk_tipi;
+    always @(*) begin
+        case(buyruk_i[6:2])
+            7'b00000: buyruk_tipi = `S_Tipi; // lw
+            7'b01000: buyruk_tipi = `S_Tipi; // sw
+            7'b01100: buyruk_tipi =  3'bxxx; // R tipi. Yazmac buyrugunda anlik yok.
+            7'b11000: buyruk_tipi = `B_Tipi; // B-tipi
+            7'b00100: buyruk_tipi = `I_Tipi; // I-tipi ALU
+            7'b11011: buyruk_tipi = `J_Tipi; // jal
+            7'b00101: buyruk_tipi = `U_Tipi; // auipc // add upper immediate to pc
+            7'b01101: buyruk_tipi = `U_Tipi; // lui
+            7'b11001: buyruk_tipi = `I_Tipi; // jalr I tipinde
+            7'b00000: buyruk_tipi = `I_Tipi; // reset icin
+            default:  buyruk_tipi =  3'bxxx;
+        endcase
+    end
+
+    // buyruk tipine gore anlik sec
+    always @(posedge clk_i) begin
+        case(buyruk_tipi)
+            `I_Tipi: imm_o = {{20{buyruk_i[31]}}, buyruk_i[31:20]};
+            `S_Tipi: imm_o = {{20{buyruk_i[31]}}, buyruk_i[31:25], buyruk_i[11:7]};
+            `B_Tipi: imm_o = {{20{buyruk_i[31]}}, buyruk_i[7], buyruk_i[30:25], buyruk_i[11:8], 1'b0};
+            `J_Tipi: imm_o = {{12{buyruk_i[31]}}, buyruk_i[19:12], buyruk_i[20], buyruk_i[30:21], 1'b0};
+            `U_Tipi: imm_o = {buyruk_i[31:12], 12'b0};
+            default: imm_o = 32'bx;
+        endcase
     end
 
     always @(posedge clk_i) begin

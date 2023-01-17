@@ -319,6 +319,13 @@
 `define EBREAK_MI {4'b0_0_0_0, `IMMYOK, `SISVAR, `YAPYOK, `SIFYOK, `DALYOK, `BIBYOK, `BOLYOK, `BDCYOK, `CLAYOK, `AMBYOK}
 `define ECALL_MI  {4'b0_0_0_0, `IMMYOK, `SISVAR, `YAPYOK, `SIFYOK, `DALYOK, `BIBYOK, `BOLYOK, `BDCYOK, `CLAYOK, `AMBYOK}
 
+// Anlik tipleri
+`define I_Tipi 3'b000
+`define S_Tipi 3'b001
+`define B_Tipi 3'b010
+`define J_Tipi 3'b011
+`define U_Tipi 3'b100
+
 
 // Compressedleri 32 bitlik buyruklara donusturdugumuz icin artik tanimlamamiz gerekmiyor
 
