@@ -40,7 +40,7 @@ module yurut(
     wire [31:0] amb_sonuc_w;
     wire [31:0] cla_sonuc_w;
     wire [31:0] bdc_sonuc_w;
-    wire [31:0] div_sonuc_w;
+    wire [31:0] bol_sonuc_w;
     wire [31:0] bib_sonuc_w;
     wire [31:0] dal_sonuc_w;
     wire [31:0] sif_sonuc_w;
@@ -81,8 +81,8 @@ module yurut(
         else if(mikroislem_i[`BDC]) begin
             rd_deger_sonraki_r = bdc_sonuc_w;
         end
-        else if(mikroislem_i[`DIV]) begin
-            rd_deger_sonraki_r = div_sonuc_w;
+        else if(mikroislem_i[`BOL]) begin
+            rd_deger_sonraki_r = bol_sonuc_w;
         end
         else if(mikroislem_i[`BIB]) begin
             rd_deger_sonraki_r = bib_sonuc_w;
