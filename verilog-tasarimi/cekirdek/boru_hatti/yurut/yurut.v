@@ -23,6 +23,8 @@ module yurut(
     input [31:0] b_imm_i,
     input [31:0] u_imm_i,
     input [31:0] j_imm_i,
+    
+    input yz_en_i, // yapay zeka icin enable biti
 
     input wire [1:0] ddb_kontrol_yonlendir_deger1_i,
     input wire [1:0] ddb_kontrol_yonlendir_deger2_i,

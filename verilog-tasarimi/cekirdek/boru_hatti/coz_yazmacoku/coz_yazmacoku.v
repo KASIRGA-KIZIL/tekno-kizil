@@ -43,7 +43,9 @@ module coz_yazmacoku(
     output [31:0] s_imm_o,
     output [31:0] b_imm_o,
     output [31:0] u_imm_o,
-    output [31:0] j_imm_o
+    output [31:0] j_imm_o,
+    
+    output yz_en_o
 
 );
     assign buyruk_compressed_o = buyruk_compressed_i;
@@ -57,11 +59,17 @@ module coz_yazmacoku(
 
     // anliklarda burada extend etmek yerine yurutte yapmak hizlandirabilir, buradan az bit cikar
     // anlik degerleri tek bir degiskene atamak yerine hepsi bir sonraki asamaya giris olarak gecsin
+    
+    // bunlari reglere, regleri de clockta atayacagiz
     assign i_imm_o = {{20{buyruk_i[31]}}, buyruk_i[31:20]};
     assign s_imm_o = {{20{buyruk_i[31]}}, buyruk_i[31:25], buyruk_i[11:7]};
     assign b_imm_o = {{19{buyruk_i[31]}}, buyruk_i[31], buyruk_i[7], buyruk_i[30:25], buyruk_i[11:8], 1'b0};
     assign u_imm_o = {buyruk_i[31:12], {12{1'b0}}};
     assign j_imm_o = {{11{buyruk_i[31]}}, buyruk_i[31], buyruk_i[19:12], buyruk_i[20], buyruk_i[30:21], 1'b0};
+    
+    // yapay zeka buyruklari con.ld.w ve conv.ld.x icin enable biti yurute ve yurutten yapay zeka birimine gidecek
+    assign yz_en_o = buyruk_i[31];
+
 
     reg [`MI_BIT-1:0] mikroislem_r = 0;
     reg [`MI_BIT-1:0] buyruk_mikroislem_r = 0;
