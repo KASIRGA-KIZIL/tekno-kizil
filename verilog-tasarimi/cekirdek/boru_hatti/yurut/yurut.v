@@ -9,33 +9,20 @@ module yurut(
     input clk_i,
     input rst_i,
 
-    input buyruk_compressed_i,
-
     input [`MI_BIT-1:0] mikroislem_i, // 0 olursa gecersiz
 
     input [4:0] rd_adres_i, // geri yaza kadar gitmesi lazim
 
-    input [31:0] rs1_deger_i, // ayni zamanda uimm icin kullan
-    input [31:0] rs2_deger_i, // ayni zamanda shamt icin kullan
+    input [31:0] deger1_i, // anlik/yazmac secilmis son ALU girdileri
+    input [31:0] deger2_i,
 
-    input [31:0] i_imm_i, // fencete ve csrlarda kullan
-    input [31:0] s_imm_i,
-    input [31:0] b_imm_i,
-    input [31:0] u_imm_i,
-    input [31:0] j_imm_i,
-    
+    input [31:0] imm_i, // Branch buyruklari icin gerekli (pc+imm)
+
     input yz_en_i, // yapay zeka icin enable biti
-
-    input wire [1:0] ddb_kontrol_yonlendir_deger1_i,
-    input wire [1:0] ddb_kontrol_yonlendir_deger2_i,
-    input wire [31:0] yonlendir_geri_yaz_i,
-
 
     output [4:0] rd_adres_o, // geri yaza kadar gitmesi lazim
     output [31:0] rd_deger_o, // islem birimlerinden gelen sonuclar
     output yaz_yazmac_o
-
-
 );
 
     // hepsinde sonuc olmayacak duzenlemek lazim
@@ -49,14 +36,11 @@ module yurut(
     wire [31:0] yap_sonuc_w;
     wire [31:0] sis_sonuc_w;
 
-    // anlik ya da rs degerlerinin secilmesi lazim
-    wire [31:0] deger1_w;
-    wire [31:0] deger2_w;
 
     aritmetik_mantik_birimi amb (
         .miniislem_i(mikroislem_i[`MI_BIT-1:11]),
-        .deger1_i(deger1_w),
-        .deger2_i(deger2_w),
+        .deger1_i(deger1_i),
+        .deger2_i(deger2_i),
 
         .sonuc_o(amb_sonuc_w)
     );

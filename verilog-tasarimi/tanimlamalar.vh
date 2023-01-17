@@ -326,6 +326,10 @@
 `define J_Tipi 3'b011
 `define U_Tipi 3'b100
 
+// DDB Sabitleri
+`define YON_GERIYAZ 2'b00
+`define YON_YURUT   2'b01
+
 
 // Compressedleri 32 bitlik buyruklara donusturdugumuz icin artik tanimlamamiz gerekmiyor
 

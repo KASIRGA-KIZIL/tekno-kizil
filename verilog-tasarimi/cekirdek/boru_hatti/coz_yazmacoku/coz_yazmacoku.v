@@ -17,47 +17,54 @@ module coz_yazmacoku(
 
     // compressed buyruklar getirde normal buyruklara donusturulecek
     input [31:0] buyruk_i,
-    input [31:0] buyruk_gecerli_i,
-    input buyruk_compressed_i,
-
-    output buyruk_compressed_o,
+    input buyruk_gecerli_i,
+    input [31:0] program_sayaci_i,
 
     // geri yazdan gelenler
-    input [4:0] yaz_adres_i,
+    input [4:0]  yaz_adres_i,
     input [31:0] yaz_deger_i,
     input yaz_yazmac_i,
-
-    //input program_sayaci_i,
 
     // mikroislem buyruklara ait tum bilgiyi bitleriyle veriyor
     output [`MI_BIT-1:0] buyruk_mikroislem_o, // 0 olursa gecersiz
 
-    // geriye sadece yazmac adresleri ve anlik degerler cikis olarak verilmeli
-
     output [4:0] rd_adres_o, // geri yaza kadar gitmesi lazim
 
-    output [31:0] rs1_deger_o, // ayni zamanda uimm icin kullan
-    output [31:0] rs2_deger_o, // ayni zamanda shamt icin kullan
+    output [31:0] deger1_o, // her seyi secilmis ALU'lara giden iki deger
+    output [31:0] deger2_o,
 
-    output [31:0] imm_o,
+    output [31:0] imm_o,    // Branch buyruklari icin gerekli (pc+imm)
+    output [31:0] program_sayaci_o,
+
+    // DDB yonlendirme sinyalleri ve geriyaz/yurut bolumunden veri yonlendirmeleri
+    input [1:0]  ddb_kontrol_yonlendir_deger1_i,
+    input [1:0]  ddb_kontrol_yonlendir_deger2_i,
+    input [31:0] yonlendir_geri_yaz_i,
+    input [31:0] yonlendir_yurut_i,
 
     output yz_en_o
 
 );
-    assign buyruk_compressed_o = buyruk_compressed_i;
+
+    wire [31:0] rs1_deger; // okunan 1. yazmac
+    wire [31:0] rs2_deger; // okunan 2. yazmac
+
+    wire [31:0] deger1 = (ddb_kontrol_yonlendir_deger1_i == `YON_GERIYAZ) ? yonlendir_geri_yaz_i :
+                         (ddb_kontrol_yonlendir_deger1_i == `YON_YURUT  ) ? yonlendir_yurut_i    :
+                                                                            rs1_deger;
+    wire [31:0] deger2 = (ddb_kontrol_yonlendir_deger2_i == `YON_GERIYAZ) ? yonlendir_geri_yaz_i :
+                         (ddb_kontrol_yonlendir_deger_i  == `YON_YURUT  ) ? yonlendir_yurut_i    :
+                                                                            deger2_tmp;
+
+    wire [31:0] deger2_tmp = (mikroislem_r[`IMM]) ? imm_o : rs2_deger;
 
     // 30:29, 27, 25, 21:20, 14:12, 6:2
     wire [`BUYRUK_COZ_BIT-1:0] buyruk_coz_w = {buyruk_i[30:29], buyruk_i[27], buyruk_i[25], buyruk_i[21:20], buyruk_i[14:12], buyruk_i[6:2]};
 
-    assign rd_adres_o = buyruk_i[11:7];
+
     wire [4:0] rs1_adres_w = buyruk_i[19:15];
     wire [4:0] rs2_adres_w = buyruk_i[24:20];
 
-    // anliklarda burada extend etmek yerine yurutte yapmak hizlandirabilir, buradan az bit cikar
-    // anlik degerleri tek bir degiskene atamak yerine hepsi bir sonraki asamaya giris olarak gecsin
-
-    // yapay zeka buyruklari con.ld.w ve conv.ld.x icin enable biti yurute ve yurutten yapay zeka birimine gidecek
-    assign yz_en_o = buyruk_i[31];
 
 
     reg [`MI_BIT-1:0] mikroislem_r = 0;
@@ -294,6 +301,11 @@ module coz_yazmacoku(
         end
         else begin
             buyruk_mikroislem_r <= mikroislem_r;
+            deger1_o <= deger1;
+            deger2_o <= deger2;
+            program_sayaci_o <= program_sayaci_i;
+            rd_adres_o <= buyruk_i[11:7];
+            yz_en_o <= buyruk_i[31]; // yapay zeka buyruklari con.ld.w ve conv.ld.x icin enable biti yurute ve yurutten yapay zeka birimine gidecek
         end
     end
 
@@ -302,8 +314,8 @@ module coz_yazmacoku(
         .rst_i        (rst_i),
         .oku1_adr_i   (rs1_adres_w),
         .oku2_adr_i   (rs2_adres_w),
-        .oku1_deger_o (rs1_deger_o),
-        .oku2_deger_o (rs2_deger_o),
+        .oku1_deger_o (rs1_deger  ),
+        .oku2_deger_o (rs2_deger  ),
         .yaz_adr_i    (yaz_adres_i),
         .yaz_deger_i  (yaz_deger_i),
         .yaz_i        (yaz_yazmac_i)
