@@ -16,23 +16,24 @@ reg [31:0] fark_r;
 always @(bolen_i or bolunen_i)begin
   
     bolen_r= bolen_i;
-	  bolunen_r = bolunen_i;
-	  fark_r = 32'b0; 
+    bolunen_r = bolunen_i;
+    fark_r = 32'b0; 
 	  
     for(i = 0;i < 32;i = i + 1)begin
 	
-		    fark_r = {fark_r[30:0], bolunen_r[31]};
-		    bolunen_r = bolunen_r<<1;
-		    fark_r = fark_r - bolen_r;
+        fark_r = {fark_r[30:0], bolunen_r[31]};
+        bolunen_r = bolunen_r<<1;
+        fark_r = fark_r - bolen_r;
 		
-		    if(fark_r[31])begin
-			      bolunen_r[0] = 0;
-			      fark_r = fark_r + bolen_r;
-		    end
-		    else begin
-			      bolunen_r[0] = 1;
-		    end
+        if(fark_r[31])begin
+	    bolunen_r[0] = 0;
+	    fark_r = fark_r + bolen_r;
+         end
+         else begin
+            bolunen_r[0] = 1;
+         end
    end
-	 bolum_o = bolunen_r;
+       bolum_o = bolunen_r;
 end
+	
 endmodule
