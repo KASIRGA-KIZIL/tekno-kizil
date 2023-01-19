@@ -91,6 +91,7 @@
 `define CONV_CLR_X 32'b0000000_00000_00000_001_00000_0001011
 `define CONV_RUN   32'b0000000_00000_00000_100_?????_0001011
 
+// op ve funclarin tum bitlerine bakmamak guvenli mi?
 // Cozulmesi gereken bitler 14 bit 30:29, 27, 25, 21:20, 14:12, 6:2
 `define BUYRUK_COZ_BIT 14
 
@@ -157,8 +158,8 @@
 
 // MIKROISLEM KODLARININ PARCALARI
 // ...MI[7]...MI[0] Ilgili birime girecek mi girmeyecek mi onu gosteriyor
-// Onundeki 4 bit ise o birime giren hangi buyruk oldugunu belirtiyor
-// Simdilik toplam 14 bit
+// Onundeki bitler ise o birime giren hangi buyruk oldugunu belirtiyor
+// Simdilik toplam 18 bit
 
 `define AMB 4'd0
 `define CLA 4'd1
@@ -255,9 +256,9 @@
 // MIKROISLEM KODLARI
 // Toplam 87 buyruk --> 27si compressed
 
-`define MI_BIT 15
+`define MI_BIT 18
 
-`define GECERSIZ 15'b00000_0_000000000
+`define GECERSIZ 18'b00000_0_000000000
 
 // Ondeki bitler girdigi birimde kontrol edilecek bitler yani amb buyrugu ise ambnin kontrol sinyalleri
 

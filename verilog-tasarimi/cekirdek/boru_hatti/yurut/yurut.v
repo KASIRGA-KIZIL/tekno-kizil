@@ -38,7 +38,7 @@ module yurut(
 
 
     aritmetik_mantik_birimi amb (
-        .miniislem_i(mikroislem_i[`MI_BIT-1:11]),
+        .miniislem_i(mikroislem_i[`MI_BIT-1:10]),
         .deger1_i(deger1_i),
         .deger2_i(deger2_i),
 
