@@ -21,6 +21,7 @@ module coz_yazmacoku(
     input [31:0] buyruk_i,
     // input buyruk_gecerli_i, buna gerek yok.  GETIR'den gelen buyruk gecerli sinyali DDB'ye gidecek. DDB cozu durduracak. Bu exception degil bubble durumu.
     input ddb_kontrol_durdur_i,
+    input ddb_kontrol_temizle_i,
     input [31:0] program_sayaci_i,
 
     // geri yazdan gelenler
@@ -335,7 +336,7 @@ module coz_yazmacoku(
 
 
     always @(posedge clk_i) begin
-        if (rst_i || ddb_kontrol_durdur_i) begin
+        if (rst_i || ddb_kontrol_temizle_i) begin
             mikroislem_o <= 0;
             deger1_o <= 0;
             deger2_o <= 0;
@@ -345,17 +346,19 @@ module coz_yazmacoku(
             yz_en_o <= 0;
         end
         else begin
-            mikroislem_o <= mikroislem_sonraki_r;
-            deger1_o <= deger1_w;
-            deger2_o <= deger2_w;
-            program_sayaci_o <= program_sayaci_i;
-            rd_adres_o <= buyruk_i[11:7];
-            imm_o <= imm_sonraki_r;
-            yz_en_o <= buyruk_i[31]; // yapay zeka buyruklari con.ld.w ve conv.ld.x icin enable biti yurute ve yurutten yapay zeka birimine gidecek
-            lt_ltu_eq_o <= {lt_w,ltu_w,eq_w};
-            program_sayaci_artmis_o <= program_sayaci_artmis_i;
-            gecersiz_buyruk_o <= gecersiz_buyruk_r;
-            buyruk_tipi_o <= buyruk_tipi_r[1:0];
+            if(!ddb_kontrol_durdur_i) begin
+                mikroislem_o <= mikroislem_sonraki_r;
+                deger1_o <= deger1_w;
+                deger2_o <= deger2_w;
+                program_sayaci_o <= program_sayaci_i;
+                rd_adres_o <= buyruk_i[11:7];
+                imm_o <= imm_sonraki_r;
+                yz_en_o <= buyruk_i[31]; // yapay zeka buyruklari con.ld.w ve conv.ld.x icin enable biti yurute ve yurutten yapay zeka birimine gidecek
+                lt_ltu_eq_o <= {lt_w,ltu_w,eq_w};
+                program_sayaci_artmis_o <= program_sayaci_artmis_i;
+                gecersiz_buyruk_o <= gecersiz_buyruk_r;
+                buyruk_tipi_o <= buyruk_tipi_r[1:0];
+            end
         end
     end
 

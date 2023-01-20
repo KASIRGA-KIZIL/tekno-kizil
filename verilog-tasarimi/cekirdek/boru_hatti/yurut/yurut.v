@@ -15,6 +15,9 @@ module yurut(
     input wire [4:0] rd_adres_i,               // geri yaza kadar gitmesi lazim
     input wire [31:0] program_sayaci_artmis_i, // geri yaza kadar gitmesi lazim
 
+    input  wire [31:0] coz_program_sayaci_artmis_i, // dallanma ongorucu icin
+    output wire [31:0] tahmin_dogru_o,              // dallanma ongorucu icin
+
     input wire [31:0] deger1_i, // anlik/yazmac vs. secilmis son ALU girdileri
     input wire [31:0] deger2_i,
 
@@ -72,6 +75,8 @@ module yurut(
                                                                   1'b0; // x yerine 0 cunku surekli okunuyor.
 
     assign program_sayaci_guncelle_o = (buyruk_tipi_i == `JTIP) || ((buyruk_tipi_i == `BTIP) && dallanma_kosulu_w);
+
+    assign tahmin_dogru_o = (program_sayaci_guncelle_o == coz_program_sayaci_artmis_i);
 
     always @(posedge clk_i) begin
         if(rst_i) begin
