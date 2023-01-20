@@ -5,7 +5,7 @@ module popcount(
     always@*begin
         bir_sayisi = 0;
         for(integer i = 0;i<32;i++)begin
-            if(kaynak_yazmac_degeri)begin
+            if(kaynak_yazmac_degeri[i])begin
                 bir_sayisi = bir_sayisi + 1;
             end
         end
