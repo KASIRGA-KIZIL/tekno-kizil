@@ -15,8 +15,8 @@ module geri_yaz(
     input [31:0] rd_deger_i,
     input yaz_yazmac_i,
 
-    input [31:0] bib_deger_i, // geri yaza kadar gitmesi lazim
-    input [31:0] program_sayaci_artmis_i, // geri yaza kadar gitmesi lazim
+    input [31:0] bib_deger_i,
+    input [31:0] program_sayaci_artmis_i,
 
     output reg [4:0] yaz_adres_o,
     output reg [31:0] yaz_deger_o,

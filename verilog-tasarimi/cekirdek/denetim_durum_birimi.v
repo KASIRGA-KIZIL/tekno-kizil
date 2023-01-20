@@ -16,6 +16,8 @@ module denetim_durum_birimi(
     input       yaz_yazmac_yurut_i,
     input [4:0] rd_adres_yurut_i,
 
+    input getir_bekle_i,
+    input bib_bekle_i,
     input carpma_bitti_i,
     input bolme_bitti_i,
 
@@ -38,7 +40,6 @@ module denetim_durum_birimi(
                                                                                         `YON_HICBISEY;
 
     wire ddb_kontrol_durdur_getir_o = (!carpma_bitti_i || !bolme_bitti_i)
-
 
 
     always @(posedge clk_i) begin
