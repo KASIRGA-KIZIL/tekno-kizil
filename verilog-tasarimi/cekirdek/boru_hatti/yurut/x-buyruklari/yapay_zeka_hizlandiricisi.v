@@ -1,6 +1,9 @@
-`timescale 1ns/1ps
+// yapay_zeka_hizlandiricisi.v
+`timescale 1ns / 1ps
 
-module conv(
+`include "tanimlamalar.vh"
+
+module yapay_zeka_hizlandiricisi(
     input [0:0] clk,
     input [0:0] rst,
     input [31:0] src_reg1_val,

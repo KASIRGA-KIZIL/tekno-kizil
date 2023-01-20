@@ -1,6 +1,9 @@
-`timescale 1ns/1ps
+// sifreleme_birimi.v
+`timescale 1ns / 1ps
 
-module crypt(
+`include "tanimlamalar.vh"
+
+module sifreleme_birimi(
     input [2:0] islem,
     input [31:0] kaynak_yazmac1_degeri,
     input [31:0] kaynak_yazmac2_degeri,
