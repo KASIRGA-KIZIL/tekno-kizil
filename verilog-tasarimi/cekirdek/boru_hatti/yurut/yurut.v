@@ -6,94 +6,83 @@
 // denetim durum birimi ile iliskisinin kurulmasi gerek
 
 module yurut(
-    input clk_i,
-    input rst_i,
+    input wire clk_i,
+    input wire rst_i,
 
-    input [`MI_BIT-1:0] mikroislem_i, // 0 olursa gecersiz
+    input wire [`MI_BIT-1:0] mikroislem_i, // 0 olursa gecersiz
+    input wire yaz_yazmac_i,
 
-    input [4:0] rd_adres_i, // geri yaza kadar gitmesi lazim
+    input wire [4:0] rd_adres_i,               // geri yaza kadar gitmesi lazim
+    input wire [31:0] program_sayaci_artmis_i, // geri yaza kadar gitmesi lazim
 
-    input [31:0] deger1_i, // anlik/yazmac secilmis son ALU girdileri
-    input [31:0] deger2_i,
+    input wire [31:0] deger1_i, // anlik/yazmac vs. secilmis son ALU girdileri
+    input wire [31:0] deger2_i,
 
-    input [31:0] imm_i, // Branch buyruklari icin gerekli (pc+imm)
+    // jump ve branch icin
+    input wire [ 2:0] lt_ltu_eq_i        // degerler arasindaki iliski. lt_ltu_i[0]: lessthan r1<r2, lt_ltu_i[1]: lt unsigned r1<r2 unsigned
 
-    input yz_en_i, // yapay zeka icin enable biti
+    output wire [31:0] program_sayaci_o,  // ayni cevrimde gitmeli
+    output wire program_sayaci_guncelle_o // ayni cevrimde gitmeli
 
-    output [4:0] rd_adres_o, // geri yaza kadar gitmesi lazim
-    output [31:0] rd_deger_o, // islem birimlerinden gelen sonuclar
-    output yaz_yazmac_o
+    input wire yz_en_i, // yapay zeka icin enable biti
+
+    output reg [ 4:0] rd_adres_o,              // geri yaza kadar gitmesi lazim
+    output reg [31:0] program_sayaci_artmis_o, // geri yaza kadar gitmesi lazim
+
+    output reg [31:0] rd_deger_o, // islem birimlerinden cikan sonuc
+    output reg yaz_yazmac_o
 );
 
     // hepsinde sonuc olmayacak duzenlemek lazim
-    wire [31:0] amb_sonuc_w;
-    wire [31:0] cla_sonuc_w;
-    wire [31:0] bdc_sonuc_w;
-    wire [31:0] bol_sonuc_w;
-    wire [31:0] bib_sonuc_w;
-    wire [31:0] dal_sonuc_w;
-    wire [31:0] sif_sonuc_w;
-    wire [31:0] yap_sonuc_w;
-    wire [31:0] sis_sonuc_w;
+    wire [31:0] amb_sonuc_w      ;
+    wire [31:0] carp_sonuc_w     ;
+    wire [31:0] bol_sonuc_w      ;
+    wire [31:0] sifreleme_sonuc_w;
+    wire [31:0] yapayzeka_sonuc_w;
+    wire [31:0] sistem_sonuc_w   ;
 
-    wire sifir;
+
     aritmetik_mantik_birimi amb (
-        .kontrol(mikroislem_i[`MI_BIT-1:10]),
+        .kontrol(mikroislem_i[`AMB]),
         .deger1_i(deger1_i),
         .deger2_i(deger2_i),
-
+        .lt_ltu_i(lt_ltu_eq_i[2:1]),
         .sonuc_o(amb_sonuc_w)
-        .sifir_o(sifir)
     );
 
+    assign program_sayaci_o = amb_sonuc_w;
 
-    assign rd_adres_o = rd_adres_i;
 
-    reg [31:0] rd_deger_sonraki_r = 0;
-    reg [31:0] rd_deger_r = 0;
-    assign rd_deger_o = rd_deger_r;
 
-    reg yaz_yazmac_sonraki_r = 0;
-    reg yaz_yazmac_r = 0;
-    assign yaz_yazmac_o = yaz_yazmac_r;
+    wire [31:0] rd_deger_sonraki_w = (mikroislem_i[`BIRIM] == `BIRIM_AMB      ) ? amb_sonuc_w      :
+                                     (mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ? carp_sonuc_w     :
+                                     (mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ? bol_sonuc_w      :
+                                     (mikroislem_i[`BIRIM] == `BIRIM_SIFRELEME) ? sifreleme_sonuc_w:
+                                     (mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ? yapayzeka_sonuc_w:
+                                     (mikroislem_i[`BIRIM] == `BIRIM_SISTEM   ) ? sistem_sonuc_w   :
+                                                                                 32'hxxxx_xxxx;
 
-    always @* begin
-        // burayi if else yerine kaydirarak yapsak?
-        if(mikroislem_i[`AMB]) begin
-            rd_deger_sonraki_r = amb_sonuc_w;
-        end
-        else if(mikroislem_i[`CLA]) begin
-            rd_deger_sonraki_r = cla_sonuc_w;
-        end
-        else if(mikroislem_i[`BDC]) begin
-            rd_deger_sonraki_r = bdc_sonuc_w;
-        end
-        else if(mikroislem_i[`BOL]) begin
-            rd_deger_sonraki_r = bol_sonuc_w;
-        end
-        else if(mikroislem_i[`BIB]) begin
-            rd_deger_sonraki_r = bib_sonuc_w;
-        end
-        else if(mikroislem_i[`DAL]) begin
-            rd_deger_sonraki_r = dal_sonuc_w;
-        end
-        else if(mikroislem_i[`SIF]) begin
-            rd_deger_sonraki_r = sif_sonuc_w;
-        end
-        else if(mikroislem_i[`YAP]) begin
-            rd_deger_sonraki_r = yap_sonuc_w;
-        end
-        else if(mikroislem_i[`SIS]) begin
-            rd_deger_sonraki_r = sis_sonuc_w;
-        end
-    end
+    assign dallanma_kosulu_w = (mikroislem_i[`DAL] == `DAL_EQ ) ?  lt_ltu_eq_i[0]:
+                               (mikroislem_i[`DAL] == `DAL_NE ) ? !lt_ltu_eq_i[0]:
+                               (mikroislem_i[`DAL] == `DAL_LT ) ?  lt_ltu_eq_i[2]:
+                               (mikroislem_i[`DAL] == `DAL_GE ) ? !lt_ltu_eq_i[2]:
+                               (mikroislem_i[`DAL] == `DAL_LTU) ?  lt_ltu_eq_i[1]:
+                               (mikroislem_i[`DAL] == `DAL_GEU) ? !lt_ltu_eq_i[1]:
+                                                                  1'b0; // x yerine 0 cunku surekli okunuyor.
+
+    assign program_sayaci_guncelle_o = (mikroislem_i[`TIP] == `JTIP) || ((mikroislem_i[`TIP] == `BTIP) && dallanma_kosulu_w);
 
     always @(posedge clk_i) begin
         if(rst_i) begin
-            rd_deger_r <= 0;
+            rd_deger_o <= 0;
+            yaz_yazmac_o <= 0;
+            rd_adres_o <= 0;
         end
         else begin
-            rd_deger_r <= rd_deger_sonraki_r;
+            yaz_yazmac_o <= yaz_yazmac_i;
+            rd_deger_o <= rd_deger_sonraki_w;
+            rd_adres_o <= rd_adres_i;
         end
     end
+
 endmodule

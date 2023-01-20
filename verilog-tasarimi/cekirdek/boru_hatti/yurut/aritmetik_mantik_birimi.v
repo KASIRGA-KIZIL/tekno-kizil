@@ -10,8 +10,9 @@ module aritmetik_mantik_birimi(
     // veri sinyalleri
     input  wire [31:0] deger1_i,
     input  wire [31:0] deger2_i,
-    output wire [31:0] sonuc_o,
-    output wire        sifir_o
+
+    input  wire [ 2:0] lt_ltu_i,  // degerler arasindaki iliski. lt:lessthan, ltu: lessthan_unsigned
+    output wire [31:0] sonuc_o
 );
     // Mantik sinyalleri
     wire [31:0] sonuc_xor;
@@ -43,8 +44,8 @@ module aritmetik_mantik_birimi(
     assign sonuc_sll  =  deger1_i  <<  deger2_i;
     assign sonuc_srl  =  deger1_i  >>  deger2_i;
     assign sonuc_sra  =  deger1_i  >>> deger2_i;
-    assign sonuc_slt  = (deger1_i  <   deger2_i) ? 32'b1 : 32'b0;
-    assign sonuc_sltu = ($signed(deger1_i)  <   $signed(deger2_i)) ? 32'b1 : 32'b0;
+    assign sonuc_slt  = (deger1_i  <   deger2_i) ? {31'b0,lt_ltu_i[0]} : 32'b0;
+    assign sonuc_sltu = ($signed(deger1_i)  <   $signed(deger2_i)) ? {31'b0,lt_ltu_i[1]}  : 32'b0;
 
     assign sonuc_o = (kontrol == `AMB_CIKARMA) | (kontrol == `AMB_TOPLAMA) ? sonuc_cla :
                      (kontrol == `AMB_XOR    )                             ? sonuc_xor :
@@ -57,5 +58,4 @@ module aritmetik_mantik_birimi(
                      (kontrol == `AMB_SLTU   )                             ? sonuc_sltu:
                                                                              32'bx;
 
-    assign sifir_o = (sonuc_o == 0);
 endmodule

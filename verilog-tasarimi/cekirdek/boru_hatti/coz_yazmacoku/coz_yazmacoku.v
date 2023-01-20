@@ -44,16 +44,19 @@ module coz_yazmacoku(
     output reg [31:0] deger1_o, // her seyi secilmis ALU'lara giden iki deger
     output reg [31:0] deger2_o,
 
-    output reg [31:0] imm_o,    // Branch buyruklari icin gerekli (pc+imm)
-    output reg [31:0] program_sayaci_o,
+    // Branch buyruklari icin gerekli (if(r1<r2) rd=pc+imm) vs.
+    output reg [ 2:0] lt_ltu_eq_o,  // degerler arasindaki iliski. lt:lessthan, ltu: lessthan_unsigned, eq: equal
 
     // DDB yonlendirme sinyalleri ve geriyaz/yurut bolumunden veri yonlendirmeleri
     input [1:0]  ddb_kontrol_yonlendir_deger1_i,
     input [1:0]  ddb_kontrol_yonlendir_deger2_i,
-    
+
     // "deger"ler isim olarak bunlara gelmeli sanki
-    input [31:0] yonlendir_geri_yaz_i,
-    input [31:0] yonlendir_yurut_i,
+    input [31:0] yonlendir_geri_yaz_deger_i,
+    input [31:0] yonlendir_yurut_deger_i,
+
+    input [31:0] program_sayaci_artmis_i, // geri yaza kadar gitmesi lazim
+    output reg [31:0] program_sayaci_artmis_o, // geri yaza kadar gitmesi lazim
 
     output reg yz_en_o
 
@@ -68,29 +71,35 @@ module coz_yazmacoku(
     wire [4:0] rs2_adres_w = buyruk_i[24:20];
 
     reg [`MI_BIT-1:0] mikroislem_sonraki_r = 0;
-    
+
     reg [31:0] deger1_sonraki_r = 0;
-    
+
     reg [31:0] deger2_sonraki_r = 0;
-    
+
     reg [31:0] imm_sonraki_r = 0;
-    
+
     reg [31:0] program_sayaci_sonraki_r = 0;
-    
+
     reg yz_en_sonraki_r = 0;
 
     wire [31:0] rs1_deger_w; // okunan 1. yazmac
     wire [31:0] rs2_deger_w; // okunan 2. yazmac
-    
+
+    wire [31:0] deger1_tmp_w = (ddb_kontrol_yonlendir_deger1_i == `YON_GERIYAZ) ? yonlendir_geri_yaz_deger_i :
+                               (ddb_kontrol_yonlendir_deger1_i == `YON_YURUT  ) ? yonlendir_yurut_deger_i    :
+                                                                                rs1_deger_w;
+
+    wire [31:0] deger1_w = (mikroislem_sonraki_r[`PC]) ? program_sayaci_i : deger1_tmp_w;
+
     wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`IMM]) ? imm_o : rs2_deger_w;
 
-    wire [31:0] deger1_w = (ddb_kontrol_yonlendir_deger1_i == `YON_GERIYAZ) ? yonlendir_geri_yaz_i :
-                           (ddb_kontrol_yonlendir_deger1_i == `YON_YURUT  ) ? yonlendir_yurut_i    :
-                                                                            rs1_deger_w;
-    wire [31:0] deger2_w = (ddb_kontrol_yonlendir_deger2_i == `YON_GERIYAZ) ? yonlendir_geri_yaz_i :
-                           (ddb_kontrol_yonlendir_deger2_i  == `YON_YURUT ) ? yonlendir_yurut_i    :
+    wire [31:0] deger2_w = (ddb_kontrol_yonlendir_deger2_i == `YON_GERIYAZ) ? yonlendir_geri_yaz_deger_i :
+                           (ddb_kontrol_yonlendir_deger2_i  == `YON_YURUT ) ? yonlendir_yurut_deger_i    :
                                                                             deger2_tmp_w;
 
+    wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_w)) ? 1'b1 : 1'b0;
+    wire ltu_w = (deger1_tmp_w  < deger2_w) ? 1'b1 : 1'b0;
+    wire eq_w  = (deger1_tmp_w == deger2_w) ? 1'b1 : 1'b0;
 
     always @* begin
         // Cozulmesi gereken bitler 14 bit 30:29, 27, 25, 21:20, 14:12, 6:2
@@ -302,7 +311,7 @@ module coz_yazmacoku(
             5'b00000: buyruk_tipi_r = `I_Tipi; // reset icin
             default:  buyruk_tipi_r =  3'bxxx;
         endcase
-        
+
         // buyruk tipine gore anlik sec
         case(buyruk_tipi_r)
             `I_Tipi: imm_sonraki_r = {{20{buyruk_i[31]}}, buyruk_i[31:20]};
@@ -312,10 +321,10 @@ module coz_yazmacoku(
             `U_Tipi: imm_sonraki_r = {buyruk_i[31:12], 12'b0};
             default: imm_sonraki_r = 32'hxxxxxxxx;
         endcase
-        
+
         // TODO
         // burasi daha optimize edilebilir, eger SRAI geldiyse ust 30.bitinde kalan 1i temizle
-        // ayrica digerlerinde de sign extend yapmamis oluyoruz 
+        // ayrica digerlerinde de sign extend yapmamis oluyoruz
         // imm_sonraki_r = {{27{1'b0}}, buyruk_i[24:20]};
         // burasi 0li?
         if(mikroislem_sonraki_r == `SLLI_MI)
@@ -326,7 +335,7 @@ module coz_yazmacoku(
             imm_sonraki_r[31:5] = {27{1'b0}};
     end
 
-    
+
     always @(posedge clk_i) begin
         if (rst_i) begin
             mikroislem_o <= 0;
@@ -345,6 +354,8 @@ module coz_yazmacoku(
             rd_adres_o <= buyruk_i[11:7];
             imm_o <= imm_sonraki_r;
             yz_en_o <= buyruk_i[31]; // yapay zeka buyruklari con.ld.w ve conv.ld.x icin enable biti yurute ve yurutten yapay zeka birimine gidecek
+            lt_ltu_eq_o <= {lt_w,ltu_w,eq_w};
+            program_sayaci_artmis_o <= program_sayaci_artmis_i;
         end
     end
 
