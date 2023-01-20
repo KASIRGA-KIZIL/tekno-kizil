@@ -315,14 +315,15 @@ module coz_yazmacoku(
         
         // TODO
         // burasi daha optimize edilebilir, eger SRAI geldiyse ust 30.bitinde kalan 1i temizle
-        // ayrica digerlerinde de sign extendi shamt[4]'e gore yapmis oluyoruz 
-        // imm_sonraki_r = {{27{buyruk_i[24]}}, buyruk_i[24:20]};
+        // ayrica digerlerinde de sign extend yapmamis oluyoruz 
+        // imm_sonraki_r = {{27{1'b0}}, buyruk_i[24:20]};
+        // burasi 0li?
         if(mikroislem_sonraki_r == `SLLI_MI)
-            imm_sonraki_r[31:5] = {27{buyruk_i[24]}};
+            imm_sonraki_r[31:5] = {27{1'b0}};
         if(mikroislem_sonraki_r == `SRLI_MI)
-            imm_sonraki_r[31:5] = {27{buyruk_i[24]}};
+            imm_sonraki_r[31:5] = {27{1'b0}};
         if(mikroislem_sonraki_r == `SRAI_MI)
-            imm_sonraki_r[31:5] = {27{buyruk_i[24]}};
+            imm_sonraki_r[31:5] = {27{1'b0}};
     end
 
     
