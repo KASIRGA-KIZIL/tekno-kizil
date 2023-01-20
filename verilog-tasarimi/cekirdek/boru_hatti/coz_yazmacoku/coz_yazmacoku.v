@@ -3,7 +3,7 @@
 
 `include "tanimlamalar.vh"
 
-// Simdilik burada oylesine tanimladim, tanimlaamalar.vh'a tasi
+// Simdilik burada oylesine tanimladim, tanimlamalar.vh'a tasi
 `define YON_GERIYAZ 2'b00
 `define YON_YURUT 2'b01
 
@@ -50,11 +50,15 @@ module coz_yazmacoku(
     // DDB yonlendirme sinyalleri ve geriyaz/yurut bolumunden veri yonlendirmeleri
     input [1:0]  ddb_kontrol_yonlendir_deger1_i,
     input [1:0]  ddb_kontrol_yonlendir_deger2_i,
+    
+    // "deger"ler isim olarak bunlara gelmeli sanki
     input [31:0] yonlendir_geri_yaz_i,
     input [31:0] yonlendir_yurut_i,
 
     output reg yz_en_o
 
+
+    // buyruk_tipini buradan cikis olarak da verebiliriz
 );
 
     // 30:29, 27, 25, 21:20, 14:12, 6:2
@@ -64,20 +68,20 @@ module coz_yazmacoku(
     wire [4:0] rs2_adres_w = buyruk_i[24:20];
 
     reg [`MI_BIT-1:0] mikroislem_sonraki_r = 0;
-
+    
     reg [31:0] deger1_sonraki_r = 0;
-
+    
     reg [31:0] deger2_sonraki_r = 0;
-
+    
     reg [31:0] imm_sonraki_r = 0;
-
+    
     reg [31:0] program_sayaci_sonraki_r = 0;
-
+    
     reg yz_en_sonraki_r = 0;
 
     wire [31:0] rs1_deger_w; // okunan 1. yazmac
     wire [31:0] rs2_deger_w; // okunan 2. yazmac
-
+    
     wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`IMM]) ? imm_o : rs2_deger_w;
 
     wire [31:0] deger1_w = (ddb_kontrol_yonlendir_deger1_i == `YON_GERIYAZ) ? yonlendir_geri_yaz_i :
@@ -279,26 +283,26 @@ module coz_yazmacoku(
         endcase
 
         if(~buyruk_gecerli_i)
-                mikroislem_sonraki_r = `GECERSIZ;
+            mikroislem_sonraki_r = `GECERSIZ;
     end
 
     // anlik secmek icin buyruk tipini belirle
     reg [2:0] buyruk_tipi_r;
     always @(*) begin
         case(buyruk_i[6:2])
-            7'b00000: buyruk_tipi_r = `S_Tipi; // lw
-            7'b01000: buyruk_tipi_r = `S_Tipi; // sw
-            7'b01100: buyruk_tipi_r =  3'bxxx; // R tipi. Yazmac buyrugunda anlik yok.
-            7'b11000: buyruk_tipi_r = `B_Tipi; // B-tipi
-            7'b00100: buyruk_tipi_r = `I_Tipi; // I-tipi ALU
-            7'b11011: buyruk_tipi_r = `J_Tipi; // jal
-            7'b00101: buyruk_tipi_r = `U_Tipi; // auipc // add upper immediate to pc
-            7'b01101: buyruk_tipi_r = `U_Tipi; // lui
-            7'b11001: buyruk_tipi_r = `I_Tipi; // jalr I tipinde
-            7'b00000: buyruk_tipi_r = `I_Tipi; // reset icin
+            5'b00000: buyruk_tipi_r = `S_Tipi; // lw
+            5'b01000: buyruk_tipi_r = `S_Tipi; // sw
+            5'b01100: buyruk_tipi_r =  3'bxxx; // R tipi. Yazmac buyrugunda anlik yok.
+            5'b11000: buyruk_tipi_r = `B_Tipi; // B-tipi
+            5'b00100: buyruk_tipi_r = `I_Tipi; // I-tipi ALU
+            5'b11011: buyruk_tipi_r = `J_Tipi; // jal
+            5'b00101: buyruk_tipi_r = `U_Tipi; // auipc // add upper immediate to pc
+            5'b01101: buyruk_tipi_r = `U_Tipi; // lui
+            5'b11001: buyruk_tipi_r = `I_Tipi; // jalr I tipinde
+            5'b00000: buyruk_tipi_r = `I_Tipi; // reset icin
             default:  buyruk_tipi_r =  3'bxxx;
         endcase
-
+        
         // buyruk tipine gore anlik sec
         case(buyruk_tipi_r)
             `I_Tipi: imm_sonraki_r = {{20{buyruk_i[31]}}, buyruk_i[31:20]};
@@ -306,11 +310,22 @@ module coz_yazmacoku(
             `B_Tipi: imm_sonraki_r = {{20{buyruk_i[31]}}, buyruk_i[7], buyruk_i[30:25], buyruk_i[11:8], 1'b0};
             `J_Tipi: imm_sonraki_r = {{12{buyruk_i[31]}}, buyruk_i[19:12], buyruk_i[20], buyruk_i[30:21], 1'b0};
             `U_Tipi: imm_sonraki_r = {buyruk_i[31:12], 12'b0};
-            default: imm_sonraki_r = 32'bx;
+            default: imm_sonraki_r = 32'hxxxxxxxx;
         endcase
+        
+        // TODO
+        // burasi daha optimize edilebilir, eger SRAI geldiyse ust 30.bitinde kalan 1i temizle
+        // ayrica digerlerinde de sign extendi shamt[4]'e gore yapmis oluyoruz 
+        // imm_sonraki_r = {{27{buyruk_i[24]}}, buyruk_i[24:20]};
+        if(mikroislem_sonraki_r == `SLLI_MI)
+            imm_sonraki_r[31:5] = {27{buyruk_i[24]}};
+        if(mikroislem_sonraki_r == `SRLI_MI)
+            imm_sonraki_r[31:5] = {27{buyruk_i[24]}};
+        if(mikroislem_sonraki_r == `SRAI_MI)
+            imm_sonraki_r[31:5] = {27{buyruk_i[24]}};
     end
 
-
+    
     always @(posedge clk_i) begin
         if (rst_i) begin
             mikroislem_o <= 0;
