@@ -32,7 +32,7 @@ module aritmetik_mantik_birimi(
     carry_lookahead_toplayici carry_lookahead_toplayici_dut (
         .a_i (deger1_i ),
         .b_i (deger2_cla ),
-        .giren_elde_i (elde_cla ),
+        .islem_i (elde_cla ),
         .toplam_o  ( sonuc_cla)
       );
 

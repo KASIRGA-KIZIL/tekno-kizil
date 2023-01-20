@@ -4,9 +4,6 @@
 `include "tanimlamalar.vh"
 
 // Simdilik burada oylesine tanimladim, tanimlamalar.vh'a tasi
-`define YON_GERIYAZ 2'b00
-`define YON_YURUT 2'b01
-
 `define I_Tipi 3'd0
 `define S_Tipi 3'd1
 `define B_Tipi 3'd2
@@ -40,6 +37,7 @@ module coz_yazmacoku(
     output reg [`MI_BIT-1:0] mikroislem_o, // 0 olursa gecersiz
 
     output reg [4:0] rd_adres_o, // geri yaza kadar gitmesi lazim
+    output reg yaz_yazmac_o,     // geri yaza kadar gitmesi lazim
 
     output reg [31:0] deger1_o, // her seyi secilmis ALU'lara giden iki deger
     output reg [31:0] deger2_o,
@@ -85,17 +83,19 @@ module coz_yazmacoku(
     wire [31:0] rs1_deger_w; // okunan 1. yazmac
     wire [31:0] rs2_deger_w; // okunan 2. yazmac
 
-    wire [31:0] deger1_tmp_w = (ddb_kontrol_yonlendir_deger1_i == `YON_GERIYAZ) ? yonlendir_geri_yaz_deger_i :
-                               (ddb_kontrol_yonlendir_deger1_i == `YON_YURUT  ) ? yonlendir_yurut_deger_i    :
-                                                                                rs1_deger_w;
+    wire [31:0] deger1_tmp_w = (ddb_kontrol_yonlendir_deger1_i == `YON_GERIYAZ   ) ? yonlendir_geri_yaz_deger_i :
+                               (ddb_kontrol_yonlendir_deger1_i == `YON_YURUT     ) ? yonlendir_yurut_deger_i    :
+                               (ddb_kontrol_yonlendir_deger1_i == `YON_HICBISEY  ) ? rs1_deger_w    :
+                                                                                    rs1_deger_w;
 
     wire [31:0] deger1_w = (mikroislem_sonraki_r[`PC]) ? program_sayaci_i : deger1_tmp_w;
 
     wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`IMM]) ? imm_o : rs2_deger_w;
 
-    wire [31:0] deger2_w = (ddb_kontrol_yonlendir_deger2_i == `YON_GERIYAZ) ? yonlendir_geri_yaz_deger_i :
-                           (ddb_kontrol_yonlendir_deger2_i  == `YON_YURUT ) ? yonlendir_yurut_deger_i    :
-                                                                            deger2_tmp_w;
+    wire [31:0] deger2_w = (ddb_kontrol_yonlendir_deger2_i == `YON_GERIYAZ   ) ? yonlendir_geri_yaz_deger_i :
+                           (ddb_kontrol_yonlendir_deger2_i  == `YON_YURUT    ) ? yonlendir_yurut_deger_i    :
+                           (ddb_kontrol_yonlendir_deger2_i  == `YON_HICBISEY ) ? deger2_tmp_w    :
+                                                                                deger2_tmp_w;
 
     wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_w)) ? 1'b1 : 1'b0;
     wire ltu_w = (deger1_tmp_w  < deger2_w) ? 1'b1 : 1'b0;

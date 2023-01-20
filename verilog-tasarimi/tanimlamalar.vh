@@ -446,3 +446,8 @@
 // Compressed Sistem buyruklari
 `define C_EBREAK_MI {5'b0_0_0_0_0, `CMPVAR, `IMMYOK, `SISVAR, `YAPYOK, `SIFYOK, `DALYOK, `BIBYOK, `BDCYOK, `CLAYOK, `AMBYOK}
 */
+// DDB sabitleri
+`define YON_GERIYAZ 2'b00
+`define YON_YURUT 2'b01
+`define YON_HICBISEY 2'b10
+

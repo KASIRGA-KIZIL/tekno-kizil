@@ -6,7 +6,7 @@
 
 module tb_aritmetik_mantik_birimi();
 
-        // TB PARAMS
+    // TB PARAMS
     localparam OUTPUT_VCD_FILE = "./build/out.vcd";
 
     // DUT Variables
@@ -24,9 +24,9 @@ module tb_aritmetik_mantik_birimi();
         .kontrol(kontrol),
         .deger1_i(deger1_i),
         .deger2_i(deger2_i),
+        .lt_ltu_i(3'b0),
 
-        .sonuc_o(sonuc_o),
-        .sifir_o(sifir)
+        .sonuc_o(sonuc_o)
     );
 
     wire [31:0] golden_ans;
