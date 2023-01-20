@@ -4,8 +4,8 @@
 `include "tanimlamalar.vh"
 
 // Simdilik burada oylesine tanimladim, tanimlaamalar.vh'a tasi
-`define YON_GERIYAZ 1'b0
-`define YON_YURUT 1'b1
+`define YON_GERIYAZ 2'b00
+`define YON_YURUT 2'b01
 
 `define I_Tipi 3'd0
 `define S_Tipi 3'd1
@@ -64,20 +64,20 @@ module coz_yazmacoku(
     wire [4:0] rs2_adres_w = buyruk_i[24:20];
 
     reg [`MI_BIT-1:0] mikroislem_sonraki_r = 0;
-    
+
     reg [31:0] deger1_sonraki_r = 0;
-    
+
     reg [31:0] deger2_sonraki_r = 0;
-    
+
     reg [31:0] imm_sonraki_r = 0;
-    
+
     reg [31:0] program_sayaci_sonraki_r = 0;
-    
+
     reg yz_en_sonraki_r = 0;
 
     wire [31:0] rs1_deger_w; // okunan 1. yazmac
     wire [31:0] rs2_deger_w; // okunan 2. yazmac
-    
+
     wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`IMM]) ? imm_o : rs2_deger_w;
 
     wire [31:0] deger1_w = (ddb_kontrol_yonlendir_deger1_i == `YON_GERIYAZ) ? yonlendir_geri_yaz_i :
@@ -298,7 +298,7 @@ module coz_yazmacoku(
             7'b00000: buyruk_tipi_r = `I_Tipi; // reset icin
             default:  buyruk_tipi_r =  3'bxxx;
         endcase
-        
+
         // buyruk tipine gore anlik sec
         case(buyruk_tipi_r)
             `I_Tipi: imm_sonraki_r = {{20{buyruk_i[31]}}, buyruk_i[31:20]};
@@ -310,7 +310,7 @@ module coz_yazmacoku(
         endcase
     end
 
-    
+
     always @(posedge clk_i) begin
         if (rst_i) begin
             mikroislem_o <= 0;

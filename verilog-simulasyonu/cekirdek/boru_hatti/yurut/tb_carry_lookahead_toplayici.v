@@ -16,19 +16,19 @@ module tb_carry_lookahead_toplayici();
          b_r = 32'h0000_0001;
          c_in_r = 1'b0;
          #10;
-  
+
           // Test case 2: taşma olan durum
           a_r = 32'h7fff_ffff;
           b_r = 32'h0001_0000;
           c_in_r = 1'b0;
           #10;
- 
+
          // Test case 3: negatif sayi toplami
          a_r = 32'hffff_fff0;
          b_r = 32'hffff_ffff;
          c_in_r = 1'b0;
          #10;
- 
+
         // Test case 4: pozitif negatif toplami
         a_r = 32'hffff_fff5;
         b_r = 32'h0000_0015;

@@ -36,13 +36,14 @@ module yurut(
     wire [31:0] yap_sonuc_w;
     wire [31:0] sis_sonuc_w;
 
-
+    wire sifir;
     aritmetik_mantik_birimi amb (
-        .miniislem_i(mikroislem_i[`MI_BIT-1:10]),
+        .kontrol(mikroislem_i[`MI_BIT-1:10]),
         .deger1_i(deger1_i),
         .deger2_i(deger2_i),
 
         .sonuc_o(amb_sonuc_w)
+        .sifir_o(sifir)
     );
 
 
