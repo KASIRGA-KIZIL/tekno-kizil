@@ -19,7 +19,8 @@ module yurut(
     input wire [31:0] deger2_i,
 
     // jump ve branch icin
-    input wire [ 2:0] lt_ltu_eq_i        // degerler arasindaki iliski. lt_ltu_i[0]: lessthan r1<r2, lt_ltu_i[1]: lt unsigned r1<r2 unsigned
+    input wire [ 2:0] lt_ltu_eq_i        // degerler arasindaki iliski. lt_ltu_i[0]: lessthan r1<r2, lt_ltu_i[1]: lt_unsigned r1<r2 unsigned
+    input wire [ 1:0] buyruk_tipi_i      // J veya B tipi veya digertip, branch/jump buyruklari icin
 
     output wire [31:0] program_sayaci_o,  // ayni cevrimde gitmeli
     output wire program_sayaci_guncelle_o // ayni cevrimde gitmeli
@@ -53,7 +54,6 @@ module yurut(
     assign program_sayaci_o = amb_sonuc_w;
 
 
-
     wire [31:0] rd_deger_sonraki_w = (mikroislem_i[`BIRIM] == `BIRIM_AMB      ) ? amb_sonuc_w      :
                                      (mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ? carp_sonuc_w     :
                                      (mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ? bol_sonuc_w      :
@@ -68,9 +68,10 @@ module yurut(
                                (mikroislem_i[`DAL] == `DAL_GE ) ? !lt_ltu_eq_i[2]:
                                (mikroislem_i[`DAL] == `DAL_LTU) ?  lt_ltu_eq_i[1]:
                                (mikroislem_i[`DAL] == `DAL_GEU) ? !lt_ltu_eq_i[1]:
+                               (mikroislem_i[`DAL] == `DAL_YOK) ? 1'b0           :
                                                                   1'b0; // x yerine 0 cunku surekli okunuyor.
 
-    assign program_sayaci_guncelle_o = (mikroislem_i[`TIP] == `JTIP) || ((mikroislem_i[`TIP] == `BTIP) && dallanma_kosulu_w);
+    assign program_sayaci_guncelle_o = (buyruk_tipi_i == `JTIP) || ((buyruk_tipi_i == `BTIP) && dallanma_kosulu_w);
 
     always @(posedge clk_i) begin
         if(rst_i) begin

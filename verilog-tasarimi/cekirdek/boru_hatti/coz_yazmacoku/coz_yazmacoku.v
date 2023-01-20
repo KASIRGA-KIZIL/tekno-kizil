@@ -3,12 +3,6 @@
 
 `include "tanimlamalar.vh"
 
-// Simdilik burada oylesine tanimladim, tanimlamalar.vh'a tasi
-`define I_Tipi 3'd0
-`define S_Tipi 3'd1
-`define B_Tipi 3'd2
-`define U_Tipi 3'd3
-`define J_Tipi 3'd4
 
 
 // burada sadece buyruklari cozersem yurutte bunlarin gruplanmasi yerine her bir buyruk ayri casede yurutulecek
@@ -25,7 +19,8 @@ module coz_yazmacoku(
 
     // compressed buyruklar getirde normal buyruklara donusturulecek
     input [31:0] buyruk_i,
-    input buyruk_gecerli_i,
+    // input buyruk_gecerli_i, buna gerek yok.  GETIR'den gelen buyruk gecerli sinyali DDB'ye gidecek. DDB cozu durduracak. Bu exception degil bubble durumu.
+    input ddb_kontrol_durdur_i,
     input [31:0] program_sayaci_i,
 
     // geri yazdan gelenler
@@ -43,23 +38,21 @@ module coz_yazmacoku(
     output reg [31:0] deger2_o,
 
     // Branch buyruklari icin gerekli (if(r1<r2) rd=pc+imm) vs.
-    output reg [ 2:0] lt_ltu_eq_o,  // degerler arasindaki iliski. lt:lessthan, ltu: lessthan_unsigned, eq: equal
+    output reg [ 2:0] lt_ltu_eq_o,    // degerler arasindaki iliski. lt:lessthan, ltu: lessthan_unsigned, eq: equal
+    output reg [ 1:0] buyruk_tipi_o,  // J veya B tipi veya digertip, branch/jump buyruklari icin
 
     // DDB yonlendirme sinyalleri ve geriyaz/yurut bolumunden veri yonlendirmeleri
     input [1:0]  ddb_kontrol_yonlendir_deger1_i,
     input [1:0]  ddb_kontrol_yonlendir_deger2_i,
 
-    // "deger"ler isim olarak bunlara gelmeli sanki
     input [31:0] yonlendir_geri_yaz_deger_i,
     input [31:0] yonlendir_yurut_deger_i,
 
     input [31:0] program_sayaci_artmis_i, // geri yaza kadar gitmesi lazim
     output reg [31:0] program_sayaci_artmis_o, // geri yaza kadar gitmesi lazim
 
+    output reg gecersiz_buyruk_o, // DDU'ya gidiyor. Boru hattini durdurmak ve trap olusturmak icin kullanilacak.
     output reg yz_en_o
-
-
-    // buyruk_tipini buradan cikis olarak da verebiliriz
 );
 
     // 30:29, 27, 25, 21:20, 14:12, 6:2
@@ -80,6 +73,8 @@ module coz_yazmacoku(
 
     reg yz_en_sonraki_r = 0;
 
+    reg gecersiz_buyruk_r = 0;
+
     wire [31:0] rs1_deger_w; // okunan 1. yazmac
     wire [31:0] rs2_deger_w; // okunan 2. yazmac
 
@@ -88,11 +83,11 @@ module coz_yazmacoku(
                                (ddb_kontrol_yonlendir_deger1_i == `YON_HICBISEY  ) ? rs1_deger_w    :
                                                                                     rs1_deger_w;
 
-    wire [31:0] deger1_w = (mikroislem_sonraki_r[`PC]) ? program_sayaci_i : deger1_tmp_w;
+    wire [31:0] deger1_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) ? program_sayaci_i : deger1_tmp_w;
 
-    wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`IMM]) ? imm_o : rs2_deger_w;
+    wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) ? imm_o : rs2_deger_w;
 
-    wire [31:0] deger2_w = (ddb_kontrol_yonlendir_deger2_i == `YON_GERIYAZ   ) ? yonlendir_geri_yaz_deger_i :
+    wire [31:0] deger2_w = (ddb_kontrol_yonlendir_deger2_i  == `YON_GERIYAZ  ) ? yonlendir_geri_yaz_deger_i :
                            (ddb_kontrol_yonlendir_deger2_i  == `YON_YURUT    ) ? yonlendir_yurut_deger_i    :
                            (ddb_kontrol_yonlendir_deger2_i  == `YON_HICBISEY ) ? deger2_tmp_w    :
                                                                                 deger2_tmp_w;
@@ -102,6 +97,7 @@ module coz_yazmacoku(
     wire eq_w  = (deger1_tmp_w == deger2_w) ? 1'b1 : 1'b0;
 
     always @* begin
+        gecersiz_buyruk_r = 1'b0;
         // Cozulmesi gereken bitler 14 bit 30:29, 27, 25, 21:20, 14:12, 6:2
         // bitleri en tamam olandan olmayana kadar gitmek gerek.
         casez(buyruk_coz_w)
@@ -286,13 +282,15 @@ module coz_yazmacoku(
                 mikroislem_sonraki_r = `LUI_MI;
             end
             default: begin
-                mikroislem_sonraki_r = `GECERSIZ;
+                mikroislem_sonraki_r = 28'hxxxx_xxx;
+                gecersiz_buyruk_r    = 1'b1; // buraya gelirsek exception olmustur. Handle edilmesi gerek. Normalde jump yapilir exception handler'a.
                 $display("default");
             end
         endcase
-
+        /* GETIR'den gelen buyruk gecerli sinyali DDB'ye gidecek. DDB cozu durduracak. Bu exception degil bubble durumu.
         if(~buyruk_gecerli_i)
             mikroislem_sonraki_r = `GECERSIZ;
+        */
     end
 
     // anlik secmek icin buyruk tipini belirle
@@ -337,7 +335,7 @@ module coz_yazmacoku(
 
 
     always @(posedge clk_i) begin
-        if (rst_i) begin
+        if (rst_i || ddb_kontrol_durdur_i) begin
             mikroislem_o <= 0;
             deger1_o <= 0;
             deger2_o <= 0;
@@ -356,6 +354,8 @@ module coz_yazmacoku(
             yz_en_o <= buyruk_i[31]; // yapay zeka buyruklari con.ld.w ve conv.ld.x icin enable biti yurute ve yurutten yapay zeka birimine gidecek
             lt_ltu_eq_o <= {lt_w,ltu_w,eq_w};
             program_sayaci_artmis_o <= program_sayaci_artmis_i;
+            gecersiz_buyruk_o <= gecersiz_buyruk_r;
+            buyruk_tipi_o <= buyruk_tipi_r[1:0];
         end
     end
 
