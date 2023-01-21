@@ -1,6 +1,11 @@
 `timescale 1ns / 1ps
 
-`include "tanimlamalar.vh"
+// `include "sabitler.vh"
+
+`define PS_BIT 32'd32
+`define BUYRUK_BIT 32'd32
+`define BB_ADRES_BIT 32'd32
+
 
 module getir
     (
@@ -77,7 +82,7 @@ module getir
     // Getir asamasi kontrol sinyalleri
     // Buyruk Buffer: Compressed buyruk gelmesi durumunda
     //                diger 16 biti sakla.
-    reg [`BUYRUK_BIT-1:0] buyruk_buffer_r, buyruk_buffer_next_r;
+    reg [`BUYRUK_BIT/2-1:0] buyruk_buffer_r, buyruk_buffer_next_r;
     reg buyruk_buffer_gecerli_r, buyruk_buffer_gecerli_next_r;
     reg buyruk_buffer_comp_r, buyruk_buffer_comp_next_r;
 
@@ -97,8 +102,6 @@ module getir
         .is_jr_i(buyruk_jr_w),
         .is_branch_i(buyruk_branch_w),
         .is_jalr_i(buyruk_jalr_w),
-        .is_j_i(buyruk_j_w),
-        .is_jal_i(buyruk_jal_w),
         .is_comp_i(buyruk_comp_w),
         .atlanan_adres_o(dob_yeni_ps),
         .buyruk_ongoru_o(dob_ongoru_atlar),
@@ -153,9 +156,9 @@ module getir
 
     assign buyruk_comp_w = (buyruk_w[1:0]!=2'b11);
 
+    // Jal ve j dallanma ongorucuyu kullanmiyor, 
+    // adresleri bu asamada hesaplaniyor
     assign buyruk_db_etkin_w = (buyruk_branch_w ||
-        buyruk_j_w ||
-        buyruk_jal_w ||
         buyruk_jalr_w ||
         buyruk_jr_w) && l1b_gecerli_i;  
 
@@ -210,18 +213,18 @@ module getir
             coz_ps_next_r = ps_r;
             // Getir Asamasi icerisindeki yazmaclarin kontrolu 
             // Buyruk Compressed degil ve yarisi buyruk buffer'inda
-            if() begin
+            if(!buyruk_comp_w && buyruk_buffer_gecerli_r && buyruk_buffer_comp_r) begin
                 // Bir sonraki cevrim icin ps
                 ps_next_r = ps_r + 'd4;
                 // Geri kalan buyrugu sakla
                 buyruk_buffer_next_r = l1b_buy_i[31:16];
                 // Buyruk buffer'inda saklanan buyruk compressed mi?
-                buyruk_buffer_comp_next_r = l1b_buy_i[17:16]~=2'b11;
+                buyruk_buffer_comp_next_r = (l1b_buy_i[17:16]==2'b11) ? 1'b0 : 1'b1;
                 // Buyruk buffer'i bir sonraki cevrimde gecerli
                 buyruk_buffer_gecerli_next_r = 1'b1;
             end
             // Buyruk Compressed degil ve buyruk bufferi gecersiz
-            else if() begin 
+            else if(!buyruk_comp_w && !buyruk_buffer_gecerli_r) begin 
                 // Bir sonraki cevrim icin ps
                 ps_next_r = ps_r + 'd4;
                 // Buyruk bufferi bir sonraki cevrim icin bos
@@ -230,13 +233,13 @@ module getir
                 buyruk_buffer_gecerli_next_r = 1'b0;
             end
             // Buyruk Compressed ve buyruk bufferi gecersiz
-            else begin
+            else if(buyruk_comp_w && !buyruk_buffer_gecerli_r) begin
                 // Bir sonraki cevrim icin ps
                 ps_next_r = ps_r + 'd2;
                 // Geri kalan buyrugu sakla
                 buyruk_buffer_next_r = l1b_buy_i[31:16];
                 // Buyruk buffer'inda saklanan buyruk compressed mi?
-                buyruk_buffer_comp_next_r = l1b_buy_i[17:16]~=2'b11;
+                buyruk_buffer_comp_next_r = (l1b_buy_i[17:16]==2'b11) ? 1'b0 : 1'b1;
                 // Buyruk buffer'i bir sonraki cevrimde gecerli
                 buyruk_buffer_gecerli_next_r = 1'b1;
             end
@@ -246,7 +249,7 @@ module getir
         // adresteki buyruk l1'den alinacak
         if(!l1b_duraklat_i && buyruk_db_etkin_w && dob_ongoru_atlar) begin
             // Bir sonraki cevrim coze dallanma buyrugu verilecek
-            coz_ps_next_r = ps_r + (buyruk_comp_w ? 'd2 : 'd4);
+            coz_ps_next_r = ps_r ;
             coz_buyruk_next_r = buyruk_w;
             coz_gecerli_next_r = 1'b1;
             // Bir sonraki cevrim Getir atlanan buyrugu isleyecek
@@ -255,6 +258,34 @@ module getir
             buyruk_buffer_comp_next_r = 1'b0;
             buyruk_buffer_gecerli_next_r = 1'b0;
         end
+        
+        // Jump buyrugu
+        if(buyruk_j_w) begin // || buyruk_jal_w
+            // Bir sonraki cevrim coze dallanma buyrugu verilecek
+            coz_ps_next_r = ps_r ;
+            coz_buyruk_next_r = buyruk_w;
+            coz_gecerli_next_r = 1'b1;
+            // Bir sonraki cevrim Getir atlanan buyrugu isleyecek
+            ps_next_r = ps_r + {{21{buyruk_w[11]}}, buyruk_w[4], buyruk_w[9:8], 
+                        buyruk_w[10], buyruk_w[6], buyruk_w[7], buyruk_w[3:1], buyruk_w[5]};
+            buyruk_buffer_next_r = 16'd0;
+            buyruk_buffer_comp_next_r = 1'b0;
+            buyruk_buffer_gecerli_next_r = 1'b0;
+        end
+        
+        // Jal buyrugu
+        if(buyruk_j_w) begin // || buyruk_jal_w
+            // Bir sonraki cevrim coze dallanma buyrugu verilecek
+            coz_ps_next_r = ps_r ;
+            coz_buyruk_next_r = buyruk_w;
+            coz_gecerli_next_r = 1'b1;
+            // Bir sonraki cevrim Getir atlanan buyrugu isleyecek
+            ps_next_r = ps_r + {{13{buyruk_w[31]}}, buyruk_w[19:12], buyruk_w[20], buyruk_w[30:21]};
+            buyruk_buffer_next_r = 16'd0;
+            buyruk_buffer_comp_next_r = 1'b0;
+            buyruk_buffer_gecerli_next_r = 1'b0;
+        end
+        
     end
 
     always @(posedge clk_i) begin
