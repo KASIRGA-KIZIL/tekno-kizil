@@ -16,7 +16,7 @@ module yurut(
     input  wire [31:0] program_sayaci_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
     input  wire [31:0] deger1_i,                 // Islem birimi girdileri. Yonlendirme ve Immediate secilmis son degerler.
     input  wire [31:0] deger2_i,
-    input  wire [ 1:0] yz_en_i,                  // yapay zeka buyruklari rs1 ve rs2 enable bitleri
+    input  wire        yz_en_i,                  // yapay zeka buyruklari rs2 enable biti
 
     // Branch ve Jump buyruklari icin. Hepsi ayni cevrimde gidecek
     input  wire [ 2:0] lt_ltu_eq_i,             // Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}

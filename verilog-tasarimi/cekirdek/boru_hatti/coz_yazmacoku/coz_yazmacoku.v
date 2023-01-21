@@ -18,7 +18,7 @@ module coz_yazmacoku(
     output reg [31:0] deger2_o,
     output reg [ 2:0] lt_ltu_eq_o,          // Dallanma ve atlama icin gerekli. Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
     output reg [ 1:0] buyruk_tipi_o,        // J veya B tipi veya digertip, branch/jump buyruklari icin
-    output reg [ 1:0] yapay_zeka_en_o       // Yapay zeka biriminin rs1 ve rs2 icin yazma(enable) sinyalleri
+    output reg        yapay_zeka_en_o       // Yapay zeka biriminin rs2 icin yazma(enable) sinyali
     output reg [31:0] program_sayaci_o,     // Dallanma Ongorucu icin gerekli
 
     // GERIYAZ'a kadar giden sinyaller
@@ -340,7 +340,7 @@ module coz_yazmacoku(
                 program_sayaci_o <= program_sayaci_i;
                 rd_adres_o <= buyruk_i[11:7];
                 imm_o <= imm_sonraki_r;
-                yapay_zeka_en_o <= buyruk_i[31:30];
+                yapay_zeka_en_o <= buyruk_i[31];
                 lt_ltu_eq_o <= {lt_w,ltu_w,eq_w};
                 program_sayaci_artmis_o <= program_sayaci_artmis_i;
                 gecersiz_buyruk_o <= gecersiz_buyruk_r;
