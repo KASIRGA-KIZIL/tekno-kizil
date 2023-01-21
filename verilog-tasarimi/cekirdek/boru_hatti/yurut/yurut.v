@@ -9,32 +9,34 @@ module yurut(
     input wire clk_i,
     input wire rst_i,
 
-    input wire [`MI_BIT-1:0] mikroislem_i, // 0 olursa gecersiz
-    input wire yaz_yazmac_i,
+    // Veri yolu icin
+    input  wire [`MI_BIT-1:0] mikroislem_i,
+    input  wire        yaz_yazmac_i,             // Rd'ye sonuc yazilacak mi
+    input  wire [ 4:0] rd_adres_i,               // Rd'nin adresi
+    input  wire [31:0] program_sayaci_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
+    input  wire [31:0] deger1_i,                 // Islem birimi girdileri. Yonlendirme ve Immediate secilmis son degerler.
+    input  wire [31:0] deger2_i,
+    input  wire [ 1:0] yz_en_i,                  // yapay zeka buyruklari rs1 ve rs2 enable bitleri
 
-    input wire [4:0] rd_adres_i,               // geri yaza kadar gitmesi lazim
-    input wire [31:0] program_sayaci_artmis_i, // geri yaza kadar gitmesi lazim
+    // Branch ve Jump buyruklari icin. Hepsi ayni cevrimde gidecek
+    input  wire [ 2:0] lt_ltu_eq_i,             // Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
+    input  wire [ 1:0] buyruk_tipi_i,           // J veya B veya digertip. Eger J tipiyse direkt atlanilacak. B tipiyse kosula bakilcak.
+    output wire [31:0] yeni_program_sayaci_o,   // Atlanilan yeni program sayaci, pc+imm veya rs1+imm degerini tasiyor.
+    output wire program_sayaci_gecerli_o        // Yeni program sayacinin gecerli olup olmadiginin sinyali. J tipinde hep gecerli
 
-    input  wire [31:0] coz_program_sayaci_artmis_i, // dallanma ongorucu icin
-    output wire [31:0] tahmin_dogru_o,              // dallanma ongorucu icin
+    // Dallanma Ongorucu icin. Hepsi ayni cevrimde gidecek
+    input  wire [31:0] program_sayaci_i,        // Suanki buyrugun PC'si. Branch Target Buffer icin gerekli.
+    input  wire [31:0] coz_program_sayaci_i,    // Tahmin dogru mu bakmak icin. COZ'un PC'si. Cozdeki buyruga ait.
+    output wire [31:0] yurut_program_sayac_o,   // Atlamayi isteyen buyrugun PC'si. Yurutteki buyruga ait.
+    output wire        tahmin_dogru_o,          // COZ'deki PC yuruttekine esit mi? Esitse dogru tahmin
+    output wire [ 1:0] buyruk_tipi_o,           // Jtipi mi B tipi mi.
+    output wire [31:0] program_sayaci_o,        // Suanki buyrugun PC'si. Branch Target Buffer icin gerekli.
 
-    input wire [31:0] deger1_i, // anlik/yazmac vs. secilmis son ALU girdileri
-    input wire [31:0] deger2_i,
-
-    // jump ve branch icin
-    input wire [ 2:0] lt_ltu_eq_i        // degerler arasindaki iliski. lt_ltu_i[0]: lessthan r1<r2, lt_ltu_i[1]: lt_unsigned r1<r2 unsigned
-    input wire [ 1:0] buyruk_tipi_i      // J veya B tipi veya digertip, branch/jump buyruklari icin
-
-    output wire [31:0] program_sayaci_o,  // ayni cevrimde gitmeli
-    output wire program_sayaci_guncelle_o // ayni cevrimde gitmeli
-
-    input wire yz_en_i, // yapay zeka icin enable biti
-
-    output reg [ 4:0] rd_adres_o,              // geri yaza kadar gitmesi lazim
-    output reg [31:0] program_sayaci_artmis_o, // geri yaza kadar gitmesi lazim
-
-    output reg [31:0] rd_deger_o, // islem birimlerinden cikan sonuc
-    output reg yaz_yazmac_o
+    // GERIYAZ icin
+    output reg [ 4:0] rd_adres_o,              // Rd'nin adresi
+    output reg [31:0] program_sayaci_artmis_o, // Rd=PC+4/2 islemi icin gerekli
+    output reg [31:0] rd_deger_o,              // islem birimlerinden cikan sonuc
+    output reg yaz_yazmac_o                    // Rd'ye sonuc yazilacak mi
 );
 
     // hepsinde sonuc olmayacak duzenlemek lazim
@@ -45,7 +47,6 @@ module yurut(
     wire [31:0] yapayzeka_sonuc_w;
     wire [31:0] sistem_sonuc_w   ;
 
-
     aritmetik_mantik_birimi amb (
         .kontrol(mikroislem_i[`AMB]),
         .deger1_i(deger1_i),
@@ -53,9 +54,6 @@ module yurut(
         .lt_ltu_i(lt_ltu_eq_i[2:1]),
         .sonuc_o(amb_sonuc_w)
     );
-
-    assign program_sayaci_o = amb_sonuc_w;
-
 
     wire [31:0] rd_deger_sonraki_w = (mikroislem_i[`BIRIM] == `BIRIM_AMB      ) ? amb_sonuc_w      :
                                      (mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ? carp_sonuc_w     :
@@ -72,11 +70,15 @@ module yurut(
                                (mikroislem_i[`DAL] == `DAL_LTU) ?  lt_ltu_eq_i[1]:
                                (mikroislem_i[`DAL] == `DAL_GEU) ? !lt_ltu_eq_i[1]:
                                (mikroislem_i[`DAL] == `DAL_YOK) ? 1'b0           :
-                                                                  1'b0; // x yerine 0 cunku surekli okunuyor.
+                                                                  1'b0; // x veya ? yerine 0 cunku dallanma_kosulu surekli okunuyor. Kazayla 1 verirsek gecmis olsun.
 
-    assign program_sayaci_guncelle_o = (buyruk_tipi_i == `JTIP) || ((buyruk_tipi_i == `BTIP) && dallanma_kosulu_w);
+    assign program_sayaci_gecerli_o = (buyruk_tipi_i == `JTIP) || ((buyruk_tipi_i == `BTIP) && dallanma_kosulu_w);
 
-    assign tahmin_dogru_o = (program_sayaci_guncelle_o == coz_program_sayaci_artmis_i);
+    assign tahmin_dogru_o = (program_sayaci_gecerli_o == coz_program_sayaci_artmis_i);
+
+    assign yeni_program_sayaci_o = amb_sonuc_w;
+    assign buyruk_tipi_o = buyruk_tipi_i;
+    assign program_sayaci_o = program_sayaci_i;
 
     always @(posedge clk_i) begin
         if(rst_i) begin
