@@ -4,56 +4,43 @@
 `include "tanimlamalar.vh"
 
 
-
-// burada sadece buyruklari cozersem yurutte bunlarin gruplanmasi yerine her bir buyruk ayri casede yurutulecek
-// ama belki caseler gruplanabilir
-
-// buyruklarin gecersizligine dikkat edilmeli
-
-// denetim durum birimi ile iliskisinin kurulmasi gerek
-
-// bitleri ayarla
 module coz_yazmacoku(
     input clk_i,
     input rst_i,
 
-    // compressed buyruklar getirde normal buyruklara donusturulecek
+    // GETIR'den gelen sinyaller
     input [31:0] buyruk_i,
-    // input buyruk_gecerli_i, buna gerek yok.  GETIR'den gelen buyruk gecerli sinyali DDB'ye gidecek. DDB cozu durduracak. Bu exception degil bubble durumu.
-    input ddb_kontrol_durdur_i,
-    input ddb_kontrol_temizle_i,
     input [31:0] program_sayaci_i,
 
-    // geri yazdan gelenler
-    input [4:0]  yaz_adres_i,
-    input [31:0] yaz_deger_i,
-    input yaz_yazmac_i,
-
-    // mikroislem buyruklara ait tum bilgiyi bitleriyle veriyor
-    output reg [`MI_BIT-1:0] mikroislem_o, // 0 olursa gecersiz
-
-    output reg [4:0] rd_adres_o, // geri yaza kadar gitmesi lazim
-    output reg yaz_yazmac_o,     // geri yaza kadar gitmesi lazim
-
-    output reg [31:0] deger1_o, // her seyi secilmis ALU'lara giden iki deger
+    // YURUT'e giden sinyaller
+    output reg [`MI_BIT-1:0] mikroislem_o,  // mikroislem buyruklara ait tum bilgiyi bitleriyle veriyor
+    output reg [31:0] deger1_o,             // Yurut birim girdileri. Yonlendirme ve Immediate secilmis son degerler.
     output reg [31:0] deger2_o,
+    output reg [ 2:0] lt_ltu_eq_o,          // Dallanma ve atlama icin gerekli. Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
+    output reg [ 1:0] buyruk_tipi_o,        // J veya B tipi veya digertip, branch/jump buyruklari icin
+    output reg [ 1:0] yapay_zeka_en_o       // Yapay zeka biriminin rs1 ve rs2 icin yazma(enable) sinyalleri
+    output reg [31:0] program_sayaci_o,     // Dallanma Ongorucu icin gerekli
 
-    // Branch buyruklari icin gerekli (if(r1<r2) rd=pc+imm) vs.
-    output reg [ 2:0] lt_ltu_eq_o,    // degerler arasindaki iliski. lt:lessthan, ltu: lessthan_unsigned, eq: equal
-    output reg [ 1:0] buyruk_tipi_o,  // J veya B tipi veya digertip, branch/jump buyruklari icin
+    // GERIYAZ'a kadar giden sinyaller
+    input      [31:0] program_sayaci_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
+    output reg [31:0] program_sayaci_artmis_o,  // Rd=PC+4/2 islemi icin gerekli
+    output reg [ 4:0] rd_adres_o,               // Rd'nin adresi
 
-    // DDB yonlendirme sinyalleri ve geriyaz/yurut bolumunden veri yonlendirmeleri
-    input [1:0]  ddb_kontrol_yonlendir_deger1_i,
-    input [1:0]  ddb_kontrol_yonlendir_deger2_i,
+    // GERIYAZ'dan gelen sinyaller
+    input [4:0]  yaz_adres_i,     // Rd'nin adresi
+    input [31:0] yaz_deger_i,     // Rd'nin degeri
+    input yaz_yazmac_i,           // Rd'ye sonuc yazilacak mi
 
+    // Yonlendirme (Forwarding) sinyalleri
     input [31:0] yonlendir_geri_yaz_deger_i,
     input [31:0] yonlendir_yurut_deger_i,
 
-    input [31:0] program_sayaci_artmis_i, // geri yaza kadar gitmesi lazim
-    output reg [31:0] program_sayaci_artmis_o, // geri yaza kadar gitmesi lazim
-
-    output reg gecersiz_buyruk_o, // DDU'ya gidiyor. Boru hattini durdurmak ve trap olusturmak icin kullanilacak.
-    output reg yz_en_o
+    // Denetim Durum Birimi sinyalleri
+    input        ddb_kontrol_durdur_i,           // COZ'u durdur
+    input        ddb_kontrol_bosalt_i,           // COZ'u bosalt
+    input [1:0]  ddb_kontrol_yonlendir_deger1_i, // YURUT ve GERIYAZ'dan gelen degerleri yonlendir
+    input [1:0]  ddb_kontrol_yonlendir_deger2_i,
+    output reg gecersiz_buyruk_o                 // Cozulen buyruk gecersiz.
 );
 
     // 30:29, 27, 25, 21:20, 14:12, 6:2
@@ -93,9 +80,9 @@ module coz_yazmacoku(
                            (ddb_kontrol_yonlendir_deger2_i  == `YON_HICBISEY ) ? deger2_tmp_w    :
                                                                                 deger2_tmp_w;
 
-    wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_w)) ? 1'b1 : 1'b0;
-    wire ltu_w = (deger1_tmp_w  < deger2_w) ? 1'b1 : 1'b0;
-    wire eq_w  = (deger1_tmp_w == deger2_w) ? 1'b1 : 1'b0;
+    wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_w));
+    wire ltu_w = (deger1_tmp_w  < deger2_w);
+    wire eq_w  = (deger1_tmp_w == deger2_w);
 
     always @* begin
         gecersiz_buyruk_r = 1'b0;
@@ -336,7 +323,7 @@ module coz_yazmacoku(
 
 
     always @(posedge clk_i) begin
-        if (rst_i || ddb_kontrol_temizle_i) begin
+        if (rst_i || ddb_kontrol_bosalt_i) begin
             mikroislem_o <= 0;
             deger1_o <= 0;
             deger2_o <= 0;
@@ -353,7 +340,7 @@ module coz_yazmacoku(
                 program_sayaci_o <= program_sayaci_i;
                 rd_adres_o <= buyruk_i[11:7];
                 imm_o <= imm_sonraki_r;
-                yz_en_o <= buyruk_i[31]; // yapay zeka buyruklari con.ld.w ve conv.ld.x icin enable biti yurute ve yurutten yapay zeka birimine gidecek
+                yapay_zeka_en_o <= buyruk_i[31:30];
                 lt_ltu_eq_o <= {lt_w,ltu_w,eq_w};
                 program_sayaci_artmis_o <= program_sayaci_artmis_i;
                 gecersiz_buyruk_o <= gecersiz_buyruk_r;

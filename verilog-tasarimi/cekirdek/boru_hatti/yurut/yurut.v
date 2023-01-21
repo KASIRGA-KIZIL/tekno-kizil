@@ -36,7 +36,7 @@ module yurut(
     output reg [ 4:0] rd_adres_o,              // Rd'nin adresi
     output reg [31:0] program_sayaci_artmis_o, // Rd=PC+4/2 islemi icin gerekli
     output reg [31:0] rd_deger_o,              // islem birimlerinden cikan sonuc
-    output reg yaz_yazmac_o                    // Rd'ye sonuc yazilacak mi
+    output reg [ 2:0] mikroislem_o             // Rd secimi ve write enable sinyalleri
 );
 
     // hepsinde sonuc olmayacak duzenlemek lazim
