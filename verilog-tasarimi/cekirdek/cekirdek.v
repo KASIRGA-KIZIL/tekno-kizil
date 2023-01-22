@@ -157,7 +157,6 @@ module cekirdek(
         .rst_i (rst_i ),
         // Veri yolu icin
         .mikroislem_i            (cyo_mikroislem_w           ),
-        .yaz_yazmac_i            (cyo_yaz_yazmac_w           ),
         .rd_adres_i              (cyo_rd_adres_w             ),
         .program_sayaci_artmis_i (cyo_program_sayaci_artmis_w),
         .deger1_i                (cyo_deger1_w               ),

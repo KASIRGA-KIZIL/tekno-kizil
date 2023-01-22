@@ -11,7 +11,6 @@ module yurut(
 
     // Veri yolu icin
     input  wire [`MI_BIT-1:0] mikroislem_i,
-    input  wire        yaz_yazmac_i,             // Rd'ye sonuc yazilacak mi
     input  wire [ 4:0] rd_adres_i,               // Rd'nin adresi
     input  wire [31:0] program_sayaci_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
     input  wire [31:0] deger1_i,                 // Islem birimi girdileri. Yonlendirme ve Immediate secilmis son degerler.
@@ -88,14 +87,14 @@ module yurut(
 
     always @(posedge clk_i) begin
         if(rst_i) begin
-            rd_deger_o <= 0;
-            yaz_yazmac_o <= 0;
-            rd_adres_o <= 0;
+            mikroislem_o <= 0;
+            rd_deger_o   <= 0;
+            rd_adres_o   <= 0;
         end
         else begin
-            yaz_yazmac_o <= yaz_yazmac_i;
-            rd_deger_o <= rd_deger_sonraki_w;
-            rd_adres_o <= rd_adres_i;
+            mikroislem_o <= mikroislem_i;
+            rd_deger_o   <= rd_deger_sonraki_w;
+            rd_adres_o   <= rd_adres_i;
         end
     end
 
