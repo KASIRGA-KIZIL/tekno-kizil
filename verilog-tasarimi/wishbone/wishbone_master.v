@@ -96,7 +96,7 @@ module wishbone_master(
         end
     end
 
-    always@(posedge clk)begin
+    always@(posedge clk_i)begin
         if(~rst_i)begin
             addr_o <= addr_o_n ;    
             data_o <= data_o_n ;

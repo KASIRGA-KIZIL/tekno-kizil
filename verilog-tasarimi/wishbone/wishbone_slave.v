@@ -32,7 +32,7 @@ module wishbone_slave#(
 
     end
 
-    always@(posedge clk)begin
+    always@(posedge clk_i)begin
 
     end
 
