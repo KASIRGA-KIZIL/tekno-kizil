@@ -19,7 +19,6 @@ module coz_yazmacoku(
     output reg [ 2:0] lt_ltu_eq_o,          // Dallanma ve atlama icin gerekli. Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
     output reg [ 1:0] buyruk_tipi_o,        // J veya B tipi veya digertip, branch/jump buyruklari icin
     output reg        yapay_zeka_en_o       // Yapay zeka biriminin rs2 icin yazma(enable) sinyali
-    output reg [31:0] program_sayaci_o,     // Dallanma Ongorucu icin gerekli
 
     // GERIYAZ'a kadar giden sinyaller
     input      [31:0] program_sayaci_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
@@ -32,15 +31,17 @@ module coz_yazmacoku(
     input yaz_yazmac_i,           // Rd'ye sonuc yazilacak mi
 
     // Yonlendirme (Forwarding) sinyalleri
-    input [31:0] yonlendir_geri_yaz_deger_i,
+    input [31:0] yonlendir_geriyaz_deger_i,
     input [31:0] yonlendir_yurut_deger_i,
 
     // Denetim Durum Birimi sinyalleri
-    input        ddb_kontrol_durdur_i,           // COZ'u durdur
-    input        ddb_kontrol_bosalt_i,           // COZ'u bosalt
-    input [1:0]  ddb_kontrol_yonlendir_deger1_i, // YURUT ve GERIYAZ'dan gelen degerleri yonlendir
-    input [1:0]  ddb_kontrol_yonlendir_deger2_i,
-    output reg gecersiz_buyruk_o                 // Cozulen buyruk gecersiz.
+    input        durdur_i,           // COZ'u durdur
+    input        bosalt_i,           // COZ'u bosalt
+    input  [1:0] yonlendir_deger1_i, // YURUT ve GERIYAZ'dan gelen degerleri yonlendir
+    input  [1:0] yonlendir_deger2_i,
+    output [4:0] rs1_adres_o,        // Suanki buyrugun rs adresleri. Yonlendirme icin.
+    output [4:0] rs2_adres_o,
+    output       gecersiz_buyruk_o   // Cozulen buyruk gecersiz.
 );
 
     // 30:29, 27, 25, 21:20, 14:12, 6:2
@@ -66,18 +67,18 @@ module coz_yazmacoku(
     wire [31:0] rs1_deger_w; // okunan 1. yazmac
     wire [31:0] rs2_deger_w; // okunan 2. yazmac
 
-    wire [31:0] deger1_tmp_w = (ddb_kontrol_yonlendir_deger1_i == `YON_GERIYAZ   ) ? yonlendir_geri_yaz_deger_i :
-                               (ddb_kontrol_yonlendir_deger1_i == `YON_YURUT     ) ? yonlendir_yurut_deger_i    :
-                               (ddb_kontrol_yonlendir_deger1_i == `YON_HICBISEY  ) ? rs1_deger_w    :
+    wire [31:0] deger1_tmp_w = (yonlendir_deger1_i == `YON_GERIYAZ   ) ? yonlendir_geriyaz_deger_i :
+                               (yonlendir_deger1_i == `YON_YURUT     ) ? yonlendir_yurut_deger_i    :
+                               (yonlendir_deger1_i == `YON_HICBISEY  ) ? rs1_deger_w    :
                                                                                     rs1_deger_w;
 
     wire [31:0] deger1_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) ? program_sayaci_i : deger1_tmp_w;
 
     wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) ? imm_o : rs2_deger_w;
 
-    wire [31:0] deger2_w = (ddb_kontrol_yonlendir_deger2_i  == `YON_GERIYAZ  ) ? yonlendir_geri_yaz_deger_i :
-                           (ddb_kontrol_yonlendir_deger2_i  == `YON_YURUT    ) ? yonlendir_yurut_deger_i    :
-                           (ddb_kontrol_yonlendir_deger2_i  == `YON_HICBISEY ) ? deger2_tmp_w    :
+    wire [31:0] deger2_w = (yonlendir_deger2_i  == `YON_GERIYAZ  ) ? yonlendir_geriyaz_deger_i :
+                           (yonlendir_deger2_i  == `YON_YURUT    ) ? yonlendir_yurut_deger_i    :
+                           (yonlendir_deger2_i  == `YON_HICBISEY ) ? deger2_tmp_w    :
                                                                                 deger2_tmp_w;
 
     wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_w));
@@ -281,6 +282,10 @@ module coz_yazmacoku(
         */
     end
 
+    assign gecersiz_buyruk_o = gecersiz_buyruk_r;
+    assign rs1_adres_o = buyruk_i[19:15];
+    assign rs2_adres_o = buyruk_i[24:20];
+
     // anlik secmek icin buyruk tipini belirle
     reg [2:0] buyruk_tipi_r;
     always @(*) begin
@@ -323,27 +328,24 @@ module coz_yazmacoku(
 
 
     always @(posedge clk_i) begin
-        if (rst_i || ddb_kontrol_bosalt_i) begin
+        if (rst_i || bosalt_i) begin
             mikroislem_o <= 0;
             deger1_o <= 0;
             deger2_o <= 0;
-            program_sayaci_o <= 0;
             rd_adres_o <= 0;
             imm_o <= 0;
             yz_en_o <= 0;
         end
         else begin
-            if(!ddb_kontrol_durdur_i) begin
+            if(!durdur_i) begin
                 mikroislem_o <= mikroislem_sonraki_r;
                 deger1_o <= deger1_w;
                 deger2_o <= deger2_w;
-                program_sayaci_o <= program_sayaci_i;
                 rd_adres_o <= buyruk_i[11:7];
                 imm_o <= imm_sonraki_r;
                 yapay_zeka_en_o <= buyruk_i[31];
                 lt_ltu_eq_o <= {lt_w,ltu_w,eq_w};
                 program_sayaci_artmis_o <= program_sayaci_artmis_i;
-                gecersiz_buyruk_o <= gecersiz_buyruk_r;
                 buyruk_tipi_o <= buyruk_tipi_r[1:0];
             end
         end

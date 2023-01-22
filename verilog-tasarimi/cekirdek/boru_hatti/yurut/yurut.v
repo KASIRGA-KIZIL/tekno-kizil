@@ -16,13 +16,13 @@ module yurut(
     input  wire [31:0] program_sayaci_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
     input  wire [31:0] deger1_i,                 // Islem birimi girdileri. Yonlendirme ve Immediate secilmis son degerler.
     input  wire [31:0] deger2_i,
-    input  wire        yz_en_i,                  // yapay zeka buyruklari rs2 enable biti
+    input  wire        yapay_zeka_en_i,          // yapay zeka buyruklari rs2 enable biti
 
     // Branch ve Jump buyruklari icin. Hepsi ayni cevrimde gidecek
     input  wire [ 2:0] lt_ltu_eq_i,             // Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
     input  wire [ 1:0] buyruk_tipi_i,           // J veya B veya digertip. Eger J tipiyse direkt atlanilacak. B tipiyse kosula bakilcak.
     output wire [31:0] yeni_program_sayaci_o,   // Atlanilan yeni program sayaci, pc+imm veya rs1+imm degerini tasiyor.
-    output wire program_sayaci_gecerli_o        // Yeni program sayacinin gecerli olup olmadiginin sinyali. J tipinde hep gecerli
+    output wire program_sayaci_gecerli_o,       // Yeni program sayacinin gecerli olup olmadiginin sinyali. J tipinde hep gecerli
 
     // Dallanma Ongorucu icin. Hepsi ayni cevrimde gidecek
     input  wire [31:0] program_sayaci_i,        // Suanki buyrugun PC'si. Branch Target Buffer icin gerekli.
@@ -36,7 +36,11 @@ module yurut(
     output reg [ 4:0] rd_adres_o,              // Rd'nin adresi
     output reg [31:0] program_sayaci_artmis_o, // Rd=PC+4/2 islemi icin gerekli
     output reg [31:0] rd_deger_o,              // islem birimlerinden cikan sonuc
-    output reg [ 2:0] mikroislem_o             // Rd secimi ve write enable sinyalleri
+    output reg [31:0] bib_deger_o,             // Bellek Islem Biriminin ciktisi.
+    output reg [ 2:0] mikroislem_o,            // Rd secimi ve write enable sinyalleri
+
+    // Yonlendirme icin
+    output wire [31:0] yonlendir_deger_o
 );
 
     // hepsinde sonuc olmayacak duzenlemek lazim
@@ -79,6 +83,8 @@ module yurut(
     assign yeni_program_sayaci_o = amb_sonuc_w;
     assign buyruk_tipi_o = buyruk_tipi_i;
     assign program_sayaci_o = program_sayaci_i;
+
+    assign yonlendir_deger_o = rd_deger_sonraki_w;
 
     always @(posedge clk_i) begin
         if(rst_i) begin

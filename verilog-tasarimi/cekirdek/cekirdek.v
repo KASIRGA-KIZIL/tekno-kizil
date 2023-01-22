@@ -10,7 +10,7 @@ module cekirdek(
     input [31:0] l1b_buyruk_i,
     input l1b_buyruk_gecerli_i,
     input l1b_hazir_i,
-    
+
     input [31:0] program_sayaci_i,
 
     input [31:0] oku_veri_i,
@@ -18,56 +18,82 @@ module cekirdek(
 
     output [31:0] l1b_ps_o,
     output l1b_ps_gecerli_o
-    
+
 );
 
-    wire [31:0] coz_ps_w;
-    wire [31:0] coz_buyruk_w;
-    wire coz_gecerli_w;
-    wire coz_buyruk_compressed_w;
+    wire [ 4:0] gy_yaz_adres_w;
+    wire [31:0] gy_yaz_deger_w;
+    wire        gy_yaz_yazmac_w;
 
-    wire [4:0] rd_adres_w;
-    wire [31:0] deger1_w;
-    wire [31:0] deger2_w;
-    wire [2:0] lt_ltu_eq_w;
-    wire [31:0] program_sayaci_artmis_w;
-    wire yz_en_w;
-
-    wire [MI_BIT-1:0] mikroislem_w;
-
-    wire [4:0] yrt_rd_adres_w;
-    wire [31:0] yrt_rd_deger_w;
-    wire yrt_yaz_yazmac_w;
+    wire [31:0] yrt_yeni_program_sayaci_w;
+    wire        yrt_program_sayaci_gecerli_w;
+    wire [31:0] yrt_yurut_program_sayac_w;
+    wire        yrt_tahmin_dogru_w;
+    wire [ 1:0] yrt_buyruk_tipi_w;
+    wire [31:0] yrt_program_sayaci_w;
+    wire [ 4:0] yrt_rd_adres_w;
     wire [31:0] yrt_program_sayaci_artmis_w;
+    wire [31:0] yrt_rd_deger_w;
+    wire [31:0] yrt_bib_deger_w;
+    wire [ 2:0] yrt_mikroislem_w;
+    wire [31:0] yrt_yonlendir_deger_w;
 
-    wire [4:0] yaz_adres_w;
-    wire [31:0] yaz_deger_w;
-    wire yaz_yazmac_w;
+    wire [`MI_BIT-1:0] cyo_mikroislem_w;
+    wire [31:0] cyo_deger1_w;
+    wire [31:0] cyo_deger2_w;
+    wire [ 2:0] cyo_lt_ltu_eq_w;
+    wire [ 1:0] cyo_buyruk_tipi_w;
+    wire [31:0] cyo_program_sayaci_artmis_w;
+    wire [ 4:0] cyo_rd_adres_w;
+    wire        cyo_yapay_zeka_en_w;
+    wire [ 4:0] cyo_rs1_adres_w;
+    wire [ 4:0] cyo_rs2_adres_w;
+    wire        cyo_gecersiz_buyruk_w;
+
+    wire [1:0] ddb_yonlendir_deger1_w;
+    wire [1:0] ddb_yonlendir_deger2_w;
+    wire       ddb_durdur_coz_w;
+    wire       ddb_bosalt_coz_w;
+    wire       ddb_durdur_getir_w;
+    wire       ddb_bosalt_getir_w;
 
 
-    denetim_durum_birimi ddb(
-        .clk_i(clk_i),
-        .rst_i(rst_i),
-
-        .rs1_adres_coz_i(),
-        .rs2_adres_coz_i(),
-        .yaz_yazmac_geriyaz_i(),
-        .yaz_yazmac_yurut_i(),
-        .rd_adres_yurut_i(),
-        .rd_adres_geriyaz_i(),
-
-        .ddb_kontrol_durdur_coz_o(),
-        .ddb_kontrol_yonlendir_deger1_o(),
-        .ddb_kontrol_yonlendir_deger2_o()
+    denetim_durum_birimi ddb (
+        .clk_i (clk_i),
+        .rst_i (rst_i),
+        // YURUT sinyalleri
+        .program_sayaci_gecerli_i (yrt_program_sayaci_gecerli_w),
+        .tahmin_dogru_i           (yrt_tahmin_dogru_w          ),
+        .yaz_yazmac_yurut_i       (cyo_mikroislem_w[`YAZMAC]   ),
+        .rd_adres_yurut_i         (cyo_rd_adres_w              ),
+        .bib_bitti_i              (yrt_bib_bitti_w             ),
+        .yapay_zeka_bitti_i       (yrt_yapay_zeka_bitti_w      ),
+        .carpma_bitti_i           (yrt_carpma_bitti_w          ),
+        .bolme_bitti_i            (yrt_bolme_bitti_w           ),
+        // COZ sinyalleri
+        .coz_gecersiz_buyruk_i (cyo_gecersiz_buyruk_w ),
+        .rs1_adres_coz_i       (cyo_rs1_adres_w       ),
+        .rs2_adres_coz_i       (cyo_rs2_adres_w       ),
+        .yonlendir_deger1_o    (ddb_yonlendir_deger1_w),
+        .yonlendir_deger2_o    (ddb_yonlendir_deger2_w),
+        .durdur_coz_o          (ddb_durdur_coz_w      ),
+        .bosalt_coz_o          (ddb_bosalt_coz_w      ),
+        // GETIR sinyalleri
+        .getir_bekle_i  (gtr_getir_bekle_w ),
+        .durdur_getir_o (ddb_durdur_getir_w),
+        .bosalt_getir_o (ddb_bosalt_getir_w),
+        // GERIYAZ sinyalleri
+        .yaz_yazmac_geriyaz_i (gy_yaz_yazmac_w),
+        .rd_adres_geriyaz_i   (gy_yaz_adres_w ),
     );
 
     getir gtr(
         .clk_i(clk_i),
         .rst_i(rst_i),
-        // denetim durum birimi sinyalleri 
+        // denetim durum birimi sinyalleri
         .ddb_ps_al_gecerli_i(),
         .ddb_ps_al_i(),
-        // onbellekten gelen guncelleme sinyalleri 
+        // onbellekten gelen guncelleme sinyalleri
         .l1b_buy_i(l1b_buyruk_i),
         .l1b_gecerli_i(l1b_buyruk_gecerli_i),
         .l1b_hazir_i(l1b_hazir_i),
@@ -77,107 +103,110 @@ module cekirdek(
         .y_guncelleme_gecerli_i(),
         .y_yanlis_ongoru_i(),
         .y_atladi_i(),
-        .y_dallanma_ps_i(), 
+        .y_dallanma_ps_i(),
         .y_atlanan_ps_i(),
         .y_buy_i(),
         .y_siradaki_ps_gecerli_i(),
         .y_siradaki_ps_i(),
         // coz'e giden cikis sinyalleri
-        // Not: ongoru varsa vermek gerekebilir?  
+        // Not: ongoru varsa vermek gerekebilir?
         .coz_ps_o(coz_ps_w),
         .coz_buy_o(coz_buyruk_w), //Not: butun buyruklarin en onemsiz iki biti 2'b11
-        .coz_gecerli_o(coz_gecerli_w), 
-        .coz_buyruk_compressed_o(coz_buyruk_compressed_w),  
-        // onbellege giden cikis sinyalleri   
+        .coz_gecerli_o(coz_gecerli_w),
+        .coz_buyruk_compressed_o(coz_buyruk_compressed_w),
+        // onbellege giden cikis sinyalleri
         .l1b_ps_o(l1b_ps_o),
         .l1b_ps_gecerli_o(l1b_ps_gecerli_o)
     );
 
-    coz_yazmacoku cyo(
-        .clk_i(clk_i),
-        .rst_i(rst_i),
-
-        // compressed buyruklar getirde normal buyruklara donusturulecek
-        .buyruk_i(coz_buyruk_w),
-        .buyruk_gecerli_i(coz_gecerli_w),
-        //.program_sayaci_i(coz_ps_w)),
-
-        // geri yazdan gelenler
-        .yaz_adres_i(yaz_adres_w),
-        .yaz_deger_i(yaz_deger_w),
-        .yaz_yazmac_i(yaz_yazmac_w),
-
-        .mikroislem_o(mikroislem_w),
-
-        .rd_adres_o(rd_adres_w), // geri yaza kadar gitmesi lazim
-        //.yaz_yazmac_o(),     // geri yaza kadar gitmesi lazim
-
-        .deger1_o(deger1_w), // her seyi secilmis ALU'lara giden iki deger
-        .deger2_o(deger2_w),
-
-        // Branch buyruklari icin gerekli (if(r1<r2) rd=pc+imm) vs.
-        .lt_ltu_eq_o(lt_ltu_eq_w),  // degerler arasindaki iliski. lt:lessthan, ltu: lessthan_unsigned, eq: equal
-
-        // DDB yonlendirme sinyalleri ve geriyaz/yurut bolumunden veri yonlendirmeleri
-        .ddb_kontrol_yonlendir_deger1_i(),
-        .ddb_kontrol_yonlendir_deger2_i(),
-
-        .yonlendir_geri_yaz_deger_i(),
-        .yonlendir_yurut_deger_i(),
-
-        // coz_ps_w yi yurute vermek icin bir asama cekirdekte bekletsek daha iyi olmaz mi?
-        // aynisi diger degisime ugramadan gecen degerler icin?
-        .program_sayaci_artmis_i(coz_ps_w), // geri yaza kadar gitmesi lazim
-        .program_sayaci_artmis_o(program_sayaci_artmis_w), // geri yaza kadar gitmesi lazim
-
-        .output reg yz_en_o(yz_en_w)
+    coz_yazmacoku cyo ( // OK
+        .clk_i (clk_i),
+        .rst_i (rst_i),
+        // GETIR'den gelen sinyaller
+        .buyruk_i         (gtr_buyruk_W        ),
+        .program_sayaci_i (gtr_program_sayaci_W),
+        // YURUT'e giden sinyaller
+        .mikroislem_o     (cyo_mikroislem_w ),
+        .deger1_o         (cyo_deger1_w     ),
+        .deger2_o         (cyo_deger2_w     ),
+        .lt_ltu_eq_o      (cyo_lt_ltu_eq_w  ),
+        .buyruk_tipi_o    (cyo_buyruk_tipi_w),
+        // GERIYAZ'a kadar giden sinyaller
+        .program_sayaci_artmis_i (gtr_program_sayaci_artmis_w),
+        .program_sayaci_artmis_o (cyo_program_sayaci_artmis_w),
+        .rd_adres_o              (cyo_rd_adres_w             ),
+        // GERIYAZ'dan gelen sinyaller
+        .yaz_adres_i  (gy_yaz_adres_w ),
+        .yaz_deger_i  (gy_yaz_deger_w ),
+        .yaz_yazmac_i (gy_yaz_yazmac_w),
+        // Yonlendirme (Forwarding) sinyalleri
+        .yonlendir_geriyaz_deger_i (gy_yonlendir_geriyaz_deger_w),
+        .yonlendir_yurut_deger_i   (yrt_yonlendir_deger_w       ),
+        // Denetim Durum Birimi sinyalleri
+        .durdur_i           (ddb_durdur_coz_w      ),
+        .bosalt_i           (ddb_bosalt_coz_w      ),
+        .yonlendir_deger1_i (ddb_yonlendir_deger1_w),
+        .yonlendir_deger2_i (ddb_yonlendir_deger2_w),
+        .rs1_adres_o        (cyo_rs1_adres_w       ),
+        .rs2_adres_o        (cyo_rs2_adres_w       ),
+        .gecersiz_buyruk_o  (cyo_gecersiz_buyruk_w )
     );
 
-    yurut yrt(
-        .clk_i(clk_i),
-        .rst_i(rst_i),
-
-        .mikroislem_i(mikroislem_w),
-        //.yaz_yazmac_i(),
-
-        .rd_adres_i(rd_adres_w),               // geri yaza kadar gitmesi lazim
-        .program_sayaci_artmis_i(program_sayaci_artmis_w),  // geri yaza kadar gitmesi lazim
-
-        .deger1_i(deger1_w), // anlik/yazmac vs. secilmis son ALU girdileri
-        .deger2_i(deger2_w),
-
-        // jump ve branch icin
-        .lt_ltu_eq_i(lt_ltu_eq_w),        // degerler arasindaki iliski. lt_ltu_i[0]: lessthan r1<r2, lt_ltu_i[1]: lt unsigned r1<r2 unsigned
-
-        .program_sayaci_o(),  // ayni cevrimde gitmeli
-        .program_sayaci_guncelle_o(), // ayni cevrimde gitmeli
-
-        .yz_en_i(yz_en_w), // yapay zeka icin enable biti
-
-        .rd_adres_o(yrt_rd_adres_w),              // geri yaza kadar gitmesi lazim
-        .program_sayaci_artmis_o(yrt_program_sayaci_artmis_w), // geri yaza kadar gitmesi lazim
-
-        .rd_deger_o(yrt_rd_deger_w), // islem birimlerinden cikan sonuc
-        .yaz_yazmac_o(yrt_yaz_yazmac_w)
+    yurut yrt (
+        .clk_i (clk_i ),
+        .rst_i (rst_i ),
+        // Veri yolu icin
+        .mikroislem_i            (cyo_mikroislem_w           ),
+        .yaz_yazmac_i            (cyo_yaz_yazmac_w           ),
+        .rd_adres_i              (cyo_rd_adres_w             ),
+        .program_sayaci_artmis_i (cyo_program_sayaci_artmis_w),
+        .deger1_i                (cyo_deger1_w               ),
+        .deger2_i                (cyo_deger2_w               ),
+        .yapay_zeka_en_i         (cyo_yapay_zeka_en_w        ),
+        // Branch ve Jump buyruklari icin. Hepsi ayni cevrimde gidecek
+        .lt_ltu_eq_i              (cyo_lt_ltu_eq_w             ),
+        .buyruk_tipi_i            (cyo_buyruk_tipi_w           ),
+        .yeni_program_sayaci_o    (yrt_yeni_program_sayaci_w   ),
+        .program_sayaci_gecerli_o (yrt_program_sayaci_gecerli_w),
+        // Dallanma Ongorucu icin. Hepsi ayni cevrimde gidecek
+        .program_sayaci_i      (cyo_program_sayaci_w     ),
+        .coz_program_sayaci_i  (cyo_coz_program_sayaci_w ),
+        .yurut_program_sayac_o (yrt_yurut_program_sayac_w),
+        .tahmin_dogru_o        (yrt_tahmin_dogru_w       ),
+        .buyruk_tipi_o         (yrt_buyruk_tipi_w        ),
+        .program_sayaci_o      (yrt_program_sayaci_w     ),
+        // GERIYAZ icin
+        .rd_adres_o              (yrt_rd_adres_w             ),
+        .program_sayaci_artmis_o (yrt_program_sayaci_artmis_w),
+        .rd_deger_o              (yrt_rd_deger_w             ),
+        .mikroislem_o            (yrt_mikroislem_w           ),
+        .bib_deger_o             (yrt_bib_deger_w            ),
+        .yonlendir_deger_o       (yrt_yonlendir_deger_w      )
     );
 
-    geri_yaz gy(
-        .clk_i(clk_i),
-        .rst_i(rst_i),
-
-        .sec_geri_yaz_i(),
-
-        .rd_adres_i(yrt_rd_adres_w),
-        .rd_deger_i(yrt_rd_deger_w),
-        .yaz_yazmac_i(yrt_yaz_yazmac_w),
-
-        .bib_deger_i(),
-        .program_sayaci_artmis_i(yrt_program_sayaci_artmis_w),
-
-        .yaz_adres_o(yaz_adres_w),
-        .yaz_deger_o(yaz_deger_w),
-        .yaz_yazmac_o(yaz_yazmac_w)
+    geri_yaz gy ( // OK
+        .clk_i (clk_i),
+        .rst_i (rst_i),
+        // YURUT'ten gelenler
+        .rd_adres_i              (yrt_rd_adres_w),
+        .rd_deger_i              (yrt_rd_deger_w),
+        .mikroislem_i            (yrt_mikroislem_w),
+        .bib_deger_i             (yrt_bib_deger_w),
+        .program_sayaci_artmis_i (yrt_program_sayaci_artmis_w),
+        // COZ'e gidenler
+        .yaz_adres_o  (gy_yaz_adres_w ),
+        .yaz_deger_o  (gy_yaz_deger_w ),
+        .yaz_yazmac_o (gy_yaz_yazmac_w)
     );
-
 
 endmodule
+
+
+
+
+
+
+
+
+
+
