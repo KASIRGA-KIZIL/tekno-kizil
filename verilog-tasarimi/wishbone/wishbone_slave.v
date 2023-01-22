@@ -3,7 +3,7 @@
 
 `include "tanimlamalar.vh"
 
-module wishbone_master#(
+module wishbone_slave#(
     parameter CHIP_NO = 0
 )(
     //syscon
