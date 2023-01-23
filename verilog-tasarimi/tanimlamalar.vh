@@ -203,7 +203,7 @@
 `define DAL_GEU    3'b101
 `define DAL_JAL    3'b110 // jalr nin aynisi
 `define DAL_JALR   3'b110 // jal in aynisi
-`define DAL_YOK    3'h111 // Kesin deger almali. 3'hx ya da 3'h? olmamali. Surekli okunan bir deger.
+`define DAL_YOK    3'b111 // Kesin deger almali. 3'hx ya da 3'h? olmamali. Surekli okunan bir deger.
 
 `define AMB_TOPLAMA  4'h0
 `define AMB_CIKARMA  4'h1
@@ -228,7 +228,7 @@
 `define CARPMA_MULH   2'h1
 `define CARPMA_MULHSU 2'h2
 `define CARPMA_MULHU  2'h3
-`define CARPMA_YOK    2'h?? // Eger BIRIM_CARPMA degilse icerde ne oldugu onemsiz
+`define CARPMA_YOK    2'h? // Eger BIRIM_CARPMA degilse icerde ne oldugu onemsiz
 
 `define BIB_LB        3'h0
 `define BIB_LBU       3'h1
@@ -254,6 +254,8 @@
 `define YZH_CLR_X  3'h3
 `define YZH_RUN    3'h4
 `define YZH_YOK    3'h? //Eger BIRIM_CONV degilse icerde ne oldugu onemsiz
+
+// bible bolmeyi cikarabiliriz
 
 `define ADD_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_TOPLAMA, `DAL_YOK, `BIRIM_AMB, `OPERAND_REG,   `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define SUB_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_CIKARMA, `DAL_YOK, `BIRIM_AMB, `OPERAND_REG,   `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}

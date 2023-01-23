@@ -10,6 +10,7 @@ module coz_yazmacoku(
 
     // GETIR'den gelen sinyaller
     input [31:0] buyruk_i,
+    input buyruk_gecerli_i,
     input [31:0] program_sayaci_i,
 
     // YURUT'e giden sinyaller
@@ -18,7 +19,7 @@ module coz_yazmacoku(
     output reg [31:0] deger2_o,
     output reg [ 2:0] lt_ltu_eq_o,          // Dallanma ve atlama icin gerekli. Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
     output reg [ 1:0] buyruk_tipi_o,        // J veya B tipi veya digertip, branch/jump buyruklari icin
-    output reg        yapay_zeka_en_o       // Yapay zeka biriminin rs2 icin yazma(enable) sinyali
+    output reg        yapay_zeka_en_o,       // Yapay zeka biriminin rs2 icin yazma(enable) sinyali
 
     // GERIYAZ'a kadar giden sinyaller
     input      [31:0] program_sayaci_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
@@ -44,11 +45,15 @@ module coz_yazmacoku(
     output       gecersiz_buyruk_o   // Cozulen buyruk gecersiz.
 );
 
+    reg [31:0] buyruk_r = 0;
+    reg buyruk_compressed_r = 0;
+    reg buyruk_gecerli_r = 0;
+    
     // 30:29, 27, 25, 21:20, 14:12, 6:2
-    wire [`BUYRUK_COZ_BIT-1:0] buyruk_coz_w = {buyruk_i[30:29], buyruk_i[27], buyruk_i[25], buyruk_i[21:20], buyruk_i[14:12], buyruk_i[6:2]};
+    wire [`BUYRUK_COZ_BIT-1:0] buyruk_coz_w = {buyruk_r[30:29], buyruk_r[27], buyruk_r[25], buyruk_r[21:20], buyruk_r[14:12], buyruk_r[6:2]};
 
-    wire [4:0] rs1_adres_w = buyruk_i[19:15];
-    wire [4:0] rs2_adres_w = buyruk_i[24:20];
+    wire [4:0] rs1_adres_w = buyruk_r[19:15];
+    wire [4:0] rs2_adres_w = buyruk_r[24:20];
 
     reg [`MI_BIT-1:0] mikroislem_sonraki_r = 0;
 
@@ -57,6 +62,7 @@ module coz_yazmacoku(
     reg [31:0] deger2_sonraki_r = 0;
 
     reg [31:0] imm_sonraki_r = 0;
+    reg [31:0] imm_r = 0;
 
     reg [31:0] program_sayaci_sonraki_r = 0;
 
@@ -74,7 +80,7 @@ module coz_yazmacoku(
 
     wire [31:0] deger1_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) ? program_sayaci_i : deger1_tmp_w;
 
-    wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) ? imm_o : rs2_deger_w;
+    wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) ? imm_r : rs2_deger_w;
 
     wire [31:0] deger2_w = (yonlendir_deger2_i  == `YON_GERIYAZ  ) ? yonlendir_geriyaz_deger_i :
                            (yonlendir_deger2_i  == `YON_YURUT    ) ? yonlendir_yurut_deger_i    :
@@ -85,8 +91,238 @@ module coz_yazmacoku(
     wire ltu_w = (deger1_tmp_w  < deger2_w);
     wire eq_w  = (deger1_tmp_w == deger2_w);
 
+    // 16 bit compressedleri 32 bit buyruklara genislet
     always @* begin
-        gecersiz_buyruk_r = 1'b0;
+        buyruk_r = 1'b0;
+        buyruk_gecerli_r = 1'b0;
+        buyruk_compressed_r = 1'b0;
+        
+        if(buyruk_gecerli_i) begin
+            buyruk_gecerli_r = 1'b1;
+            
+            case (buyruk_i[1:0])
+                // 32 bit buyruk
+                2'b11: begin
+                    buyruk_r = buyruk_i;
+                    buyruk_gecerli_r = 1'b1; // burada gecerliymis kabul et cozde gecersizleri belirlersin
+                    buyruk_compressed_r = 1'b0;
+                end
+
+                // if-elseleri kaldirarak kendi icinde bitleri orlayabilirim
+                // compressedler icin de tanimlamalar.vhta tablo kurulup burada genisletilebilir, dest0var, dest0yok gibi
+
+                // Compressedleri getirde 32 bit buyruk esleniklerine genisletiyoruz
+                
+                // compressed 16 bit quadrant 0
+                2'b00: begin
+                    buyruk_compressed_r = 1'b1;
+                    
+                    case (buyruk_i[15:14])
+                        2'b00: begin
+                          if(buyruk_i[12:5] == 8'h00)
+                              buyruk_gecerli_r = 1'b0;
+                          else
+                              // c.addi4spn -> addi rd', x2, nzuimm
+                              buyruk_r = {2'b0, buyruk_i[10:7], buyruk_i[12:11], buyruk_i[5], buyruk_i[6], 2'b00, 5'h02, 3'b000, 2'b01, buyruk_i[4:2], 7'h13};
+                        end
+
+                        2'b01: begin
+                          // c.lw -> lw rd', uimm(rs1')
+                          buyruk_r = {5'b0, buyruk_i[5], buyruk_i[12:10], buyruk_i[6], 2'b00, 2'b01, buyruk_i[9:7], 3'b010, 2'b01, buyruk_i[4:2], 7'h03};
+                        end
+                           
+                        2'b10: begin
+                          buyruk_gecerli_r = 1'b0;
+                        end
+
+                        2'b11: begin
+                          // c.sw -> sw rs2', uimm(rs1')
+                          buyruk_r = {5'b0, buyruk_i[5], buyruk_i[12], 2'b01, buyruk_i[4:2], 2'b01, buyruk_i[9:7], 3'b010, buyruk_i[11:10], buyruk_i[6], 2'b00, 7'h23};
+                        end
+                    endcase
+                end
+
+                // compressed 16 bit quadrant 1
+                2'b01: begin
+                    buyruk_compressed_r = 1'b1;
+                    
+                    case (buyruk_i[15:13])
+                        3'b000: begin
+                          // c.addi -> addi rd, rd, nzimm
+                          // c.nop -> addi, 0, 0, 0
+                          // normalde c.addi icin nzimm non-zero kontrolu yapilmasi lazim ama c.nop ile beraber bu kontrole gerek yok burada
+                          buyruk_r = {{6 {buyruk_i[12]}}, buyruk_i[12], buyruk_i[6:2], buyruk_i[11:7], 3'b0, buyruk_i[11:7], 7'h13};
+                        end
+
+                        3'b001, 
+                        3'b101: begin
+                          // 001: c.jal -> jal x1, imm
+                          // 101: c.j   -> jal x0, imm
+                          buyruk_r = {buyruk_i[12], buyruk_i[8], buyruk_i[10:9], buyruk_i[6], buyruk_i[7], buyruk_i[2], buyruk_i[11], buyruk_i[5:3], {9 {buyruk_i[12]}}, 4'b0, ~buyruk_i[15], 7'h6f};
+                        end
+
+                        3'b010: begin
+                          if(buyruk_i[11:7] == 5'h00)
+                              buyruk_gecerli_r = 1'b0;
+                          else
+                              // c.li -> addi rd, x0, imm
+                              buyruk_r = {{6 {buyruk_i[12]}}, buyruk_i[12], buyruk_i[6:2], 5'b0, 3'b0, buyruk_i[11:7], 7'h13};
+                        end
+
+                        3'b011: begin
+                            if (buyruk_i[11:7] == 5'h02) begin
+                              if({buyruk_i[12], buyruk_i[6:2]} == 6'h00)
+                                buyruk_gecerli_r = 1'b0;
+                              else
+                                // c.addi16sp -> addi x2, x2, nzimm
+                                buyruk_r = {{3 {buyruk_i[12]}}, buyruk_i[4:3], buyruk_i[5], buyruk_i[2], buyruk_i[6], 4'b0, 5'h02, 3'b000, 5'h02, 7'h13};
+                            end
+                            else if (buyruk_i[11:7] == 5'h00) begin
+                              buyruk_gecerli_r = 1'b0;
+                            end
+                            else begin
+                              if({buyruk_i[12], buyruk_i[6:2]} == 6'h00)
+                                buyruk_gecerli_r = 1'b0;
+                              else
+                                // c.lui -> lui rd, nzimm
+                                buyruk_r = {{15 {buyruk_i[12]}}, buyruk_i[6:2], buyruk_i[11:7], 7'h37};
+                            end
+
+                        end
+
+                        3'b100: begin
+                          case (buyruk_i[11:10])
+                            2'b00,
+                            2'b01: begin
+                              if(buyruk_i[12] == 1'b1) // must be zero
+                                buyruk_gecerli_r = 1'b0;
+                              else
+                                // burada 12.yi kontrol etmeme gerek yok
+                                if({buyruk_i[12], buyruk_i[6:2]} == 6'h00) // shift amount must be non-zero
+                                  buyruk_gecerli_r = 1'b0;
+                                else
+                                  // 00: c.srli -> srli rd, rd, shamt
+                                  // 01: c.srai -> srai rd, rd, shamt
+                                  buyruk_r = {1'b0, buyruk_i[10], 5'b0, buyruk_i[6:2], 2'b01, buyruk_i[9:7], 3'b101, 2'b01, buyruk_i[9:7], 7'h13};
+                            end
+
+                            2'b10: begin
+                              // c.andi -> andi rd, rd, imm
+                              buyruk_r = {{6 {buyruk_i[12]}}, buyruk_i[12], buyruk_i[6:2], 2'b01, buyruk_i[9:7], 3'b111, 2'b01, buyruk_i[9:7], 7'h13};
+                            end
+
+                            2'b11: begin
+                              case (buyruk_i[6:5])
+                                2'b00: begin
+                                  // c.sub -> sub rd', rd', rs2'
+                                  buyruk_r = {2'b01, 5'b0, 2'b01, buyruk_i[4:2], 2'b01, buyruk_i[9:7], 3'b000, 2'b01, buyruk_i[9:7], 7'h33};
+                                end
+
+                                2'b01: begin
+                                  // c.xor -> xor rd', rd', rs2'
+                                  buyruk_r = {7'b0, 2'b01, buyruk_i[4:2], 2'b01, buyruk_i[9:7], 3'b100, 2'b01, buyruk_i[9:7], 7'h33};
+                                end
+
+                                2'b10: begin
+                                  // c.or  -> or  rd', rd', rs2'
+                                  buyruk_r = {7'b0, 2'b01, buyruk_i[4:2], 2'b01, buyruk_i[9:7], 3'b110,
+                                            2'b01, buyruk_i[9:7], 7'h33};
+                                end
+
+                                2'b11: begin
+                                  // c.and -> and rd', rd', rs2'
+                                  buyruk_r = {7'b0, 2'b01, buyruk_i[4:2], 2'b01, buyruk_i[9:7], 3'b111, 2'b01, buyruk_i[9:7], 7'h33};
+                                end
+                              endcase
+                            end
+                          endcase
+                        end
+
+                        3'b110, 
+                        3'b111: begin
+                          // 110: c.beqz -> beq rs1', x0, imm
+                          // 111: c.bnez -> bne rs1', x0, imm
+                          buyruk_r = {{4 {buyruk_i[12]}}, buyruk_i[6:5], buyruk_i[2], 5'b0, 2'b01, buyruk_i[9:7], 2'b00, buyruk_i[13], buyruk_i[11:10], buyruk_i[4:3], buyruk_i[12], 7'h63};
+                        end
+                    endcase
+                end
+
+                // compressed 16 bit quadrant 2
+                2'b10: begin
+                    buyruk_compressed_r = 1'b1;
+                    
+                    case (buyruk_i[15:14])
+                        2'b00: begin
+                          if(buyruk_i[12] == 1'b1) // must be zero
+                            buyruk_gecerli_r = 1'b0;
+                          else
+                            // burada 12.yi kontrol etmeme gerek yok
+                            if({buyruk_i[12], buyruk_i[6:2]} == 6'h00) // shift amount must be non-zero
+                              buyruk_gecerli_r = 1'b0;
+                            else
+                              // c.slli -> slli rd, rd, shamt
+                              buyruk_r = {7'b0, buyruk_i[6:2], buyruk_i[11:7], 3'b001, buyruk_i[11:7], 7'h13};
+                        end
+
+                        2'b01: begin
+                          if(buyruk_i[11:7] == 5'h00)
+                            buyruk_gecerli_r = 1'b0;
+                          else
+                            // c.lwsp -> lw rd, uimm(x2)
+                            buyruk_r = {4'b0, buyruk_i[3:2], buyruk_i[12], buyruk_i[6:4], 2'b00, 5'h02, 3'b010, buyruk_i[11:7], 7'h03};
+                        end
+
+                        2'b10: begin
+                          if (buyruk_i[12] == 1'b0) begin
+                            if (buyruk_i[11:7] == 5'h00) begin
+                              buyruk_gecerli_r = 1'b0;
+                            end
+                            else begin
+                              if (buyruk_i[6:2] == 5'h00) begin
+                                // c.jr -> jalr x0, rd/rs1, 0
+                                buyruk_r = {12'b0, buyruk_i[11:7], 3'b0, 5'b0, 7'h67};
+                              end 
+                              else begin
+                                // c.mv -> add rd/rs1, x0, rs2
+                                buyruk_r = {7'b0, buyruk_i[6:2], 5'b0, 3'b0, buyruk_i[11:7], 7'h33};
+                              end
+                            end
+                          end
+                          else begin
+                            if (buyruk_i[6:2] == 5'h00) begin
+                              if (buyruk_i[11:7] == 5'h00) begin
+                                // c.ebreak -> ebreak
+                                buyruk_r = {32'h00_10_00_73};
+                              end 
+                              else begin
+                                // c.jalr -> jalr x1, rs1, 0
+                                buyruk_r = {12'b0, buyruk_i[11:7], 3'b000, 5'b00001, 7'h67};
+                              end
+                            end 
+                            else begin
+                              if (buyruk_i[11:7] == 5'h00)
+                                buyruk_gecerli_r = 1'b0;
+                              else
+                                // c.add -> add rd, rd, rs2
+                                buyruk_r = {7'b0, buyruk_i[6:2], buyruk_i[11:7], 3'b0, buyruk_i[11:7], 7'h33};
+                            end
+                          end
+                        end
+
+                        2'b11: begin
+                          // c.swsp -> sw rs2, uimm(x2)
+                          buyruk_r = {4'b0, buyruk_i[8:7], buyruk_i[12], buyruk_i[6:2], 5'h02, 3'b010, buyruk_i[11:9], 2'b00, 7'h23};
+                        end
+                    endcase
+                end
+            endcase
+        end
+    end
+    
+    always @* begin
+        //gecersiz_buyruk_r = 1'b0;
+        gecersiz_buyruk_r = ~buyruk_gecerli_r;
+        
         // Cozulmesi gereken bitler 14 bit 30:29, 27, 25, 21:20, 14:12, 6:2
         // bitleri en tamam olandan olmayana kadar gitmek gerek.
         casez(buyruk_coz_w)
@@ -318,12 +554,13 @@ module coz_yazmacoku(
         // ayrica digerlerinde de sign extend yapmamis oluyoruz
         // imm_sonraki_r = {{27{1'b0}}, buyruk_i[24:20]};
         // burasi 0li?
-        if(mikroislem_sonraki_r == `SLLI_MI)
-            imm_sonraki_r[31:5] = {27{1'b0}};
-        if(mikroislem_sonraki_r == `SRLI_MI)
-            imm_sonraki_r[31:5] = {27{1'b0}};
-        if(mikroislem_sonraki_r == `SRAI_MI)
-            imm_sonraki_r[31:5] = {27{1'b0}};
+        // eger yurutte son 5 bite bakiliyorsa burada bu kontrole gerek yok
+        //if(mikroislem_sonraki_r == `SLLI_MI)
+        //    imm_sonraki_r[31:5] = {27{1'b0}};
+        //if(mikroislem_sonraki_r == `SRLI_MI)
+        //    imm_sonraki_r[31:5] = {27{1'b0}};
+        //if(mikroislem_sonraki_r == `SRAI_MI)
+        //    imm_sonraki_r[31:5] = {27{1'b0}};
     end
 
 
@@ -333,8 +570,8 @@ module coz_yazmacoku(
             deger1_o <= 0;
             deger2_o <= 0;
             rd_adres_o <= 0;
-            imm_o <= 0;
-            yz_en_o <= 0;
+            imm_r <= 0;
+            yapay_zeka_en_o <= 0;
         end
         else begin
             if(!durdur_i) begin
@@ -342,7 +579,7 @@ module coz_yazmacoku(
                 deger1_o <= deger1_w;
                 deger2_o <= deger2_w;
                 rd_adres_o <= buyruk_i[11:7];
-                imm_o <= imm_sonraki_r;
+                imm_r <= imm_sonraki_r;
                 yapay_zeka_en_o <= buyruk_i[31];
                 lt_ltu_eq_o <= {lt_w,ltu_w,eq_w};
                 program_sayaci_artmis_o <= program_sayaci_artmis_i;

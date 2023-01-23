@@ -25,7 +25,7 @@ module yurut(
 
     // Dallanma Ongorucu icin. Hepsi ayni cevrimde gidecek
     input  wire [31:0] program_sayaci_i,        // Suanki buyrugun PC'si. Branch Target Buffer icin gerekli.
-    input  wire [31:0] coz_program_sayaci_i,    // Tahmin dogru mu bakmak icin. COZ'un PC'si. Cozdeki buyruga ait.
+    input  wire [31:0] coz_program_sayaci_artmis_i,    // Tahmin dogru mu bakmak icin. COZ'un PC'si. Cozdeki buyruga ait.
     output wire [31:0] yurut_program_sayac_o,   // Atlamayi isteyen buyrugun PC'si. Yurutteki buyruga ait.
     output wire        tahmin_dogru_o,          // COZ'deki PC yuruttekine esit mi? Esitse dogru tahmin
     output wire [ 1:0] buyruk_tipi_o,           // Jtipi mi B tipi mi.

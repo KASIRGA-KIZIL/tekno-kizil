@@ -84,7 +84,7 @@ module cekirdek(
         .bosalt_getir_o (ddb_bosalt_getir_w),
         // GERIYAZ sinyalleri
         .yaz_yazmac_geriyaz_i (gy_yaz_yazmac_w),
-        .rd_adres_geriyaz_i   (gy_yaz_adres_w ),
+        .rd_adres_geriyaz_i   (gy_yaz_adres_w )
     );
 
     getir gtr(
@@ -198,6 +198,24 @@ module cekirdek(
         .yaz_yazmac_o (gy_yaz_yazmac_w)
     );
 
+    /*
+    reg [31:0] yurutegirenps;
+    reg [31:0] ps_temp;
+    
+    // ayri bir ps boru hatti olsun burada
+    //ps4
+    //ps2
+    //psimm
+    // getirde hesaplansin cekirdekten output olarak islemciye ciksin
+    
+    
+    always @(posedge clk_i) begin
+        ps_temp <= getir_ps;
+        yurutegirenps <= ps_temp;
+    end
+    */
+    
+    
 endmodule
 
 
