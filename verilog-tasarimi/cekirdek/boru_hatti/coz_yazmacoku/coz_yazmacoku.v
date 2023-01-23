@@ -32,14 +32,13 @@ module coz_yazmacoku(
     input yaz_yazmac_i,           // Rd'ye sonuc yazilacak mi
 
     // Yonlendirme (Forwarding) sinyalleri
-    input [31:0] yonlendir_geriyaz_deger_i,
     input [31:0] yonlendir_yurut_deger_i,
 
     // Denetim Durum Birimi sinyalleri
     input        durdur_i,           // COZ'u durdur
     input        bosalt_i,           // COZ'u bosalt
-    input  [1:0] yonlendir_deger1_i, // YURUT ve GERIYAZ'dan gelen degerleri yonlendir
-    input  [1:0] yonlendir_deger2_i,
+    input  [1:0] yonlendir_kontrol1_i, // YURUT ve GERIYAZ'dan gelen degerleri yonlendir
+    input  [1:0] yonlendir_kontrol2_i,
     output [4:0] rs1_adres_o,        // Suanki buyrugun rs adresleri. Yonlendirme icin.
     output [4:0] rs2_adres_o,
     output       gecersiz_buyruk_o   // Cozulen buyruk gecersiz.
@@ -72,18 +71,18 @@ module coz_yazmacoku(
     wire [31:0] rs1_deger_w; // okunan 1. yazmac
     wire [31:0] rs2_deger_w; // okunan 2. yazmac
 
-    wire [31:0] deger1_tmp_w = (yonlendir_deger1_i == `YON_GERIYAZ   ) ? yonlendir_geriyaz_deger_i :
-                               (yonlendir_deger1_i == `YON_YURUT     ) ? yonlendir_yurut_deger_i    :
-                               (yonlendir_deger1_i == `YON_HICBISEY  ) ? rs1_deger_w    :
+    wire [31:0] deger1_tmp_w = (yonlendir_kontrol1_i == `YON_GERIYAZ   ) ? yaz_deger_i :
+                               (yonlendir_kontrol1_i == `YON_YURUT     ) ? yonlendir_yurut_deger_i    :
+                               (yonlendir_kontrol1_i == `YON_HICBISEY  ) ? rs1_deger_w    :
                                                                                     rs1_deger_w;
 
     wire [31:0] deger1_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) ? program_sayaci_i : deger1_tmp_w;
 
     wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) ? imm_r : rs2_deger_w;
 
-    wire [31:0] deger2_w = (yonlendir_deger2_i  == `YON_GERIYAZ  ) ? yonlendir_geriyaz_deger_i :
-                           (yonlendir_deger2_i  == `YON_YURUT    ) ? yonlendir_yurut_deger_i    :
-                           (yonlendir_deger2_i  == `YON_HICBISEY ) ? deger2_tmp_w    :
+    wire [31:0] deger2_w = (yonlendir_kontrol2_i  == `YON_GERIYAZ  ) ? yaz_deger_i :
+                           (yonlendir_kontrol2_i  == `YON_YURUT    ) ? yonlendir_yurut_deger_i    :
+                           (yonlendir_kontrol2_i  == `YON_HICBISEY ) ? deger2_tmp_w    :
                                                                                 deger2_tmp_w;
 
     wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_w));

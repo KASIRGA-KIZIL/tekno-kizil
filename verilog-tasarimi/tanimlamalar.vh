@@ -177,7 +177,7 @@
 `define GERIYAZ_KAYNAK_BIB    2'd0
 `define GERIYAZ_KAYNAK_YURUT  2'd1
 `define GERIYAZ_KAYNAK_PC     2'd2
-`define GERIYAZ_KAYNAK_YOK    2'd?
+`define GERIYAZ_KAYNAK_YOK    2'd0
 
 `define YAZMAC_YAZMA 1'b0
 `define YAZMAC_YAZ   1'b1
@@ -203,7 +203,7 @@
 `define DAL_GEU    3'b101
 `define DAL_JAL    3'b110 // jalr nin aynisi
 `define DAL_JALR   3'b110 // jal in aynisi
-`define DAL_YOK    3'b111 // Kesin deger almali. 3'hx ya da 3'h? olmamali. Surekli okunan bir deger.
+`define DAL_YOK    3'b111 // Kesin deger almali. 3'hx ya da 3'h0 olmamali. Surekli okunan bir deger.
 
 `define AMB_TOPLAMA  4'h0
 `define AMB_CIKARMA  4'h1
@@ -216,19 +216,19 @@
 `define AMB_SLT      4'h8
 `define AMB_SLTU     4'h9
 `define AMB_GECIR    4'ha // deger2 yi aynen gecirsin. sonuc = deger2. LUI icin gerekli
-`define AMB_YOK      4'h? // Eger BIRIM_AMB degilse icerde ne oldugu onemsiz
+`define AMB_YOK      4'h0 // Eger BIRIM_AMB degilse icerde ne oldugu onemsiz
 
 `define BOLME_DIV   2'h0
 `define BOLME_DIVU  2'h1
 `define BOLME_REM   2'h2
 `define BOLME_REMU  2'h3
-`define BOLME_YOK   2'h? // Eger BIRIM_BOLME degilse icerde ne oldugu onemsiz
+`define BOLME_YOK   2'h0 // Eger BIRIM_BOLME degilse icerde ne oldugu onemsiz
 
 `define CARPMA_MUL    2'h0
 `define CARPMA_MULH   2'h1
 `define CARPMA_MULHSU 2'h2
 `define CARPMA_MULHU  2'h3
-`define CARPMA_YOK    2'h? // Eger BIRIM_CARPMA degilse icerde ne oldugu onemsiz
+`define CARPMA_YOK    2'h0 // Eger BIRIM_CARPMA degilse icerde ne oldugu onemsiz
 
 `define BIB_LB        3'h0
 `define BIB_LBU       3'h1
@@ -238,7 +238,7 @@
 `define BIB_SB        3'h5
 `define BIB_SH        3'h6
 `define BIB_SW        3'h7
-`define BIB_YOK       3'h? // Eger BIRIM_BIB degilse icerde ne oldugu onemsiz
+`define BIB_YOK       3'h0 // Eger BIRIM_BIB degilse icerde ne oldugu onemsiz
 
 `define SIFRELEME_HMDST     3'h0
 `define SIFRELEME_PKG       3'h1
@@ -246,14 +246,14 @@
 `define SIFRELEME_SLADD     3'h3
 `define SIFRELEME_CNTZ      3'h4
 `define SIFRELEME_CNTP      3'h5
-`define SIFRELEME_YOK       3'h? //Eger BIRIM_SIFRELEME degilse icerde ne oldugu onemsiz
+`define SIFRELEME_YOK       3'h0 //Eger BIRIM_SIFRELEME degilse icerde ne oldugu onemsiz
 
 `define YZH_LD_W   3'h0
 `define YZH_CLR_W  3'h1
 `define YZH_LD_X   3'h2
 `define YZH_CLR_X  3'h3
 `define YZH_RUN    3'h4
-`define YZH_YOK    3'h? //Eger BIRIM_CONV degilse icerde ne oldugu onemsiz
+`define YZH_YOK    3'h0 //Eger BIRIM_CONV degilse icerde ne oldugu onemsiz
 
 // bible bolmeyi cikarabiliriz
 
