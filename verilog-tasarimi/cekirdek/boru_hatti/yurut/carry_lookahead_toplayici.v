@@ -11,27 +11,31 @@ output reg [BIT-1:0] sonuc_o
 );
 
 reg [BIT-1:0] elde_r=0;
-wire [BIT-1:0] cikan_w= ~deger2_i;
+reg[BIT-1:0] islenen_r;
+reg carryIn_r;
 integer i;
 
 always@(*)begin
-    if(elde_i)begin
-        elde_r[0] = (deger1_i[0] & cikan_w[0]) | (deger1_i[0] & 1) | (cikan_w[0] & 1);
-        sonuc_o[0] = deger1_i[0] ^ cikan_w[0] ^ 1;
-        for ( i = 1; i < BIT; i=i+1) begin
-            elde_r[i] = (deger1_i[i] & cikan_w[i]) | (deger1_i[i] & elde_r[i-1]) | (cikan_w[i] & elde_r[i-1]);
-            sonuc_o[i] = deger1_i[i] ^ cikan_w[i] ^ elde_r[i-1];
-        end
 
+    if(islem_i)begin
+        islenen_r=~deger2_i;
+        carryIn_r=1'b1;
     end
+    
     else begin
-        elde_r[0] = deger1_i[0] & deger2_i[0];
-        sonuc_o[0] = deger1_i[0] ^ deger2_i[0];
-        for ( i = 1; i < BIT; i=i+1) begin
-            elde_r[i] = (deger1_i[i] & deger2_i[i]) | (deger1_i[i] & elde_r[i-1]) | (deger2_i[i] & elde_r[i-1]);
-            sonuc_o[i] = deger1_i[i] ^ deger2_i[i] ^ elde_r[i-1];
-        end
+        islenen_r=deger2_i;
+        carryIn_r=1'b0;
+    end
+   
+   
+    elde_r[0] = ( deger1_i[0] & islenen_r[0]) | ( deger1_i[0] & carryIn_r) | (  islenen_r[0] & carryIn_r);
+    toplam_o[0] =  deger1_i[0] ^  islenen_r[0] ^ carryIn_r;
+    
+    for ( i = 1; i < BIT; i=i+1) begin
+        elde_r[i] = ( deger1_i[i] &   islenen_r[i]) | ( deger1_i[i] & elde_r[i-1]) | (  islenen_r[i] & elde_r[i-1]);
+        toplam_o[i] =  deger1_i[i] ^  islenen_r[i] ^ elde_r[i-1]; 
     end
 end
 
 endmodule
+
