@@ -61,7 +61,6 @@ module coz_yazmacoku(
 
     reg [31:0] deger2_sonraki_r = 0;
 
-    reg [31:0] imm_sonraki_r = 0;
     reg [31:0] imm_r = 0;
 
     reg [31:0] program_sayaci_sonraki_r = 0;
@@ -541,26 +540,26 @@ module coz_yazmacoku(
 
         // buyruk tipine gore anlik sec
         case(buyruk_tipi_r)
-            `I_Tipi: imm_sonraki_r = {{20{buyruk_i[31]}}, buyruk_i[31:20]};
-            `S_Tipi: imm_sonraki_r = {{20{buyruk_i[31]}}, buyruk_i[31:25], buyruk_i[11:7]};
-            `B_Tipi: imm_sonraki_r = {{20{buyruk_i[31]}}, buyruk_i[7], buyruk_i[30:25], buyruk_i[11:8], 1'b0};
-            `J_Tipi: imm_sonraki_r = {{12{buyruk_i[31]}}, buyruk_i[19:12], buyruk_i[20], buyruk_i[30:21], 1'b0};
-            `U_Tipi: imm_sonraki_r = {buyruk_i[31:12], 12'b0};
-            default: imm_sonraki_r = 32'hxxxxxxxx;
+            `I_Tipi: imm_r = {{20{buyruk_i[31]}}, buyruk_i[31:20]};
+            `S_Tipi: imm_r = {{20{buyruk_i[31]}}, buyruk_i[31:25], buyruk_i[11:7]};
+            `B_Tipi: imm_r = {{20{buyruk_i[31]}}, buyruk_i[7], buyruk_i[30:25], buyruk_i[11:8], 1'b0};
+            `J_Tipi: imm_r = {{12{buyruk_i[31]}}, buyruk_i[19:12], buyruk_i[20], buyruk_i[30:21], 1'b0};
+            `U_Tipi: imm_r = {buyruk_i[31:12], 12'b0};
+            default: imm_r = 32'hxxxxxxxx;
         endcase
 
         // TODO
         // burasi daha optimize edilebilir, eger SRAI geldiyse ust 30.bitinde kalan 1i temizle
         // ayrica digerlerinde de sign extend yapmamis oluyoruz
-        // imm_sonraki_r = {{27{1'b0}}, buyruk_i[24:20]};
+        // imm_r = {{27{1'b0}}, buyruk_i[24:20]};
         // burasi 0li?
         // eger yurutte son 5 bite bakiliyorsa burada bu kontrole gerek yok
         //if(mikroislem_sonraki_r == `SLLI_MI)
-        //    imm_sonraki_r[31:5] = {27{1'b0}};
+        //    imm_r[31:5] = {27{1'b0}};
         //if(mikroislem_sonraki_r == `SRLI_MI)
-        //    imm_sonraki_r[31:5] = {27{1'b0}};
+        //    imm_r[31:5] = {27{1'b0}};
         //if(mikroislem_sonraki_r == `SRAI_MI)
-        //    imm_sonraki_r[31:5] = {27{1'b0}};
+        //    imm_r[31:5] = {27{1'b0}};
     end
 
 
@@ -570,7 +569,6 @@ module coz_yazmacoku(
             deger1_o <= 0;
             deger2_o <= 0;
             rd_adres_o <= 0;
-            imm_r <= 0;
             yapay_zeka_en_o <= 0;
         end
         else begin
@@ -579,7 +577,6 @@ module coz_yazmacoku(
                 deger1_o <= deger1_w;
                 deger2_o <= deger2_w;
                 rd_adres_o <= buyruk_i[11:7];
-                imm_r <= imm_sonraki_r;
                 yapay_zeka_en_o <= buyruk_i[31];
                 lt_ltu_eq_o <= {lt_w,ltu_w,eq_w};
                 program_sayaci_artmis_o <= program_sayaci_artmis_i;
