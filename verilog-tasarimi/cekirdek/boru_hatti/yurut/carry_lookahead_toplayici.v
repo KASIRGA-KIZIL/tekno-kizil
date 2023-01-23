@@ -17,7 +17,7 @@ integer i;
 
 always@(*)begin
 
-    if(islem_i)begin
+    if(elde_i)begin
         islenen_r=~deger2_i;
         carryIn_r=1'b1;
     end
