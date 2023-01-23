@@ -29,11 +29,11 @@ always@(*)begin
    
    
     elde_r[0] = ( deger1_i[0] & islenen_r[0]) | ( deger1_i[0] & carryIn_r) | (  islenen_r[0] & carryIn_r);
-    toplam_o[0] =  deger1_i[0] ^  islenen_r[0] ^ carryIn_r;
+    sonuc_o[0] =  deger1_i[0] ^  islenen_r[0] ^ carryIn_r;
     
     for ( i = 1; i < BIT; i=i+1) begin
         elde_r[i] = ( deger1_i[i] &   islenen_r[i]) | ( deger1_i[i] & elde_r[i-1]) | (  islenen_r[i] & elde_r[i-1]);
-        toplam_o[i] =  deger1_i[i] ^  islenen_r[i] ^ elde_r[i-1]; 
+        sonuc_o[i] =  deger1_i[i] ^  islenen_r[i] ^ elde_r[i-1]; 
     end
 end
 
