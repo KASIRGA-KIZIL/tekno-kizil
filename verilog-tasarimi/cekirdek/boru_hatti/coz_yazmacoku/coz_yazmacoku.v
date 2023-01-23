@@ -117,9 +117,10 @@ module coz_yazmacoku(
                     
                     case (buyruk_i[15:14])
                         2'b00: begin
-                          if(buyruk_i[12:5] == 8'h00)
-                              buyruk_gecerli_r = 1'b0;
-                          else
+                          //if(buyruk_i[12:5] == 8'h00)
+                          //    buyruk_gecerli_r = 1'b0;
+                          //else
+                            buyruk_gecerli_r = |buyruk_i[12:5];
                               // c.addi4spn -> addi rd', x2, nzuimm
                               buyruk_r = {2'b0, buyruk_i[10:7], buyruk_i[12:11], buyruk_i[5], buyruk_i[6], 2'b00, 5'h02, 3'b000, 2'b01, buyruk_i[4:2], 7'h13};
                         end
@@ -160,31 +161,50 @@ module coz_yazmacoku(
                         end
 
                         3'b010: begin
-                          if(buyruk_i[11:7] == 5'h00)
-                              buyruk_gecerli_r = 1'b0;
-                          else
+                          //if(buyruk_i[11:7] == 5'h00)
+                          //    buyruk_gecerli_r = 1'b0;
+                          //else
+                            buyruk_gecerli_r = |buyruk_i[11:7];
                               // c.li -> addi rd, x0, imm
                               buyruk_r = {{6 {buyruk_i[12]}}, buyruk_i[12], buyruk_i[6:2], 5'b0, 3'b0, buyruk_i[11:7], 7'h13};
                         end
 
                         3'b011: begin
-                            if (buyruk_i[11:7] == 5'h02) begin
-                              if({buyruk_i[12], buyruk_i[6:2]} == 6'h00)
-                                buyruk_gecerli_r = 1'b0;
-                              else
-                                // c.addi16sp -> addi x2, x2, nzimm
-                                buyruk_r = {{3 {buyruk_i[12]}}, buyruk_i[4:3], buyruk_i[5], buyruk_i[2], buyruk_i[6], 4'b0, 5'h02, 3'b000, 5'h02, 7'h13};
-                            end
-                            else if (buyruk_i[11:7] == 5'h00) begin
-                              buyruk_gecerli_r = 1'b0;
-                            end
-                            else begin
-                              if({buyruk_i[12], buyruk_i[6:2]} == 6'h00)
-                                buyruk_gecerli_r = 1'b0;
-                              else
-                                // c.lui -> lui rd, nzimm
-                                buyruk_r = {{15 {buyruk_i[12]}}, buyruk_i[6:2], buyruk_i[11:7], 7'h37};
-                            end
+                            //if (buyruk_i[11:7] == 5'h02) begin
+                            //  //if({buyruk_i[12], buyruk_i[6:2]} == 6'h00)
+                            //  //  buyruk_gecerli_r = 1'b0;
+                            //  //else
+                            //    buyruk_gecerli_r = |{buyruk_i[12], buyruk_i[6:2]};
+                            //    // c.addi16sp -> addi x2, x2, nzimm
+                            //    buyruk_r = {{3 {buyruk_i[12]}}, buyruk_i[4:3], buyruk_i[5], buyruk_i[2], buyruk_i[6], 4'b0, 5'h02, 3'b000, 5'h02, 7'h13};
+                            //end
+                            //else if (buyruk_i[11:7] == 5'h00) begin
+                            //  buyruk_gecerli_r = 1'b0;
+                            //end
+                            
+                            case(buyruk_i[11:7])
+                                5'h00: begin
+                                    buyruk_gecerli_r = 1'b0;
+                                end
+                                5'h02: begin
+                                    buyruk_gecerli_r = |{buyruk_i[12], buyruk_i[6:2]};
+                                    buyruk_r = {{3 {buyruk_i[12]}}, buyruk_i[4:3], buyruk_i[5], buyruk_i[2], buyruk_i[6], 4'b0, 5'h02, 3'b000, 5'h02, 7'h13};
+                                end
+                                default: begin
+                                    buyruk_gecerli_r = |{buyruk_i[12], buyruk_i[6:2]};
+                                    // c.lui -> lui rd, nzimm
+                                    buyruk_r = {{15 {buyruk_i[12]}}, buyruk_i[6:2], buyruk_i[11:7], 7'h37};
+                                end
+                            endcase
+
+
+                            //else begin
+                            //  if({buyruk_i[12], buyruk_i[6:2]} == 6'h00)
+                            //    buyruk_gecerli_r = 1'b0;
+                            //  else
+                            //    // c.lui -> lui rd, nzimm
+                            //    buyruk_r = {{15 {buyruk_i[12]}}, buyruk_i[6:2], buyruk_i[11:7], 7'h37};
+                            //end
 
                         end
 
@@ -192,13 +212,15 @@ module coz_yazmacoku(
                           case (buyruk_i[11:10])
                             2'b00,
                             2'b01: begin
-                              if(buyruk_i[12] == 1'b1) // must be zero
-                                buyruk_gecerli_r = 1'b0;
-                              else
+                              //if(buyruk_i[12] == 1'b1) // must be zero
+                              //  buyruk_gecerli_r = 1'b0;
+                              //else
                                 // burada 12.yi kontrol etmeme gerek yok
-                                if({buyruk_i[12], buyruk_i[6:2]} == 6'h00) // shift amount must be non-zero
-                                  buyruk_gecerli_r = 1'b0;
-                                else
+                                //if({buyruk_i[12], buyruk_i[6:2]} == 6'h00) // shift amount must be non-zero
+                                //  buyruk_gecerli_r = 1'b0;
+                                //else
+                                // burayi tekrar kontrol et TODO
+                                buyruk_gecerli_r = ~buyruk_i[12] & |buyruk_i[6:2];
                                   // 00: c.srli -> srli rd, rd, shamt
                                   // 01: c.srai -> srai rd, rd, shamt
                                   buyruk_r = {1'b0, buyruk_i[10], 5'b0, buyruk_i[6:2], 2'b01, buyruk_i[9:7], 3'b101, 2'b01, buyruk_i[9:7], 7'h13};
@@ -223,8 +245,7 @@ module coz_yazmacoku(
 
                                 2'b10: begin
                                   // c.or  -> or  rd', rd', rs2'
-                                  buyruk_r = {7'b0, 2'b01, buyruk_i[4:2], 2'b01, buyruk_i[9:7], 3'b110,
-                                            2'b01, buyruk_i[9:7], 7'h33};
+                                  buyruk_r = {7'b0, 2'b01, buyruk_i[4:2], 2'b01, buyruk_i[9:7], 3'b110, 2'b01, buyruk_i[9:7], 7'h33};
                                 end
 
                                 2'b11: begin
@@ -251,60 +272,182 @@ module coz_yazmacoku(
                     
                     case (buyruk_i[15:14])
                         2'b00: begin
-                          if(buyruk_i[12] == 1'b1) // must be zero
-                            buyruk_gecerli_r = 1'b0;
-                          else
-                            // burada 12.yi kontrol etmeme gerek yok
-                            if({buyruk_i[12], buyruk_i[6:2]} == 6'h00) // shift amount must be non-zero
-                              buyruk_gecerli_r = 1'b0;
-                            else
+                          //if(buyruk_i[12] == 1'b1) // must be zero
+                          //  buyruk_gecerli_r = 1'b0;
+                          //else
+                          //  // burada 12.yi kontrol etmeme gerek yok
+                          //  if({buyruk_i[12], buyruk_i[6:2]} == 6'h00) // shift amount must be non-zero
+                          //    buyruk_gecerli_r = 1'b0;
+                          //  else
+                            // burayi tekrar kontrol et TODO
+                            buyruk_gecerli_r = ~buyruk_i[12] & |buyruk_i[6:2];
                               // c.slli -> slli rd, rd, shamt
                               buyruk_r = {7'b0, buyruk_i[6:2], buyruk_i[11:7], 3'b001, buyruk_i[11:7], 7'h13};
                         end
 
                         2'b01: begin
-                          if(buyruk_i[11:7] == 5'h00)
-                            buyruk_gecerli_r = 1'b0;
-                          else
+                          //if(buyruk_i[11:7] == 5'h00)
+                          //  buyruk_gecerli_r = 1'b0;
+                          //else
+                            buyruk_gecerli_r = |buyruk_i[11:7];
                             // c.lwsp -> lw rd, uimm(x2)
                             buyruk_r = {4'b0, buyruk_i[3:2], buyruk_i[12], buyruk_i[6:4], 2'b00, 5'h02, 3'b010, buyruk_i[11:7], 7'h03};
                         end
 
                         2'b10: begin
-                          if (buyruk_i[12] == 1'b0) begin
-                            if (buyruk_i[11:7] == 5'h00) begin
-                              buyruk_gecerli_r = 1'b0;
-                            end
-                            else begin
-                              if (buyruk_i[6:2] == 5'h00) begin
-                                // c.jr -> jalr x0, rd/rs1, 0
-                                buyruk_r = {12'b0, buyruk_i[11:7], 3'b0, 5'b0, 7'h67};
-                              end 
-                              else begin
-                                // c.mv -> add rd/rs1, x0, rs2
-                                buyruk_r = {7'b0, buyruk_i[6:2], 5'b0, 3'b0, buyruk_i[11:7], 7'h33};
-                              end
-                            end
-                          end
-                          else begin
-                            if (buyruk_i[6:2] == 5'h00) begin
-                              if (buyruk_i[11:7] == 5'h00) begin
-                                // c.ebreak -> ebreak
-                                buyruk_r = {32'h00_10_00_73};
-                              end 
-                              else begin
-                                // c.jalr -> jalr x1, rs1, 0
-                                buyruk_r = {12'b0, buyruk_i[11:7], 3'b000, 5'b00001, 7'h67};
-                              end
-                            end 
-                            else begin
-                              if (buyruk_i[11:7] == 5'h00)
-                                buyruk_gecerli_r = 1'b0;
-                              else
-                                // c.add -> add rd, rd, rs2
-                                buyruk_r = {7'b0, buyruk_i[6:2], buyruk_i[11:7], 3'b0, buyruk_i[11:7], 7'h33};
-                            end
-                          end
+                            case(buyruk_i[12])
+                                1'b0: begin
+                                    //if (buyruk_i[11:7] == 5'h00) begin
+                                //  buyruk_gecerli_r = 1'b0;
+                                //end
+                                //else begin
+                                buyruk_gecerli_r = |buyruk_i[11:7];
+
+                                case(buyruk_i[6:2])
+                                    5'h00:
+                                        // c.jr -> jalr x0, rd/rs1, 0
+                                        buyruk_r = {12'b0, buyruk_i[11:7], 3'b0, 5'b0, 7'h67};
+                                    default:
+                                        // c.mv -> add rd/rs1, x0, rs2
+                                        buyruk_r = {7'b0, buyruk_i[6:2], 5'b0, 3'b0, buyruk_i[11:7], 7'h33};
+                                endcase
+                                end
+                                  //if (buyruk_i[6:2] == 5'h00) begin
+                                  //  // c.jr -> jalr x0, rd/rs1, 0
+                                  //  buyruk_r = {12'b0, buyruk_i[11:7], 3'b0, 5'b0, 7'h67};
+                                  //end 
+                                  //else begin
+                                  //  // c.mv -> add rd/rs1, x0, rs2
+                                  //  buyruk_r = {7'b0, buyruk_i[6:2], 5'b0, 3'b0, buyruk_i[11:7], 7'h33};
+                                  //end
+                                //end
+
+                                //1'b1:
+                                default: begin
+                                    case(buyruk_i[6:2])
+                                        5'h00:
+                                            case(buyruk_i[11:7])
+                                                5'h00:
+                                                    // c.ebreak -> ebreak
+                                                    buyruk_r = {32'h00_10_00_73};
+
+                                                default:
+                                                    // c.jalr -> jalr x1, rs1, 0
+                                                    buyruk_r = {12'b0, buyruk_i[11:7], 3'b000, 5'b00001, 7'h67};
+                                            endcase
+                                        
+                                        default: begin
+                                            buyruk_gecerli_r = |buyruk_i[11:7];
+                                            // c.add -> add rd, rd, rs2
+                                            buyruk_r = {7'b0, buyruk_i[6:2], buyruk_i[11:7], 3'b0, buyruk_i[11:7], 7'h33};
+                                        end
+                                    endcase
+                                    end
+                                    //if (buyruk_i[6:2] == 5'h00) begin
+                                    //    case(buyruk_i[11:7])
+                                    //        5'h00:
+                                    //            // c.ebreak -> ebreak
+                                    //            buyruk_r = {32'h00_10_00_73};
+//      
+                                    //        default:
+                                    //            // c.jalr -> jalr x1, rs1, 0
+                                    //            buyruk_r = {12'b0, buyruk_i[11:7], 3'b000, 5'b00001, 7'h67};
+                                    //    endcase
+                                    //  //if (buyruk_i[11:7] == 5'h00) begin
+                                    //  //  // c.ebreak -> ebreak
+                                    //  //  buyruk_r = {32'h00_10_00_73};
+                                    //  //end 
+                                    //  //else begin
+                                    //  //  // c.jalr -> jalr x1, rs1, 0
+                                    //  //  buyruk_r = {12'b0, buyruk_i[11:7], 3'b000, 5'b00001, 7'h67};
+                                    //  //end
+                                    //end 
+                                    //else begin
+                                    //  //if (buyruk_i[11:7] == 5'h00)
+                                    //  //  buyruk_gecerli_r = 1'b0;
+                                    //  //else
+                                    //    buyruk_gecerli_r = |buyruk_i[11:7];
+                                    //    // c.add -> add rd, rd, rs2
+                                    //    buyruk_r = {7'b0, buyruk_i[6:2], buyruk_i[11:7], 3'b0, buyruk_i[11:7], 7'h33};
+                                    //end
+
+                            endcase
+
+                          //if (buyruk_i[12] == 1'b0) begin
+                          //  1'b0:
+                          //          //if (buyruk_i[11:7] == 5'h00) begin
+                          //      //  buyruk_gecerli_r = 1'b0;
+                          //      //end
+                          //      //else begin
+                          //      buyruk_gecerli_r = |buyruk_i[11:7];
+//
+                          //      case(buyruk_i[6:2])
+                          //          5'h00:
+                          //              // c.jr -> jalr x0, rd/rs1, 0
+                          //              buyruk_r = {12'b0, buyruk_i[11:7], 3'b0, 5'b0, 7'h67};
+                          //          default:
+                          //              // c.mv -> add rd/rs1, x0, rs2
+                          //              buyruk_r = {7'b0, buyruk_i[6:2], 5'b0, 3'b0, buyruk_i[11:7], 7'h33};
+                          //      endcase
+//
+                          //        //if (buyruk_i[6:2] == 5'h00) begin
+                          //        //  // c.jr -> jalr x0, rd/rs1, 0
+                          //        //  buyruk_r = {12'b0, buyruk_i[11:7], 3'b0, 5'b0, 7'h67};
+                          //        //end 
+                          //        //else begin
+                          //        //  // c.mv -> add rd/rs1, x0, rs2
+                          //        //  buyruk_r = {7'b0, buyruk_i[6:2], 5'b0, 3'b0, buyruk_i[11:7], 7'h33};
+                          //        //end
+                          //      //end
+                          //end
+                          //else begin
+                          //  case(buyruk_i[6:2])
+                          //              5'h00:
+                          //                  case(buyruk_i[11:7])
+                          //                      5'h00:
+                          //                          // c.ebreak -> ebreak
+                          //                          buyruk_r = {32'h00_10_00_73};
+//
+                          //                      default:
+                          //                          // c.jalr -> jalr x1, rs1, 0
+                          //                          buyruk_r = {12'b0, buyruk_i[11:7], 3'b000, 5'b00001, 7'h67};
+                          //                  endcase
+                          //              
+                          //              default: begin
+                          //                  buyruk_gecerli_r = |buyruk_i[11:7];
+                          //                  // c.add -> add rd, rd, rs2
+                          //                  buyruk_r = {7'b0, buyruk_i[6:2], buyruk_i[11:7], 3'b0, buyruk_i[11:7], 7'h33};
+                          //              end
+                          //          endcase
+                          //      
+                          //          //if (buyruk_i[6:2] == 5'h00) begin
+                          //          //    case(buyruk_i[11:7])
+                          //          //        5'h00:
+                          //          //            // c.ebreak -> ebreak
+                          //          //            buyruk_r = {32'h00_10_00_73};
+//      //
+                          //          //        default:
+                          //          //            // c.jalr -> jalr x1, rs1, 0
+                          //          //            buyruk_r = {12'b0, buyruk_i[11:7], 3'b000, 5'b00001, 7'h67};
+                          //          //    endcase
+                          //          //  //if (buyruk_i[11:7] == 5'h00) begin
+                          //          //  //  // c.ebreak -> ebreak
+                          //          //  //  buyruk_r = {32'h00_10_00_73};
+                          //          //  //end 
+                          //          //  //else begin
+                          //          //  //  // c.jalr -> jalr x1, rs1, 0
+                          //          //  //  buyruk_r = {12'b0, buyruk_i[11:7], 3'b000, 5'b00001, 7'h67};
+                          //          //  //end
+                          //          //end 
+                          //          //else begin
+                          //          //  //if (buyruk_i[11:7] == 5'h00)
+                          //          //  //  buyruk_gecerli_r = 1'b0;
+                          //          //  //else
+                          //          //    buyruk_gecerli_r = |buyruk_i[11:7];
+                          //          //    // c.add -> add rd, rd, rs2
+                          //          //    buyruk_r = {7'b0, buyruk_i[6:2], buyruk_i[11:7], 3'b0, buyruk_i[11:7], 7'h33};
+                          //          //end
+                          //end
                         end
 
                         2'b11: begin
