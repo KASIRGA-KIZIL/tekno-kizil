@@ -32,6 +32,16 @@ tb_dallanma_ongorucu: builddir
 									-DSIMULATION
 		vvp ./build/out.vvp
 
+.PHONY: tb_getir
+tb_getir: builddir
+		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/boru_hatti/getir/tb_getir.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/getir/getir.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/getir/dallanma_ongorucu.v \
+									-I $(KAYNAKLAR) \
+									-DSIMULATION
+		vvp ./build/out.vvp
+
+
 .PHONY: builddir
 builddir:
 	mkdir -p "./build"
