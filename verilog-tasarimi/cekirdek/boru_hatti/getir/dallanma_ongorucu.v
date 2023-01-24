@@ -5,10 +5,14 @@
 
 // yrt   buyrugu bj ise kontrol et.  a.k.a tahmin_et_i       == 1
 // getir buyrugu bj ise tahmin et.   a.k.a tahmin_et[`YURUT] == 1
+`define ATLAMAMALIYDI 2'd0
+`define ATLAMALIYDI   2'd1
+`define SORUN_YOK     2'd2
 
 module dallanma_ongorucu(
     input  wire rst_i,
     input  wire clk_i,
+    input  wire ddb_durdur_i,
     // Tahmin okuma.
     input  wire [31:1] ps_i,
     input  wire        buyruk_ctipi_i,
@@ -19,12 +23,12 @@ module dallanma_ongorucu(
     input  wire [31:1] atlanan_ps_i,
     input  wire        atlanan_ps_gecerli_i,
     // hata duzeltme
-    output wire [ 1:0] hata_duzelt_o,
+    output reg  [ 1:0] hata_duzelt_o,
     output wire [31:1] yrt_ps_o,
     output wire        yrt_buyruk_ctipi_o
 );
     // Boru hatti asamalari, coz ve yurutun psleri vs. burada tut. Dolandirma.
-    reg [1:0]  atlanan_ps_gecerli;
+    reg [1:0]  ongorulen_ps_gecerli;
     reg [1:0]  tahmin_et;
     reg [1:0]  buyruk_ctipi;
     reg [31:1] ps [1:0];
@@ -39,12 +43,12 @@ module dallanma_ongorucu(
     assign ongorulen_ps_o         = btb[ps_i[5:1]];
 
     // (atlar_dedi ve atladi ve ps_dogru) veya (atlamaz_dedi ve atlamadi)
-    wire atladi_tahmin_dogru   = ( atlanan_ps_gecerli[`YURUT] &&  atlanan_ps_gecerli_i && (ps[`CYO] == atlanan_ps_i));
-    wire atlamadi_tahmin_dogru = (~atlanan_ps_gecerli[`YURUT] && ~atlanan_ps_gecerli_i);
+    wire atladi_tahmin_dogru   = ( ongorulen_ps_gecerli[`YURUT] &&  atlanan_ps_gecerli_i && (ps[`CYO] == atlanan_ps_i));
+    wire atlamadi_tahmin_dogru = (~ongorulen_ps_gecerli[`YURUT] && ~atlanan_ps_gecerli_i);
     wire tahmin_dogru          = atladi_tahmin_dogru || atlamadi_tahmin_dogru;
 
     wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ ght[6:1];
-    always@(posedge clk_g) begin
+    always@(posedge clk_i) begin
         if(tahmin_et[`YURUT]) begin
             if(~tahmin_dogru) begin
                 if(~atladi_tahmin_dogru   &&  (sayaclar[sayac_yaz_adr] != 2'b00)) begin
@@ -52,26 +56,45 @@ module dallanma_ongorucu(
                 end
                 if(~atlamadi_tahmin_dogru &&  (sayaclar[sayac_yaz_adr] != 2'b11)) begin
                     sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] +  2'b1;
+                    btb[ps[`YURUT][5:1]] <= atlanan_ps_i;
                 end
-                btb[ps[`YURUT][5:1]] <= atlanan_ps_i;
             end
         end
     end
 
+    always@(*) begin
+        if(tahmin_et[`YURUT]) begin
+            hata_duzelt_o = (~tahmin_dogru && ~atladi_tahmin_dogru)   ? `ATLAMAMALIYDI :
+                            (~tahmin_dogru && ~atlamadi_tahmin_dogru) ? `ATLAMALIYDI :
+                                                                        `SORUN_YOK;
+        end else begin
+            hata_duzelt_o = `SORUN_YOK;
+        end
+    end
+
     integer loop_counter;
-    always@(posedge clk_g) begin
+    always@(posedge clk_i) begin
         if(rst_i) begin
             for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin
-                sayaclar[loop_counter] <= 0;
+                btb[loop_counter]      <= 32'h20;
+                sayaclar[loop_counter] <= 2'b11;
             end
+            ght <= 0;
+            ongorulen_ps_gecerli = 0;
+            tahmin_et = 0;
+            buyruk_ctipi = 0;
         end else begin
-            tahmin_et[`CYO]    <= tahmin_et_i;
-            buyruk_ctipi[`CYO] <= buyruk_ctipi_i;
-            ps[`CYO]           <= ps_i;
+            if(~ddb_durdur_i) begin
+                tahmin_et[`CYO]            <= tahmin_et_i;
+                buyruk_ctipi[`CYO]         <= buyruk_ctipi_i;
+                ps[`CYO]                   <= ps_i;
+                ongorulen_ps_gecerli[`CYO] <= ongorulen_ps_gecerli_o;
 
-            tahmin_et[`YURUT]    <= tahmin_et[`CYO];
-            buyruk_ctipi[`YURUT] <= buyruk_ctipi[`CYO];
-            ps[`YURUT]           <= ps[`CYO];
+                tahmin_et[`YURUT]            <= tahmin_et[`CYO];
+                buyruk_ctipi[`YURUT]         <= buyruk_ctipi[`CYO];
+                ps[`YURUT]                   <= ps[`CYO];
+                ongorulen_ps_gecerli[`YURUT] <= ongorulen_ps_gecerli[`CYO];
+            end
         end
     end
 

@@ -16,7 +16,7 @@ module getir (
         //  L1 Buyruk Onbellegi
         input  wire        l1b_bekle_i,
         input  wire [31:0] l1b_deger_i,
-        output wire [31:0] l1b_adres_o,
+        output wire [31:1] l1b_adres_o,
         output wire        l1b_bosalt_o,
         output wire        l1b_chip_select_n_o,
 
@@ -24,11 +24,11 @@ module getir (
         input wire        yrt_atlanan_ps_gecerli_i,
         // input wire        yrt_tahmin_dogru_i, burada compare et.
         // input wire [31:0] yrt_ps_i,  PS hep burada delayle. Goturup getirme
-        input wire [31:0] yrt_atlanan_ps_i,
+        input wire [31:1] yrt_atlanan_ps_i,
 
         // Coz Yazmacoku
-        output wire [31:0] cyo_ps_o,
-        output wire [31:2] cyo_buyruk_o,
+        output wire [31:1] cyo_ps_o,
+        output reg  [31:0] cyo_buyruk_o,
     );
 
     reg [32:0] ps;
@@ -46,6 +46,7 @@ module getir (
     dallanma_ongorucu do(
         .clk_i(clk_i),
         .rst_i(rst_i),
+        .ddb_durdur_i(ddb_durdur_i),
         // Tahmin okuma.
         .ps_i,                 (ps),
         .buyruk_ctipi_i        (buyruk_ctipi),
@@ -74,7 +75,7 @@ module getir (
                 end
             end
             default: begin
-                if(tahmin_et) begin
+                if(tahmin_et && ongorulen_ps_gecerli) begin
                     ps_next = ongorulen_ps;
                 end else begin
                     if(yrt_buyruk_ctipi) begin
@@ -92,7 +93,7 @@ module getir (
 
     wire buyruk_ctipi = buyruk_hizali ? ~(l1b_deger_i   [ 1: 0] == 2'b11) :
                                         ~(buyruk_tamponu[ 1: 0] == 2'b11);
-
+    wire [31:0] cyo_buyruk_next;
     always @(parcaparca,buyruk_hizali,buyruk_ctipi) begin
         case({parcaparca,buyruk_hizali,buyruk_ctipi})
             3'b001: begin // [16][??]
@@ -124,49 +125,48 @@ module getir (
     buyruk_16com = buyruk_hizali_r ? l1b_deger_i[15:0] : buyruk_tamponu;
 
     case (buyruk_16com[15:0])
-        `C_EBREAK   : begin buyruk_r = {32'h00_10_00_73};                                                                                                                                                                   end  // c.ebreak  -> ebreak
-        `C_JR       : begin buyruk_r = {12'b0, buyruk_16com[11:7], 3'b0, 5'b0, 7'h67};                                                                                                                                      end // c.jr       -> jalr x0, rd/rs1, 0
-        `C_JALR     : begin buyruk_r = {12'b0, buyruk_16com[11:7], 3'b000, 5'b00001, 7'h67};                                                                                                                                end // c.jalr     -> jalr x1, rs1, 0
-        `C_NOP      : begin buyruk_r = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], buyruk_16com[11:7], 3'b0, buyruk_16com[11:7], 7'h13};                                                                  end // c.nop      -> addi, 0, 0, 0
-        `C_ADDI16SP : begin buyruk_r = {{3 {buyruk_16com[12]}}, buyruk_16com[4:3], buyruk_16com[5], buyruk_16com[2], buyruk_16com[6], 4'b0, 5'h02, 3'b000, 5'h02, 7'h13};                                                   end // c.addi16sp -> addi x2, x2, nzimm
-        `C_AND      : begin buyruk_r = {7'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b111, 2'b01, buyruk_16com[9:7], 7'h33};                                                                                 end // c.and      -> and rd', rd', rs2'
-        `C_SUB      : begin buyruk_r = {2'b01, 5'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b000, 2'b01, buyruk_16com[9:7], 7'h33};                                                                          end  // c.sub     -> sub rd', rd', rs2'
-        `C_OR       : begin buyruk_r = {7'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b110, 2'b01, buyruk_16com[9:7], 7'h33};                                                                                 end // c.or       -> or  rd', rd', rs2'
-        `C_XOR      : begin buyruk_r = {7'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b100, 2'b01, buyruk_16com[9:7], 7'h33};                                                                                 end // c.xor      -> xor rd', rd', rs2'
+        `C_EBREAK   : begin buyruk_genis = {32'h00_10_00_73};                                                                                                                                                                   end  // c.ebreak  -> ebreak
+        `C_JR       : begin buyruk_genis = {12'b0, buyruk_16com[11:7], 3'b0, 5'b0, 7'h67};                                                                                                                                      end // c.jr       -> jalr x0, rd/rs1, 0
+        `C_JALR     : begin buyruk_genis = {12'b0, buyruk_16com[11:7], 3'b000, 5'b00001, 7'h67};                                                                                                                                end // c.jalr     -> jalr x1, rs1, 0
+        `C_NOP      : begin buyruk_genis = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], buyruk_16com[11:7], 3'b0, buyruk_16com[11:7], 7'h13};                                                                  end // c.nop      -> addi, 0, 0, 0
+        `C_ADDI16SP : begin buyruk_genis = {{3 {buyruk_16com[12]}}, buyruk_16com[4:3], buyruk_16com[5], buyruk_16com[2], buyruk_16com[6], 4'b0, 5'h02, 3'b000, 5'h02, 7'h13};                                                   end // c.addi16sp -> addi x2, x2, nzimm
+        `C_AND      : begin buyruk_genis = {7'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b111, 2'b01, buyruk_16com[9:7], 7'h33};                                                                                 end // c.and      -> and rd', rd', rs2'
+        `C_SUB      : begin buyruk_genis = {2'b01, 5'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b000, 2'b01, buyruk_16com[9:7], 7'h33};                                                                          end  // c.sub     -> sub rd', rd', rs2'
+        `C_OR       : begin buyruk_genis = {7'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b110, 2'b01, buyruk_16com[9:7], 7'h33};                                                                                 end // c.or       -> or  rd', rd', rs2'
+        `C_XOR      : begin buyruk_genis = {7'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b100, 2'b01, buyruk_16com[9:7], 7'h33};                                                                                 end // c.xor      -> xor rd', rd', rs2'
         `C_SRAI     , // c.srli -> srli rd, rd, shamt // c.srai -> srai rd, rd, shamt
-        `C_SRLI     : begin buyruk_r = {1'b0, buyruk_16com[10], 5'b0, buyruk_16com[6:2], 2'b01, buyruk_16com[9:7], 3'b101, 2'b01, buyruk_16com[9:7], 7'h13};                                                                end
-        `C_ANDI     : begin buyruk_r = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], 2'b01, buyruk_16com[9:7], 3'b111, 2'b01, buyruk_16com[9:7], 7'h13};                                                    end // c.andi     -> andi rd,     rd, imm
-        `C_MV       : begin buyruk_r = {7'b0, buyruk_16com[6:2], 5'b0, 3'b0, buyruk_16com[11:7], 7'h33};                                                                                                                    end // c.mv       -> add  rd/rs1, x0, rs2
-        `C_SLLI     : begin buyruk_r = {7'b0, buyruk_16com[6:2], buyruk_16com[11:7], 3'b001, buyruk_16com[11:7], 7'h13};                                                                                                    end // c.slli     -> slli rd,     rd, shamt
-        `C_ADD      : begin buyruk_r = {7'b0, buyruk_16com[6:2], buyruk_16com[11:7], 3'b0, buyruk_16com[11:7], 7'h33};                                                                                                      end // c.add      -> add  rd,     rd, rs2
-        `C_ADDI     : begin buyruk_r = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], buyruk_16com[11:7], 3'b0, buyruk_16com[11:7], 7'h13};                                                                  end // c.addi     -> addi rd,     rd, nzimm
-        `C_ADDI4SPN : begin buyruk_r = {2'b0, buyruk_16com[10:7], buyruk_16com[12:11], buyruk_16com[5], buyruk_16com[6], 2'b00, 5'h02, 3'b000, 2'b01, buyruk_16com[4:2], 7'h13};                                            end // c.addi4spn -> addi rd',    x2, nzuimm
+        `C_SRLI     : begin buyruk_genis = {1'b0, buyruk_16com[10], 5'b0, buyruk_16com[6:2], 2'b01, buyruk_16com[9:7], 3'b101, 2'b01, buyruk_16com[9:7], 7'h13};                                                                end
+        `C_ANDI     : begin buyruk_genis = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], 2'b01, buyruk_16com[9:7], 3'b111, 2'b01, buyruk_16com[9:7], 7'h13};                                                    end // c.andi     -> andi rd,     rd, imm
+        `C_MV       : begin buyruk_genis = {7'b0, buyruk_16com[6:2], 5'b0, 3'b0, buyruk_16com[11:7], 7'h33};                                                                                                                    end // c.mv       -> add  rd/rs1, x0, rs2
+        `C_SLLI     : begin buyruk_genis = {7'b0, buyruk_16com[6:2], buyruk_16com[11:7], 3'b001, buyruk_16com[11:7], 7'h13};                                                                                                    end // c.slli     -> slli rd,     rd, shamt
+        `C_ADD      : begin buyruk_genis = {7'b0, buyruk_16com[6:2], buyruk_16com[11:7], 3'b0, buyruk_16com[11:7], 7'h33};                                                                                                      end // c.add      -> add  rd,     rd, rs2
+        `C_ADDI     : begin buyruk_genis = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], buyruk_16com[11:7], 3'b0, buyruk_16com[11:7], 7'h13};                                                                  end // c.addi     -> addi rd,     rd, nzimm
+        `C_ADDI4SPN : begin buyruk_genis = {2'b0, buyruk_16com[10:7], buyruk_16com[12:11], buyruk_16com[5], buyruk_16com[6], 2'b00, 5'h02, 3'b000, 2'b01, buyruk_16com[4:2], 7'h13};                                            end // c.addi4spn -> addi rd',    x2, nzuimm
         `C_BEQZ     , // c.beqz -> beq rs1', x0, imm // c.bnez -> bne rs1', x0, imm
-        `C_BNEZ     : begin buyruk_r = {{4 {buyruk_16com[12]}}, buyruk_16com[6:5], buyruk_16com[2], 5'b0, 2'b01, buyruk_16com[9:7], 2'b00, buyruk_16com[13], buyruk_16com[11:10], buyruk_16com[4:3], buyruk_16com[12], 7'h63};         end
+        `C_BNEZ     : begin buyruk_genis = {{4 {buyruk_16com[12]}}, buyruk_16com[6:5], buyruk_16com[2], 5'b0, 2'b01, buyruk_16com[9:7], 2'b00, buyruk_16com[13], buyruk_16com[11:10], buyruk_16com[4:3], buyruk_16com[12], 7'h63};         end
         `C_J        , // c.jal -> jal x1, imm // c.j   -> jal x0, imm
-        `C_JAL      : begin buyruk_r = {buyruk_16com[12], buyruk_16com[8], buyruk_16com[10:9], buyruk_16com[6], buyruk_16com[7], buyruk_16com[2], buyruk_16com[11], buyruk_16com[5:3], {9 {buyruk_16com[12]}}, 4'b0, ~buyruk_16com[15], 7'h6f};end
-        `C_LI       : begin buyruk_r = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], 5'b0, 3'b0, buyruk_16com[11:7], 7'h13};                                                                                                   end // c.li   -> addi  rd ,   x0, imm
-        `C_LUI      : begin buyruk_r = {{15 {buyruk_16com[12]}}, buyruk_16com[6:2], buyruk_16com[11:7], 7'h37};                                                                                                                                end // c.lui  -> lui   rd ,  nzimm
-        `C_LW       : begin buyruk_r = {5'b0, buyruk_16com[5], buyruk_16com[12:10], buyruk_16com[6], 2'b00, 2'b01, buyruk_16com[9:7], 3'b010, 2'b01, buyruk_16com[4:2], 7'h03};                                                                end // c.lw   -> lw    rd',   uimm(rs1')
-        `C_LWSP     : begin buyruk_r = {4'b0, buyruk_16com[3:2], buyruk_16com[12], buyruk_16com[6:4], 2'b00, 5'h02, 3'b010, buyruk_16com[11:7], 7'h03};                                                                                        end // c.lwsp -> lw    rd ,   uimm(x2)
-        `C_SW       : begin buyruk_r = {5'b0, buyruk_16com[5], buyruk_16com[12], 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b010, buyruk_16com[11:10], buyruk_16com[6], 2'b00, 7'h23};                                              end // c.sw   -> sw   rs2',   uimm(rs1')
-        `C_SWSP     : begin buyruk_r = {4'b0, buyruk_16com[8:7], buyruk_16com[12], buyruk_16com[6:2], 5'h02, 3'b010, buyruk_16com[11:9], 2'b00, 7'h23};                                                                                        end // c.swsp -> sw   rs2 ,   uimm(x2)
+        `C_JAL      : begin buyruk_genis = {buyruk_16com[12], buyruk_16com[8], buyruk_16com[10:9], buyruk_16com[6], buyruk_16com[7], buyruk_16com[2], buyruk_16com[11], buyruk_16com[5:3], {9 {buyruk_16com[12]}}, 4'b0, ~buyruk_16com[15], 7'h6f};end
+        `C_LI       : begin buyruk_genis = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], 5'b0, 3'b0, buyruk_16com[11:7], 7'h13};                                                                                                   end // c.li   -> addi  rd ,   x0, imm
+        `C_LUI      : begin buyruk_genis = {{15 {buyruk_16com[12]}}, buyruk_16com[6:2], buyruk_16com[11:7], 7'h37};                                                                                                                                end // c.lui  -> lui   rd ,  nzimm
+        `C_LW       : begin buyruk_genis = {5'b0, buyruk_16com[5], buyruk_16com[12:10], buyruk_16com[6], 2'b00, 2'b01, buyruk_16com[9:7], 3'b010, 2'b01, buyruk_16com[4:2], 7'h03};                                                                end // c.lw   -> lw    rd',   uimm(rs1')
+        `C_LWSP     : begin buyruk_genis = {4'b0, buyruk_16com[3:2], buyruk_16com[12], buyruk_16com[6:4], 2'b00, 5'h02, 3'b010, buyruk_16com[11:7], 7'h03};                                                                                        end // c.lwsp -> lw    rd ,   uimm(x2)
+        `C_SW       : begin buyruk_genis = {5'b0, buyruk_16com[5], buyruk_16com[12], 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b010, buyruk_16com[11:10], buyruk_16com[6], 2'b00, 7'h23};                                              end // c.sw   -> sw   rs2',   uimm(rs1')
+        `C_SWSP     : begin buyruk_genis = {4'b0, buyruk_16com[8:7], buyruk_16com[12], buyruk_16com[6:2], 5'h02, 3'b010, buyruk_16com[11:9], 2'b00, 7'h23};                                                                                        end // c.swsp -> sw   rs2 ,   uimm(x2)
         default     : begin
-            buyruk_r = 32'hxxxx_xxxx;
+            buyruk_genis = 32'hxxxx_xxxx;
         end
     endcase
 
     always @(posedge clk_i) begin
-        if (rst_i) begin
+        if (rst_i || ddb_bosalt_i) begin
         end
         else begin
-            ps <= ps_next;
-            buyruk_tamponu <= l1b_deger_i[31:16];
+            if(ddb_durdur_i) begin
+                ps             <= ps_next;
+                cyo_buyruk_o   <= cyo_buyruk_next;
+                buyruk_tamponu <= l1b_deger_i[31:16];
+            end
         end
     end
 
 endmodule
-
-
-/*
-*/

@@ -24,11 +24,10 @@ tb_aritmetik_mantik_birimi: builddir
 									-DSIMULATION
 		vvp ./build/out.vvp
 
-.PHONY: tb_aritmetik_mantik_birimi
-tb_aritmetik_mantik_birimi: builddir
-		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/boru_hatti/yurut/tb_aritmetik_mantik_birimi.v \
-									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/aritmetik_mantik_birimi.v \
-									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/carry_lookahead_toplayici.v \
+.PHONY: tb_dallanma_ongorucu
+tb_dallanma_ongorucu: builddir
+		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/boru_hatti/getir/tb_dallanma_ongorucu.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/getir/dallanma_ongorucu.v \
 									-I $(KAYNAKLAR) \
 									-DSIMULATION
 		vvp ./build/out.vvp
