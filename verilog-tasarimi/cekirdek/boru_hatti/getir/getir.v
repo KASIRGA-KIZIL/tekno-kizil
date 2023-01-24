@@ -77,6 +77,8 @@ module getir (
         .yrt_buyruk_ctipi_o    (yrt_buyruk_ctipi)
     );
 
+    reg bufferdan_okuyor_next;
+    reg bufferdan_okuyor;
     always @(*) begin
         case(hata_duzelt)
             `ATLAMALIYDI: begin
@@ -93,10 +95,12 @@ module getir (
                 if(tahmin_et && ongorulen_ps_gecerli) begin
                     ps_next = ongorulen_ps;
                 end else begin
-                    if(buyruk_ctipi) begin
-                        ps_next = ps + 1; // son bit yok 10 -> 1 oluyor.
-                    end else begin
-                        ps_next = ps + 2; // son bit yok 100 ->10 oluyor.
+                    if(~bufferdan_okuyor)begin
+                        if(buyruk_ctipi) begin
+                            ps_next = ps + 1; // son bit yok 10 -> 1 oluyor.
+                        end else begin
+                            ps_next = ps + 2; // son bit yok 100 ->10 oluyor.
+                        end
                     end
                 end
             end
@@ -109,44 +113,51 @@ module getir (
         reg [88*13:1] ctipi_coz_str;
     `endif
 
+    reg getir_hazir_next;
     reg getir_hazir;
     reg [31:0] cyo_buyruk_next;
     always @(*) begin
         casex({parcaparca,buyruk_hizali,buyruk_ctipi})
             3'b001: begin // [16][??]
                 cyo_buyruk_next = buyruk_genis;
-                getir_hazir     = 1'b1;
+                getir_hazir_next     = 1'b1;
                 parcaparca_next = 1'b0;
+                bufferdan_okuyor_next = 1'b0;
                 `ifdef SIMULATION  hizali_durum_str = "[16][??]"; `endif
             end
             3'b010: begin // [32_1][32_0]
                 cyo_buyruk_next = l1b_deger_i;
-                getir_hazir     = 1'b1;
+                getir_hazir_next     = 1'b1;
                 parcaparca_next = 1'b0;
+                bufferdan_okuyor_next = 1'b0;
                 `ifdef SIMULATION  hizali_durum_str = "[32_1][32_0]"; `endif
             end
             3'b011: begin // [??][16]
                 cyo_buyruk_next = buyruk_genis;
-                getir_hazir     = 1'b1;
+                getir_hazir_next     = 1'b1;
                 parcaparca_next = 1'b0;
+                bufferdan_okuyor_next = 1'b0;
                 `ifdef SIMULATION  hizali_durum_str = "[??][16]"; `endif
             end
             3'b000: begin // [32_0][????]<
                 cyo_buyruk_next = 32'hxxxx_xxxx;
-                getir_hazir     = 1'b1;
+                getir_hazir_next     = 1'b0;
                 parcaparca_next = 1'b1;
+                bufferdan_okuyor_next = 1'b0;
                 `ifdef SIMULATION  hizali_durum_str = "[32_0][????]"; `endif
             end
-            3'b1?0: begin // [????][32_1]< // parcaparca ise suankinin 32_1 oldugunu ve ctipi olmadigini ve hizasiz oldugunu biliyoruz
+            3'b1?0: begin // [32_0][32_1]< // parcaparca ise suankinin 32_1 oldugunu ve ctipi olmadigini ve hizasiz oldugunu biliyoruz
                 cyo_buyruk_next = {l1b_deger_i[15:0], buyruk_tamponu};
-                getir_hazir     = 1'b1;
+                getir_hazir_next     = 1'b1;
                 parcaparca_next = 1'b1;
-                `ifdef SIMULATION  hizali_durum_str = "[????][32_1]"; `endif
+                bufferdan_okuyor_next = 1'b0;
+                `ifdef SIMULATION  hizali_durum_str = "[32_0][32_1]"; `endif
             end
             3'b1?1: begin // [????][32_1]< // parcaparca ise suankinin 32_1 oldugunu ve ctipi olmadigini ve hizasiz oldugunu biliyoruz
                 cyo_buyruk_next = buyruk_genis;
-                getir_hazir     = 1'b0;
+                getir_hazir_next     = 1'b1;
                 parcaparca_next = 1'b0;
+                bufferdan_okuyor_next = 1'b1;
                 `ifdef SIMULATION  hizali_durum_str = "[16][32_1]"; `endif
             end
         endcase
@@ -238,8 +249,12 @@ module getir (
             cyo_buyruk_o    <= 0;
             parcaparca      <= 0;
             buyruk_tamponu  <= 0;
+            bufferdan_okuyor<= 0;
+            getir_hazir     <= 0;
         end
         else if(~ddb_durdur_i)begin
+            getir_hazir    <= getir_hazir_next;
+            bufferdan_okuyor <= bufferdan_okuyor_next;
             ps             <= ps_next;
             cyo_buyruk_o   <= cyo_buyruk_next;
             parcaparca     <= parcaparca_next;

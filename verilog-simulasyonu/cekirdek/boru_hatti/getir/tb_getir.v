@@ -148,25 +148,7 @@ module getir_tb;
         clk_delay(1);
         rst_i = 1'b0;
 
-        clk_delay(1);
-
-        clk_delay(1);
-
-        clk_delay(1);
-
-        clk_delay(1);
-
-        clk_delay(1);
-
-        clk_delay(1);
-
-        clk_delay(1);
-        clk_delay(1);
-        clk_delay(1);
-        clk_delay(1);
-        clk_delay(1);
-        clk_delay(1);
-        clk_delay(1);
+        clk_delay(20);
 
         $display("finished");
         $finish;
@@ -176,17 +158,19 @@ module getir_tb;
     reg [31:0] tmp1 = `C_ADD;
 
     initial begin
-        kod[0] = `ADD;
-        kod[1] = `ADD;
-        kod[2] = `ADD;
-        kod[3] = `ADD;
-        kod[4] = {tmp [15:0],tmp1[15:0]};
-        kod[5] = {tmp [15:0],tmp [31:16]};
-        kod[6] = {tmp1[15:0],tmp [31:16]};
-        kod[7] = `ADD;
-        kod[8] = `ADD;
-        kod[9] = `BGEU;
-        kod[10] = `ORI;
+        kod[0]  = `ADD;
+        kod[1]  = `ADD;
+        kod[2]  = `ADD;
+        kod[3]  = `ADD;
+        kod[4]  = {tmp [15:0],tmp1[15:0]};
+        kod[5]  = {tmp1[15:0],tmp [31:16]};
+        kod[6]  = `ADD;
+        kod[7]  = `ADD;
+        kod[8]  = {tmp [15:0],tmp1[15:0]};
+        kod[9]  = {tmp [15:0],tmp [31:16]};
+        kod[10] = {tmp1[15:0],tmp [31:16]};
+        kod[11] = `XORI;
+        kod[12] = `DIV;
 
     end
     always #5  clk_i = ! clk_i ;
