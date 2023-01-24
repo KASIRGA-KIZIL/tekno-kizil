@@ -1,133 +1,81 @@
 `timescale 1ns / 1ps
 
-// bunlari kaldiralim yurutten getirelim
-// gerekli sabitleri tanimlamalara tasi
-//`define JAL     7'b1101111 
-`define JALR_OP    7'b1100111
-`define BRANCH  7'b1100011
-`define C_JALR_FUNC  4'b1001
-`define BUYRUK_BIT 32'd32
+`define CYO   0
+`define YURUT 1
 
-//`include "sabitler.vh"
+// yrt   buyrugu bj ise kontrol et.  a.k.a tahmin_et_i       == 1
+// getir buyrugu bj ise tahmin et.   a.k.a tahmin_et[`YURUT] == 1
 
 module dallanma_ongorucu(
-input rst_g,                   
-input clk_g,                    
-input [`BUYRUK_BIT-1:0] i_buyruk_adresi,                                                                 
-input [`BUYRUK_BIT-1:0] i_buyruk,             
-// getir 2 asamasindan gelen oncoz sinyalleri
-input is_jr,
-input is_branch,
-input is_jalr,
-input is_comp,
+    input  wire rst_i,
+    input  wire clk_i,
+    // Tahmin okuma.
+    input  wire [31:1] ps_i,
+    input  wire        buyruk_ctipi_i,
+    input  wire        tahmin_et_i,
+    output wire [31:1] ongorulen_ps_o,
+    output wire        ongorulen_ps_gecerli_o,
+    // Kalibrasyon sinyalleri
+    input  wire [31:1] atlanan_ps_i,
+    input  wire        atlanan_ps_gecerli_i,
+    // hata duzeltme
+    output wire [ 1:0] hata_duzelt_o,
+    output wire [31:1] yrt_ps_o,
+    output wire        yrt_buyruk_ctipi_o
+);
+    // Boru hatti asamalari, coz ve yurutun psleri vs. burada tut. Dolandirma.
+    reg [1:0]  atlanan_ps_gecerli;
+    reg [1:0]  tahmin_et;
+    reg [1:0]  buyruk_ctipi;
+    reg [31:1] ps [1:0];
 
-output [`BUYRUK_BIT-1:0] o_atlanan_adres,
-output o_buyruk_ongoru,         
+    // Ongoru tablolari
+    reg [31:1] btb      [31:0]; // branch target buffer
+    reg [ 1:0] sayaclar [31:0]; // branch target buffer
+    reg [ 6:0] ght            ; // global history table
 
-// dallanma ongorucuyu guncellemek icin kullanilan bitler
-input guncelle_gecerli_g,
-input [`BUYRUK_BIT-1:0] i_eski_buyruk,     
-input [`BUYRUK_BIT-1:0] i_eski_buyruk_adresi,
-input i_buyruk_atladi,  
-input [`BUYRUK_BIT-1:0] i_atlanan_adres, 
-input i_ongoru_yanlis
-    );
+    wire [ 4:0] sayac_oku_adr     = ps_i[5:1] ^ ght[4:0];
+    assign ongorulen_ps_gecerli_o = sayaclar[sayac_oku_adr][1];
+    assign ongorulen_ps_o         = btb[ps_i[5:1]];
 
-    ////////////////////////////////////////////////////
-    //                  Tanimlamalar
-    ////////////////////////////////////////////////////
+    // (atlar_dedi ve atladi ve ps_dogru) veya (atlamaz_dedi ve atlamadi)
+    wire atladi_tahmin_dogru   = ( atlanan_ps_gecerli[`YURUT] &&  atlanan_ps_gecerli_i && (ps[`CYO] == atlanan_ps_i));
+    wire atlamadi_tahmin_dogru = (~atlanan_ps_gecerli[`YURUT] && ~atlanan_ps_gecerli_i);
+    wire tahmin_dogru          = atladi_tahmin_dogru || atlamadi_tahmin_dogru;
 
-    // Branch Target Buffer: 33:32 ghsare table, rest is addr
-    reg [33:0] btb       [31:0];
-    reg [33:0] btb_next  [31:0];
-    // BHT
-    reg [7:0] bht, bht_next; 
-    reg [2:0] bht_pointer, bht_pointer_next;
-    
-    // Kontrol sinyalleri
-    wire eski_uncond_buyruk;
-    wire yeni_dallanma_buyrugu;
-    wire eski_dallanma_buyrugu;
-    wire [4:0] yeni_ongoru_adresi;
-    wire [4:0] eski_ongoru_adresi;
-
-    ////////////////////////////////////////////////////
-    //                  Atamalar
-    ////////////////////////////////////////////////////
-
-    // BTB kontrol sinyalleri
-    assign yeni_dallanma_buyrugu = is_branch;
-    assign eski_dallanma_buyrugu = i_eski_buyruk[6:0] == `BRANCH;
-    assign yeni_ongoru_adresi = ((yeni_dallanma_buyrugu && guncelle_gecerli_g) ? ({bht[4:1], i_buyruk_atladi}) : (bht[4:0])) ^ i_buyruk_adresi[6:2]; // once tahmin iceren bht elemanini guncelle 
-    assign eski_ongoru_adresi = bht_next[(bht_pointer)+:4] ^ i_eski_buyruk_adresi;
-    assign eski_uncond_buyruk = (i_eski_buyruk[6:0] == `JALR_OP) || (is_comp &&  (i_eski_buyruk[15:12] == `C_JALR_FUNC ));  // BTB'ye erisecek jump buyruklari
-    // Modul Cikislari
-    assign o_atlanan_adres = btb[yeni_ongoru_adresi][31:0];    
-    // Jump register buyrugu hep atlar
-    assign o_buyruk_ongoru = is_branch ? btb[yeni_ongoru_adresi][33] : 1'b1;
- 
-    integer loop_counter; 
-    always@* begin
-        for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin  
-            btb_next[loop_counter] = btb[loop_counter] ;                  
-        end
-        bht_next = bht;
-        bht_pointer_next = bht_pointer;
-
-        if(is_branch) begin
-            bht_next = {bht[6:0], btb[yeni_ongoru_adresi][33]}; // spekulatif guncelleme
-            bht_pointer_next = bht_pointer + 3'd1; 
-
-            // r_atlanan_adres_next = btb[yeni_ongoru_adresi][31:0];
-        end
-
-        if(eski_dallanma_buyrugu && guncelle_gecerli_g) begin
-            bht_pointer_next = (bht_pointer != 3'd0) ?  ((is_branch) ? (bht_pointer) : (bht_pointer - 3'd1)) : (3'd0);
-
-            btb_next[eski_ongoru_adresi][31:0] = i_eski_buyruk_adresi;
-            if(i_ongoru_yanlis) begin
-                case({i_buyruk_atladi, btb[eski_ongoru_adresi][33:32]})
-                3'b111:  btb_next[eski_ongoru_adresi][33:32] = 2'b11;
-                3'b110:  btb_next[eski_ongoru_adresi][33:32] = 2'b11;
-                3'b101:  btb_next[eski_ongoru_adresi][33:32] = 2'b10;
-                3'b100:  btb_next[eski_ongoru_adresi][33:32] = 2'b01;
-                3'b011:  btb_next[eski_ongoru_adresi][33:32] = 2'b10;
-                3'b010:  btb_next[eski_ongoru_adresi][33:32] = 2'b01;
-                3'b001:  btb_next[eski_ongoru_adresi][33:32] = 2'b00;
-                3'b000:  btb_next[eski_ongoru_adresi][33:32] = 2'b00;
-                endcase
-
-                btb_next[eski_ongoru_adresi][31:0] = i_atlanan_adres;    
-
-                for(loop_counter=1 ;loop_counter<5; loop_counter=loop_counter+1) begin
-                    bht_next[loop_counter] = bht[loop_counter+bht_pointer]; // iki yonlu shift register, araya yanlis branchler aldiysak geri sarilmali
-                end
-
-                bht_next[0] = i_buyruk_atladi;
-
-            end
-        end
-        
-        if(eski_uncond_buyruk && i_ongoru_yanlis) begin
-             btb_next[eski_ongoru_adresi][31:0] = i_atlanan_adres;  
-        end
-    end 
-    
+    wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ ght[6:1];
     always@(posedge clk_g) begin
-        if(rst_g) begin
-            for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin  
-                btb[loop_counter] <= 34'b00_00000000000000000000000000000000;                  
+        if(tahmin_et[`YURUT]) begin
+            if(~tahmin_dogru) begin
+                if(~atladi_tahmin_dogru   &&  (sayaclar[sayac_yaz_adr] != 2'b00)) begin
+                    sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] -  2'b1;
+                end
+                if(~atlamadi_tahmin_dogru &&  (sayaclar[sayac_yaz_adr] != 2'b11)) begin
+                    sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] +  2'b1;
+                end
+                btb[ps[`YURUT][5:1]] <= atlanan_ps_i;
             end
-            bht <= 8'd0;
-            bht_pointer <= 3'd0;
-        end
-        else begin
-            for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin  
-                btb[loop_counter] <= btb_next[loop_counter] ;                  
-            end
-            bht <= bht_next;
-            bht_pointer <= bht_pointer_next;
         end
     end
-    
+
+    integer loop_counter;
+    always@(posedge clk_g) begin
+        if(rst_i) begin
+            for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin
+                sayaclar[loop_counter] <= 0;
+            end
+        end else begin
+            tahmin_et[`CYO]    <= tahmin_et_i;
+            buyruk_ctipi[`CYO] <= buyruk_ctipi_i;
+            ps[`CYO]           <= ps_i;
+
+            tahmin_et[`YURUT]    <= tahmin_et[`CYO];
+            buyruk_ctipi[`YURUT] <= buyruk_ctipi[`CYO];
+            ps[`YURUT]           <= ps[`CYO];
+        end
+    end
+
+    assign yrt_ps_o           = ps[`YURUT];
+    assign yrt_buyruk_ctipi_o = buyruk_ctipi[`YURUT];
+    assign ongorulen_ps_o     = btb[ps_i[6:2]];
 endmodule
