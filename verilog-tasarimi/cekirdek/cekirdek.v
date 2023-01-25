@@ -51,7 +51,7 @@ module cekirdek(
     wire       cyo_bosalt_w;
 
 
-    wire  gtr_yanlis_tahmin_w = 0;
+    wire  gtr_yanlis_tahmin_w;
     wire  gtr_hazir_w;
     wire  cyo_gecersiz_buyruk_w;
     wire [4:0] cyo_rs1_adres_w;

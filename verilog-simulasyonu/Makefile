@@ -7,6 +7,9 @@ SIMULATOR  = iverilog
 FLAGS      = -Wall
 KAYNAKLAR := ../verilog-tasarimi
 SUBMAKE := $(MAKE) --no-print-directory -C
+ARACLAR  = ../araclar
+TEST_DOSYASI_KLASOR=../testler
+TEST_DOSYASI_ADI= basit_dongu
 
 .PHONY: tb_coz_yazmacoku
 tb_coz_yazmacoku: builddir
@@ -66,7 +69,14 @@ tb_yurut: builddir
 
 .PHONY: tb_cekirdek
 tb_cekirdek: builddir
-		+@$(SUBMAKE) build/
+
+
+		riscv64-unknown-elf-gcc $(TEST_DOSYASI_KLASOR)/$(TEST_DOSYASI_ADI).S -nostartfiles -nostdlib -march=rv32i -mabi=ilp32 -T$(TEST_DOSYASI_KLASOR)/link.ld -o ./build/$(TEST_DOSYASI_ADI).elf
+		riscv64-unknown-elf-objcopy ./build/$(TEST_DOSYASI_ADI).elf -O binary ./build/$(TEST_DOSYASI_ADI).bin
+		riscv64-unknown-elf-objdump -D ./build/$(TEST_DOSYASI_ADI).elf > ./build/$(TEST_DOSYASI_ADI).txt
+		python3 $(ARACLAR)/makehex.py ./build/$(TEST_DOSYASI_ADI).bin > ./build/$(TEST_DOSYASI_ADI).hex
+
+
 		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/tb_cekirdek.v \
 									$(KAYNAKLAR)/cekirdek/cekirdek.v \
 									$(KAYNAKLAR)/cekirdek/denetim_durum_birimi.v \
