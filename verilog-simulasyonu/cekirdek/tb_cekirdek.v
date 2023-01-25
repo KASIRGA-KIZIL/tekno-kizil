@@ -29,7 +29,7 @@ module tb_cekirdek;
         .clk_i (clk_i ),
         .rst_i (rst_i ),
         .l1b_bekle_i (l1b_bekle_i ),
-        .l1b_deger_i (mem[l1b_adres_o]),
+        .l1b_deger_i (mem[l1b_adres_o>>2]),
         .l1b_chip_select_n_o (l1b_chip_select_n_o ),
         .l1b_adres_o  ( l1b_adres_o)
     );
@@ -42,7 +42,7 @@ module tb_cekirdek;
         rst_i = 1'b0;
 
 
-        clk_delay(20);
+        clk_delay(25);
 
         $display("finished");
         $finish;

@@ -246,7 +246,7 @@ module getir (
             parcaparca      <= 0;
             buyruk_tamponu  <= 0;
             bufferdan_okuyor<= 0;
-            getir_hazir     <= 0;
+            getir_hazir     <= 1;
         end
         else if(~ddb_durdur_i)begin
             getir_hazir    <= getir_hazir_next;

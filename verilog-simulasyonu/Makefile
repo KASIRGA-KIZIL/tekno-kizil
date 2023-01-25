@@ -6,6 +6,7 @@
 SIMULATOR  = iverilog
 FLAGS      = -Wall
 KAYNAKLAR := ../verilog-tasarimi
+SUBMAKE := $(MAKE) --no-print-directory -C
 
 .PHONY: tb_coz_yazmacoku
 tb_coz_yazmacoku: builddir
@@ -65,6 +66,7 @@ tb_yurut: builddir
 
 .PHONY: tb_cekirdek
 tb_cekirdek: builddir
+		+@$(SUBMAKE) build/
 		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/tb_cekirdek.v \
 									$(KAYNAKLAR)/cekirdek/cekirdek.v \
 									$(KAYNAKLAR)/cekirdek/denetim_durum_birimi.v \
