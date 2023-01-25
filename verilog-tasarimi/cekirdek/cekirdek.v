@@ -26,15 +26,13 @@ module cekirdek(
     wire [4:0] ddb_rs2_adres_w;
     wire       ddb_gecersiz_buyruk_w;
 
-    wire  ddb_hazir_w;
     /*wire  l1b_chip_select_n_o;*/
     wire [31:0] cyo_buyruk_w;
     wire [31:0] cyo_ps_artmis_w;
     wire [31:1] cyo_l1b_ps_w;
 
-    wire [31:0] gtr_atlanan_ps_w;
+    wire [31:1] gtr_atlanan_ps_w;
     wire  gtr_atlanan_ps_gecerli_w;
-    wire [ 4:0] gy_rd_adres_w;
     wire [31:0] gy_ps_artmis_w;
     wire [31:0] gy_rd_deger_w;
     wire [31:0] gy_bib_deger_w;
@@ -53,16 +51,16 @@ module cekirdek(
     wire       cyo_bosalt_w;
 
 
-    reg  gtr_yanlis_tahmin_i = 0;
-    reg  gtr_hazir_i = 0;
-    reg  cyo_gecersiz_buyruk_i = 0;
-    reg [4:0] cyo_rs1_adres_i;
-    reg [4:0] cyo_rs2_adres_i;
-    reg  yrt_yaz_yazmac_i = 0;
-    reg  yrt_hazir_i = 0;
-    reg [4:0] yrt_rd_adres_i;
-    reg gy_yaz_yazmac_i = 0;
-    reg [4:0] gy_rd_adres_i;
+    wire  gtr_yanlis_tahmin_w = 0;
+    wire  gtr_hazir_w;
+    wire  cyo_gecersiz_buyruk_w;
+    wire [4:0] cyo_rs1_adres_w;
+    wire [4:0] cyo_rs2_adres_w;
+    wire  yrt_yaz_yazmac_w;
+
+    wire yrt_hazir_w;
+
+    wire [4:0] gy_rd_adres_w;
 
     geri_yaz geri_yaz_dut (
         .yrt_rd_adres_i   (gy_rd_adres_w  ), //
@@ -78,7 +76,7 @@ module cekirdek(
     yurut yurut_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),
-        .ddb_hazir_o (ddb_hazir_o),
+        .ddb_hazir_o (yrt_hazir_w), //
 
         .cyo_mikroislem_i    (yrt_mikroislem_w   ), //
         .cyo_rd_adres_i      (yrt_rd_adres_w     ), //
@@ -102,9 +100,9 @@ module cekirdek(
         .clk_i (clk_i ),
         .rst_i (rst_i ),
 
-        .gtr_buyruk_i     (cyo_buyruk_w   ), //
-        .gtr_ps_i         (cyo_l1b_ps_w   ), //
-        .gtr_ps_artmis_i  (cyo_ps_artmis_w), //
+        .gtr_buyruk_i     (cyo_buyruk_w       ), //
+        .gtr_ps_i         ({cyo_l1b_ps_w,1'b0}), //
+        .gtr_ps_artmis_i  (cyo_ps_artmis_w    ), //
         .yrt_mikroislem_o      (yrt_mikroislem_w     ), //
         .yrt_deger1_o          (yrt_deger1_w         ), //
         .yrt_deger2_o          (yrt_deger2_w         ), //
@@ -118,54 +116,53 @@ module cekirdek(
         .gy_yaz_deger_i  (cyo_yaz_deger_w ), //
         .gy_yaz_yazmac_i (cyo_yaz_yazmac_w), //
 
-        .ddb_durdur_i             (ddb_durdur_i ),
-        .ddb_bosalt_i             (ddb_bosalt_i ),
-        .ddb_yonlendir_kontrol1_i (ddb_yonlendir_kontrol1_i ),
-        .ddb_yonlendir_kontrol2_i (ddb_yonlendir_kontrol2_i ),
-        .ddb_rs1_adres_o          (ddb_rs1_adres_o ),
-        .ddb_rs2_adres_o          (ddb_rs2_adres_o ),
-        .ddb_gecersiz_buyruk_o    (ddb_gecersiz_buyruk_o)
+        .ddb_durdur_i             (cyo_durdur_w ),
+        .ddb_bosalt_i             (cyo_bosalt_w ),
+        .ddb_yonlendir_kontrol1_i (cyo_yonlendir_kontrol1_w ),
+        .ddb_yonlendir_kontrol2_i (cyo_yonlendir_kontrol2_w ),
+        .ddb_rs1_adres_o          (cyo_rs1_adres_w ),
+        .ddb_rs2_adres_o          (cyo_rs2_adres_w ),
+        .ddb_gecersiz_buyruk_o    (cyo_gecersiz_buyruk_w)
     );
 
     getir getir_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),
-        .ddb_durdur_i (ddb_durdur_i ),
-        .ddb_bosalt_i (ddb_bosalt_i ),
-        .ddb_hazir_o  (ddb_hazir_o  ),
-
+        .ddb_durdur_i       (gtr_durdur_w       ), //
+        .ddb_bosalt_i       (gtr_bosalt_w       ), //
+        .ddb_hazir_o        (gtr_hazir_w        ), //
         .ddb_yanlis_tahmin_o(gtr_yanlis_tahmin_w), //
-        .l1b_bekle_i         (l1b_bekle_w       ), //
-        .l1b_deger_i         (l1b_deger_w       ), //
-        .l1b_chip_select_n_o (l1b_chip_select_n_w           ), //
-        .yrt_atlanan_ps_gecerli_i (gtr_atlanan_ps_gecerli_w ), //
-        .yrt_atlanan_ps_i         (gtr_atlanan_ps_w         ), //
-        .cyo_buyruk_o    (cyo_buyruk_w    ), //
-        .cyo_ps_artmis_o (cyo_ps_artmis_w ), //
-        .cyo_l1b_ps_o    (cyo_l1b_ps_w    )  //
+        .l1b_bekle_i         (l1b_bekle_i        ), //
+        .l1b_deger_i         (l1b_deger_i        ), //
+        .l1b_chip_select_n_o (l1b_chip_select_n_o), //
+        .yrt_atlanan_ps_gecerli_i (gtr_atlanan_ps_gecerli_w), //
+        .yrt_atlanan_ps_i         (gtr_atlanan_ps_w        ), //
+        .cyo_buyruk_o    (cyo_buyruk_w   ), //
+        .cyo_ps_artmis_o (cyo_ps_artmis_w), //
+        .cyo_l1b_ps_o    (cyo_l1b_ps_w   )  //
     );
 
 
     denetim_durum_birimi denetim_durum_birimi_dut (
         .gtr_yanlis_tahmin_i (gtr_yanlis_tahmin_w ),
-        .gtr_hazir_i         (gtr_hazir_i         ),
-        .gtr_durdur_o        (gtr_durdur_o        ),
-        .gtr_bosalt_o        (gtr_bosalt_o        ),
-        .cyo_gecersiz_buyruk_i    (cyo_gecersiz_buyruk_i   ),
-        .cyo_rs1_adres_i          (cyo_rs1_adres_i         ),
-        .cyo_rs2_adres_i          (cyo_rs2_adres_i         ),
-        .cyo_yonlendir_kontrol1_o (cyo_yonlendir_kontrol1_o),
-        .cyo_yonlendir_kontrol2_o (cyo_yonlendir_kontrol2_o),
-        .cyo_durdur_o             (cyo_durdur_o            ),
-        .cyo_bosalt_o             (cyo_bosalt_o            ),
-        .yrt_yaz_yazmac_i (yrt_yaz_yazmac_i),
-        .yrt_hazir_i      (yrt_hazir_i     ),
-        .yrt_rd_adres_i   (yrt_rd_adres_i  ),
-        .gy_yaz_yazmac_i (gy_yaz_yazmac_i ),
-        .gy_rd_adres_i   (gy_rd_adres_i   )
+        .gtr_hazir_i         (gtr_hazir_w         ),
+        .gtr_durdur_o        (gtr_durdur_w        ),
+        .gtr_bosalt_o        (gtr_bosalt_w        ),
+        .cyo_gecersiz_buyruk_i    (cyo_gecersiz_buyruk_w   ),
+        .cyo_rs1_adres_i          (cyo_rs1_adres_w         ),
+        .cyo_rs2_adres_i          (cyo_rs2_adres_w         ),
+        .cyo_yonlendir_kontrol1_o (cyo_yonlendir_kontrol1_w),
+        .cyo_yonlendir_kontrol2_o (cyo_yonlendir_kontrol2_w),
+        .cyo_durdur_o             (cyo_durdur_w            ),
+        .cyo_bosalt_o             (cyo_bosalt_w            ),
+        .yrt_yaz_yazmac_i (yrt_mikroislem_w[`YAZMAC]), //
+        .yrt_hazir_i      (yrt_hazir_w   ), //
+        .yrt_rd_adres_i   (yrt_rd_adres_w), //
+        .gy_yaz_yazmac_i (cyo_yaz_yazmac_w), //
+        .gy_rd_adres_i   (cyo_yaz_adres_w )  //
     );
 
-    assign l1b_adres_o = {cyo_l1b_ps_o,1'b0};
+    assign l1b_adres_o = {cyo_l1b_ps_w,1'b0};
 
 endmodule
 

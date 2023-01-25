@@ -67,6 +67,7 @@ tb_yurut: builddir
 tb_cekirdek: builddir
 		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/tb_cekirdek.v \
 									$(KAYNAKLAR)/cekirdek/cekirdek.v \
+									$(KAYNAKLAR)/cekirdek/denetim_durum_birimi.v \
 									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/yurut.v \
 									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/aritmetik_mantik_birimi.v \
 									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/carry_lookahead_toplayici.v \

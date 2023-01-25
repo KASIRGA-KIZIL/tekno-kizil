@@ -23,7 +23,7 @@ module yurut(
     // Branch ve Jump buyruklari icin. Hepsi ayni cevrimde gidecek
     input  wire [ 2:0] cyo_lt_ltu_eq_i,                // Degerler arasindaki iliski. cyo_lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
     input  wire [ 1:0] cyo_buyruk_tipi_i,              // J veya B veya digertip. Eger J tipiyse direkt atlanilacak. B tipiyse kosula bakilcak.
-    output wire [31:0] gtr_atlanan_ps_o,               // Atlanilan yeni program sayaci, pc+imm veya rs1+imm degerini tasiyor.
+    output wire [31:1] gtr_atlanan_ps_o,               // Atlanilan yeni program sayaci, pc+imm veya rs1+imm degerini tasiyor.
     output wire        gtr_atlanan_ps_gecerli_o,       // Yeni program sayacinin gecerli olup olmadiginin sinyali. J tipinde hep gecerli
 
     // GERIYAZ icin
@@ -72,7 +72,7 @@ module yurut(
 
     assign gtr_atlanan_ps_gecerli_o = (cyo_buyruk_tipi_i == `JTIP) || ((cyo_buyruk_tipi_i == `BTIP) && dallanma_kosulu_w);
 
-    assign gtr_atlanan_ps_o = amb_sonuc_w;
+    assign gtr_atlanan_ps_o = amb_sonuc_w[31:1];
 
     assign cyo_yonlendir_deger_o = rd_deger_sonraki_w;
 
