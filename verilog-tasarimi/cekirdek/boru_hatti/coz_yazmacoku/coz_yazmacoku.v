@@ -138,7 +138,6 @@ module coz_yazmacoku(
             default:         begin
                 mikroislem_sonraki_r  = 28'hxxxx_xxx;
                 ddb_gecersiz_buyruk_o = 1'b1; // buraya gelirsek exception olmustur. Handle edilmesi gerek. Normalde jump yapilir exception handler'a.
-                $display("default");
             end
         endcase
     end
@@ -208,4 +207,75 @@ module coz_yazmacoku(
         .yaz_deger_i  (gy_yaz_deger_i),
         .yaz_i        (gy_yaz_yazmac_i)
     );
+
+    `ifdef SIMULATION
+        reg [88*13:1] coz_str;
+        always @* begin
+            casez(buyruk_coz_w)
+                `EBREAK_COZ:     begin coz_str = "`EBREAK_MI";     end
+                `ECALL_COZ:      begin coz_str = "`ECALL_MI";      end
+                `CONV_CLR_W_COZ: begin coz_str = "`CONV_CLR_W_MI"; end
+                `CONV_CLR_X_COZ: begin coz_str = "`CONV_CLR_X_MI"; end
+                `CONV_RUN_COZ:   begin coz_str = "`CONV_RUN_MI";   end
+                `RVRS_COZ:       begin coz_str = "`RVRS_MI";       end
+                `CNTZ_COZ:       begin coz_str = "`CNTZ_MI";       end
+                `CNTP_COZ:       begin coz_str = "`CNTP_MI";       end
+                `CONV_LD_W_COZ:  begin coz_str = "`CONV_LD_W_MI";  end
+                `CONV_LD_X_COZ:  begin coz_str = "`CONV_LD_X_MI";  end
+                `ADD_COZ:        begin coz_str = "`ADD_MI";        end
+                `AND_COZ:        begin coz_str = "`AND_MI";        end
+                `DIV_COZ:        begin coz_str = "`DIV_MI";        end
+                `DIVU_COZ:       begin coz_str = "`DIVU_MI";       end
+                `MUL_COZ:        begin coz_str = "`MUL_MI";        end
+                `MULH_COZ:       begin coz_str = "`MULH_MI";       end
+                `MULHSU_COZ:     begin coz_str = "`MULHSU_MI";     end
+                `MULHU_COZ:      begin coz_str = "`MULHU_MI";      end
+                `OR_COZ:         begin coz_str = "`OR_MI";         end
+                `REM_COZ:        begin coz_str = "`REM_MI";        end
+                `REMU_COZ:       begin coz_str = "`REMU_MI";       end
+                `SLL_COZ:        begin coz_str = "`SLL_MI";        end
+                `SLT_COZ:        begin coz_str = "`SLT_MI";        end
+                `SLTU_COZ:       begin coz_str = "`SLTU_MI";       end
+                `SRA_COZ:        begin coz_str = "`SRA_MI";        end
+                `SRL_COZ:        begin coz_str = "`SRL_MI";        end
+                `SUB_COZ:        begin coz_str = "`SUB_MI";        end
+                `XOR_COZ:        begin coz_str = "`XOR_MI";        end
+                `HMDST_COZ:      begin coz_str = "`HMDST_MI";      end
+                `PKG_COZ:        begin coz_str = "`PKG_MI";        end
+                `SLADD_COZ:      begin coz_str = "`SLADD_MI";      end
+                `SLLI_COZ:       begin coz_str = "`SLLI_MI";       end
+                `SRAI_COZ:       begin coz_str = "`SRAI_MI";       end
+                `SRLI_COZ:       begin coz_str = "`SRLI_MI";       end
+                `ADDI_COZ:       begin coz_str = "`ADDI_MI";       end
+                `ANDI_COZ:       begin coz_str = "`ANDI_MI";       end
+                `BEQ_COZ:        begin coz_str = "`BEQ_MI";        end
+                `BGE_COZ:        begin coz_str = "`BGE_MI";        end
+                `BGEU_COZ:       begin coz_str = "`BGEU_MI";       end
+                `BLT_COZ:        begin coz_str = "`BLT_MI";        end
+                `BLTU_COZ:       begin coz_str = "`BLTU_MI";       end
+                `BNE_COZ:        begin coz_str = "`BNE_MI";        end
+                `FENCE_COZ:      begin coz_str = "`FENCE_MI";      end
+                `FENCE_I_COZ:    begin coz_str = "`FENCE_I_MI";    end
+                `JALR_COZ:       begin coz_str = "`JALR_MI";       end
+                `LB_COZ:         begin coz_str = "`LB_MI";         end
+                `LBU_COZ:        begin coz_str = "`LBU_MI";        end
+                `LH_COZ:         begin coz_str = "`LH_MI";         end
+                `LHU_COZ:        begin coz_str = "`LHU_MI";        end
+                `LW_COZ:         begin coz_str = "`LW_MI";         end
+                `ORI_COZ:        begin coz_str = "`ORI_MI";        end
+                `SB_COZ:         begin coz_str = "`SB_MI";         end
+                `SH_COZ:         begin coz_str = "`SH_MI";         end
+                `SLTI_COZ:       begin coz_str = "`SLTI_MI";       end
+                `SLTIU_COZ:      begin coz_str = "`SLTIU_MI";      end
+                `SW_COZ:         begin coz_str = "`SW_MI";         end
+                `XORI_COZ:       begin coz_str = "`XORI_MI";       end
+                `AUIPC_COZ:      begin coz_str = "`AUIPC_MI";      end
+                `JAL_COZ:        begin coz_str = "`JAL_MI";        end
+                `LUI_COZ:        begin coz_str = "`LUI_MI";        end
+                default:         begin coz_str  = "DEFAULT_MI";    end
+            endcase
+            // $monitor("%s",coz_str);
+        end
+    `endif
+
 endmodule

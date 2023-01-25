@@ -228,12 +228,12 @@ module getir (
                 `C_LWSP     : begin ctipi_coz_str = "`C_LWSP     ";                                        end // c.lwsp -> lw    rd ,   uimm(x2)
                 `C_SW       : begin ctipi_coz_str = "`C_SW       ";                                        end // c.sw   -> sw   rs2',   uimm(rs1')
                 `C_SWSP     : begin ctipi_coz_str = "`C_SWSP     ";                                        end // c.swsp -> sw   rs2 ,   uimm(x2)
-                default     : begin
-                    ctipi_coz_str = "`default     ";
-                end
+                default     : begin ctipi_coz_str = "C_DEFAULT";                                             end
             endcase
             if(~buyruk_ctipi)
                 ctipi_coz_str = "Ctipi degil";
+
+            // $monitor("%s",ctipi_coz_str);
         end
     `endif
 

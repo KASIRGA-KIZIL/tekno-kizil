@@ -96,7 +96,7 @@
 `define CONV_CLR_X 32'b0000000_00000_00000_001_00000_0001011
 `define CONV_RUN   32'b0000000_00000_00000_100_00000_0001011
 
-module getir_tb;
+module tb_getir;
 
     // Parameters
     localparam OUTPUT_VCD_FILE = "./build/out.vcd";
@@ -110,7 +110,6 @@ module getir_tb;
     // L1 Buyruk Onbellegi
     reg  l1b_bekle_i = 0;
     wire [31:0] l1b_deger_i;
-    wire  l1b_bosalt_o;
     wire  l1b_chip_select_n_o;
     // Yurut
     reg  yrt_atlanan_ps_gecerli_i = 0;
@@ -129,7 +128,6 @@ module getir_tb;
         //  L1 Buyruk Onbellegi
         .l1b_bekle_i  (1'b0),
         .l1b_deger_i  (l1b_deger_i  ),
-        .l1b_bosalt_o (l1b_bosalt_o ),
         .l1b_chip_select_n_o (l1b_chip_select_n_o ),
         // Yurut
         .yrt_atlanan_ps_gecerli_i (yrt_atlanan_ps_gecerli_i ),
@@ -143,7 +141,7 @@ module getir_tb;
     assign l1b_deger_i = kod[cyo_l1b_ps_o>>1];
     initial begin
         $dumpfile(OUTPUT_VCD_FILE);
-        $dumpvars(0, getir_tb);
+        $dumpvars(0, tb_getir);
         rst_i = 1'b1;
         clk_delay(1);
         rst_i = 1'b0;
