@@ -5,9 +5,6 @@
 
 
 module geri_yaz(
-    input clk_i,
-    //input rst_i,
-
     // YURUT'ten gelenler
     input [ 4:0] yrt_rd_adres_i,
     input [31:0] yrt_rd_deger_i,
