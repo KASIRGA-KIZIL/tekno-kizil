@@ -6,7 +6,7 @@
 `define SORUN_YOK     2'd2
 
 // Modul taniminda sinyallerin nereden geldigi isminde ddb_ -> denetim durum biriminden gelen/giden sinyal
-// cyo_l1b_adr -> hem coze hem l1'e giden sinyal
+// cyo_l1b_adr -> hem coze hem l1b'ye giden sinyal
 module getir (
         input  wire clk_i,
         input  wire rst_i,
@@ -19,7 +19,6 @@ module getir (
         //  L1 Buyruk Onbellegi
         input  wire        l1b_bekle_i,
         input  wire [31:0] l1b_deger_i,
-        output wire        l1b_bosalt_o,
         output wire        l1b_chip_select_n_o,
 
         // Yurut
@@ -27,14 +26,17 @@ module getir (
         input wire [31:1] yrt_atlanan_ps_i,
 
         // Coz Yazmacoku
-        output wire [31:1] cyo_l1b_ps_o,
-        // coz+l1b
-        output reg  [31:0] cyo_buyruk_o
+        output reg  [31:0] cyo_buyruk_o,
+        output reg  [31:0] cyo_ps_artmis_o,
+
+        // Coz ve L1 Buyruk Onbellegi
+        output wire [31:1] cyo_l1b_ps_o
     );
 
     reg  [15:0] buyruk_tamponu;
     reg  [31:1] ps;
     reg  [31:1] ps_next;
+    reg  [31:1] ps_artmis;
     wire [31:1] ongorulen_ps;
     wire [31:1] yrt_ps;
     reg  [31:0] buyruk_genis;
@@ -80,6 +82,11 @@ module getir (
     reg bufferdan_okuyor_next;
     reg bufferdan_okuyor;
     always @(*) begin
+        if(buyruk_ctipi) begin
+            ps_artmis = ps + 1; // son bit yok b10  -> b1  oluyor.
+        end else begin
+            ps_artmis = ps + 2; // son bit yok b100 -> b10 oluyor.
+        end
         case(hata_duzelt)
             `ATLAMALIYDI: begin
                 ps_next = yrt_atlanan_ps_i;
@@ -96,11 +103,7 @@ module getir (
                     ps_next = ongorulen_ps;
                 end else begin
                     if(~bufferdan_okuyor)begin
-                        if(buyruk_ctipi) begin
-                            ps_next = ps + 1; // son bit yok 10 -> 1 oluyor.
-                        end else begin
-                            ps_next = ps + 2; // son bit yok 100 ->10 oluyor.
-                        end
+                        ps_next = ps_artmis;
                     end
                 end
             end
@@ -117,46 +120,35 @@ module getir (
     reg getir_hazir;
     reg [31:0] cyo_buyruk_next;
     always @(*) begin
+        getir_hazir_next     = 1'b1;
+        bufferdan_okuyor_next = 1'b0;
+        parcaparca_next = 1'b0;
         casex({parcaparca,buyruk_hizali,buyruk_ctipi})
-            3'b001: begin // [16][??]
+            3'b001: begin
                 cyo_buyruk_next = buyruk_genis;
-                getir_hazir_next     = 1'b1;
-                parcaparca_next = 1'b0;
-                bufferdan_okuyor_next = 1'b0;
                 `ifdef SIMULATION  hizali_durum_str = "[16][??]"; `endif
             end
-            3'b010: begin // [32_1][32_0]
+            3'b010: begin
                 cyo_buyruk_next = l1b_deger_i;
-                getir_hazir_next     = 1'b1;
-                parcaparca_next = 1'b0;
-                bufferdan_okuyor_next = 1'b0;
                 `ifdef SIMULATION  hizali_durum_str = "[32_1][32_0]"; `endif
             end
-            3'b011: begin // [??][16]
+            3'b011: begin
                 cyo_buyruk_next = buyruk_genis;
-                getir_hazir_next     = 1'b1;
-                parcaparca_next = 1'b0;
-                bufferdan_okuyor_next = 1'b0;
                 `ifdef SIMULATION  hizali_durum_str = "[??][16]"; `endif
             end
-            3'b000: begin // [32_0][????]<
+            3'b000: begin
                 cyo_buyruk_next = 32'hxxxx_xxxx;
                 getir_hazir_next     = 1'b0;
                 parcaparca_next = 1'b1;
-                bufferdan_okuyor_next = 1'b0;
                 `ifdef SIMULATION  hizali_durum_str = "[32_0][????]"; `endif
             end
-            3'b1?0: begin // [32_0][32_1]< // parcaparca ise suankinin 32_1 oldugunu ve ctipi olmadigini ve hizasiz oldugunu biliyoruz
+            3'b1?0: begin
                 cyo_buyruk_next = {l1b_deger_i[15:0], buyruk_tamponu};
-                getir_hazir_next     = 1'b1;
                 parcaparca_next = 1'b1;
-                bufferdan_okuyor_next = 1'b0;
                 `ifdef SIMULATION  hizali_durum_str = "[32_0][32_1]"; `endif
             end
-            3'b1?1: begin // [????][32_1]< // parcaparca ise suankinin 32_1 oldugunu ve ctipi olmadigini ve hizasiz oldugunu biliyoruz
+            3'b1?1: begin
                 cyo_buyruk_next = buyruk_genis;
-                getir_hazir_next     = 1'b1;
-                parcaparca_next = 1'b0;
                 bufferdan_okuyor_next = 1'b1;
                 `ifdef SIMULATION  hizali_durum_str = "[16][32_1]"; `endif
             end
@@ -259,6 +251,7 @@ module getir (
             cyo_buyruk_o   <= cyo_buyruk_next;
             parcaparca     <= parcaparca_next;
             buyruk_tamponu <= l1b_deger_i[31:16];
+            cyo_ps_artmis_o<= ps_artmis;
         end
     end
 

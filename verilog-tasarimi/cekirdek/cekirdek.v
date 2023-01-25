@@ -21,6 +21,13 @@ module cekirdek(
 
 );
 
+    // Ports
+    wire        ddb_hazir_o;
+    wire        l1b_chip_select_n_o;
+    wire [31:0] cyo_buyruk_o;
+    wire [31:0] cyo_ps_artmis_o;
+    wire [31:1] cyo_l1b_ps_o;
+
     wire [ 4:0] gy_yaz_adres_w;
     wire [31:0] gy_yaz_deger_w;
     wire        gy_yaz_yazmac_w;
@@ -87,37 +94,28 @@ module cekirdek(
         .rd_adres_geriyaz_i   (gy_yaz_adres_w )
     );
 
-    getir gtr(
-        .clk_i(clk_i),
-        .rst_i(rst_i),
-        // denetim durum birimi sinyalleri
-        .ddb_ps_al_gecerli_i(),
-        .ddb_ps_al_i(),
-        // onbellekten gelen guncelleme sinyalleri
-        .l1b_buy_i(l1b_buyruk_i),
-        .l1b_gecerli_i(l1b_buyruk_gecerli_i),
-        .l1b_hazir_i(l1b_hazir_i),
-        .l1b_duraklat_i(),
-        .l1b_oku_adres_kabul_i(), // buna gerek olmayabilir
-        // yurutten gelen dallanma guncelleme bitleri
-        .y_guncelleme_gecerli_i(),
-        .y_yanlis_ongoru_i(),
-        .y_atladi_i(),
-        .y_dallanma_ps_i(),
-        .y_atlanan_ps_i(),
-        .y_buy_i(),
-        .y_siradaki_ps_gecerli_i(),
-        .y_siradaki_ps_i(),
-        // coz'e giden cikis sinyalleri
-        // Not: ongoru varsa vermek gerekebilir?
-        .coz_ps_o(coz_ps_w),
-        .coz_buy_o(coz_buyruk_w), //Not: butun buyruklarin en onemsiz iki biti 2'b11
-        .coz_gecerli_o(coz_gecerli_w),
-        .coz_buyruk_compressed_o(coz_buyruk_compressed_w),
-        // onbellege giden cikis sinyalleri
-        .l1b_ps_o(l1b_ps_o),
-        .l1b_ps_gecerli_o(l1b_ps_gecerli_o)
+
+    getir gtr (
+        .clk_i (clk_i ),
+        .rst_i (rst_i ),
+        //  Denetim Durum Birimi
+        .ddb_durdur_i (ddb_durdur_i ),
+        .ddb_bosalt_i (ddb_bosalt_i ),
+        .ddb_hazir_o (ddb_hazir_o ),
+        //  L1 Buyruk Onbellegi
+        .l1b_bekle_i (l1b_bekle_i ),
+        .l1b_deger_i (l1b_deger_i ),
+        .l1b_chip_select_n_o (l1b_chip_select_n_o ),
+        // Yurut
+        .yrt_atlanan_ps_gecerli_i (yrt_atlanan_ps_gecerli_i ),
+        .yrt_atlanan_ps_i (yrt_atlanan_ps_i ),
+        // Coz Yazmacoku
+        .cyo_buyruk_o (cyo_buyruk_o ),
+        .cyo_ps_artmis_o (cyo_ps_artmis_o ),
+        // Coz ve L1 Buyruk Onbellegi
+        .cyo_l1b_ps_o  ( cyo_l1b_ps_o)
     );
+
 
     coz_yazmacoku cyo ( // OK
         .clk_i (clk_i),
@@ -201,29 +199,20 @@ module cekirdek(
     /*
     reg [31:0] yurutegirenps;
     reg [31:0] ps_temp;
-    
+
     // ayri bir ps boru hatti olsun burada
     //ps4
     //ps2
     //psimm
     // getirde hesaplansin cekirdekten output olarak islemciye ciksin
-    
-    
+
+
     always @(posedge clk_i) begin
         ps_temp <= getir_ps;
         yurutegirenps <= ps_temp;
     end
     */
-    
-    
+
+
 endmodule
-
-
-
-
-
-
-
-
-
 

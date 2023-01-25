@@ -11,6 +11,7 @@ KAYNAKLAR := ../verilog-tasarimi
 tb_coz_yazmacoku: builddir
 		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/boru_hatti/coz_yazmacoku/tb_coz_yazmacoku.v \
 									$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/coz_yazmacoku.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/yazmac_obegi.v \
 									-I $(KAYNAKLAR) \
 									-DSIMULATION
 		vvp ./build/out.vvp
@@ -37,6 +38,16 @@ tb_getir: builddir
 		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/boru_hatti/getir/tb_getir.v \
 									$(KAYNAKLAR)/cekirdek/boru_hatti/getir/getir.v \
 									$(KAYNAKLAR)/cekirdek/boru_hatti/getir/dallanma_ongorucu.v \
+									-I $(KAYNAKLAR) \
+									-DSIMULATION
+		vvp ./build/out.vvp
+
+.PHONY: tb_buyruk_onbellegi
+tb_buyruk_onbellegi: builddir
+		$(SIMULATOR) -Wall -o ./build/out.vvp ./bellek/tb_buyruk_onbellegi.v \
+									$(KAYNAKLAR)/bellek/buyruk_onbellegi.v \
+									$(KAYNAKLAR)/bellek/buyruk_onbellegi_tag_array.v \
+									$(KAYNAKLAR)/bellek/buyruk_onbellegi_data_array.v \
 									-I $(KAYNAKLAR) \
 									-DSIMULATION
 		vvp ./build/out.vvp
