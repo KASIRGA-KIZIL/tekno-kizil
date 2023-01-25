@@ -15,6 +15,7 @@ module getir (
         input  wire ddb_durdur_i,
         input  wire ddb_bosalt_i,
         output wire ddb_hazir_o,
+        output reg  ddb_yanlis_tahmin_o,
 
         //  L1 Buyruk Onbellegi
         input  wire        l1b_bekle_i,
@@ -82,6 +83,7 @@ module getir (
     reg bufferdan_okuyor_next;
     reg bufferdan_okuyor;
     always @(*) begin
+        ddb_yanlis_tahmin_o = 1'b0;
         if(buyruk_ctipi) begin
             ps_artmis = ps + 1; // son bit yok b10  -> b1  oluyor.
         end else begin
@@ -90,8 +92,10 @@ module getir (
         case(hata_duzelt)
             `ATLAMALIYDI: begin
                 ps_next = yrt_atlanan_ps_i;
+                ddb_yanlis_tahmin_o = 1'b1;
             end
             `ATLAMAMALIYDI: begin
+                ddb_yanlis_tahmin_o = 1'b1;
                 if(yrt_buyruk_ctipi) begin
                     ps_next = yrt_ps + 1; // son bit yok 10 -> 1 oluyor.
                 end else begin
@@ -110,7 +114,7 @@ module getir (
         endcase
     end
 
-    `define SIMULATION
+
     `ifdef SIMULATION
         reg [88*13:1] hizali_durum_str;
         reg [88*13:1] ctipi_coz_str;

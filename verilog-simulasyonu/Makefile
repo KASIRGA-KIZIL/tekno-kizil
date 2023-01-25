@@ -63,6 +63,22 @@ tb_yurut: builddir
 									-DSIMULATION
 		vvp ./build/out.vvp
 
+.PHONY: tb_cekirdek
+tb_cekirdek: builddir
+		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/tb_cekirdek.v \
+									$(KAYNAKLAR)/cekirdek/cekirdek.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/yurut.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/aritmetik_mantik_birimi.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/carry_lookahead_toplayici.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/getir/getir.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/getir/dallanma_ongorucu.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/coz_yazmacoku.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/yazmac_obegi.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/geri_yaz.v \
+									-I $(KAYNAKLAR) \
+									-DSIMULATION
+		vvp ./build/out.vvp
+
 .PHONY: builddir
 builddir:
 	mkdir -p "./build"

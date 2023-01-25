@@ -9,6 +9,9 @@ module yurut(
     input wire clk_i,
     input wire rst_i,
 
+    // DDB sinyalleri
+    output wire ddb_hazir_o,
+
     // Coz-Yazmacoku bolumu sinyallleri
     input  wire [`MI_BIT-1:0] cyo_mikroislem_i,
     input  wire [        4:0] cyo_rd_adres_i,               // Rd'nin adresi
@@ -87,4 +90,5 @@ module yurut(
         end
     end
 
+    assign ddb_hazir_o = 1'b1; // [TODO] Bolme carpma vs. de Bitti sinyallerine baglanmali.
 endmodule
