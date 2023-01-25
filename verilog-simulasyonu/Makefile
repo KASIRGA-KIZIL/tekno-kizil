@@ -53,6 +53,16 @@ tb_buyruk_onbellegi: builddir
 		vvp ./build/out.vvp
 
 
+.PHONY: tb_yurut
+tb_yurut: builddir
+		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/boru_hatti/yurut/tb_yurut.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/yurut.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/aritmetik_mantik_birimi.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/carry_lookahead_toplayici.v \
+									-I $(KAYNAKLAR) \
+									-DSIMULATION
+		vvp ./build/out.vvp
+
 .PHONY: builddir
 builddir:
 	mkdir -p "./build"
