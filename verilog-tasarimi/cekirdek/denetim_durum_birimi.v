@@ -21,8 +21,8 @@ module denetim_durum_birimi(
     input  coz_gecersiz_buyruk_i,       // exceptionlari nasil implement ediyoruz? CSRS ?
     input  [4:0] rs1_adres_coz_i,       // RS1 adresi
     input  [4:0] rs2_adres_coz_i,       // RS2 adresi
-    output [1:0] yonlendir_deger1_o,    // Yonlendirme(Forwarding) deger1 icin kontrol sinyali
-    output [1:0] yonlendir_deger2_o,    // Yonlendirme(Forwarding) deger2 icin kontrol sinyali
+    output [1:0] yonlendir_kontrol1_o,    // Yonlendirme(Forwarding) deger1 icin kontrol sinyali
+    output [1:0] yonlendir_kontrol2_o,    // Yonlendirme(Forwarding) deger2 icin kontrol sinyali
     output durdur_coz_o,
     output bosalt_coz_o,
 
@@ -37,11 +37,11 @@ module denetim_durum_birimi(
 );
 
 
-    assign  yonlendir_deger1_o = (((rs1_adres_coz_i == rd_adres_yurut_i  ) && yaz_yazmac_yurut_i  ) && (rs1_adres_coz_i != 0)) ? `YON_YURUT :
+    assign  yonlendir_kontrol1_o = (((rs1_adres_coz_i == rd_adres_yurut_i  ) && yaz_yazmac_yurut_i  ) && (rs1_adres_coz_i != 0)) ? `YON_YURUT :
                                  (((rs1_adres_coz_i == rd_adres_geriyaz_i) && yaz_yazmac_geriyaz_i) && (rs1_adres_coz_i != 0)) ? `YON_GERIYAZ :
                                                                                                                                  `YON_HICBISEY;
 
-    assign  yonlendir_deger2_o = (((rs2_adres_coz_i == rd_adres_yurut_i  ) && yaz_yazmac_yurut_i  ) && (rs2_adres_coz_i != 0)) ? `YON_YURUT :
+    assign  yonlendir_kontrol2_o = (((rs2_adres_coz_i == rd_adres_yurut_i  ) && yaz_yazmac_yurut_i  ) && (rs2_adres_coz_i != 0)) ? `YON_YURUT :
                                  (((rs2_adres_coz_i == rd_adres_geriyaz_i) && yaz_yazmac_geriyaz_i) && (rs2_adres_coz_i != 0)) ? `YON_GERIYAZ :
                                                                                                                                  `YON_HICBISEY;
 

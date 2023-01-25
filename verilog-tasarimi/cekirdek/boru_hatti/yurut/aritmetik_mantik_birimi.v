@@ -11,7 +11,7 @@ module aritmetik_mantik_birimi(
     input  wire [31:0] deger1_i,
     input  wire [31:0] deger2_i,
 
-    input  wire [ 2:0] lt_ltu_i,  // degerler arasindaki iliski. lt:lessthan, ltu: lessthan_unsigned
+    input  wire [ 1:0] lt_ltu_i,  // degerler arasindaki iliski. lt:lessthan, ltu: lessthan_unsigned
     output wire [31:0] sonuc_o
 );
     // Mantik sinyalleri
@@ -29,21 +29,21 @@ module aritmetik_mantik_birimi(
     wire [31:0] sonuc_cla;
     wire  elde_cla = (kontrol == `AMB_CIKARMA);
 
-    carry_lookahead_toplayici carry_lookahead_toplayici_dut (
-        .a_i (deger1_i ),
-        .b_i (deger2_cla ),
-        .islem_i (elde_cla ),
-        .toplam_o  ( sonuc_cla)
-      );
+    carry_lookahead_toplayici cla(
+        .deger1_i(deger1_i),
+        .deger2_i(deger2_cla),
+        .elde_i  (elde_cla),
+        .sonuc_o (sonuc_cla)
+    );
 
     assign deger2_cla = (kontrol == `AMB_CIKARMA) ? ~deger2_i : deger2_i;
 
     assign sonuc_xor  =  deger1_i  ^   deger2_i;
     assign sonuc_or   =  deger1_i  |   deger2_i;
     assign sonuc_and  =  deger1_i  &   deger2_i;
-    assign sonuc_sll  =  deger1_i  <<  deger2_i;
-    assign sonuc_srl  =  deger1_i  >>  deger2_i;
-    assign sonuc_sra  =  deger1_i  >>> deger2_i;
+    assign sonuc_sll  =  deger1_i  <<  deger2_i[4:0];
+    assign sonuc_srl  =  deger1_i  >>  deger2_i[4:0];
+    assign sonuc_sra  =  deger1_i  >>> deger2_i[4:0];
     assign sonuc_slt  = (deger1_i  <   deger2_i) ? {31'b0,lt_ltu_i[0]} : 32'b0;
     assign sonuc_sltu = ($signed(deger1_i)  <   $signed(deger2_i)) ? {31'b0,lt_ltu_i[1]}  : 32'b0;
 

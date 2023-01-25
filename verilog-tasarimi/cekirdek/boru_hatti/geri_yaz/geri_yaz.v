@@ -6,7 +6,7 @@
 
 module geri_yaz(
     input clk_i,
-    input rst_i,
+    //input rst_i,
 
     // YURUT'ten gelenler
     input [ 4:0] rd_adres_i,
@@ -16,9 +16,9 @@ module geri_yaz(
     input [31:0] program_sayaci_artmis_i,
 
     // COZ'e gidenler
-    output reg [4:0] yaz_adres_o,
-    output reg [31:0] yaz_deger_o,
-    output reg yaz_yazmac_o
+    output [4:0] yaz_adres_o,
+    output [31:0] yaz_deger_o,
+    output yaz_yazmac_o
 );
 
     assign yaz_deger_o = (mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_BIB  ) ? bib_deger_i :
@@ -26,7 +26,7 @@ module geri_yaz(
                          (mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_PC   ) ? program_sayaci_artmis_i :
                                                                            32'hxxxx_xxxx;
 
-    assign yaz_adres_o   <= rd_adres_i;
-    assign yaz_yazmac_o <= mikroislem_i[`YAZMAC];
+    assign yaz_adres_o   = rd_adres_i;
+    assign yaz_yazmac_o = mikroislem_i[`YAZMAC];
 
 endmodule

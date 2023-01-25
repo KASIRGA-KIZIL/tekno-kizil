@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-// `include "sabitler.vh"
+`include "tanimlamalar.vh"
 
 `define PS_BIT 32'd32
 `define BUYRUK_BIT 32'd32

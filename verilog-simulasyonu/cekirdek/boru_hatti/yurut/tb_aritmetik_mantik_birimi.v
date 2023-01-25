@@ -18,27 +18,22 @@ module tb_aritmetik_mantik_birimi();
     reg  [31:0] deger1_i;
     reg  [31:0] deger2_i;
     wire [31:0] sonuc_o;
-    wire sifir;
 
     aritmetik_mantik_birimi amb_dut (
         .kontrol(kontrol),
         .deger1_i(deger1_i),
         .deger2_i(deger2_i),
-        .lt_ltu_i(3'b0),
-
+        .lt_ltu_i(2'b0),
         .sonuc_o(sonuc_o)
     );
 
     wire [31:0] golden_ans;
-    wire golden_carry_o;
-    wire golden_carry_i         = (kontrol == `AMB_CIKARMA) ? 1'b1 : 1'b0;
-    wire [31:0] golden_deger2_i = (kontrol == `AMB_CIKARMA) ? ~deger2_i : deger2_i;
     behave_adder golden_adder(
         .in0(deger1_i),
-        .in1(golden_deger2_i),
-        .cin(golden_carry_i),
+        .in1((kontrol == `AMB_CIKARMA) ? ~deger2_i : deger2_i),
+        .cin((kontrol == `AMB_CIKARMA)),
         .out(golden_ans),
-        .cout(golden_carry_o)
+        .cout( )
     );
 
     always    #5  clk_i = !clk_i;
@@ -52,7 +47,6 @@ module tb_aritmetik_mantik_birimi();
         $finish;
     end
 
-
     // Helper tasks
     task automatic clk_delay(
         input [31:0] nmbr
@@ -63,30 +57,67 @@ module tb_aritmetik_mantik_birimi();
         end
     end endtask
 
+    task automatic Test(
+        input [31:0] deger1,
+        input [31:0] deger2,
+        input [31:0] sonuc,
+        input [31:0] beklenen,
+        input [ 3:0] kontrol
+    );begin : hata_raporu
+        if(((beklenen != sonuc)))begin
+            $display("----------------------------------------");
+            $display("Zaman: %t", $time);
+            $display("Elemanlar: %d , %d",$signed(deger1),$signed(deger2));
+            $display("Sonuc:     %d",$signed(sonuc));
+            $display("Beklenen:  %d",$signed(beklenen));
+            $display("Operasyon: %s", (kontrol == `AMB_CIKARMA)? "AMB_CIKARMA":
+                                      (kontrol == `AMB_CIKARMA)? "AMB_CIKARMA":
+                                      (kontrol == `AMB_XOR    )? "AMB_XOR    ":
+                                      (kontrol == `AMB_OR     )? "AMB_OR     ":
+                                      (kontrol == `AMB_AND    )? "AMB_AND    ":
+                                      (kontrol == `AMB_SLL    )? "AMB_SLL    ":
+                                      (kontrol == `AMB_SRL    )? "AMB_SRL    ":
+                                      (kontrol == `AMB_SRA    )? "AMB_SRA    ":
+                                      (kontrol == `AMB_SLT    )? "AMB_SLT    ":
+                                      (kontrol == `AMB_SLTU   )? "AMB_SLTU   ":
+                                                                  "AMB_YOK");
+            $display("[ERROR]");
+            $finish;
+        end
+    end endtask
+
     // tests
-    task test_toplama_cikarma(
+    task automatic test_toplama_cikarma(
     );begin : toplama_cikarma_testi
         integer i;
+        reg [110:0] operasyon;
+
+        // Bariz testler, 0+0, 0-0 gibi.
+        deger1_i = 32'b0;
+        deger2_i = 32'b0;
+        kontrol  = `AMB_TOPLAMA;
+        clk_delay(1);
+        Test(deger1_i, deger2_i, sonuc_o, golden_ans, kontrol);
+
+        deger1_i = 32'b0;
+        deger2_i = 32'b0;
+        kontrol  = `AMB_CIKARMA;
+        clk_delay(1);
+        Test(deger1_i, deger2_i, sonuc_o, golden_ans, kontrol);
+
+        // rastgele testler
         for (i=0; i<10000;i=i+1)begin
             deger1_i = $random;
             deger2_i = $random;
-            kontrol  = $random%2 ? `AMB_TOPLAMA : `AMB_CIKARMA;
+            kontrol  = $random % 2 ? `AMB_TOPLAMA : `AMB_CIKARMA;
             clk_delay(1);
-            if(((golden_ans != sonuc_o)))begin
-                $display("----------------------------------------");
-                $display("Zaman: %t",$time);
-                $display("Elemanlar: %d , %d",$signed(deger1_i),$signed(deger2_i));
-                $display("Sonuc:     %d",$signed(sonuc_o));
-                $display("Beklenen:  %d",$signed(golden_ans));
-                $display("Operasyon: %s",(kontrol == `AMB_CIKARMA) ? "cikarma": "toplama");
-                $display("[ERROR]");
-                #11;
-                $finish;
-            end
+            Test(deger1_i, deger2_i, sonuc_o, golden_ans, kontrol);
         end
         $display("[GECTI] Toplama Cikarma Testi");
     end endtask
+
 endmodule
+
 
 module behave_adder(
     input  wire [31:0] in0,
