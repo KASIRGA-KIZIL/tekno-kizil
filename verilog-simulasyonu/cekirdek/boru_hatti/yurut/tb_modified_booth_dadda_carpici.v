@@ -3,36 +3,44 @@
 
 `include "tanimlamalar.vh"
 
+`define WLEN       33
+
 module tb_modified_booth_dadda_carpici();
-    reg [31:0] a_r;
-    reg [31:0] b_r;
-    wire [63:0] s_w;
-  
-    modified_booth_dadda_carpici mbdc(a_r,b_r,s_w);
+    reg [`WLEN-1:0] a_r;
+    reg [`WLEN-1:0] b_r;
+    wire [(`WLEN*2)-1:0] s_w;
+    localparam OUTPUT_VCD_FILE = "./build/out.vcd";
+
+    wire [31:0] mulhsu     = s_w[63:32];
+    wire [31:0] alt_sonuc = s_w[63:0];
+    modified_booth_dadda_carpici mbdc(
+        .carpilan_i(a_r),
+        .carpan_i(b_r),
+        .sonuc_o(s_w),
+        .isaretli(1'b1),
+        .bitti()
+    );
 
     initial begin
-         // Test case 1: 7*4=18
-         a_r = 32'd4;
-         b_r = 32'd7;
-         
-         #10;
-  
-          // Test case 2: 4000*11=44 000
-          a_r = 32'd4000;
-          b_r = 32'd11;
-          
-          #10;
- 
-         // Test case 3: negatif pozitif carpimi(3000*(-4)=-12 000)
-         a_r = 32'd30000;
-         b_r = 32'hffff_fffc;
-        
-         #10;
- 
-        // Test case 4: iki negatif carpimi((-11)*(-16)=176)
-        a_r = 32'hffff_fff5;
-        b_r = 32'hffff_fff0;;
-        
+        $dumpfile(OUTPUT_VCD_FILE);
+        $dumpvars(0, tb_modified_booth_dadda_carpici);
+        a_r = 0;
+        b_r = 0;
+        #1;
+        $display("gher");
+        // Test case 1: 7*4=18
+        a_r = 4;
+        b_r = 7;
+        $display("other");
+        #10;
+        a_r = -7;
+        b_r =  3;
+        $display("other");
+        #10;
+        a_r = 4;
+        b_r = 11;
+
+
         #10;
         $finish;
     end

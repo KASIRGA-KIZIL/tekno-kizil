@@ -67,6 +67,14 @@ tb_yurut: builddir
 									-DSIMULATION
 		vvp ./build/out.vvp
 
+.PHONY: tb_modified_booth_dadda_carpici
+tb_modified_booth_dadda_carpici: builddir
+		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/boru_hatti/yurut/tb_modified_booth_dadda_carpici.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/modified_booth_dadda_carpici.v \
+									-I $(KAYNAKLAR) \
+									-DSIMULATION
+		vvp ./build/out.vvp
+
 .PHONY: tb_cekirdek
 tb_cekirdek: builddir
 

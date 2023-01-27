@@ -3,71 +3,96 @@
 // en son toplam "+" lar ile yapıldı. Dadda tree eklenince buna gerek kalmayacak
 `timescale 1ns / 1ps
 
-`include "tanimlamalar.vh"
+/*
+Modified Booth Dadda algoritmasi
+
+Sinyal isimleri
+    ara_carpim       -> ac
+    isaret_duzeltici -> id
+    ac_id         -> ara carpim isaret duzeltici
+*/
+
+`define WLEN       33
+`define SIFIR      3'b000
+`define BIR        3'b001,3'b010
+`define IKI        3'b011
+`define IKI_EKSI   3'b100
+`define BIR_EKSI   3'b101,3'b110
+`define SIFIR_EKSI 3'b111
 
 module modified_booth_dadda_carpici(
-input  [31:0] carpilan_i,
-input  [31:0] carpan_i,
-output reg [63:0] sonuc_o
-
+    input  wire [`WLEN-1:0] carpilan_i,
+    input  wire [`WLEN-1:0] carpan_i,
+    input  wire isaretli,
+    output wire bitti,
+    output reg [(`WLEN * 2)-1:0] sonuc_o
 );
 
-reg [63:0]seviye1_araCarpim_r[15:0];
-reg [32:0] carpan_r;
-reg [2:0] araCarpici_r;
-integer i;
-initial begin
-    for(i=0;i<16;i=i+1)begin
-        seviye1_araCarpim_r[i]=64'd0;
+    reg  [`WLEN:0] ac[(`WLEN/2):0];
+    reg  [(`WLEN+4):0] ac_genis[(`WLEN/2):0];
+    reg  [(`WLEN/2)-1:0] ac_isaret;
+    wire [`WLEN+2:0] carpan_genis = isaretli ? {{2{carpan_i[`WLEN-1]}},carpan_i,1'b0} : {2'b0,carpan_i,1'b0};
+
+    wire  [`WLEN:0] carpilan_bir = isaretli ? {carpilan_i[`WLEN-1],carpilan_i} : {1'b0,carpilan_i};
+    wire  [`WLEN:0] carpilan_iki = {carpilan_i,1'b0};
+    wire  [`WLEN:0] carpilan_bir_eksi = ~carpilan_bir;
+    wire  [`WLEN:0] carpilan_iki_eksi = ~carpilan_iki;
+
+    reg  [(`WLEN/2)-1:0] ac_id;
+
+    wire id_eksi = 1'b1;
+    wire id_arti = 1'b0;
+
+    integer i;
+    always @(*) begin
+        $display("%d",carpilan_i);
+        for(i=0; i<(`WLEN/2)+1;i=i+1) begin
+            case(carpan_genis[(2*i)+:3])
+                `SIFIR: begin
+                    ac[i] = {`WLEN{1'b0}};;
+                    ac_isaret[i] = id_arti;
+                end
+                `BIR: begin
+                    ac[i] = carpilan_bir;
+                    ac_isaret[i] = id_arti;
+                end
+                `IKI: begin
+                    ac[i] = carpilan_iki;
+                    ac_isaret[i] = id_arti;
+                end
+                `IKI_EKSI: begin
+                    ac[i] = carpilan_iki_eksi;
+                    ac_isaret[i] = id_eksi;
+                end
+                `BIR_EKSI: begin
+                    ac[i] = carpilan_bir_eksi;
+                    ac_isaret[i] = id_eksi;
+                end
+                `SIFIR_EKSI: begin
+                    ac[i] = {`WLEN{1'b1}};
+                    ac_isaret[i] = id_eksi;
+                end
+            endcase
+        end
+        for(i=0;i<(`WLEN/2);i=i+1)begin
+            ac_id[i] = isaretli ? (ac_isaret[i]^carpilan_i[`WLEN-1]) : ac_isaret[i];
+        end
+
+        ac_genis[0] = {1'b0,~ac_id[0],ac_id[0],ac_id[0],ac[0]};
+
+        for(i=1;i<(`WLEN/2)-1;i=i+1)begin
+            ac_genis[i] = {1'b1,~ac_id[i],ac[i],1'b0,ac_isaret[i-1]};
+        end
+
+        ac_genis[(`WLEN/2)-1] = {~ac_id[(`WLEN/2)-1],ac[(`WLEN/2)-1],1'b0,ac_isaret[(`WLEN/2)-2]};
+
+        ac_genis[(`WLEN/2)] = {ac[(`WLEN/2)],1'b0,ac_isaret[(`WLEN/2)-1]};
+
+        sonuc_o =  ac_genis[0];
+        for(i=1;i<(`WLEN/2)+1;i=i+1)begin
+            sonuc_o = $signed(sonuc_o) + $signed((ac_genis[i] << (i-1)*2));
+        end
+        $display("%b",sonuc_o);
     end
-end
-always @(*)begin
-carpan_r=carpan_i<<1;
-for(i=2;i<33;i=i+2) begin
-    araCarpici_r=carpan_r[i-:3];
-    case(araCarpici_r)
-        3'b000:begin
-            seviye1_araCarpim_r[(i/2)-1]=64'd0;
-        end
-        
-        3'b001:begin
-            seviye1_araCarpim_r[(i/2)-1][(29+i)-:32]=carpilan_i;
-        end
-        
-        3'b010:begin
-            seviye1_araCarpim_r[(i/2)-1][(29+i)-:32]=carpilan_i;
-        end
-        
-        3'b011:begin
-            seviye1_araCarpim_r[(i/2)-1][(29+i)-:32]=carpilan_i<<1;
-        end
-        
-        3'b100:begin
-            seviye1_araCarpim_r[(i/2)-1][(29+i)-:32]=~(carpilan_i<<1)+1;
-        end
-        
-        3'b101:begin
-            seviye1_araCarpim_r[(i/2)-1][(29+i)-:32]=~carpilan_i+1;
-        end
-        
-        3'b110:begin
-        seviye1_araCarpim_r[(i/2)-1][(29+i)-:32]=~carpilan_i+1;
-        end
-        
-        3'b111:begin
-        seviye1_araCarpim_r[(i/2)-1]=64'd0;
-        end
-        
-    endcase
-    if(seviye1_araCarpim_r[(i/2)-1][(29+i)]==1)begin
-        seviye1_araCarpim_r[(i/2)-1][(30+i)+:(32)]=32'b11111111_11111111_11111111_11111111;
-    end
-end
-    sonuc_o= seviye1_araCarpim_r[0]+ seviye1_araCarpim_r[1]+ seviye1_araCarpim_r[2]+
-    seviye1_araCarpim_r[3]+ seviye1_araCarpim_r[4]+ seviye1_araCarpim_r[5]+
-    seviye1_araCarpim_r[6]+ seviye1_araCarpim_r[7]+ seviye1_araCarpim_r[8]+
-    seviye1_araCarpim_r[9]+ seviye1_araCarpim_r[10]+ seviye1_araCarpim_r[11]+
-    seviye1_araCarpim_r[12]+ seviye1_araCarpim_r[13]+ seviye1_araCarpim_r[14]+
-    seviye1_araCarpim_r[15];
-end
+
 endmodule
