@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-`include "tanimlamalar.vh"
+// `include "sabitler.vh"
 
 `define PS_BIT 32'd32
 `define BUYRUK_BIT 32'd32
@@ -12,29 +12,31 @@ module getir
     input                               clk_i,
     input                               rst_i,
     // denetim durum birimi sinyalleri 
-    input                               ddb_ps_al_gecerli_i,
-    input [`PS_BIT - 1:0]               ddb_ps_al_i,
+    input                               ddb_duraklat_i,
+    input                               ddb_bosalt_i,
     // onbellekten gelen guncelleme sinyalleri 
     input [`BUYRUK_BIT-1:0]             l1b_buy_i,
     input                               l1b_gecerli_i,
     input                               l1b_hazir_i,
-    input                               l1b_duraklat_i,
+    input                               l1b_duraklat_i, // ddb duraklat ile ayni sinyal olabilir
     input                               l1b_oku_adres_kabul_i, // buna gerek olmayabilir
     // yurutten gelen dallanma guncelleme bitleri
-    input                               y_guncelleme_gecerli_i,
-    input                               y_yanlis_ongoru_i,
-    input                               y_atladi_i,
-    input [`BB_ADRES_BIT-1:0]           y_dallanma_ps_i, 
+    input                               y_ps_gecerli_i,
+    input                               y_yanlis_ongoru_i, 
+    input                               y_tahmin_dogru_i,
+    input [`BB_ADRES_BIT-1:0]           y_yurut_ps_i, 
     input [`BB_ADRES_BIT-1:0]           y_atlanan_ps_i,
-    input [`BUYRUK_BIT-1:0]             y_buy_i,
+    // input [`BUYRUK_BIT-1:0]             y_dallanma_tipi_i, // guncelle
     input                               y_siradaki_ps_gecerli_i,
     input [`BB_ADRES_BIT-1:0]           y_siradaki_ps_i,
+    input [1:0]                         y_dallanma_tipi_i, // 2'b01: branch, 2'b10: jalr,  
     // coz'e giden cikis sinyalleri
     // Not: ongoru varsa vermek gerekebilir?  
     output [`BB_ADRES_BIT-1:0]          coz_ps_o,
     output [`BUYRUK_BIT-3:0]            coz_buy_o, //Not: butun buyruklarin en onemsiz iki biti 2'b11
     output                              coz_gecerli_o, 
     output                              coz_buyruk_compressed_o,  
+    output                              coz_buyruk_atladi, 
     // onbellege giden cikis sinyalleri   
     output [`BB_ADRES_BIT-1:0]          l1b_ps_o,
     output                              l1b_ps_gecerli_o
@@ -79,6 +81,9 @@ module getir
     wire [`BUYRUK_BIT-1:0] atlanan_adres_w; 
     wire ongoru_yanlis_w;
 
+    // Bosalt wire
+
+
     // Getir asamasi kontrol sinyalleri
     // Buyruk Buffer: Compressed buyruk gelmesi durumunda
     //                diger 16 biti sakla.
@@ -106,10 +111,10 @@ module getir
         .atlanan_adres_o(dob_yeni_ps),
         .buyruk_ongoru_o(dob_ongoru_atlar),
         // dallanma ongorucuyu guncellemek icin kullanilan bitler
-        .guncelleme_gecerli_i(y_guncelleme_gecerli_i),
-        .eski_buyruk_i(y_buy_i),
-        .eski_buyruk_adresi_i(y_dallanma_ps_i),
-        .buyruk_atladi_i(y_atladi_i),
+        .guncelleme_gecerli_i(y_ps_gecerli_i),
+        .i_eski_buyruk_tipi(y_dallanma_tipi_i),
+        .eski_buyruk_adresi_i(y_yurut_ps_i),
+        .buyruk_atladi_i(y_tahmin_dogru_i),
         .atlanan_adres_i(y_atlanan_ps_i),
         .ongoru_yanlis_i(y_yanlis_ongoru_i)
     );
@@ -162,6 +167,8 @@ module getir
         buyruk_jalr_w ||
         buyruk_jr_w) && l1b_gecerli_i;  
 
+    assign coz_buyruk_atladi = dob_ongoru_atlar;
+
     // Kontrol sinyalleri: Getir -> L1B
     assign l1b_ps_o = {ps_r[31:2],{2{1'b0}}};
     // Buyruk Buffer gecerli degilse, l1b'den yeni buyruk gelmediyse ve
@@ -183,14 +190,14 @@ module getir
         coz_buyruk_next_r = coz_buyruk_r;
         coz_ps_next_r = coz_ps_r;
 
-        if(bosalt_i) begin
-            ps_next_r = 'd0;
-            buyruk_buffer_comp_next_r = 1'd0;
-            buyruk_buffer_gecerli_next_r = 1'd0;
-            buyruk_buffer_next_r = 'd0;
-            coz_gecerli_next_r = 1'd0;
-            coz_buyruk_next_r = 'd0;
-        end
+        // if(ddb_bosalt_i) begin
+        //     ps_next_r = 'd0;
+        //     buyruk_buffer_comp_next_r = 1'd0;
+        //     buyruk_buffer_gecerli_next_r = 1'd0;
+        //     buyruk_buffer_next_r = 'd0;
+        //     coz_gecerli_next_r = 1'd0;
+        //     coz_buyruk_next_r = 'd0;
+        // end
 
         // Buyruk Buffer Gecerli ve Bufferdaki Buyruk Compressed
         if(!l1b_duraklat_i && buyruk_buffer_comp_r && buyruk_buffer_gecerli_r && !buyruk_db_etkin_w) begin
@@ -289,7 +296,7 @@ module getir
     end
 
     always @(posedge clk_i) begin
-        if (rst_i) begin
+        if (rst_i || ddb_bosalt_i) begin
             ps_r = 'd0;
             buyruk_buffer_comp_r = 1'b0;
             buyruk_buffer_gecerli_r = 1'b0;
@@ -297,7 +304,7 @@ module getir
             coz_gecerli_r = 1'b0;
             coz_buyruk_r = 'd0;
         end
-        else begin
+        else if(~ddb_duraklat_i) begin
             ps_r = ps_next_r;
             buyruk_buffer_comp_r = buyruk_buffer_comp_next_r;
             buyruk_buffer_gecerli_r = buyruk_buffer_gecerli_next_r;
