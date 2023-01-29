@@ -1,11 +1,9 @@
 `timescale 1ns / 1ps
 
-// bunlari kaldiralim yurutten getirelim
-// gerekli sabitleri tanimlamalara tasi
-//`define JAL     7'b1101111 
-`define JALR_OP    7'b1100111
+`define JAL     7'b1101111 
+`define JALR    7'b1100111
 `define BRANCH  7'b1100011
-`define C_JALR_FUNC  4'b1001
+`define C_JALR  4'b1001
 `define BUYRUK_BIT 32'd32
 
 //`include "sabitler.vh"
@@ -26,7 +24,8 @@ output o_buyruk_ongoru,
 
 // dallanma ongorucuyu guncellemek icin kullanilan bitler
 input guncelle_gecerli_g,
-input [`BUYRUK_BIT-1:0] i_eski_buyruk,     
+// input [`BUYRUK_BIT-1:0] i_eski_buyruk,     // dallanma tipi geliyor artik
+input [1:0] i_eski_buyruk_tipi, 
 input [`BUYRUK_BIT-1:0] i_eski_buyruk_adresi,
 input i_buyruk_atladi,  
 input [`BUYRUK_BIT-1:0] i_atlanan_adres, 
@@ -57,10 +56,10 @@ input i_ongoru_yanlis
 
     // BTB kontrol sinyalleri
     assign yeni_dallanma_buyrugu = is_branch;
-    assign eski_dallanma_buyrugu = i_eski_buyruk[6:0] == `BRANCH;
+    assign eski_dallanma_buyrugu = i_eski_buyruk_tipi[0]; // i_eski_buyruk[6:0] == `BRANCH;
     assign yeni_ongoru_adresi = ((yeni_dallanma_buyrugu && guncelle_gecerli_g) ? ({bht[4:1], i_buyruk_atladi}) : (bht[4:0])) ^ i_buyruk_adresi[6:2]; // once tahmin iceren bht elemanini guncelle 
     assign eski_ongoru_adresi = bht_next[(bht_pointer)+:4] ^ i_eski_buyruk_adresi;
-    assign eski_uncond_buyruk = (i_eski_buyruk[6:0] == `JALR_OP) || (is_comp &&  (i_eski_buyruk[15:12] == `C_JALR_FUNC ));  // BTB'ye erisecek jump buyruklari
+    assign eski_uncond_buyruk =  i_eski_buyruk_tipi[0] // (i_eski_buyruk[6:0] == `JALR) || (is_comp &&  (i_eski_buyruk[15:12] == `C_JALR ));  // BTB'ye erisecek jump buyruklari
     // Modul Cikislari
     assign o_atlanan_adres = btb[yeni_ongoru_adresi][31:0];    
     // Jump register buyrugu hep atlar
@@ -77,7 +76,6 @@ input i_ongoru_yanlis
         if(is_branch) begin
             bht_next = {bht[6:0], btb[yeni_ongoru_adresi][33]}; // spekulatif guncelleme
             bht_pointer_next = bht_pointer + 3'd1; 
-
             // r_atlanan_adres_next = btb[yeni_ongoru_adresi][31:0];
         end
 
