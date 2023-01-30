@@ -51,23 +51,23 @@ module coz_yazmacoku(
     wire [31:0] rs1_deger_w; // okunan 1. yazmac
     wire [31:0] rs2_deger_w; // okunan 2. yazmac
 
-    wire [31:0] deger1_tmp_w = (ddb_yonlendir_kontrol1_i == `YON_GERIYAZ   ) ? gy_yaz_deger_i :
-                               (ddb_yonlendir_kontrol1_i == `YON_YURUT     ) ? yrt_yonlendir_deger_i    :
-                               (ddb_yonlendir_kontrol1_i == `YON_HICBISEY  ) ? rs1_deger_w    :
+    wire [31:0] deger1_tmp_w = (ddb_yonlendir_kontrol1_i == `YON_GERIYAZ   ) ? gy_yaz_deger_i       :
+                               (ddb_yonlendir_kontrol1_i == `YON_YURUT     ) ? yrt_yonlendir_deger_i:
+                               (ddb_yonlendir_kontrol1_i == `YON_HICBISEY  ) ? rs1_deger_w          :
                                                                                rs1_deger_w;
+
+    wire [31:0] deger2_tmp_w = (ddb_yonlendir_kontrol2_i  == `YON_GERIYAZ  ) ? gy_yaz_deger_i        :
+                               (ddb_yonlendir_kontrol2_i  == `YON_YURUT    ) ? yrt_yonlendir_deger_i :
+                               (ddb_yonlendir_kontrol2_i  == `YON_HICBISEY ) ? rs2_deger_w           :
+                                                                               rs2_deger_w;
 
     wire [31:0] deger1_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) ? gtr_ps_i : deger1_tmp_w;
 
-    wire [31:0] deger2_tmp_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) ? imm_r : rs2_deger_w;
+    wire [31:0] deger2_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) ? imm_r : deger2_tmp_w;
 
-    wire [31:0] deger2_w = (ddb_yonlendir_kontrol2_i  == `YON_GERIYAZ  ) ? gy_yaz_deger_i :
-                           (ddb_yonlendir_kontrol2_i  == `YON_YURUT    ) ? yrt_yonlendir_deger_i    :
-                           (ddb_yonlendir_kontrol2_i  == `YON_HICBISEY ) ? deger2_tmp_w    :
-                                                                           deger2_tmp_w;
-
-    wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_w));
-    wire ltu_w = (deger1_tmp_w  < deger2_w);
-    wire eq_w  = (deger1_tmp_w == deger2_w);
+    wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_tmp_w));
+    wire ltu_w = (deger1_tmp_w  < deger2_tmp_w);
+    wire eq_w  = (deger1_tmp_w == deger2_tmp_w);
 
     always @* begin
         ddb_gecersiz_buyruk_o = 1'b0;

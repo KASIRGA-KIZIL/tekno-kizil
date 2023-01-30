@@ -7,7 +7,7 @@
 module tb_cekirdek;
 
     // Parameters
-    localparam INPUT_FILE  = "./build/blinky.hex";
+    localparam INPUT_FILE  = "./build/basit_dongu.hex";
     localparam OUTPUT_VCD_FILE = "./build/out.vcd";
     localparam DEPTH = 2048;
 

@@ -86,16 +86,13 @@ tb_cekirdek: builddir
 
 
 		$(SIMULATOR) -Wall -o ./build/out.vvp ./cekirdek/tb_cekirdek.v \
-									$(KAYNAKLAR)/cekirdek/cekirdek.v \
-									$(KAYNAKLAR)/cekirdek/denetim_durum_birimi.v \
-									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/yurut.v \
-									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/aritmetik_mantik_birimi.v \
-									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/carry_lookahead_toplayici.v \
-									$(KAYNAKLAR)/cekirdek/boru_hatti/getir/getir.v \
-									$(KAYNAKLAR)/cekirdek/boru_hatti/getir/dallanma_ongorucu.v \
-									$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/coz_yazmacoku.v \
-									$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/yazmac_obegi.v \
-									$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/geri_yaz.v \
+									$(KAYNAKLAR)/cekirdek/*.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
+									$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
 									-I $(KAYNAKLAR) \
 									-DSIMULATION
 		vvp ./build/out.vvp
@@ -109,7 +106,4 @@ clean:
 		-rm -rf FAILED
 		-rm -rf PASSED
 		-rm -rf UNKNOWN
-		-rm -rf build/*.vvp
-		-rm -rf build/*.vcd
-		-rm -rf build/*.hex
-		-rm -rf build/*.dec
+		-rm -rf build
