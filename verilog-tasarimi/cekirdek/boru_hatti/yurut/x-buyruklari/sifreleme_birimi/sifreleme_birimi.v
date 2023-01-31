@@ -7,7 +7,7 @@ module sifreleme_birimi(
     input [2:0] kontrol_i,
     input [31:0] deger1_i,
     input [31:0] deger2_i,
-    output reg [31:0] sonuc_o
+    output reg[31:0] sonuc_o
 );
 
     wire [5:0] hamming_uzakligi;
@@ -65,8 +65,7 @@ module sifreleme_birimi(
                 sonuc_o = {27'b0,sifir_sayisi};
             `SIFRELEME_CNTP:
                 sonuc_o = {26'b0,bir_sayisi};
-            default:
-                sonuc_o = 32'b0;
+
         endcase
     end
 

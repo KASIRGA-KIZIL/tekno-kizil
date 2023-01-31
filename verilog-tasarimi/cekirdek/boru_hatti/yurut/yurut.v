@@ -3,6 +3,7 @@
 
 `include "tanimlamalar.vh"
 
+// denetim durum birimi ile iliskisinin kurulmasi gerek
 
 module yurut(
     input wire clk_i,
@@ -14,23 +15,20 @@ module yurut(
     // Coz-Yazmacoku bolumu sinyallleri
     input  wire [`MI_BIT-1:0] cyo_mikroislem_i,
     input  wire [        4:0] cyo_rd_adres_i,               // Rd'nin adresi
-    input  wire [       31:1] cyo_ps_artmis_i,              // Rd=PC+4/2 islemi icin gerekli
+    input  wire [       31:0] cyo_ps_artmis_i,              // Rd=PC+4/2 islemi icin gerekli
     input  wire [       31:0] cyo_deger1_i,                 // Islem birimi girdileri. Yonlendirme ve Immediate secilmis son degerler.
     input  wire [       31:0] cyo_deger2_i,
     input  wire               cyo_yapay_zeka_en_i,          // yapay zeka buyruklari rs2 enable biti
-    input  wire               cyo_ebreak_ecall_i,           // Ebreak veya Ecall ise 1
-    input  wire [       31:1] cyo_ps_i,                     // Exceptionlar icin gerekli
-    input  wire               cyo_gecersiz_buyruk_i,        // Exceptionlar icin gerekli
 
     // Branch ve Jump buyruklari icin. Hepsi ayni cevrimde gidecek
     input  wire [ 2:0] cyo_lt_ltu_eq_i,                // Degerler arasindaki iliski. cyo_lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
-    input  wire [ 2:0] cyo_buyruk_tipi_i,              // J veya B veya digertip. Eger J tipiyse direkt atlanilacak. B tipiyse kosula bakilcak.
+    input  wire [ 1:0] cyo_buyruk_tipi_i,              // J veya B veya digertip. Eger J tipiyse direkt atlanilacak. B tipiyse kosula bakilcak.
     output wire [31:1] gtr_atlanan_ps_o,               // Atlanilan yeni program sayaci, pc+imm veya rs1+imm degerini tasiyor.
     output wire        gtr_atlanan_ps_gecerli_o,       // Yeni program sayacinin gecerli olup olmadiginin sinyali. J tipinde hep gecerli
 
     // GERIYAZ icin
     output reg  [ 4:0] gy_rd_adres_o,              // Rd'nin adresi
-    output reg  [31:1] gy_ps_artmis_o,             // Rd=PC+4/2 islemi icin gerekli
+    output reg  [31:0] gy_ps_artmis_o,             // Rd=PC+4/2 islemi icin gerekli
     output reg  [31:0] gy_rd_deger_o,              // islem birimlerinden cikan sonuc
     output reg  [31:0] gy_bib_deger_o,             // Bellek Islem Biriminin ciktisi.
     output wire [31:0] gy_carpma_deger_o,          // Carpma Biriminin ciktisi.
@@ -43,7 +41,7 @@ module yurut(
     wire [31:0] amb_sonuc_w      ;
     wire [31:0] bol_sonuc_w      ;
     wire [31:0] sifreleme_sonuc_w;
-    wire [31:0] sistem_sonuc_w   ;
+    wire [31:0] sistem_sonuc_w   ; // [TODO] CSR lar hala yok ;(
 
     aritmetik_mantik_birimi amb (
         .kontrol(cyo_mikroislem_i[`AMB]),
@@ -54,10 +52,10 @@ module yurut(
     );
 
     sifreleme_birimi sb (
-        .kontrol_i(cyo_mikroislem_i[`SIFRELEME]),
-        .deger1_i (cyo_deger1_i ),
-        .deger2_i (cyo_deger2_i ),
-        .sonuc_o  (sifreleme_sonuc_w)
+      .kontrol_i(cyo_mikroislem_i[`SIFRELEME]),
+      .deger1_i (cyo_deger1_i ),
+      .deger2_i (cyo_deger2_i ),
+      .sonuc_o  (sifreleme_sonuc_w)
     );
 
 
@@ -65,11 +63,11 @@ module yurut(
     wire [31:0] yzh_deger2;
 
     wire [31:0] carp_deger1 = (cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ? cyo_deger1_i  :
-                              (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ? yzh_deger1    :
+                              (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ? yzh_deger1:
                                                                                32'bx;
 
     wire [31:0] carp_deger2 = (cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ? cyo_deger2_i  :
-                              (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ? yzh_deger2    :
+                              (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ? yzh_deger2:
                                                                                32'bx;
 
     wire cb_rst = rst_i | (cyo_mikroislem_i[`BIRIM] != `BIRIM_YAPAYZEKA);
@@ -97,6 +95,13 @@ module yurut(
         .carp_deger2_o (yzh_deger2)
     );
 
+
+    wire [31:0] rd_deger_sonraki_w = (cyo_mikroislem_i[`BIRIM] == `BIRIM_AMB      ) ? amb_sonuc_w      :
+                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ? bol_sonuc_w      :
+                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_SIFRELEME) ? sifreleme_sonuc_w:
+                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_SISTEM   ) ? sistem_sonuc_w   :
+                                                                                    32'hxxxx_xxxx;
+
     wire dallanma_kosulu_w = (cyo_mikroislem_i[`DAL] == `DAL_EQ ) ?  cyo_lt_ltu_eq_i[0]:
                              (cyo_mikroislem_i[`DAL] == `DAL_NE ) ? !cyo_lt_ltu_eq_i[0]:
                              (cyo_mikroislem_i[`DAL] == `DAL_LT ) ?  cyo_lt_ltu_eq_i[2]:
@@ -106,39 +111,9 @@ module yurut(
                              (cyo_mikroislem_i[`DAL] == `DAL_YOK) ? 1'b0               :
                                                                     1'b0; // x veya ? yerine 0 cunku dallanma_kosulu surekli okunuyor. Kazayla 1 verirsek gecmis olsun.
 
-    wire bj_atla = (cyo_buyruk_tipi_i == `J_Tipi) || ((cyo_buyruk_tipi_i == `B_Tipi) && dallanma_kosulu_w);
+    assign gtr_atlanan_ps_gecerli_o = (cyo_buyruk_tipi_i == `JTIP) || ((cyo_buyruk_tipi_i == `BTIP) && dallanma_kosulu_w);
 
-
-    wire hizasiz_atlama = (amb_sonuc_w[0] && bj_atla);
-    wire hizasiz_okuma  = (amb_sonuc_w[0] && (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB));
-    wire hizasiz_yazma  = (amb_sonuc_w[0] && (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB));
-
-    wire exception = hizasiz_atlama || hizasiz_okuma || hizasiz_yazma || cyo_gecersiz_buyruk_i;
-
-    wire csr_basla = (cyo_mikroislem_i[`BIRIM] == `BIRIM_SISTEM);
-    csr_birimi csrb (
-        .clk_i (clk_i ),
-        .rst_i (rst_i ),
-        .basla_i (csr_basla),
-        .kontrol_i (cyo_mikroislem_i[`SISTEM]),
-        .ps_i    (cyo_ps_i),
-        .exception_i(exception),
-        .deger_i (cyo_deger1_i ),
-        .zimm_i  (cyo_deger2_i[16:12]),
-        .adr_i   (cyo_deger2_i[11:0]),
-        .sonuc_o (sistem_sonuc_w)
-    );
-
-
-    wire [31:0] rd_deger_sonraki_w = (cyo_mikroislem_i[`BIRIM] == `BIRIM_AMB      ) ? amb_sonuc_w      :
-                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ? bol_sonuc_w      :
-                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_SIFRELEME) ? sifreleme_sonuc_w:
-                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_SISTEM   ) ? sistem_sonuc_w   :
-                                                                                    32'hxxxx_xxxx;
-
-    assign gtr_atlanan_ps_gecerli_o = (exception || cyo_ebreak_ecall_i) || bj_atla;
-
-    assign gtr_atlanan_ps_o = (exception || cyo_ebreak_ecall_i) ? sistem_sonuc_w : amb_sonuc_w[31:1];
+    assign gtr_atlanan_ps_o = amb_sonuc_w[31:1];
 
     assign cyo_yonlendir_deger_o = rd_deger_sonraki_w;
 

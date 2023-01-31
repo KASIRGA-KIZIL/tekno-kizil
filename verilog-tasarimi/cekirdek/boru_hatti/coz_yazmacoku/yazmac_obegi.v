@@ -27,7 +27,7 @@ module yazmac_obegi(
             for(i = 0; i < 32; i = i + 1)
                 yazmaclar[i] <= 0;
         end
-        else if(yaz_i && (yaz_adr_i != 0)) begin
+        else if(yaz_i) begin
             yazmaclar[yaz_adr_i] <=  yaz_deger_i;
         end
     end

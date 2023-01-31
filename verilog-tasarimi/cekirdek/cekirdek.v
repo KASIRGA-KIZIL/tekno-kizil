@@ -18,24 +18,22 @@ module cekirdek(
     wire [       31:0] yrt_deger1_w;
     wire [       31:0] yrt_deger2_w;
     wire [        2:0] yrt_lt_ltu_eq_w;
-    wire [        2:0] yrt_buyruk_tipi_w;
-    wire [       31:1] yrt_ps_artmis_w;
+    wire [        1:0] yrt_buyruk_tipi_w;
+    wire [       31:0] yrt_ps_artmis_w;
     wire [        4:0] yrt_rd_adres_w;
     wire               yrt_yapay_zeka_en_w;
-    wire               yrt_ebreak_ecall_w;
-    wire [       31:1] yrt_ps_w;
     wire [4:0] ddb_rs1_adres_w;
     wire [4:0] ddb_rs2_adres_w;
     wire       ddb_gecersiz_buyruk_w;
 
     /*wire  l1b_chip_select_n_o;*/
     wire [31:0] cyo_buyruk_w;
-    wire [31:1] cyo_ps_artmis_w;
+    wire [31:0] cyo_ps_artmis_w;
     wire [31:1] cyo_l1b_ps_w;
 
     wire [31:1] gtr_atlanan_ps_w;
     wire  gtr_atlanan_ps_gecerli_w;
-    wire [31:1] gy_ps_artmis_w;
+    wire [31:0] gy_ps_artmis_w;
     wire [31:0] gy_rd_deger_w;
     wire [31:0] gy_bib_deger_w;
     wire [31:0] gy_carpma_deger_w;
@@ -82,15 +80,12 @@ module cekirdek(
         .rst_i (rst_i ),
         .ddb_hazir_o (yrt_hazir_w),
 
-        .cyo_mikroislem_i    (yrt_mikroislem_w      ),
-        .cyo_rd_adres_i      (yrt_rd_adres_w        ),
-        .cyo_ps_artmis_i     (yrt_ps_artmis_w       ),
-        .cyo_deger1_i        (yrt_deger1_w          ),
-        .cyo_deger2_i        (yrt_deger2_w          ),
-        .cyo_yapay_zeka_en_i (yrt_yapay_zeka_en_w   ),
-        .cyo_ebreak_ecall_i  (yrt_ebreak_ecall_w    ),
-        .cyo_ps_i            (yrt_ps_w              ),
-        .cyo_gecersiz_buyruk_i(cyo_gecersiz_buyruk_w),
+        .cyo_mikroislem_i    (yrt_mikroislem_w   ),
+        .cyo_rd_adres_i      (yrt_rd_adres_w     ),
+        .cyo_ps_artmis_i     (yrt_ps_artmis_w    ),
+        .cyo_deger1_i        (yrt_deger1_w       ),
+        .cyo_deger2_i        (yrt_deger2_w       ),
+        .cyo_yapay_zeka_en_i (yrt_yapay_zeka_en_w),
         .cyo_lt_ltu_eq_i     (yrt_lt_ltu_eq_w    ),
         .cyo_buyruk_tipi_i   (yrt_buyruk_tipi_w  ),
         .gtr_atlanan_ps_o         (gtr_atlanan_ps_w        ),
@@ -108,17 +103,15 @@ module cekirdek(
         .clk_i (clk_i ),
         .rst_i (rst_i ),
 
-        .gtr_buyruk_i     (cyo_buyruk_w    ),
-        .gtr_ps_i         (cyo_l1b_ps_w    ),
-        .gtr_ps_artmis_i  (cyo_ps_artmis_w ),
+        .gtr_buyruk_i     (cyo_buyruk_w       ),
+        .gtr_ps_i         ({cyo_l1b_ps_w,1'b0}),
+        .gtr_ps_artmis_i  (cyo_ps_artmis_w    ),
         .yrt_mikroislem_o      (yrt_mikroislem_w     ),
         .yrt_deger1_o          (yrt_deger1_w         ),
         .yrt_deger2_o          (yrt_deger2_w         ),
         .yrt_lt_ltu_eq_o       (yrt_lt_ltu_eq_w      ),
         .yrt_buyruk_tipi_o     (yrt_buyruk_tipi_w    ),
         .yrt_yapay_zeka_en_o   (yrt_yapay_zeka_en_w  ),
-        .yrt_ebreak_ecall_o    (yrt_ebreak_ecall_w   ),
-        .yrt_ps_o              (yrt_ps_w             ),
         .yrt_ps_artmis_o       (yrt_ps_artmis_w      ),
         .yrt_rd_adres_o        (yrt_rd_adres_w       ),
         .yrt_yonlendir_deger_i (cyo_yonlendir_deger_w),

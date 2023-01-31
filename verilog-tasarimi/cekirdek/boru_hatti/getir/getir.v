@@ -28,7 +28,7 @@ module getir (
 
         // Coz Yazmacoku
         output reg  [31:0] cyo_buyruk_o,
-        output reg  [31:1] cyo_ps_artmis_o,
+        output reg  [31:0] cyo_ps_artmis_o,
 
         // Coz ve L1 Buyruk Onbellegi
         output wire [31:1] cyo_l1b_ps_o
@@ -56,8 +56,7 @@ module getir (
         case(l1b_deger_i[6:2])
             5'b11000: begin tahmin_et = 1'b1; end // B-tipi
             5'b11011: begin tahmin_et = 1'b1; end // jal
-            5'b00101: begin tahmin_et = 1'b1; end // auipc // add upper immediate to pc
-            5'b11100: begin tahmin_et = (l1b_deger_i[14:12] == 3'b0) ? 1'b1 : 1'b0; end // ECALL ve EBREAK buyruklari
+            5'b00101: begin tahmin_et = 1'b1; end // auipc // add upper immediate to pc // tahmin et
             default:  begin tahmin_et = 1'b0; end
         endcase
     end
@@ -265,76 +264,69 @@ module getir (
 
         always @* begin
             casez(buyruk_coz_debug)
-                `EBREAK_COZ:     begin coz_str_debug = "`EBREAK_MI";     end
-                `ECALL_COZ:      begin coz_str_debug = "`ECALL_MI";      end
-                `CSRRC_COZ:      begin coz_str_debug = "`CSRRC_MI";      end
-                `CSRRCI_COZ:     begin coz_str_debug = "`CSRRCI_MI";     end
-                `CSRRS_COZ:      begin coz_str_debug = "`CSRRS_MI";      end
-                `CSRRSI_COZ:     begin coz_str_debug = "`CSRRSI_MI";     end
-                `CSRRW_COZ:      begin coz_str_debug = "`CSRRW_MI";      end
-                `CSRRWI_COZ:     begin coz_str_debug = "`CSRRWI_MI";     end
-                `CONV_CLR_W_COZ: begin coz_str_debug = "`CONV_CLR_W_MI"; end
-                `CONV_CLR_X_COZ: begin coz_str_debug = "`CONV_CLR_X_MI"; end
-                `CONV_RUN_COZ:   begin coz_str_debug = "`CONV_RUN_MI";   end
-                `RVRS_COZ:       begin coz_str_debug = "`RVRS_MI";       end
-                `CNTZ_COZ:       begin coz_str_debug = "`CNTZ_MI";       end
-                `CNTP_COZ:       begin coz_str_debug = "`CNTP_MI";       end
-                `CONV_LD_W_COZ:  begin coz_str_debug = "`CONV_LD_W_MI";  end
-                `CONV_LD_X_COZ:  begin coz_str_debug = "`CONV_LD_X_MI";  end
-                `ADD_COZ:        begin coz_str_debug = "`ADD_MI";        end
-                `AND_COZ:        begin coz_str_debug = "`AND_MI";        end
-                `DIV_COZ:        begin coz_str_debug = "`DIV_MI";        end
-                `DIVU_COZ:       begin coz_str_debug = "`DIVU_MI";       end
-                `MUL_COZ:        begin coz_str_debug = "`MUL_MI";        end
-                `MULH_COZ:       begin coz_str_debug = "`MULH_MI";       end
-                `MULHSU_COZ:     begin coz_str_debug = "`MULHSU_MI";     end
-                `MULHU_COZ:      begin coz_str_debug = "`MULHU_MI";      end
-                `OR_COZ:         begin coz_str_debug = "`OR_MI";         end
-                `REM_COZ:        begin coz_str_debug = "`REM_MI";        end
-                `REMU_COZ:       begin coz_str_debug = "`REMU_MI";       end
-                `SLL_COZ:        begin coz_str_debug = "`SLL_MI";        end
-                `SLT_COZ:        begin coz_str_debug = "`SLT_MI";        end
-                `SLTU_COZ:       begin coz_str_debug = "`SLTU_MI";       end
-                `SRA_COZ:        begin coz_str_debug = "`SRA_MI";        end
-                `SRL_COZ:        begin coz_str_debug = "`SRL_MI";        end
-                `SUB_COZ:        begin coz_str_debug = "`SUB_MI";        end
-                `XOR_COZ:        begin coz_str_debug = "`XOR_MI";        end
-                `HMDST_COZ:      begin coz_str_debug = "`HMDST_MI";      end
-                `PKG_COZ:        begin coz_str_debug = "`PKG_MI";        end
-                `SLADD_COZ:      begin coz_str_debug = "`SLADD_MI";      end
-                `SLLI_COZ:       begin coz_str_debug = "`SLLI_MI";       end
-                `SRAI_COZ:       begin coz_str_debug = "`SRAI_MI";       end
-                `SRLI_COZ:       begin coz_str_debug = "`SRLI_MI";       end
-                `ADDI_COZ:       begin coz_str_debug = "`ADDI_MI";       end
-                `ANDI_COZ:       begin coz_str_debug = "`ANDI_MI";       end
-                `BEQ_COZ:        begin coz_str_debug = "`BEQ_MI";        end
-                `BGE_COZ:        begin coz_str_debug = "`BGE_MI";        end
-                `BGEU_COZ:       begin coz_str_debug = "`BGEU_MI";       end
-                `BLT_COZ:        begin coz_str_debug = "`BLT_MI";        end
-                `BLTU_COZ:       begin coz_str_debug = "`BLTU_MI";       end
-                `BNE_COZ:        begin coz_str_debug = "`BNE_MI";        end
-                `FENCE_COZ:      begin coz_str_debug = "`FENCE_MI";      end
-                `FENCE_I_COZ:    begin coz_str_debug = "`FENCE_I_MI";    end
-                `JALR_COZ:       begin coz_str_debug = "`JALR_MI";       end
-                `LB_COZ:         begin coz_str_debug = "`LB_MI";         end
-                `LBU_COZ:        begin coz_str_debug = "`LBU_MI";        end
-                `LH_COZ:         begin coz_str_debug = "`LH_MI";         end
-                `LHU_COZ:        begin coz_str_debug = "`LHU_MI";        end
-                `LW_COZ:         begin coz_str_debug = "`LW_MI";         end
-                `ORI_COZ:        begin coz_str_debug = "`ORI_MI";        end
-                `SB_COZ:         begin coz_str_debug = "`SB_MI";         end
-                `SH_COZ:         begin coz_str_debug = "`SH_MI";         end
-                `SLTI_COZ:       begin coz_str_debug = "`SLTI_MI";       end
-                `SLTIU_COZ:      begin coz_str_debug = "`SLTIU_MI";      end
-                `SW_COZ:         begin coz_str_debug = "`SW_MI";         end
-                `XORI_COZ:       begin coz_str_debug = "`XORI_MI";       end
-                `AUIPC_COZ:      begin coz_str_debug = "`AUIPC_MI";      end
-                `JAL_COZ:        begin coz_str_debug = "`JAL_MI";        end
-                `LUI_COZ:        begin coz_str_debug = "`LUI_MI";        end
-                default:         begin coz_str_debug  = "DEFAULT_MI";    end
+                `EBREAK_COZ:     begin  coz_str_debug = "`EBREAK_MI";     end
+                `ECALL_COZ:      begin  coz_str_debug = "`ECALL_MI";      end
+                `CONV_CLR_W_COZ: begin  coz_str_debug = "`CONV_CLR_W_MI"; end
+                `CONV_CLR_X_COZ: begin  coz_str_debug = "`CONV_CLR_X_MI"; end
+                `CONV_RUN_COZ:   begin  coz_str_debug = "`CONV_RUN_MI";   end
+                `RVRS_COZ:       begin  coz_str_debug = "`RVRS_MI";       end
+                `CNTZ_COZ:       begin  coz_str_debug = "`CNTZ_MI";       end
+                `CNTP_COZ:       begin  coz_str_debug = "`CNTP_MI";       end
+                `CONV_LD_W_COZ:  begin  coz_str_debug = "`CONV_LD_W_MI";  end
+                `CONV_LD_X_COZ:  begin  coz_str_debug = "`CONV_LD_X_MI";  end
+                `ADD_COZ:        begin  coz_str_debug = "`ADD_MI";        end
+                `AND_COZ:        begin  coz_str_debug = "`AND_MI";        end
+                `DIV_COZ:        begin  coz_str_debug = "`DIV_MI";        end
+                `DIVU_COZ:       begin  coz_str_debug = "`DIVU_MI";       end
+                `MUL_COZ:        begin  coz_str_debug = "`MUL_MI";        end
+                `MULH_COZ:       begin  coz_str_debug = "`MULH_MI";       end
+                `MULHSU_COZ:     begin  coz_str_debug = "`MULHSU_MI";     end
+                `MULHU_COZ:      begin  coz_str_debug = "`MULHU_MI";      end
+                `OR_COZ:         begin  coz_str_debug = "`OR_MI";         end
+                `REM_COZ:        begin  coz_str_debug = "`REM_MI";        end
+                `REMU_COZ:       begin  coz_str_debug = "`REMU_MI";       end
+                `SLL_COZ:        begin  coz_str_debug = "`SLL_MI";        end
+                `SLT_COZ:        begin  coz_str_debug = "`SLT_MI";        end
+                `SLTU_COZ:       begin  coz_str_debug = "`SLTU_MI";       end
+                `SRA_COZ:        begin  coz_str_debug = "`SRA_MI";        end
+                `SRL_COZ:        begin  coz_str_debug = "`SRL_MI";        end
+                `SUB_COZ:        begin  coz_str_debug = "`SUB_MI";        end
+                `XOR_COZ:        begin  coz_str_debug = "`XOR_MI";        end
+                `HMDST_COZ:      begin  coz_str_debug = "`HMDST_MI";      end
+                `PKG_COZ:        begin  coz_str_debug = "`PKG_MI";        end
+                `SLADD_COZ:      begin  coz_str_debug = "`SLADD_MI";      end
+                `SLLI_COZ:       begin  coz_str_debug = "`SLLI_MI";       end
+                `SRAI_COZ:       begin  coz_str_debug = "`SRAI_MI";       end
+                `SRLI_COZ:       begin  coz_str_debug = "`SRLI_MI";       end
+                `ADDI_COZ:       begin  coz_str_debug = "`ADDI_MI";       end
+                `ANDI_COZ:       begin  coz_str_debug = "`ANDI_MI";       end
+                `BEQ_COZ:        begin  coz_str_debug = "`BEQ_MI";        end
+                `BGE_COZ:        begin  coz_str_debug = "`BGE_MI";        end
+                `BGEU_COZ:       begin  coz_str_debug = "`BGEU_MI";       end
+                `BLT_COZ:        begin  coz_str_debug = "`BLT_MI";        end
+                `BLTU_COZ:       begin  coz_str_debug = "`BLTU_MI";       end
+                `BNE_COZ:        begin  coz_str_debug = "`BNE_MI";        end
+                `FENCE_COZ:      begin  coz_str_debug = "`FENCE_MI";      end
+                `FENCE_I_COZ:    begin  coz_str_debug = "`FENCE_I_MI";    end
+                `JALR_COZ:       begin  coz_str_debug = "`JALR_MI";       end
+                `LB_COZ:         begin  coz_str_debug = "`LB_MI";         end
+                `LBU_COZ:        begin  coz_str_debug = "`LBU_MI";        end
+                `LH_COZ:         begin  coz_str_debug = "`LH_MI";         end
+                `LHU_COZ:        begin  coz_str_debug = "`LHU_MI";        end
+                `LW_COZ:         begin  coz_str_debug = "`LW_MI";         end
+                `ORI_COZ:        begin  coz_str_debug = "`ORI_MI";        end
+                `SB_COZ:         begin  coz_str_debug = "`SB_MI";         end
+                `SH_COZ:         begin  coz_str_debug = "`SH_MI";         end
+                `SLTI_COZ:       begin  coz_str_debug = "`SLTI_MI";       end
+                `SLTIU_COZ:      begin  coz_str_debug = "`SLTIU_MI";      end
+                `SW_COZ:         begin  coz_str_debug = "`SW_MI";         end
+                `XORI_COZ:       begin  coz_str_debug = "`XORI_MI";       end
+                `AUIPC_COZ:      begin  coz_str_debug = "`AUIPC_MI";      end
+                `JAL_COZ:        begin  coz_str_debug = "`JAL_MI";        end
+                `LUI_COZ:        begin  coz_str_debug = "`LUI_MI";        end
+                default:         begin  coz_str_debug  = "DEFAULT_MI";    end
             endcase
             // $monitor("%s",coz_str);
         end
     `endif
-
 endmodule
