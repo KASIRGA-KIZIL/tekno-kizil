@@ -5,13 +5,13 @@
 
 
 module coz_yazmacoku(
-    input clk_i,
-    input rst_i,
+    input wire clk_i,
+    input wire rst_i,
 
     // GETIR'den gelen sinyaller
-    input [31:0] gtr_buyruk_i,
-    input [31:0] gtr_ps_i,
-    input [31:0] gtr_ps_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
+    input wire [31:0] gtr_buyruk_i,
+    input wire [31:1] gtr_ps_i,
+    input wire [31:1] gtr_ps_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
 
     // YURUT'e giden sinyaller
     output reg [`MI_BIT-1:0] yrt_mikroislem_o,         // mikroislem buyruklara ait tum bilgiyi bitleriyle veriyor
@@ -21,9 +21,10 @@ module coz_yazmacoku(
     output reg [        2:0] yrt_buyruk_tipi_o,        // J veya B tipi veya digertip, branch/jump buyruklari icin
     output reg               yrt_yapay_zeka_en_o,      // Yapay zeka biriminin rs2 icin yazma(enable) sinyali
     output reg               yrt_ebreak_ecall_o,       // Ebreak veya Ecall ise 1
+    output reg [      31:1]  yrt_ps_o,                 // Exceptionlar icin buyruk ps'si gerekli
 
     //
-    output reg [       31:0] yrt_ps_artmis_o,      // GERIYAZ'a kadar giden sinyaller
+    output reg [       31:1] yrt_ps_artmis_o,      // GERIYAZ'a kadar giden sinyaller
     output reg [        4:0] yrt_rd_adres_o,       // GERIYAZ'a kadar giden sinyaller
     //
     input wire [       31:0] yrt_yonlendir_deger_i, // Yonlendirme (Forwarding) sinyalleri
@@ -63,7 +64,7 @@ module coz_yazmacoku(
                                (ddb_yonlendir_kontrol2_i  == `YON_HICBISEY ) ? rs2_deger_w           :
                                                                                rs2_deger_w;
 
-    wire [31:0] deger1_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) ? gtr_ps_i : deger1_tmp_w;
+    wire [31:0] deger1_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) ? {gtr_ps_i,1'b0} : deger1_tmp_w;
 
     wire [31:0] deger2_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) ? imm_r : deger2_tmp_w;
 
@@ -71,8 +72,9 @@ module coz_yazmacoku(
     wire ltu_w = (deger1_tmp_w  < deger2_tmp_w);
     wire eq_w  = (deger1_tmp_w == deger2_tmp_w);
 
+    reg gecersiz_buyruk;
     always @* begin
-        ddb_gecersiz_buyruk_o = 1'b0;
+        gecersiz_buyruk = 1'b0;
 
         // Cozulmesi gereken bitler 14 bit 30:29, 27, 25, 21:20, 14:12, 6:2
         // bitleri en tamam olandan olmayana kadar gitmek gerek.
@@ -145,7 +147,7 @@ module coz_yazmacoku(
             `LUI_COZ:        begin mikroislem_sonraki_r = `LUI_MI;       end
             default:         begin
                 mikroislem_sonraki_r  = 28'hxxxx_xxx;
-                ddb_gecersiz_buyruk_o = 1'b1; // buraya gelirsek exception olmustur. Handle edilmesi gerek. Normalde jump yapilir exception handler'a.
+                gecersiz_buyruk = 1'b1; // buraya gelirsek exception olmustur. Handle edilmesi gerek. Normalde jump yapilir exception handler'a.
             end
         endcase
     end
@@ -185,23 +187,26 @@ module coz_yazmacoku(
 
     always @(posedge clk_i) begin
         if (rst_i || ddb_bosalt_i) begin
-            yrt_mikroislem_o    <= 0;
-            yrt_deger1_o        <= 0;
-            yrt_deger2_o        <= 0;
-            yrt_rd_adres_o      <= 0;
-            yrt_yapay_zeka_en_o <= 0;
+            yrt_mikroislem_o      <= 0;
+            yrt_deger1_o          <= 0;
+            yrt_deger2_o          <= 0;
+            yrt_rd_adres_o        <= 0;
+            yrt_yapay_zeka_en_o   <= 0;
+            ddb_gecersiz_buyruk_o <= 0;
         end
         else begin
             if(!ddb_durdur_i) begin
-                yrt_mikroislem_o    <= mikroislem_sonraki_r;
-                yrt_deger1_o        <= deger1_w;
-                yrt_deger2_o        <= deger2_w;
-                yrt_rd_adres_o      <= gtr_buyruk_i[11:7];
-                yrt_yapay_zeka_en_o <= gtr_buyruk_i[31];
-                yrt_lt_ltu_eq_o     <= {lt_w,ltu_w,eq_w};
-                yrt_ps_artmis_o     <= gtr_ps_artmis_i;
-                yrt_buyruk_tipi_o   <= buyruk_tipi_r;
-                yrt_ebreak_ecall_o  <= (l1b_deger_i[14:12] == 3'b0) && (buyruk_tipi_r == `SYS_Tipi);
+                yrt_mikroislem_o      <= mikroislem_sonraki_r;
+                yrt_deger1_o          <= deger1_w;
+                yrt_deger2_o          <= deger2_w;
+                yrt_rd_adres_o        <= gtr_buyruk_i[11:7];
+                yrt_yapay_zeka_en_o   <= gtr_buyruk_i[31];
+                yrt_lt_ltu_eq_o       <= {lt_w,ltu_w,eq_w};
+                yrt_ps_artmis_o       <= gtr_ps_artmis_i;
+                yrt_buyruk_tipi_o     <= buyruk_tipi_r;
+                yrt_ebreak_ecall_o    <= (l1b_deger_i[14:12] == 3'b0) && (buyruk_tipi_r == `SYS_Tipi);
+                yrt_ps_o              <= gtr_ps_i;
+                ddb_gecersiz_buyruk_o <= gecersiz_buyruk;
             end
         end
     end

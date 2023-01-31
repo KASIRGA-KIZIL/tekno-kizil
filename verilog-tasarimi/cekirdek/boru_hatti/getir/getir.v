@@ -28,7 +28,7 @@ module getir (
 
         // Coz Yazmacoku
         output reg  [31:0] cyo_buyruk_o,
-        output reg  [31:0] cyo_ps_artmis_o,
+        output reg  [31:1] cyo_ps_artmis_o,
 
         // Coz ve L1 Buyruk Onbellegi
         output wire [31:1] cyo_l1b_ps_o
