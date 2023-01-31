@@ -267,11 +267,11 @@ module getir (
             casez(buyruk_coz_debug)
                 `EBREAK_COZ:     begin coz_str_debug = "`EBREAK_MI";     end
                 `ECALL_COZ:      begin coz_str_debug = "`ECALL_MI";      end
-                `CSRRC _COZ:     begin coz_str_debug = "`CSRRC _MI";     end
+                `CSRRC_COZ:      begin coz_str_debug = "`CSRRC_MI";      end
                 `CSRRCI_COZ:     begin coz_str_debug = "`CSRRCI_MI";     end
-                `CSRRS _COZ:     begin coz_str_debug = "`CSRRS _MI";     end
+                `CSRRS_COZ:      begin coz_str_debug = "`CSRRS_MI";      end
                 `CSRRSI_COZ:     begin coz_str_debug = "`CSRRSI_MI";     end
-                `CSRRW _COZ:     begin coz_str_debug = "`CSRRW _MI";     end
+                `CSRRW_COZ:      begin coz_str_debug = "`CSRRW_MI";      end
                 `CSRRWI_COZ:     begin coz_str_debug = "`CSRRWI_MI";     end
                 `CONV_CLR_W_COZ: begin coz_str_debug = "`CONV_CLR_W_MI"; end
                 `CONV_CLR_X_COZ: begin coz_str_debug = "`CONV_CLR_X_MI"; end

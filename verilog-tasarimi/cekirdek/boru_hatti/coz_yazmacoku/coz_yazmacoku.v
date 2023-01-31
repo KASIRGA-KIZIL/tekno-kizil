@@ -81,11 +81,11 @@ module coz_yazmacoku(
         casez(buyruk_coz_w)
             `EBREAK_COZ:     begin mikroislem_sonraki_r = `EBREAK_MI;    end
             `ECALL_COZ:      begin mikroislem_sonraki_r = `ECALL_MI;     end
-            `CSRRC _COZ:     begin mikroislem_sonraki_r = `CSRRC _MI;    end
+            `CSRRC_COZ:      begin mikroislem_sonraki_r = `CSRRC_MI;     end
             `CSRRCI_COZ:     begin mikroislem_sonraki_r = `CSRRCI_MI;    end
-            `CSRRS _COZ:     begin mikroislem_sonraki_r = `CSRRS _MI;    end
+            `CSRRS_COZ:      begin mikroislem_sonraki_r = `CSRRS_MI;     end
             `CSRRSI_COZ:     begin mikroislem_sonraki_r = `CSRRSI_MI;    end
-            `CSRRW _COZ:     begin mikroislem_sonraki_r = `CSRRW _MI;    end
+            `CSRRW_COZ:      begin mikroislem_sonraki_r = `CSRRW_MI;     end
             `CSRRWI_COZ:     begin mikroislem_sonraki_r = `CSRRWI_MI;    end
             `CONV_CLR_W_COZ: begin mikroislem_sonraki_r = `CONV_CLR_W_MI;end
             `CONV_CLR_X_COZ: begin mikroislem_sonraki_r = `CONV_CLR_X_MI;end
@@ -204,7 +204,7 @@ module coz_yazmacoku(
                 yrt_lt_ltu_eq_o       <= {lt_w,ltu_w,eq_w};
                 yrt_ps_artmis_o       <= gtr_ps_artmis_i;
                 yrt_buyruk_tipi_o     <= buyruk_tipi_r;
-                yrt_ebreak_ecall_o    <= (l1b_deger_i[14:12] == 3'b0) && (buyruk_tipi_r == `SYS_Tipi);
+                yrt_ebreak_ecall_o    <= (gtr_buyruk_i[14:12] == 3'b0) && (buyruk_tipi_r == `SYS_Tipi);
                 yrt_ps_o              <= gtr_ps_i;
                 ddb_gecersiz_buyruk_o <= gecersiz_buyruk;
             end
@@ -229,11 +229,11 @@ module coz_yazmacoku(
             casez(buyruk_coz_w)
                 `EBREAK_COZ:     begin coz_str = "`EBREAK_MI";     end
                 `ECALL_COZ:      begin coz_str = "`ECALL_MI";      end
-                `CSRRC _COZ:     begin coz_str = "`CSRRC _MI";     end
+                `CSRRC_COZ:      begin coz_str = "`CSRRC_MI";      end
                 `CSRRCI_COZ:     begin coz_str = "`CSRRCI_MI";     end
-                `CSRRS _COZ:     begin coz_str = "`CSRRS _MI";     end
+                `CSRRS_COZ:      begin coz_str = "`CSRRS_MI";      end
                 `CSRRSI_COZ:     begin coz_str = "`CSRRSI_MI";     end
-                `CSRRW _COZ:     begin coz_str = "`CSRRW _MI";     end
+                `CSRRW_COZ:      begin coz_str = "`CSRRW_MI";      end
                 `CSRRWI_COZ:     begin coz_str = "`CSRRWI_MI";     end
                 `CONV_CLR_W_COZ: begin coz_str = "`CONV_CLR_W_MI"; end
                 `CONV_CLR_X_COZ: begin coz_str = "`CONV_CLR_X_MI"; end
