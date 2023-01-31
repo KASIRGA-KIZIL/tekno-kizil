@@ -20,7 +20,8 @@ module coz_yazmacoku(
     output reg [        2:0] yrt_lt_ltu_eq_o,          // Dallanma ve atlama icin gerekli. Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
     output reg [        2:0] yrt_buyruk_tipi_o,        // J veya B tipi veya digertip, branch/jump buyruklari icin
     output reg               yrt_yapay_zeka_en_o,      // Yapay zeka biriminin rs2 icin yazma(enable) sinyali
-    output reg               yrt_ebreak_ecall_o,       // Ebreak veya Ecall ise 1
+    output reg               yrt_ecall_o,              // Ecall  ise 1
+    output reg               yrt_ebreak_o,             // Ebreak ise 1
     output reg [      31:1]  yrt_ps_o,                 // Exceptionlar icin buyruk ps'si gerekli
 
     //
@@ -204,7 +205,8 @@ module coz_yazmacoku(
                 yrt_lt_ltu_eq_o       <= {lt_w,ltu_w,eq_w};
                 yrt_ps_artmis_o       <= gtr_ps_artmis_i;
                 yrt_buyruk_tipi_o     <= buyruk_tipi_r;
-                yrt_ebreak_ecall_o    <= (gtr_buyruk_i[14:12] == 3'b0) && (buyruk_tipi_r == `SYS_Tipi);
+                yrt_ecall_o           <= (gtr_buyruk_i[14:12] == 3'b0) && (buyruk_tipi_r == `SYS_Tipi) && ~gtr_buyruk_i[20];
+                yrt_ebreak_o          <= (gtr_buyruk_i[14:12] == 3'b0) && (buyruk_tipi_r == `SYS_Tipi) &&  gtr_buyruk_i[20];
                 yrt_ps_o              <= gtr_ps_i;
                 ddb_gecersiz_buyruk_o <= gecersiz_buyruk;
             end

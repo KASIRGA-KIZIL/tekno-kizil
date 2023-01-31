@@ -18,7 +18,8 @@ module yurut(
     input  wire [       31:0] cyo_deger1_i,                 // Islem birimi girdileri. Yonlendirme ve Immediate secilmis son degerler.
     input  wire [       31:0] cyo_deger2_i,
     input  wire               cyo_yapay_zeka_en_i,          // yapay zeka buyruklari rs2 enable biti
-    input  wire               cyo_ebreak_ecall_i,           // Ebreak veya Ecall ise 1
+    input  wire               cyo_ecall_i,                  // Ecall  ise 1
+    input  wire               cyo_ebreak_i,                 // Ebreak ise 1
     input  wire [       31:1] cyo_ps_i,                     // Exceptionlar icin gerekli
     input  wire               cyo_gecersiz_buyruk_i,        // Exceptionlar icin gerekli
 
@@ -109,11 +110,11 @@ module yurut(
     wire bj_atla = (cyo_buyruk_tipi_i == `J_Tipi) || ((cyo_buyruk_tipi_i == `B_Tipi) && dallanma_kosulu_w);
 
 
-    wire hizasiz_atlama = (amb_sonuc_w[0] && bj_atla);
-    wire hizasiz_okuma  = (amb_sonuc_w[0] && (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB));
-    wire hizasiz_yazma  = (amb_sonuc_w[0] && (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB));
+    wire hizasiz_atlama_e = (amb_sonuc_w[0] && bj_atla);
+    wire hizasiz_okuma_e  = (amb_sonuc_w[0] && (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB));
+    wire hizasiz_yazma_e  = (amb_sonuc_w[0] && (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB));
 
-    wire exception = hizasiz_atlama || hizasiz_okuma || hizasiz_yazma || cyo_gecersiz_buyruk_i;
+
 
     wire csr_basla = (cyo_mikroislem_i[`BIRIM] == `BIRIM_SISTEM);
     csr_birimi csrb (
@@ -122,7 +123,12 @@ module yurut(
         .basla_i (csr_basla),
         .kontrol_i (cyo_mikroislem_i[`SISTEM]),
         .ps_i    (cyo_ps_i),
-        .exception_i(exception),
+        .hizasiz_atlama_e_i  (hizasiz_atlama_e),
+        .hizasiz_okuma_e_i   (hizasiz_okuma_e),
+        .hizasiz_yazma_e_i   (hizasiz_yazma_e),
+        .gecersiz_buyruk_e_i (cyo_gecersiz_buyruk_i),
+        .ecall_e_i           (cyo_ecall_i),
+        .ebreak_e_i          (cyo_ebreak_i),
         .deger_i (cyo_deger1_i ),
         .zimm_i  (cyo_deger2_i[16:12]),
         .adr_i   (cyo_deger2_i[11:0]),
@@ -136,9 +142,11 @@ module yurut(
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_SISTEM   ) ? sistem_sonuc_w   :
                                                                                     32'hxxxx_xxxx;
 
-    assign gtr_atlanan_ps_gecerli_o = (exception || cyo_ebreak_ecall_i) || bj_atla;
+    wire exception = hizasiz_atlama_e || hizasiz_okuma_e || hizasiz_yazma_e || cyo_gecersiz_buyruk_i || cyo_ebreak_i || cyo_ecall_i;
 
-    assign gtr_atlanan_ps_o = (exception || cyo_ebreak_ecall_i) ? sistem_sonuc_w : amb_sonuc_w[31:1];
+    assign gtr_atlanan_ps_gecerli_o = exception || bj_atla;
+
+    assign gtr_atlanan_ps_o = exception ? sistem_sonuc_w : amb_sonuc_w[31:1];
 
     assign cyo_yonlendir_deger_o = rd_deger_sonraki_w;
 
