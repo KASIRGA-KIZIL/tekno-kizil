@@ -70,7 +70,7 @@ module dallanma_ongorucu(
             end
             if(tahmin_et) begin
                 ght <= {ght[6:0], sayaclar[sayac_oku_adr][1]};
-                ght_ptr <= bht_pointer + 3'd1; 
+                ght_ptr <= ght_ptr + 3'd1; 
             end
         end
     end
