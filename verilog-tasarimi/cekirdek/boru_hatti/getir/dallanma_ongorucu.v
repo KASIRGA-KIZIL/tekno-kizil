@@ -16,6 +16,7 @@ module dallanma_ongorucu(
     // Tahmin okuma.
     input  wire [31:1] ps_i,
     input  wire        buyruk_ctipi_i,
+    input  wire        buyruk_jtipi_i,
     input  wire        tahmin_et_i,
     output wire [31:1] ongorulen_ps_o,
     output wire        ongorulen_ps_gecerli_o,
@@ -37,6 +38,7 @@ module dallanma_ongorucu(
     reg [31:1] btb      [31:0]; // branch target buffer
     reg [ 1:0] sayaclar [31:0]; // branch target buffer
     reg [ 6:0] ght            ; // global history table
+    reg [1:0]  ght_ptr        ; // global history table pointer
 
     wire [ 4:0] sayac_oku_adr     = ps_i[5:1] ^ ght[4:0];
     assign ongorulen_ps_gecerli_o = sayaclar[sayac_oku_adr][1];
@@ -48,16 +50,27 @@ module dallanma_ongorucu(
     wire tahmin_dogru          = atladi_tahmin_dogru || atlamadi_tahmin_dogru;
 
     wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ ght[6:1];
+    integer loop_counter;
     always@(posedge clk_i) begin
         if(tahmin_et[`YURUT]) begin
             if(~tahmin_dogru) begin
-                if(~atladi_tahmin_dogru   &&  (sayaclar[sayac_yaz_adr] != 2'b00)) begin
+                btb[ps[`YURUT][5:1]] <= atlanan_ps_i;
+                for(loop_counter=1 ;loop_counter<5; loop_counter=loop_counter+1) begin
+                    ght[loop_counter] <= ght[loop_counter+ght_ptr]; 
+                end
+                ght[0] <= atlanan_ps_gecerli_i;
+            end
+            if(~atladi_tahmin_dogru   &&  (sayaclar[sayac_yaz_adr] != 2'b00)) begin
+                if(!buyruk_jtipi_i) 
                     sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] -  2'b1;
-                end
-                if(~atlamadi_tahmin_dogru &&  (sayaclar[sayac_yaz_adr] != 2'b11)) begin
+            end
+            if(~atlamadi_tahmin_dogru &&  (sayaclar[sayac_yaz_adr] != 2'b11)) begin
+                if(!buyruk_jtipi_i)
                     sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] +  2'b1;
-                    btb[ps[`YURUT][5:1]] <= atlanan_ps_i;
-                end
+            end
+            if(tahmin_et) begin
+                ght <= {ght[6:0], sayaclar[sayac_oku_adr][1]};
+                ght_ptr <= bht_pointer + 3'd1; 
             end
         end
     end
@@ -72,7 +85,6 @@ module dallanma_ongorucu(
         end
     end
 
-    integer loop_counter;
     always@(posedge clk_i) begin
         if(rst_i) begin
             for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin
