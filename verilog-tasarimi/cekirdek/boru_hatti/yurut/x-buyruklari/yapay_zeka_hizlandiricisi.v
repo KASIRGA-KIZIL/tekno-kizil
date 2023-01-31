@@ -22,7 +22,7 @@ module yapay_zeka_hizlandiricisi(
     output wire [31:0] carp_deger2_o
 );
 
-    assign bitti_o = (sayac == `YAPAY_ZEKA_RUN_GECIKMESI) || (kontrol_i != `CONV_RUN);
+    assign bitti_o = (sayac == `YAPAY_ZEKA_RUN_GECIKMESI) || (kontrol_i != `YZH_RUN);
 
     reg [3:0] sayac;
 
@@ -30,7 +30,7 @@ module yapay_zeka_hizlandiricisi(
         if (rst_i) begin
             sayac <= 0;
         end else begin
-            if(kontrol_i == `CONV_RUN)begin
+            if(kontrol_i == `YZH_RUN)begin
                 sayac <= sayac + 1;
             end else begin
                 sayac <= 0;
@@ -59,21 +59,21 @@ module yapay_zeka_hizlandiricisi(
 
         if(basla_i)begin
             case(kontrol_i)
-                `CONV_LD_W:begin
+                `YZH_LD_W:begin
                     yaz1_katsayi_en = 1'b1;
                     yaz2_katsayi_en = rs2_en_i;
                 end
-                `CONV_CLR_W:begin
+                `YZH_CLR_W:begin
                     rst_katsayi     = 1'b1;
                 end
-                `CONV_LD_X:begin
+                `YZH_LD_X:begin
                     yaz1_veri_en    = 1'b1;
                     yaz2_veri_en    = rs2_en_i;
                 end
-                `CONV_CLR_X:begin
+                `YZH_CLR_X:begin
                     rst_veri        = 1'b1;
                 end
-                `CONV_RUN:begin
+                `YZH_RUN:begin
                     oku_katsayi_en  = 1'b1;
                     oku_veri_en     = 1'b1;
                 end

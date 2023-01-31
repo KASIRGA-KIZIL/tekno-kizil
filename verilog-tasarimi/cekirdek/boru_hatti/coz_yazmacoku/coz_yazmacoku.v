@@ -18,8 +18,10 @@ module coz_yazmacoku(
     output reg [       31:0] yrt_deger1_o,             // Yurut birim girdileri. Yonlendirme ve Immediate secilmis son degerler.
     output reg [       31:0] yrt_deger2_o,
     output reg [        2:0] yrt_lt_ltu_eq_o,          // Dallanma ve atlama icin gerekli. Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
-    output reg [        1:0] yrt_buyruk_tipi_o,        // J veya B tipi veya digertip, branch/jump buyruklari icin
+    output reg [        2:0] yrt_buyruk_tipi_o,        // J veya B tipi veya digertip, branch/jump buyruklari icin
     output reg               yrt_yapay_zeka_en_o,      // Yapay zeka biriminin rs2 icin yazma(enable) sinyali
+    output reg               yrt_ebreak_ecall_o,       // Ebreak veya Ecall ise 1
+
     //
     output reg [       31:0] yrt_ps_artmis_o,      // GERIYAZ'a kadar giden sinyaller
     output reg [        4:0] yrt_rd_adres_o,       // GERIYAZ'a kadar giden sinyaller
@@ -77,6 +79,12 @@ module coz_yazmacoku(
         casez(buyruk_coz_w)
             `EBREAK_COZ:     begin mikroislem_sonraki_r = `EBREAK_MI;    end
             `ECALL_COZ:      begin mikroislem_sonraki_r = `ECALL_MI;     end
+            `CSRRC _COZ:     begin mikroislem_sonraki_r = `CSRRC _MI;    end
+            `CSRRCI_COZ:     begin mikroislem_sonraki_r = `CSRRCI_MI;    end
+            `CSRRS _COZ:     begin mikroislem_sonraki_r = `CSRRS _MI;    end
+            `CSRRSI_COZ:     begin mikroislem_sonraki_r = `CSRRSI_MI;    end
+            `CSRRW _COZ:     begin mikroislem_sonraki_r = `CSRRW _MI;    end
+            `CSRRWI_COZ:     begin mikroislem_sonraki_r = `CSRRWI_MI;    end
             `CONV_CLR_W_COZ: begin mikroislem_sonraki_r = `CONV_CLR_W_MI;end
             `CONV_CLR_X_COZ: begin mikroislem_sonraki_r = `CONV_CLR_X_MI;end
             `CONV_RUN_COZ:   begin mikroislem_sonraki_r = `CONV_RUN_MI;  end
@@ -145,53 +153,55 @@ module coz_yazmacoku(
     assign ddb_rs1_adres_o = gtr_buyruk_i[19:15];
     assign ddb_rs2_adres_o = gtr_buyruk_i[24:20];
 
-    // anlik secmek icin buyruk tipini belirle
+    // Anlik secmek icin buyruk tipini belirle
     reg [2:0] buyruk_tipi_r;
     always @(*) begin
         case(gtr_buyruk_i[6:2])
-            5'b00000: begin buyruk_tipi_r = `S_Tipi; end// lw
-            5'b01000: begin buyruk_tipi_r = `S_Tipi; end// sw
-            5'b01100: begin buyruk_tipi_r =  3'bxxx; end// R tipi. Yazmac buyrugunda anlik yok.
-            5'b11000: begin buyruk_tipi_r = `B_Tipi; end// B-tipi
-            5'b00100: begin buyruk_tipi_r = `I_Tipi; end// I-tipi ALU
-            5'b11011: begin buyruk_tipi_r = `J_Tipi; end// jal
-            5'b00101: begin buyruk_tipi_r = `U_Tipi; end// auipc // add upper immediate to pc
-            5'b01101: begin buyruk_tipi_r = `U_Tipi; end// lui
-            5'b11001: begin buyruk_tipi_r = `I_Tipi; end// jalr I tipinde
-            5'b00000: begin buyruk_tipi_r = `I_Tipi; end// reset icin
-            default:  begin buyruk_tipi_r =  3'bxxx; end
+            5'b00000: begin buyruk_tipi_r = `S_Tipi;   end // lw
+            5'b01000: begin buyruk_tipi_r = `S_Tipi;   end // sw
+            5'b01100: begin buyruk_tipi_r =  3'bxxx;   end // R tipi. Yazmac buyrugunda anlik yok.
+            5'b11000: begin buyruk_tipi_r = `B_Tipi;   end // B-tipi
+            5'b00100: begin buyruk_tipi_r = `I_Tipi;   end // I-tipi ALU
+            5'b11011: begin buyruk_tipi_r = `J_Tipi;   end // jal
+            5'b00101: begin buyruk_tipi_r = `U_Tipi;   end // auipc // add upper immediate to pc
+            5'b01101: begin buyruk_tipi_r = `U_Tipi;   end // lui
+            5'b11001: begin buyruk_tipi_r = `I_Tipi;   end // jalr I tipinde
+            5'b11100: begin buyruk_tipi_r = `SYS_Tipi; end // SYSTEM buyruklari
+            default:  begin buyruk_tipi_r =  3'bxxx;   end
         endcase
 
-        // buyruk tipine gore anlik sec
+        // Buyruk tipine gore anlik sec
         case(buyruk_tipi_r)
-            `I_Tipi: begin imm_r = {{20{gtr_buyruk_i[31]}}, gtr_buyruk_i[31:20]};                                       end
-            `S_Tipi: begin imm_r = {{20{gtr_buyruk_i[31]}}, gtr_buyruk_i[31:25], gtr_buyruk_i[11:7]};                       end
-            `B_Tipi: begin imm_r = {{20{gtr_buyruk_i[31]}}, gtr_buyruk_i[7], gtr_buyruk_i[30:25], gtr_buyruk_i[11:8], 1'b0};    end
-            `J_Tipi: begin imm_r = {{12{gtr_buyruk_i[31]}}, gtr_buyruk_i[19:12], gtr_buyruk_i[20], gtr_buyruk_i[30:21], 1'b0};  end
-            `U_Tipi: begin imm_r = {gtr_buyruk_i[31:12], 12'b0};                                                    end
-            default: begin imm_r = 32'hxxxxxxxx;                                                                end
+            `SYS_Tipi: begin imm_r = {{15{gtr_buyruk_i[   31]}}, gtr_buyruk_i[19:15], gtr_buyruk_i[31:20]};                            end
+            `I_Tipi:   begin imm_r = {{20{gtr_buyruk_i[   31]}}, gtr_buyruk_i[31:20]};                                                 end
+            `S_Tipi:   begin imm_r = {{20{gtr_buyruk_i[   31]}}, gtr_buyruk_i[31:25], gtr_buyruk_i[11: 7]};                            end
+            `B_Tipi:   begin imm_r = {{20{gtr_buyruk_i[   31]}}, gtr_buyruk_i[    7], gtr_buyruk_i[30:25], gtr_buyruk_i[11: 8], 1'b0}; end
+            `J_Tipi:   begin imm_r = {{12{gtr_buyruk_i[   31]}}, gtr_buyruk_i[19:12], gtr_buyruk_i[   20], gtr_buyruk_i[30:21], 1'b0}; end
+            `U_Tipi:   begin imm_r = {    gtr_buyruk_i[31:12], 12'b0};                                                                 end
+            default:   begin imm_r = 32'hxxxxxxxx;                                                                                     end
         endcase
     end
 
 
     always @(posedge clk_i) begin
         if (rst_i || ddb_bosalt_i) begin
-            yrt_mikroislem_o <= 0;
-            yrt_deger1_o <= 0;
-            yrt_deger2_o <= 0;
-            yrt_rd_adres_o <= 0;
+            yrt_mikroislem_o    <= 0;
+            yrt_deger1_o        <= 0;
+            yrt_deger2_o        <= 0;
+            yrt_rd_adres_o      <= 0;
             yrt_yapay_zeka_en_o <= 0;
         end
         else begin
             if(!ddb_durdur_i) begin
-                yrt_mikroislem_o <= mikroislem_sonraki_r;
-                yrt_deger1_o <= deger1_w;
-                yrt_deger2_o <= deger2_w;
-                yrt_rd_adres_o <= gtr_buyruk_i[11:7];
+                yrt_mikroislem_o    <= mikroislem_sonraki_r;
+                yrt_deger1_o        <= deger1_w;
+                yrt_deger2_o        <= deger2_w;
+                yrt_rd_adres_o      <= gtr_buyruk_i[11:7];
                 yrt_yapay_zeka_en_o <= gtr_buyruk_i[31];
-                yrt_lt_ltu_eq_o <= {lt_w,ltu_w,eq_w};
-                yrt_ps_artmis_o <= gtr_ps_artmis_i;
-                yrt_buyruk_tipi_o <= buyruk_tipi_r[1:0];
+                yrt_lt_ltu_eq_o     <= {lt_w,ltu_w,eq_w};
+                yrt_ps_artmis_o     <= gtr_ps_artmis_i;
+                yrt_buyruk_tipi_o   <= buyruk_tipi_r;
+                yrt_ebreak_ecall_o  <= (l1b_deger_i[14:12] == 3'b0) && (buyruk_tipi_r == `SYS_Tipi);
             end
         end
     end
@@ -214,6 +224,12 @@ module coz_yazmacoku(
             casez(buyruk_coz_w)
                 `EBREAK_COZ:     begin coz_str = "`EBREAK_MI";     end
                 `ECALL_COZ:      begin coz_str = "`ECALL_MI";      end
+                `CSRRC _COZ:     begin coz_str = "`CSRRC _MI";     end
+                `CSRRCI_COZ:     begin coz_str = "`CSRRCI_MI";     end
+                `CSRRS _COZ:     begin coz_str = "`CSRRS _MI";     end
+                `CSRRSI_COZ:     begin coz_str = "`CSRRSI_MI";     end
+                `CSRRW _COZ:     begin coz_str = "`CSRRW _MI";     end
+                `CSRRWI_COZ:     begin coz_str = "`CSRRWI_MI";     end
                 `CONV_CLR_W_COZ: begin coz_str = "`CONV_CLR_W_MI"; end
                 `CONV_CLR_X_COZ: begin coz_str = "`CONV_CLR_X_MI"; end
                 `CONV_RUN_COZ:   begin coz_str = "`CONV_RUN_MI";   end
