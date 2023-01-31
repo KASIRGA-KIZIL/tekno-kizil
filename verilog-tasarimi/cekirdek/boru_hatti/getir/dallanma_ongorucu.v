@@ -49,7 +49,7 @@ module dallanma_ongorucu(
     wire atlamadi_tahmin_dogru = (~ongorulen_ps_gecerli[`YURUT] && ~atlanan_ps_gecerli_i);
     wire tahmin_dogru          = atladi_tahmin_dogru || atlamadi_tahmin_dogru;
 
-    wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ ght[6:1];
+    wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ {ght[4:1], ongorulen_ps_gecerli};
     integer loop_counter;
     always@(posedge clk_i) begin
         if(tahmin_et[`YURUT]) begin
