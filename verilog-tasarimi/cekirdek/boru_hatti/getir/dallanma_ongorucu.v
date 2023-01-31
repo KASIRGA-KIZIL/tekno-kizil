@@ -92,6 +92,7 @@ module dallanma_ongorucu(
                 sayaclar[loop_counter] <= 2'b11;
             end
             ght <= 0;
+            ght_ptr <= 0;
             ongorulen_ps_gecerli = 0;
             tahmin_et = 0;
             buyruk_ctipi = 0;
