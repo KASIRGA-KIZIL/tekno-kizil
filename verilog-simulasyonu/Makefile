@@ -4,9 +4,9 @@
 
 # sim
 TOPLEVEL_LANG = verilog
-SIM           = modelsim
+SIM           = icarus
 
-MODULE              := test_cekirdek
+MODULE              := test_amb
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
@@ -21,9 +21,16 @@ ifeq ($(MODULE), test_cekirdek)
 						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
+else ifeq ($(MODULE),test_amb)
+	TOPLEVEL        := aritmetik_mantik_birimi
+    VERILOG_SOURCES +=  $(KAYNAKLAR)/cekirdek/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
 else ifeq ($(MODULE),tb_yurut)
-    #VERILOG_SOURCES +=
-else ifeq ($(MODULE),tb_aritmetik_mantik_birimi)
     #VERILOG_SOURCES +=
 else
     $(error A module was not provided)
