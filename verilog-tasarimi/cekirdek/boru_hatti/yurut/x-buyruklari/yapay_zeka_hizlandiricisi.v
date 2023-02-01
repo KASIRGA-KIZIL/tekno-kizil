@@ -22,9 +22,9 @@ module yapay_zeka_hizlandiricisi(
     output wire [31:0] carp_deger2_o
 );
 
-    assign bitti_o = (sayac == `YAPAY_ZEKA_RUN_GECIKMESI) || (kontrol_i != `YZH_RUN);
-
     reg [3:0] sayac;
+
+    assign bitti_o = (sayac == `YAPAY_ZEKA_RUN_GECIKMESI) || (kontrol_i != `YZH_RUN);
 
     always @(posedge clk_i) begin
         if (rst_i) begin

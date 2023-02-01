@@ -57,15 +57,15 @@ module getir (
         buyruk_jtipi = 1'b0;
         case(l1b_deger_i[6:2])
             5'b11000: begin tahmin_et = 1'b1; end // B-tipi
-            5'b11011: begin tahmin_et = 1'b1; 
-                            buyruk_jtipi = 1'b1; 
+            5'b11011: begin tahmin_et = 1'b1;
+                            buyruk_jtipi = 1'b1;
             end // jal
             5'b11100: begin tahmin_et = (l1b_deger_i[14:12] == 3'b0) ? 1'b1 : 1'b0; end // ECALL ve EBREAK buyruklari
             default:  begin tahmin_et = 1'b0; end
         endcase
     end
 
-    dallanma_ongorucu do(
+    dallanma_ongorucu dal_on(
         .clk_i(clk_i),
         .rst_i(rst_i),
         .ddb_durdur_i(ddb_durdur_i),

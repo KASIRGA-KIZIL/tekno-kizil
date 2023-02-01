@@ -162,7 +162,7 @@ module coz_yazmacoku(
         case(gtr_buyruk_i[6:2])
             5'b00000: begin buyruk_tipi_r = `S_Tipi;   end // lw
             5'b01000: begin buyruk_tipi_r = `S_Tipi;   end // sw
-            5'b01100: begin buyruk_tipi_r =  3'bxxx;   end // R tipi. Yazmac buyrugunda anlik yok.
+            5'b01100: begin buyruk_tipi_r = `R_Tipi;   end // R tipi. Yazmac buyrugunda anlik yok.
             5'b11000: begin buyruk_tipi_r = `B_Tipi;   end // B-tipi
             5'b00100: begin buyruk_tipi_r = `I_Tipi;   end // I-tipi ALU
             5'b11011: begin buyruk_tipi_r = `J_Tipi;   end // jal

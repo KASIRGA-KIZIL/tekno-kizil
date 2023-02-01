@@ -371,6 +371,7 @@
 // Buyruk tipleri
 `define I_Tipi   3'b000
 `define S_Tipi   3'b001
+`define R_Tipi   3'b010
 `define U_Tipi   3'b011
 `define J_Tipi   3'b100
 `define B_Tipi   3'b101
