@@ -156,6 +156,14 @@
 
 #define INTERRUPT_HANDLER j other_exception /* No interrupts should occur */
 
+#ifdef CSRSIZ
+#define RVTEST_CODE_BEGIN                                               \
+        .section .text.init;                                            \
+        .globl _start;                                                  \
+_start:                                                                 \
+        j test_2;                                                      
+
+#else
 #define RVTEST_CODE_BEGIN                                               \
         .section .text.init;                                            \
         .align  6;                                                      \
@@ -221,6 +229,18 @@ reset_vector:                                                           \
         csrr a0, mhartid;                                               \
         mret;                                                           \
 1:
+#endif
+
+//#define RVTEST_CODE_BEGIN                                               \
+        .section .text.init;                                            \
+        .align  6;                                                      \
+        .weak stvec_handler;                                            \
+        .weak mtvec_handler;                                            \
+        .globl _start;                                                  \
+_start:                                                                 \
+        /* reset vector */                                              \
+        j test_2;                                                 \
+        .align 2; 
 
 //-----------------------------------------------------------------------
 // End Macro

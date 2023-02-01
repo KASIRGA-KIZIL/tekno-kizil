@@ -4,30 +4,32 @@
 
 XLEN ?= 64
 
+CSRSIZ ?= 
+
 src_dir := .
 
 ifeq ($(XLEN),64)
-include $(src_dir)/rv64ui/Makefrag
-include $(src_dir)/rv64uc/Makefrag
-include $(src_dir)/rv64um/Makefrag
-include $(src_dir)/rv64ua/Makefrag
-include $(src_dir)/rv64uf/Makefrag
-include $(src_dir)/rv64ud/Makefrag
-include $(src_dir)/rv64uzfh/Makefrag
-include $(src_dir)/rv64si/Makefrag
-include $(src_dir)/rv64ssvnapot/Makefrag
-include $(src_dir)/rv64mi/Makefrag
-include $(src_dir)/rv64mzicbo/Makefrag
+#include $(src_dir)/rv64ui/Makefrag
+#include $(src_dir)/rv64uc/Makefrag
+#include $(src_dir)/rv64um/Makefrag
+#include $(src_dir)/rv64ua/Makefrag
+#include $(src_dir)/rv64uf/Makefrag
+#include $(src_dir)/rv64ud/Makefrag
+#include $(src_dir)/rv64uzfh/Makefrag
+#include $(src_dir)/rv64si/Makefrag
+#include $(src_dir)/rv64ssvnapot/Makefrag
+#include $(src_dir)/rv64mi/Makefrag
+#include $(src_dir)/rv64mzicbo/Makefrag
 endif
 include $(src_dir)/rv32ui/Makefrag
 include $(src_dir)/rv32uc/Makefrag
 include $(src_dir)/rv32um/Makefrag
-include $(src_dir)/rv32ua/Makefrag
-include $(src_dir)/rv32uf/Makefrag
-include $(src_dir)/rv32ud/Makefrag
-include $(src_dir)/rv32uzfh/Makefrag
-include $(src_dir)/rv32si/Makefrag
-include $(src_dir)/rv32mi/Makefrag
+#include $(src_dir)/rv32ua/Makefrag
+#include $(src_dir)/rv32uf/Makefrag
+#include $(src_dir)/rv32ud/Makefrag
+#include $(src_dir)/rv32uzfh/Makefrag
+#include $(src_dir)/rv32si/Makefrag
+#include $(src_dir)/rv32mi/Makefrag
 
 default: all
 
@@ -37,9 +39,11 @@ default: all
 
 RISCV_PREFIX ?= riscv$(XLEN)-unknown-elf-
 RISCV_GCC ?= $(RISCV_PREFIX)gcc
-RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles
+RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles $(CSRSIZ) #-march=rv32imc -mabi=ilp32
 RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.text.init --section=.data
 RISCV_SIM ?= spike
+
+RISCV_OBJCOPY ?= $(RISCV_PREFIX)objcopy
 
 vpath %.S $(src_dir)
 
@@ -59,6 +63,9 @@ define compile_template
 
 $$($(1)_p_tests): $(1)-p-%: $(1)/%.S
 	$$(RISCV_GCC) $(2) $$(RISCV_GCC_OPTS) -I$(src_dir)/../env/p -I$(src_dir)/macros/scalar -T$(src_dir)/../env/p/link.ld $$< -o $$@
+	$$(RISCV_GCC) $(2) -c $$(RISCV_GCC_OPTS) -I$(src_dir)/../env/p -I$(src_dir)/macros/scalar -T$(src_dir)/../env/p/link.ld $$< -o $$@.o
+	$$(RISCV_OBJCOPY) $$@.o -O binary $$@.bin
+	python3 get_static_hex.py -bf $$@.bin
 $(1)_tests += $$($(1)_p_tests)
 
 $$($(1)_v_tests): $(1)-v-%: $(1)/%.S
@@ -107,9 +114,12 @@ tests_hex = $(addsuffix .hex, $(tests))
 tests_out = $(addsuffix .out, $(filter rv64%,$(tests)))
 tests32_out = $(addsuffix .out32, $(filter rv32%,$(tests)))
 
+tests_obj = $(addsuffix .o, $(tests))
+tests_bin = $(addsuffix .bin, $(tests))
+
 run: $(tests_out) $(tests32_out)
 
-junk += $(tests) $(tests_dump) $(tests_hex) $(tests_out) $(tests32_out)
+junk += $(tests) $(tests_dump) $(tests_hex) $(tests_out) $(tests32_out) $(tests_obj) $(tests_bin)
 
 #------------------------------------------------------------
 # Default
@@ -120,4 +130,4 @@ all: $(tests_dump)
 # Clean up
 
 clean:
-	rm -rf $(junk)
+	rm -rf $(junk) *.hex
