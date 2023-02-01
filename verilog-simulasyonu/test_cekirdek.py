@@ -27,7 +27,7 @@ async def buyruklari_oku():
 @cocotb.coroutine
 async def anabellek(dut,buyruklar):
     while(1):
-        dut.l1b_deger_i.value = int(buyruklar[dut.l1b_adres_o.value.integer],16)
+        dut.l1b_deger_i.value = int(buyruklar[dut.l1b_adres_o.value.integer >> 2],16)
         await RisingEdge(dut.clk_i)
 
 
@@ -43,7 +43,6 @@ async def test_cekirdek(dut):
     cocotb.start_soon(anabellek(dut,buyruklar))
     dut.rst_i.value = 0
     dut.l1b_bekle_i.value = 0
-    print("hi")
     for idx in range(len(buyruklar)):
         await RisingEdge(dut.clk_i)
 
