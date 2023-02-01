@@ -29,10 +29,11 @@ else
     $(error A module was not provided)
 endif
 
-# Set module parameters and define SIMULATION
+# Set module parameters
+# [TODO] DOESN'T WORK -> define SIMULATION
 ifeq ($(SIM),icarus)
     COMPILE_ARGS += -DSIMULATION
-else ifneq ($(filter $(SIM),questa modelsim),)
+else ifeq ($(SIM),modelsim)
     SIM_ARGS += +define+SIMULATION
 	WAVES     = 1
 else ifeq ($(SIM),verilator)

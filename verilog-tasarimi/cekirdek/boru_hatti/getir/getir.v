@@ -120,7 +120,7 @@ module getir (
     end
 
 
-    `ifdef SIMULATION
+    `ifdef COCOTB_SIM
         reg [88*13:1] hizali_durum_str;
         reg [88*13:1] ctipi_coz_str;
     `endif
@@ -135,31 +135,31 @@ module getir (
         casex({parcaparca,buyruk_hizali,buyruk_ctipi})
             3'b001: begin
                 cyo_buyruk_next = buyruk_genis;
-                `ifdef SIMULATION  hizali_durum_str = "[16][??]"; `endif
+                `ifdef COCOTB_SIM  hizali_durum_str = "[16][??]"; `endif
             end
             3'b010: begin
                 cyo_buyruk_next = l1b_deger_i;
-                `ifdef SIMULATION  hizali_durum_str = "[32_1][32_0]"; `endif
+                `ifdef COCOTB_SIM  hizali_durum_str = "[32_1][32_0]"; `endif
             end
             3'b011: begin
                 cyo_buyruk_next = buyruk_genis;
-                `ifdef SIMULATION  hizali_durum_str = "[??][16]"; `endif
+                `ifdef COCOTB_SIM  hizali_durum_str = "[??][16]"; `endif
             end
             3'b000: begin
                 cyo_buyruk_next = 32'hxxxx_xxxx;
                 getir_hazir_next     = 1'b0;
                 parcaparca_next = 1'b1;
-                `ifdef SIMULATION  hizali_durum_str = "[32_0][????]"; `endif
+                `ifdef COCOTB_SIM  hizali_durum_str = "[32_0][????]"; `endif
             end
             3'b1?0: begin
                 cyo_buyruk_next = {l1b_deger_i[15:0], buyruk_tamponu};
                 parcaparca_next = 1'b1;
-                `ifdef SIMULATION  hizali_durum_str = "[32_0][32_1]"; `endif
+                `ifdef COCOTB_SIM  hizali_durum_str = "[32_0][32_1]"; `endif
             end
             3'b1?1: begin
                 cyo_buyruk_next = buyruk_genis;
                 bufferdan_okuyor_next = 1'b1;
-                `ifdef SIMULATION  hizali_durum_str = "[16][32_1]"; `endif
+                `ifdef COCOTB_SIM  hizali_durum_str = "[16][32_1]"; `endif
             end
         endcase
     end
@@ -203,7 +203,7 @@ module getir (
         endcase
     end
 
-    `ifdef SIMULATION
+    `ifdef COCOTB_SIM
         always @(buyruk_16com,buyruk_ctipi) begin
             casex (buyruk_16com)
                 `C_EBREAK   : begin ctipi_coz_str = "`C_EBREAK   ";                                             end  // c.ebreak  -> ebreak
@@ -263,7 +263,7 @@ module getir (
         end
     end
 
-    `ifdef SIMULATION
+    `ifdef COCOTB_SIM
         reg [88*13:1]  coz_str_debug;
         wire [`BUYRUK_COZ_BIT-1:0] buyruk_coz_debug = {cyo_buyruk_next[30:29], cyo_buyruk_next[27], cyo_buyruk_next[25], cyo_buyruk_next[21:20], cyo_buyruk_next[14:12], cyo_buyruk_next[6:2]};
 

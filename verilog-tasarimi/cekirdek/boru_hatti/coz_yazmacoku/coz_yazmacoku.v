@@ -225,7 +225,7 @@ module coz_yazmacoku(
         .yaz_i        (gy_yaz_yazmac_i)
     );
 
-    `ifdef SIMULATION
+    `ifdef COCOTB_SIM
         reg [88*13:1] coz_str;
         always @* begin
             casez(buyruk_coz_w)
