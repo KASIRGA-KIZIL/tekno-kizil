@@ -76,10 +76,10 @@ module dallanma_ongorucu(
 
     always@(*) begin
         if(tahmin_et[`YURUT]) begin
-            hata_duzelt_o = (atlanan_ps_gecerli_i && (ps[`CYO] == atlanan_ps_i)) ? `SORUN_YOK     :
-                            (~tahmin_dogru && ~atladi_tahmin_dogru  )            ? `ATLAMAMALIYDI :
-                            (~tahmin_dogru && ~atlamadi_tahmin_dogru)            ? `ATLAMALIYDI   :
-                                                                                   `SORUN_YOK;
+            hata_duzelt_o = ( atlanan_ps_gecerli_i && (ps[`CYO] == atlanan_ps_i)    ) ? `SORUN_YOK     :
+                            ( ongorulen_ps_gecerli[`YURUT] &&  ~atlanan_ps_gecerli_i) ? `ATLAMAMALIYDI :
+                            (~ongorulen_ps_gecerli[`YURUT] &&   atlanan_ps_gecerli_i) ? `ATLAMALIYDI   :
+                                                                                        `SORUN_YOK;
         end else begin
             hata_duzelt_o = `SORUN_YOK;
         end

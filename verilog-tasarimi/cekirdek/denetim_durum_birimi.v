@@ -37,6 +37,7 @@ module denetim_durum_birimi(
 );
 
     reg [3:0] gecersiz;
+    reg bos_basla;
 
     assign  cyo_yonlendir_kontrol1_o = (((cyo_rs1_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs1_adres_i != 0) && (~gecersiz[`ASAMA_YURUT]  )) ? `YON_YURUT :
                                        (((cyo_rs1_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs1_adres_i != 0) && (~gecersiz[`ASAMA_GERIYAZ])) ? `YON_GERIYAZ :
@@ -49,17 +50,20 @@ module denetim_durum_birimi(
     assign gtr_durdur_o = ~yrt_hazir_i;
     assign cyo_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i;
 
-    assign gtr_bosalt_o = gtr_yanlis_tahmin_i ;
-    assign cyo_bosalt_o = gtr_yanlis_tahmin_i ;
+    assign gtr_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
+    assign cyo_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
 
     always @(posedge clk_i) begin
         if(rst_i)begin
-            gecersiz = 4'b1110;
+            gecersiz   <= 4'b1110;
+            bos_basla  <= 1'b1;
         end else begin
             gecersiz[`ASAMA_GETIR]   <= gtr_yanlis_tahmin_i ? 1'b1 : 1'b0;
             gecersiz[`ASAMA_COZ]     <= gtr_yanlis_tahmin_i ? 1'b1 : gecersiz[`ASAMA_GETIR];
             gecersiz[`ASAMA_YURUT]   <= gecersiz[`ASAMA_COZ];
             gecersiz[`ASAMA_GERIYAZ] <= gecersiz[`ASAMA_YURUT];
+
+            bos_basla  <= 1'b0;
         end
     end
 endmodule

@@ -20,7 +20,18 @@ riscv_tests["auipc"] = {
     "pass_adr": 0x40000074,
     "buyruklar": []
 }
-
+riscv_tests["jal"] = {
+    "TEST_FILE": "./data/rv32ui-p-jal_static.hex",
+    "fail_adr": 0x40000070,
+    "pass_adr": 0x40000084,
+    "buyruklar": []
+}
+riscv_tests["lui"] = {
+    "TEST_FILE": "./data/rv32ui-p-lui_static.hex",
+    "fail_adr": 0x4000007c,
+    "pass_adr": 0x40000090,
+    "buyruklar": []
+}
 
 @cocotb.coroutine
 async def buyruklari_oku():
@@ -31,21 +42,31 @@ async def buyruklari_oku():
 
 @cocotb.coroutine
 async def anabellek(dut):
-    buyruklar = riscv_tests["auipc"]["buyruklar"]
-
+    timout = 0
     await RisingEdge(dut.clk_i)
-    while(1):
-        for test in riscv_tests:
+    for test in riscv_tests:
+        while(1):
             memidx = (dut.l1b_adres_o.value.integer-0x40000000) >> 2
             try:
-                dut.l1b_deger_i.value = int(buyruklar[memidx],16)
+                dut.l1b_deger_i.value = int(riscv_tests[test]["buyruklar"][memidx],16)
             except:
                 print("Bos adres: {}".format(memidx))
             if(riscv_tests[test]["pass_adr"] == dut.l1b_adres_o.value.integer):
+                print("[TEST] ", test, " passed")
                 break
             if(riscv_tests[test]["fail_adr"] == dut.l1b_adres_o.value.integer):
+                print("[TEST] ", test, " FAILED")
                 assert 0
             await RisingEdge(dut.clk_i)
+            timout = timout + 1
+            if(timout > 100):
+                print("[TEST] ", test, " FAILED TIMOUT")
+                assert 0
+                break
+        dut.rst_i.value = 1
+        await RisingEdge(dut.clk_i)
+        await RisingEdge(dut.clk_i)
+        dut.rst_i.value = 0
 
 @cocotb.test()
 async def test_cekirdek(dut):
