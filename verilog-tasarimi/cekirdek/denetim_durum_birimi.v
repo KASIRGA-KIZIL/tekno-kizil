@@ -28,7 +28,7 @@ module denetim_durum_birimi(
     input       gy_yaz_yazmac_i,   // Rd geri yaziliyor ise 1
     input [4:0] gy_rd_adres_i      // Rd nin adresi
 );
-
+    // [TODO] bosaltilan asamadan yonlendirme yapma. Burada ufak bir boru hatti tut. Dallanma Ongorucu psleri gibi.
 
     assign  cyo_yonlendir_kontrol1_o = (((cyo_rs1_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs1_adres_i != 0)) ? `YON_YURUT :
                                        (((cyo_rs1_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs1_adres_i != 0)) ? `YON_GERIYAZ :

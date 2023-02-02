@@ -1,9 +1,7 @@
 `timescale 1ns / 1ps
 
 `include "tanimlamalar.vh"
-`define ATLAMAMALIYDI 2'd0
-`define ATLAMALIYDI   2'd1
-`define SORUN_YOK     2'd2
+
 
 // Modul taniminda sinyallerin nereden geldigi isminde ddb_ -> denetim durum biriminden gelen/giden sinyal
 // cyo_l1b_adr -> hem coze hem l1b'ye giden sinyal
@@ -55,12 +53,12 @@ module getir (
                                         ~(buyruk_tamponu[ 1: 0] == 2'b11);
     always @(*) begin
         buyruk_jtipi = 1'b0;
+        tahmin_et    = 1'b0;
         case(l1b_deger_i[6:2])
             5'b11000: begin tahmin_et = 1'b1; end // B-tipi
             5'b11011: begin tahmin_et = 1'b1;
                             buyruk_jtipi = 1'b1;
             end // jal
-            5'b11100: begin tahmin_et = (l1b_deger_i[14:12] == 3'b0) ? 1'b1 : 1'b0; end // ECALL ve EBREAK buyruklari
             default:  begin tahmin_et = 1'b0; end
         endcase
     end
@@ -113,6 +111,8 @@ module getir (
                 end else begin
                     if(~bufferdan_okuyor)begin
                         ps_next = ps_artmis;
+                    end else begin
+                        ps_next = ps;
                     end
                 end
             end
@@ -245,23 +245,25 @@ module getir (
     assign cyo_l1b_ps_o = ps;
 
     always @(posedge clk_i) begin
-        if (rst_i || ddb_bosalt_i) begin
-            ps              <= 0;
-            cyo_buyruk_o    <= 0;
-            parcaparca      <= 0;
-            buyruk_tamponu  <= 0;
-            bufferdan_okuyor<= 0;
-            getir_hazir     <= 0;
+        if (rst_i) begin
+            ps               <= (32'h40000000)>>1;
+            cyo_buyruk_o     <= 0;
+            parcaparca       <= 0;
+            buyruk_tamponu   <= 0;
+            bufferdan_okuyor <= 0;
+            getir_hazir      <= 0;
         end else if(~ddb_durdur_i) begin
                 getir_hazir      <= getir_hazir_next;
                 bufferdan_okuyor <= bufferdan_okuyor_next;
                 ps               <= ps_next;
-                cyo_buyruk_o     <= cyo_buyruk_next;
+                cyo_buyruk_o     <= ddb_bosalt_i ? 0 : cyo_buyruk_next;
                 parcaparca       <= parcaparca_next;
                 buyruk_tamponu   <= l1b_deger_i[31:16];
                 cyo_ps_artmis_o  <= ps_artmis;
         end
     end
+
+    // [TODO] Yanlis tahminde: buferdan_okuyor, ps, parcaparca'nin restore edilmesi gerek.
 
     `ifdef COCOTB_SIM
         reg [88*13:1]  coz_str_debug;
@@ -271,12 +273,6 @@ module getir (
             casez(buyruk_coz_debug)
                 `EBREAK_COZ:     begin coz_str_debug = "`EBREAK_MI";     end
                 `ECALL_COZ:      begin coz_str_debug = "`ECALL_MI";      end
-                `CSRRC_COZ:      begin coz_str_debug = "`CSRRC_MI";      end
-                `CSRRCI_COZ:     begin coz_str_debug = "`CSRRCI_MI";     end
-                `CSRRS_COZ:      begin coz_str_debug = "`CSRRS_MI";      end
-                `CSRRSI_COZ:     begin coz_str_debug = "`CSRRSI_MI";     end
-                `CSRRW_COZ:      begin coz_str_debug = "`CSRRW_MI";      end
-                `CSRRWI_COZ:     begin coz_str_debug = "`CSRRWI_MI";     end
                 `CONV_CLR_W_COZ: begin coz_str_debug = "`CONV_CLR_W_MI"; end
                 `CONV_CLR_X_COZ: begin coz_str_debug = "`CONV_CLR_X_MI"; end
                 `CONV_RUN_COZ:   begin coz_str_debug = "`CONV_RUN_MI";   end

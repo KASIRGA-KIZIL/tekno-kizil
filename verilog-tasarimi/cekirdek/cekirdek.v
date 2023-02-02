@@ -22,9 +22,6 @@ module cekirdek(
     wire [       31:1] yrt_ps_artmis_w;
     wire [        4:0] yrt_rd_adres_w;
     wire               yrt_yapay_zeka_en_w;
-    wire               yrt_ebreak_w;
-    wire               yrt_ecall_w;
-    wire [       31:1] yrt_ps_w;
     wire [4:0] ddb_rs1_adres_w;
     wire [4:0] ddb_rs2_adres_w;
     wire       ddb_gecersiz_buyruk_w;
@@ -89,9 +86,6 @@ module cekirdek(
         .cyo_deger1_i        (yrt_deger1_w          ),
         .cyo_deger2_i        (yrt_deger2_w          ),
         .cyo_yapay_zeka_en_i (yrt_yapay_zeka_en_w   ),
-        .cyo_ebreak_i        (yrt_ebreak_w          ),
-        .cyo_ecall_i         (yrt_ecall_w           ),
-        .cyo_ps_i            (yrt_ps_w              ),
         .cyo_gecersiz_buyruk_i(cyo_gecersiz_buyruk_w),
         .cyo_lt_ltu_eq_i     (yrt_lt_ltu_eq_w    ),
         .cyo_buyruk_tipi_i   (yrt_buyruk_tipi_w  ),
@@ -119,9 +113,6 @@ module cekirdek(
         .yrt_lt_ltu_eq_o       (yrt_lt_ltu_eq_w      ),
         .yrt_buyruk_tipi_o     (yrt_buyruk_tipi_w    ),
         .yrt_yapay_zeka_en_o   (yrt_yapay_zeka_en_w  ),
-        .yrt_ecall_o           (yrt_ecall_w          ),
-        .yrt_ebreak_o          (yrt_ebreak_w         ),
-        .yrt_ps_o              (yrt_ps_w             ),
         .yrt_ps_artmis_o       (yrt_ps_artmis_w      ),
         .yrt_rd_adres_o        (yrt_rd_adres_w       ),
         .yrt_yonlendir_deger_i (cyo_yonlendir_deger_w),
@@ -134,8 +125,7 @@ module cekirdek(
         .ddb_yonlendir_kontrol1_i (cyo_yonlendir_kontrol1_w ),
         .ddb_yonlendir_kontrol2_i (cyo_yonlendir_kontrol2_w ),
         .ddb_rs1_adres_o          (cyo_rs1_adres_w ),
-        .ddb_rs2_adres_o          (cyo_rs2_adres_w ),
-        .ddb_gecersiz_buyruk_o    (cyo_gecersiz_buyruk_w)
+        .ddb_rs2_adres_o          (cyo_rs2_adres_w )
     );
 
     getir getir_dut (

@@ -1,13 +1,12 @@
 `timescale 1ns / 1ps
 
+`include "tanimlamalar.vh"
+
 `define CYO   0
 `define YURUT 1
 
 // yrt   buyrugu bj ise kontrol et.  a.k.a tahmin_et_i       == 1
 // getir buyrugu bj ise tahmin et.   a.k.a tahmin_et[`YURUT] == 1
-`define ATLAMAMALIYDI 2'd0
-`define ATLAMALIYDI   2'd1
-`define SORUN_YOK     2'd2
 
 module dallanma_ongorucu(
     input  wire rst_i,
@@ -56,12 +55,12 @@ module dallanma_ongorucu(
             if(~tahmin_dogru) begin
                 btb[ps[`YURUT][5:1]] <= atlanan_ps_i;
                 for(loop_counter=1 ;loop_counter<5; loop_counter=loop_counter+1) begin
-                    ght[loop_counter] <= ght[loop_counter+ght_ptr]; 
+                    ght[loop_counter] <= ght[loop_counter+ght_ptr];
                 end
                 ght[0] <= atlanan_ps_gecerli_i;
             end
             if(~atladi_tahmin_dogru   &&  (sayaclar[sayac_yaz_adr] != 2'b00)) begin
-                if(!buyruk_jtipi_i) 
+                if(!buyruk_jtipi_i)
                     sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] -  2'b1;
             end
             if(~atlamadi_tahmin_dogru &&  (sayaclar[sayac_yaz_adr] != 2'b11)) begin
@@ -70,7 +69,7 @@ module dallanma_ongorucu(
             end
             if(tahmin_et) begin
                 ght <= {ght[6:0], sayaclar[sayac_oku_adr][1]};
-                ght_ptr <= ght_ptr + 3'd1; 
+                ght_ptr <= ght_ptr + 3'd1;
             end
         end
     end
@@ -88,7 +87,7 @@ module dallanma_ongorucu(
     always@(posedge clk_i) begin
         if(rst_i) begin
             for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin
-                btb[loop_counter]      <= 32'h20;
+                btb[loop_counter]      <= (32'h40000000)>>1;
                 sayaclar[loop_counter] <= 2'b11;
             end
             ght <= 0;
@@ -98,12 +97,12 @@ module dallanma_ongorucu(
             buyruk_ctipi = 0;
         end else begin
             if(~ddb_durdur_i) begin
-                tahmin_et[`CYO]            <= tahmin_et_i;
+                tahmin_et[`CYO]            <= (|hata_duzelt_o) ? 1'b0 : tahmin_et_i;
                 buyruk_ctipi[`CYO]         <= buyruk_ctipi_i;
                 ps[`CYO]                   <= ps_i;
                 ongorulen_ps_gecerli[`CYO] <= ongorulen_ps_gecerli_o;
 
-                tahmin_et[`YURUT]            <= tahmin_et[`CYO];
+                tahmin_et[`YURUT]            <= (|hata_duzelt_o) ? 1'b0 : tahmin_et[`CYO];
                 buyruk_ctipi[`YURUT]         <= buyruk_ctipi[`CYO];
                 ps[`YURUT]                   <= ps[`CYO];
                 ongorulen_ps_gecerli[`YURUT] <= ongorulen_ps_gecerli[`CYO];
@@ -113,5 +112,4 @@ module dallanma_ongorucu(
 
     assign yrt_ps_o           = ps[`YURUT];
     assign yrt_buyruk_ctipi_o = buyruk_ctipi[`YURUT];
-    assign ongorulen_ps_o     = btb[ps_i[6:2]];
 endmodule

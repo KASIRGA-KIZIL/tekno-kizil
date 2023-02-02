@@ -11,10 +11,10 @@ from cocotb.binary import BinaryValue
 from cocotb.clock import Clock
 from cocotb.handle import SimHandleBase
 from cocotb.queue import Queue
-from cocotb.triggers import RisingEdge, FallingEdge
+from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
 
-TEST_FILE = "./data/rv32.hex"
+TEST_FILE = "./data/rv32ui-p-add_static.hex"
 
 
 
@@ -27,8 +27,14 @@ async def buyruklari_oku():
 @cocotb.coroutine
 async def anabellek(dut,buyruklar):
     while(1):
-        dut.l1b_deger_i.value = int(buyruklar[dut.l1b_adres_o.value.integer >> 2],16)
-        await RisingEdge(dut.clk_i)
+        memidx = (dut.l1b_adres_o.value.integer-0x40000000) >> 2
+        try:
+            dut.l1b_deger_i.value = int(buyruklar[memidx],16)
+            print("read ", int(memidx))
+        except:
+            print("Bos adres: {}".format(memidx))
+        await Edge(dut.l1b_adres_o)
+
 
 
 @cocotb.test()
