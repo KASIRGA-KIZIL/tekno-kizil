@@ -13,44 +13,50 @@ from cocotb.handle import SimHandleBase
 from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
-
-TEST_FILE = "./data/rv32ui-p-add_static.hex"
-
+riscv_tests = {}
+riscv_tests["auipc"] = {
+    "TEST_FILE": "./data/rv32ui-p-auipc_static.hex",
+    "fail_adr": 0x40000060,
+    "pass_adr": 0x40000074,
+    "buyruklar": []
+}
 
 
 @cocotb.coroutine
 async def buyruklari_oku():
-    with open(TEST_FILE, 'r') as f:
-        buyruklar = [line.rstrip('\n') for line in f]
-    return buyruklar
+    for test in riscv_tests:
+        with open(riscv_tests[test]["TEST_FILE"], 'r') as f:
+            buyruklar = [line.rstrip('\n') for line in f]
+        riscv_tests[test]["buyruklar"] = buyruklar
 
 @cocotb.coroutine
-async def anabellek(dut,buyruklar):
+async def anabellek(dut):
+    buyruklar = riscv_tests["auipc"]["buyruklar"]
+
     await RisingEdge(dut.clk_i)
     while(1):
-        memidx = (dut.l1b_adres_o.value.integer-0x40000000) >> 2
-        try:
-            dut.l1b_deger_i.value = int(buyruklar[memidx],16)
-            print("read ", int(memidx))
-        except:
-            print("Bos adres: {}".format(memidx))
-        await RisingEdge(dut.clk_i)
-
-
+        for test in riscv_tests:
+            memidx = (dut.l1b_adres_o.value.integer-0x40000000) >> 2
+            try:
+                dut.l1b_deger_i.value = int(buyruklar[memidx],16)
+            except:
+                print("Bos adres: {}".format(memidx))
+            if(riscv_tests[test]["pass_adr"] == dut.l1b_adres_o.value.integer):
+                break
+            if(riscv_tests[test]["fail_adr"] == dut.l1b_adres_o.value.integer):
+                assert 0
+            await RisingEdge(dut.clk_i)
 
 @cocotb.test()
 async def test_cekirdek(dut):
-    buyruklar = await buyruklari_oku()
+    await buyruklari_oku()
 
     await cocotb.start(Clock(dut.clk_i, 10, 'ns').start(start_high=False))
 
     dut.rst_i.value = 1
     await RisingEdge(dut.clk_i)
     await RisingEdge(dut.clk_i)
-    cocotb.start_soon(anabellek(dut,buyruklar))
+    blk = cocotb.start_soon(anabellek(dut))
     dut.rst_i.value = 0
     dut.l1b_bekle_i.value = 0
-    for idx in range(1000):
-        await RisingEdge(dut.clk_i)
-
-    await RisingEdge(dut.clk_i)
+    await blk

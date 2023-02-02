@@ -204,7 +204,34 @@ module getir (
         endcase
     end
 
+
+    assign l1b_adr_o = ps_next;
+
+    always @(posedge clk_i) begin
+        if (rst_i) begin
+            ps               <= ((32'h40000000-4)>>1);
+            cyo_buyruk_o     <= 0;
+            parcaparca       <= 0;
+            buyruk_tamponu   <= 0;
+            bufferdan_okuyor <= 0;
+            getir_hazir      <= 0;
+        end else if(~ddb_durdur_i) begin
+                getir_hazir      <= getir_hazir_next;
+                bufferdan_okuyor <= bufferdan_okuyor_next;
+                ps               <= ps_next;
+                cyo_buyruk_o     <= ddb_bosalt_i ? 0 : cyo_buyruk_next;
+                parcaparca       <= parcaparca_next;
+                buyruk_tamponu   <= l1b_deger_i[31:16];
+                cyo_ps_artmis_o  <= ps_artmis;
+                cyo_ps_o         <= ps;
+        end
+    end
+
+    // [TODO] Yanlis tahminde: buferdan_okuyor, ps, parcaparca'nin restore edilmesi gerek.
+
+
     `ifdef COCOTB_SIM
+        wire [31:0] debug_ps = {ps,1'b0};
         always @(buyruk_16com,buyruk_ctipi) begin
             casex (buyruk_16com)
                 `C_EBREAK   : begin ctipi_coz_str = "`C_EBREAK   ";                                             end  // c.ebreak  -> ebreak
@@ -242,30 +269,6 @@ module getir (
             // $monitor("%s",ctipi_coz_str);
         end
     `endif
-
-    assign l1b_adr_o = ps_next;
-
-    always @(posedge clk_i) begin
-        if (rst_i) begin
-            ps               <= ((32'h40000000-4)>>1);
-            cyo_buyruk_o     <= 0;
-            parcaparca       <= 0;
-            buyruk_tamponu   <= 0;
-            bufferdan_okuyor <= 0;
-            getir_hazir      <= 0;
-        end else if(~ddb_durdur_i) begin
-                getir_hazir      <= getir_hazir_next;
-                bufferdan_okuyor <= bufferdan_okuyor_next;
-                ps               <= ps_next;
-                cyo_buyruk_o     <= ddb_bosalt_i ? 0 : cyo_buyruk_next;
-                parcaparca       <= parcaparca_next;
-                buyruk_tamponu   <= l1b_deger_i[31:16];
-                cyo_ps_artmis_o  <= ps_artmis;
-                cyo_ps_o         <= ps;
-        end
-    end
-
-    // [TODO] Yanlis tahminde: buferdan_okuyor, ps, parcaparca'nin restore edilmesi gerek.
 
     `ifdef COCOTB_SIM
         reg [88*13:1]  coz_str_debug;
