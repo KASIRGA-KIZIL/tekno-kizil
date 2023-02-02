@@ -156,14 +156,7 @@
 
 #define INTERRUPT_HANDLER j other_exception /* No interrupts should occur */
 
-#ifdef CSRSIZ
-#define RVTEST_CODE_BEGIN                                               \
-        .section .text.init;                                            \
-        .globl _start;                                                  \
-_start:                                                                 \
-        j test_2;                                                      
-
-#else
+#ifdef CSRLI
 #define RVTEST_CODE_BEGIN                                               \
         .section .text.init;                                            \
         .align  6;                                                      \
@@ -228,7 +221,13 @@ reset_vector:                                                           \
         csrw mepc, t0;                                                  \
         csrr a0, mhartid;                                               \
         mret;                                                           \
-1:
+1:                                               
+#else // CSRSIZ
+#define RVTEST_CODE_BEGIN                                               \
+        .section .text.init;                                            \
+        .globl _start;                                                  \
+_start:                                                                 \
+        j test_2;
 #endif
 
 //#define RVTEST_CODE_BEGIN                                               \

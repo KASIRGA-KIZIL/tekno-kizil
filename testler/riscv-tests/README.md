@@ -1,13 +1,13 @@
 riscv-tests
 ================
 
-## ÖRNEK CSRSIZ
+## ÖRNEK CSRLI
 
 ```bash
 export PATH=/home/shc/projects/riscv64-toolchain/bin:$PATH
 autoconf
-./configure --prefix=/home/shc/projects/riscv-tests-orig/riscv-tests/target
-make CSRSIZ=-DCSRSIZ
+./configure
+make CSRLI
 ```
 
 About

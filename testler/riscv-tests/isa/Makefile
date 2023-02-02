@@ -4,8 +4,6 @@
 
 XLEN ?= 64
 
-CSRSIZ ?= 
-
 src_dir := .
 
 ifeq ($(XLEN),64)
@@ -39,7 +37,7 @@ default: all
 
 RISCV_PREFIX ?= riscv$(XLEN)-unknown-elf-
 RISCV_GCC ?= $(RISCV_PREFIX)gcc
-RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles $(CSRSIZ) #-march=rv32imc -mabi=ilp32
+RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles $(DCSRLI) -march=rv32imc -mabi=ilp32
 RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.text.init --section=.data
 RISCV_SIM ?= spike
 
@@ -68,9 +66,9 @@ $$($(1)_p_tests): $(1)-p-%: $(1)/%.S
 	python3 get_static_hex.py -bf $$@.bin
 $(1)_tests += $$($(1)_p_tests)
 
-$$($(1)_v_tests): $(1)-v-%: $(1)/%.S
-	$$(RISCV_GCC) $(2) $$(RISCV_GCC_OPTS) -DENTROPY=0x$$(shell echo \$$@ | md5sum | cut -c 1-7) -std=gnu99 -O2 -I$(src_dir)/../env/v -I$(src_dir)/macros/scalar -T$(src_dir)/../env/v/link.ld $(src_dir)/../env/v/entry.S $(src_dir)/../env/v/*.c $$< -o $$@
-$(1)_tests += $$($(1)_v_tests)
+#$$($(1)_v_tests): $(1)-v-%: $(1)/%.S
+#	$$(RISCV_GCC) $(2) $$(RISCV_GCC_OPTS) -DENTROPY=0x$$(shell echo \$$@ | md5sum | cut -c 1-7) -std=gnu99 -O2 -I$(src_dir)/../env/v -I$(src_dir)/macros/scalar -T$(src_dir)/../env/v/link.ld $(src_dir)/../env/v/entry.S $(src_dir)/../env/v/*.c $$< -o $$@
+#$(1)_tests += $$($(1)_v_tests)
 
 $(1)_tests_dump = $$(addsuffix .dump, $$($(1)_tests))
 
@@ -130,4 +128,4 @@ all: $(tests_dump)
 # Clean up
 
 clean:
-	rm -rf $(junk) *.hex
+	rm -rf $(junk) *.hex rv32ui-p-simple rv32ui-p-simple.bin rv32ui-p-simple.dump rv32ui-p-simple.o

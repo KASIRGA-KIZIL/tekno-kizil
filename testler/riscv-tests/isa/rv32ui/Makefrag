@@ -21,7 +21,7 @@ rv32ui_sc_tests = \
 	xor xori \
 	
 
-ifeq ($(CSRSIZ),)
+ifneq ($(DCSRLI),)
 	rv32ui_sc_tests += simple
 endif
 
