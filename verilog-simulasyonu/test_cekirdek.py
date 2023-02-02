@@ -20,7 +20,18 @@ riscv_tests["auipc"] = {
     "pass_adr": 0x40000074,
     "buyruklar": []
 }
-
+riscv_tests["jal"] = {
+    "TEST_FILE": "./data/rv32ui-p-jal_static.hex",
+    "fail_adr": 0x40000070,
+    "pass_adr": 0x40000084,
+    "buyruklar": []
+}
+riscv_tests["lui"] = {
+    "TEST_FILE": "./data/rv32ui-p-lui_static.hex",
+    "fail_adr": 0x4000007c,
+    "pass_adr": 0x40000090,
+    "buyruklar": []
+}
 
 @cocotb.coroutine
 async def buyruklari_oku():
@@ -52,6 +63,10 @@ async def anabellek(dut):
                 print("[TEST] ", test, " FAILED TIMOUT")
                 assert 0
                 break
+        dut.rst_i.value = 1
+        await RisingEdge(dut.clk_i)
+        await RisingEdge(dut.clk_i)
+        dut.rst_i.value = 0
 
 @cocotb.test()
 async def test_cekirdek(dut):
