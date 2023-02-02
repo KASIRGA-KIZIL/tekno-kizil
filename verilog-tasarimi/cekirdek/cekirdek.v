@@ -14,6 +14,8 @@ module cekirdek(
 
 );
 
+    wire [31:1] l1b_adr_w;
+
     wire [`MI_BIT-1:0] yrt_mikroislem_w;
     wire [       31:0] yrt_deger1_w;
     wire [       31:0] yrt_deger2_w;
@@ -29,7 +31,7 @@ module cekirdek(
     /*wire  l1b_chip_select_n_o;*/
     wire [31:0] cyo_buyruk_w;
     wire [31:1] cyo_ps_artmis_w;
-    wire [31:1] cyo_l1b_ps_w;
+    wire [31:1] cyo_ps_w;
 
     wire [31:1] gtr_atlanan_ps_w;
     wire  gtr_atlanan_ps_gecerli_w;
@@ -105,7 +107,7 @@ module cekirdek(
         .rst_i (rst_i ),
 
         .gtr_buyruk_i     (cyo_buyruk_w    ),
-        .gtr_ps_i         (cyo_l1b_ps_w    ),
+        .gtr_ps_i         (cyo_ps_w        ),
         .gtr_ps_artmis_i  (cyo_ps_artmis_w ),
         .yrt_mikroislem_o      (yrt_mikroislem_w     ),
         .yrt_deger1_o          (yrt_deger1_w         ),
@@ -138,11 +140,12 @@ module cekirdek(
         .l1b_bekle_i         (l1b_bekle_i        ),
         .l1b_deger_i         (l1b_deger_i        ),
         .l1b_chip_select_n_o (l1b_chip_select_n_o),
+        .l1b_adr_o           (l1b_adr_w          ),
         .yrt_atlanan_ps_gecerli_i (gtr_atlanan_ps_gecerli_w),
         .yrt_atlanan_ps_i         (gtr_atlanan_ps_w        ),
         .cyo_buyruk_o    (cyo_buyruk_w   ),
         .cyo_ps_artmis_o (cyo_ps_artmis_w),
-        .cyo_l1b_ps_o    (cyo_l1b_ps_w   )
+        .cyo_ps_o    (cyo_ps_w   )
     );
 
 
@@ -166,7 +169,7 @@ module cekirdek(
         .gy_rd_adres_i   (cyo_yaz_adres_w )
     );
 
-    assign l1b_adres_o = {cyo_l1b_ps_w,1'b0};
+    assign l1b_adres_o = {l1b_adr_w,1'b0};
 
 endmodule
 

@@ -26,6 +26,7 @@ async def buyruklari_oku():
 
 @cocotb.coroutine
 async def anabellek(dut,buyruklar):
+    await RisingEdge(dut.clk_i)
     while(1):
         memidx = (dut.l1b_adres_o.value.integer-0x40000000) >> 2
         try:
@@ -33,7 +34,7 @@ async def anabellek(dut,buyruklar):
             print("read ", int(memidx))
         except:
             print("Bos adres: {}".format(memidx))
-        await Edge(dut.l1b_adres_o)
+        await RisingEdge(dut.clk_i)
 
 
 
@@ -49,7 +50,7 @@ async def test_cekirdek(dut):
     cocotb.start_soon(anabellek(dut,buyruklar))
     dut.rst_i.value = 0
     dut.l1b_bekle_i.value = 0
-    for idx in range(len(buyruklar)):
+    for idx in range(1000):
         await RisingEdge(dut.clk_i)
 
     await RisingEdge(dut.clk_i)

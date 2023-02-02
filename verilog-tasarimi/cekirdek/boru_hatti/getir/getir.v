@@ -19,6 +19,7 @@ module getir (
         input  wire        l1b_bekle_i,
         input  wire [31:0] l1b_deger_i,
         output wire        l1b_chip_select_n_o,
+        output wire [31:1] l1b_adr_o,
 
         // Yurut
         input wire        yrt_atlanan_ps_gecerli_i,
@@ -27,9 +28,9 @@ module getir (
         // Coz Yazmacoku
         output reg  [31:0] cyo_buyruk_o,
         output reg  [31:1] cyo_ps_artmis_o,
+        output reg  [31:1] cyo_ps_o
 
         // Coz ve L1 Buyruk Onbellegi
-        output wire [31:1] cyo_l1b_ps_o
     );
 
     reg  [15:0] buyruk_tamponu;
@@ -242,11 +243,11 @@ module getir (
         end
     `endif
 
-    assign cyo_l1b_ps_o = ps;
+    assign l1b_adr_o = ps_next;
 
     always @(posedge clk_i) begin
         if (rst_i) begin
-            ps               <= (32'h40000000)>>1;
+            ps               <= ((32'h40000000-4)>>1);
             cyo_buyruk_o     <= 0;
             parcaparca       <= 0;
             buyruk_tamponu   <= 0;
@@ -260,6 +261,7 @@ module getir (
                 parcaparca       <= parcaparca_next;
                 buyruk_tamponu   <= l1b_deger_i[31:16];
                 cyo_ps_artmis_o  <= ps_artmis;
+                cyo_ps_o         <= ps;
         end
     end
 
