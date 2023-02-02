@@ -147,11 +147,12 @@ module cekirdek(
 
 
     denetim_durum_birimi denetim_durum_birimi_dut (
+        .clk_i (clk_i ),
+        .rst_i (rst_i ),
         .gtr_yanlis_tahmin_i (gtr_yanlis_tahmin_w ),
         .gtr_hazir_i         (gtr_hazir_w         ),
         .gtr_durdur_o        (gtr_durdur_w        ),
         .gtr_bosalt_o        (gtr_bosalt_w        ),
-        .cyo_gecersiz_buyruk_i    (cyo_gecersiz_buyruk_w   ),
         .cyo_rs1_adres_i          (cyo_rs1_adres_w         ),
         .cyo_rs2_adres_i          (cyo_rs2_adres_w         ),
         .cyo_yonlendir_kontrol1_o (cyo_yonlendir_kontrol1_w),

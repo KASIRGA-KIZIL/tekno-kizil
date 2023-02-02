@@ -4,9 +4,9 @@
 
 # sim
 TOPLEVEL_LANG = verilog
-SIM           = icarus
+SIM           = modelsim
 
-MODULE              := test_amb
+MODULE              := test_cekirdek
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build

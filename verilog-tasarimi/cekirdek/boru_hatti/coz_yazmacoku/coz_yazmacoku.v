@@ -61,9 +61,11 @@ module coz_yazmacoku(
                                (ddb_yonlendir_kontrol2_i  == `YON_HICBISEY ) ? rs2_deger_w           :
                                                                                rs2_deger_w;
 
-    wire [31:0] deger1_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) ? {gtr_ps_i,1'b0} : deger1_tmp_w;
+    wire sec_pc = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) || (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PCIMM);
+    wire [31:0] deger1_w = sec_pc ? {gtr_ps_i,1'b0} : deger1_tmp_w;
 
-    wire [31:0] deger2_w = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) ? imm_r : deger2_tmp_w;
+    wire sec_imm = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) || (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PCIMM);
+    wire [31:0] deger2_w = sec_imm ? imm_r : deger2_tmp_w;
 
     wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_tmp_w));
     wire ltu_w = (deger1_tmp_w  < deger2_tmp_w);
@@ -157,7 +159,7 @@ module coz_yazmacoku(
             5'b01101: begin buyruk_tipi_r = `U_Tipi;   end // lui
             5'b11001: begin buyruk_tipi_r = `I_Tipi;   end // jalr I tipinde
             5'b11100: begin buyruk_tipi_r = `SYS_Tipi; end // SYSTEM buyruklari
-            default:  begin buyruk_tipi_r =  3'bxxx;   end
+            default:  begin buyruk_tipi_r = `I_Tipi;   end // Dallanmayi onlemek icin default(NOP) deger B veya J tipi olmamali.
         endcase
 
         // Buyruk tipine gore anlik sec
@@ -174,23 +176,21 @@ module coz_yazmacoku(
 
 
     always @(posedge clk_i) begin
-        if (rst_i || ddb_bosalt_i) begin
+        if (rst_i) begin
             yrt_mikroislem_o      <= 0;
-            yrt_deger1_o          <= 0;
-            yrt_deger2_o          <= 0;
-            yrt_rd_adres_o        <= 0;
-            yrt_yapay_zeka_en_o   <= 0;
+            yrt_lt_ltu_eq_o       <= 0;
+            yrt_buyruk_tipi_o     <= 0;
         end
         else begin
             if(!ddb_durdur_i) begin
-                yrt_mikroislem_o      <= mikroislem_sonraki_r;
+                yrt_mikroislem_o      <= ddb_bosalt_i ? 0 : mikroislem_sonraki_r;
                 yrt_deger1_o          <= deger1_w;
                 yrt_deger2_o          <= deger2_w;
                 yrt_rd_adres_o        <= gtr_buyruk_i[11:7];
                 yrt_yapay_zeka_en_o   <= gtr_buyruk_i[31];
                 yrt_lt_ltu_eq_o       <= {lt_w,ltu_w,eq_w};
                 yrt_ps_artmis_o       <= gtr_ps_artmis_i;
-                yrt_buyruk_tipi_o     <= buyruk_tipi_r;
+                yrt_buyruk_tipi_o     <= ddb_bosalt_i ? `I_Tipi : buyruk_tipi_r;
             end
         end
     end
