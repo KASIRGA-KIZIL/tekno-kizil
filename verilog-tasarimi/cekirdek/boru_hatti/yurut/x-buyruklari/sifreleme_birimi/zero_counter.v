@@ -11,7 +11,7 @@ module zero_counter(
 );
     assign hepsi_sifir = !(|deger_i);
     always@*begin
-        case(deger_i)
+        casex(deger_i)
             32'bxxxxxxxx_xxxxxxxx_xxxxxxxx_xxxxxxx1:
                 sifir_sayisi = 5'd0;
             32'bxxxxxxxx_xxxxxxxx_xxxxxxxx_xxxxxx10:
