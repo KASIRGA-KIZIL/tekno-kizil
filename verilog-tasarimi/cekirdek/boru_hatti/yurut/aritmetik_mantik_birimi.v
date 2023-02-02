@@ -56,6 +56,7 @@ module aritmetik_mantik_birimi(
                      (kontrol == `AMB_SRA    )                             ? sonuc_sra :
                      (kontrol == `AMB_SLT    )                             ? sonuc_slt :
                      (kontrol == `AMB_SLTU   )                             ? sonuc_sltu:
+                     (kontrol == `AMB_GECIR  )                             ? deger2_i  :
                                                                              32'bx;
 
 endmodule

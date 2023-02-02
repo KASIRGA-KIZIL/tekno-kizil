@@ -5,28 +5,27 @@
 
 
 module geri_yaz(
-    input clk_i,
-    //input rst_i,
-
     // YURUT'ten gelenler
-    input [ 4:0] rd_adres_i,
-    input [31:0] rd_deger_i,
-    input [ 2:0] mikroislem_i,
-    input [31:0] bib_deger_i,
-    input [31:0] program_sayaci_artmis_i,
+    input [ 4:0] yrt_rd_adres_i,
+    input [31:0] yrt_rd_deger_i,
+    input [ 2:0] yrt_mikroislem_i,
+    input [31:0] yrt_bib_deger_i,
+    input [31:0] yrt_carpma_deger_i,
+    input [31:1] yrt_ps_artmis_i,
 
     // COZ'e gidenler
-    output [4:0] yaz_adres_o,
-    output [31:0] yaz_deger_o,
-    output yaz_yazmac_o
+    output [ 4:0] cyo_yaz_adres_o,
+    output [31:0] cyo_yaz_deger_o,
+    output        cyo_yaz_yazmac_o
 );
 
-    assign yaz_deger_o = (mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_BIB  ) ? bib_deger_i :
-                         (mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_YURUT) ? rd_deger_i :
-                         (mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_PC   ) ? program_sayaci_artmis_i :
-                                                                           32'hxxxx_xxxx;
+    assign cyo_yaz_deger_o = (yrt_mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_BIB   ) ? yrt_bib_deger_i       :
+                             (yrt_mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_YURUT ) ? yrt_rd_deger_i        :
+                             (yrt_mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_PC    ) ? {yrt_ps_artmis_i,1'b0}:
+                             (yrt_mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_CARPMA) ? yrt_carpma_deger_i    :
+                                                                                     32'hxxxx_xxxx;
 
-    assign yaz_adres_o   = rd_adres_i;
-    assign yaz_yazmac_o = mikroislem_i[`YAZMAC];
+    assign cyo_yaz_adres_o  = yrt_rd_adres_i;
+    assign cyo_yaz_yazmac_o = yrt_mikroislem_i[`YAZMAC];
 
 endmodule

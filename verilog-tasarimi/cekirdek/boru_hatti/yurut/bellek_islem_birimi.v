@@ -5,7 +5,7 @@
 module bellek_islem_birimi(
     input clk_i,
     input rst_i,
-    // denetim durum birimi sinyalleri 
+    // denetim durum birimi sinyalleri
     input ddb_duraklat_i,
     input ddb_bosalt_i,
     // yurut -> bib
@@ -24,8 +24,8 @@ module bellek_islem_birimi(
     // bib -> l1 cache controller
     output [3:0] l1c_veri_maske_o,
     output [31:0] l1c_yaz_veri_o, // din
-    output [31:0] l1c_veri_addres_o, // boyut?? 
-    output l1c_yaz_gecerli_o, // write enable
+    output [31:0] l1c_veri_addres_o, // boyut??
+    output l1c_yaz_gecerli_o // write enable
     );
 
     ////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ module bellek_islem_birimi(
 
     // L1c'ye ayni cevrim erisilecek
     assign l1c_veri_maske_o = sb_w ? (yurut_address_i[1:0]<<3)
-        : (sh_w ? ({yurut_address_i[1], yurut_address_i[1], ~yurut_address_i[1], ~yurut_address_i[1]}) 
+        : (sh_w ? ({yurut_address_i[1], yurut_address_i[1], ~yurut_address_i[1], ~yurut_address_i[1]})
         : 4'b1111);
     // ONEMLI: cozden dogru verinin geldigini varsaydin
     assign l1c_yaz_veri_o = yaz_veri_r;
@@ -96,7 +96,7 @@ module bellek_islem_birimi(
 
             lbu: yurut_deger_next_r = {{24{1'b0}},l1c_oku_veri_o[(yurut_address_i[1:0]<<3)+:8]};
             endcase
-        end    
+        end
     end
 
     always@(posedge clk_i) begin
@@ -105,7 +105,7 @@ module bellek_islem_birimi(
             yurut_deger_r <= 32'b0;
         end
         else begin
-            yurut_yaz_yazmac_r <= yurut_yaz_yazmac_next_r; 
+            yurut_yaz_yazmac_r <= yurut_yaz_yazmac_next_r;
             yurut_deger_r <= yurut_deger_next_r;
         end
     end

@@ -3,55 +3,63 @@
 
 `include "tanimlamalar.vh"
 
-module denetim_durum_birimi(
-    input clk_i,
-    input rst_i,
+`define ASAMA_GETIR   0
+`define ASAMA_COZ     1
+`define ASAMA_YURUT   2
+`define ASAMA_GERIYAZ 3
 
-    // YURUT sinyalleri
-    input program_sayaci_gecerli_i,     // Dallanma veya atlama varsa 1
-    input tahmin_dogru_i,               // Dallanma ongorucu dogru tahmin ettiyse 1
-    input yaz_yazmac_yurut_i,           // Rd geri yaziliyor ise 1
-    input [4:0] rd_adres_yurut_i,       // Rd nin adresi
-    input bib_bitti_i,                  // Bellek islem birimi bitik
-    input yapay_zeka_bitti_i,           // Yapay zeka birimi bitik
-    input carpma_bitti_i,               // Carpma birimi bitik
-    input bolme_bitti_i,                // Bolme birimi bitik
+
+module denetim_durum_birimi(
+    input wire clk_i,
+    input wire rst_i,
+    // GETIR sinyalleri
+    input  wire gtr_yanlis_tahmin_i,       // Dallanma ongorucu, ongoremedi
+    input  wire gtr_hazir_i,               // Getir hazir degil. L1 miss oldu vs. Buyruk gecersiz
+    output wire gtr_durdur_o,
+    output wire gtr_bosalt_o,
 
     // COZ sinyalleri
-    input  coz_gecersiz_buyruk_i,       // exceptionlari nasil implement ediyoruz? CSRS ?
-    input  [4:0] rs1_adres_coz_i,       // RS1 adresi
-    input  [4:0] rs2_adres_coz_i,       // RS2 adresi
-    output [1:0] yonlendir_kontrol1_o,    // Yonlendirme(Forwarding) deger1 icin kontrol sinyali
-    output [1:0] yonlendir_kontrol2_o,    // Yonlendirme(Forwarding) deger2 icin kontrol sinyali
-    output durdur_coz_o,
-    output bosalt_coz_o,
+    input  wire [4:0] cyo_rs1_adres_i,          // RS1 adresi
+    input  wire [4:0] cyo_rs2_adres_i,          // RS2 adresi
+    output wire [1:0] cyo_yonlendir_kontrol1_o, // Yonlendirme(Forwarding) deger1 icin kontrol sinyali
+    output wire [1:0] cyo_yonlendir_kontrol2_o, // Yonlendirme(Forwarding) deger2 icin kontrol sinyali
+    output wire       cyo_durdur_o,
+    output wire       cyo_bosalt_o,
 
-    // GETIR sinyalleri
-    input  getir_bekle_i,               // Getir hazir degil. L1 miss oldu vs. Buyruk gecersiz
-    output durdur_getir_o,
-    output bosalt_getir_o,
+    // YURUT sinyalleri
+    input wire       yrt_yaz_yazmac_i,     // Rd geri yaziliyor ise 1
+    input wire       yrt_hazir_i,          // Birden fazla cevrim suren bolme vs. icin
+    input wire [4:0] yrt_rd_adres_i,       // Rd nin adresi
 
     // GERIYAZ sinyalleri
-    input       yaz_yazmac_geriyaz_i,   // Rd geri yaziliyor ise 1
-    input [4:0] rd_adres_geriyaz_i      // Rd nin adresi
+    input       gy_yaz_yazmac_i,   // Rd geri yaziliyor ise 1
+    input [4:0] gy_rd_adres_i      // Rd nin adresi
 );
 
+    reg [3:0] gecersiz;
 
-    assign  yonlendir_kontrol1_o = (((rs1_adres_coz_i == rd_adres_yurut_i  ) && yaz_yazmac_yurut_i  ) && (rs1_adres_coz_i != 0)) ? `YON_YURUT :
-                                 (((rs1_adres_coz_i == rd_adres_geriyaz_i) && yaz_yazmac_geriyaz_i) && (rs1_adres_coz_i != 0)) ? `YON_GERIYAZ :
-                                                                                                                                 `YON_HICBISEY;
+    assign  cyo_yonlendir_kontrol1_o = (((cyo_rs1_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs1_adres_i != 0) && (~gecersiz[`ASAMA_YURUT]  )) ? `YON_YURUT :
+                                       (((cyo_rs1_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs1_adres_i != 0) && (~gecersiz[`ASAMA_GERIYAZ])) ? `YON_GERIYAZ :
+                                                                                                                               `YON_HICBISEY;
 
-    assign  yonlendir_kontrol2_o = (((rs2_adres_coz_i == rd_adres_yurut_i  ) && yaz_yazmac_yurut_i  ) && (rs2_adres_coz_i != 0)) ? `YON_YURUT :
-                                 (((rs2_adres_coz_i == rd_adres_geriyaz_i) && yaz_yazmac_geriyaz_i) && (rs2_adres_coz_i != 0)) ? `YON_GERIYAZ :
-                                                                                                                                 `YON_HICBISEY;
+    assign  cyo_yonlendir_kontrol2_o = (((cyo_rs2_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs2_adres_i != 0) && (~gecersiz[`ASAMA_YURUT]  )) ? `YON_YURUT :
+                                       (((cyo_rs2_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs2_adres_i != 0) && (~gecersiz[`ASAMA_GERIYAZ])) ? `YON_GERIYAZ :
+                                                                                                                               `YON_HICBISEY;
 
-    wire yurut_hazir_degil = (!bolme_bitti_i || !bib_bitti_i || !yapay_zeka_bitti_i || !carpma_bitti_i || !bolme_bitti_i);
+    assign gtr_durdur_o = ~yrt_hazir_i;
+    assign cyo_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i;
 
-    assign durdur_getir_o = yurut_hazir_degil;
-    assign durdur_coz_o   = yurut_hazir_degil || getir_bekle_i;
+    assign gtr_bosalt_o = gtr_yanlis_tahmin_i ;
+    assign cyo_bosalt_o = gtr_yanlis_tahmin_i ;
 
-    assign bosalt_getir_o = program_sayaci_gecerli_i ? !tahmin_dogru_i : 1'b0; // Atlama/dallanam varsa ve tahmin yanlissa bosalt. Tahmin dogruysa bosaltma
-    assign bosalt_coz_o   = program_sayaci_gecerli_i ? !tahmin_dogru_i : 1'b0;
-
-
+    always @(posedge clk_i) begin
+        if(rst_i)begin
+            gecersiz = 4'b1110;
+        end else begin
+            gecersiz[`ASAMA_GETIR]   <= gtr_yanlis_tahmin_i ? 1'b1 : 1'b0;
+            gecersiz[`ASAMA_COZ]     <= gtr_yanlis_tahmin_i ? 1'b1 : gecersiz[`ASAMA_GETIR];
+            gecersiz[`ASAMA_YURUT]   <= gecersiz[`ASAMA_COZ];
+            gecersiz[`ASAMA_GERIYAZ] <= gecersiz[`ASAMA_YURUT];
+        end
+    end
 endmodule

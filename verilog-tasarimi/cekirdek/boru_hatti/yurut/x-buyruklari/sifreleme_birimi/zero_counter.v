@@ -1,12 +1,17 @@
+// zero_counter.v
+
+
+`timescale 1ns / 1ps
+
 
 module zero_counter(
-    input [31:0] kaynak_yazmac_degeri,
+    input [31:0] deger_i,
     output reg [4:0] sifir_sayisi,
     output [0:0] hepsi_sifir
 );
-    assign hepsi_sifir = !(|kaynak_yazmac_degeri);
+    assign hepsi_sifir = !(|deger_i);
     always@*begin
-        case(kaynak_yazmac_degeri)
+        case(deger_i)
             32'bxxxxxxxx_xxxxxxxx_xxxxxxxx_xxxxxxx1:
                 sifir_sayisi = 5'd0;
             32'bxxxxxxxx_xxxxxxxx_xxxxxxxx_xxxxxx10:
