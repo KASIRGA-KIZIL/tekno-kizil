@@ -133,7 +133,7 @@ module getir (
         getir_hazir_next     = 1'b1;
         bufferdan_okuyor_next = 1'b0;
         parcaparca_next = 1'b0;
-        casex({parcaparca,buyruk_hizali,buyruk_ctipi})
+        casez({parcaparca,buyruk_hizali,buyruk_ctipi})
             3'b001: begin
                 cyo_buyruk_next = buyruk_genis;
                 `ifdef COCOTB_SIM  hizali_durum_str = "[16][??]"; `endif
@@ -170,7 +170,7 @@ module getir (
     wire [15:0] buyruk_16com = buyruk_hizali ? l1b_deger_i[15:0] : buyruk_tamponu;
 
     always @(buyruk_16com) begin
-        casex (buyruk_16com)
+        casez(buyruk_16com)
             `C_EBREAK   : begin buyruk_genis = {32'h00_10_00_73};                                                                                                                                                                   end  // c.ebreak  -> ebreak
             `C_JR       : begin buyruk_genis = {12'b0, buyruk_16com[11:7], 3'b0, 5'b0, 7'h67};                                                                                                                                      end // c.jr       -> jalr x0, rd/rs1, 0
             `C_JALR     : begin buyruk_genis = {12'b0, buyruk_16com[11:7], 3'b000, 5'b00001, 7'h67};                                                                                                                                end // c.jalr     -> jalr x1, rs1, 0
@@ -233,7 +233,7 @@ module getir (
     `ifdef COCOTB_SIM
         wire [31:0] debug_ps = {ps,1'b0};
         always @(buyruk_16com,buyruk_ctipi) begin
-            casex (buyruk_16com)
+            casez(buyruk_16com)
                 `C_EBREAK   : begin ctipi_coz_str = "`C_EBREAK   ";                                             end  // c.ebreak  -> ebreak
                 `C_JR       : begin ctipi_coz_str = "`C_JR       ";                                             end // c.jr       -> jalr x0, rd/rs1, 0
                 `C_JALR     : begin ctipi_coz_str = "`C_JALR     ";                                             end // c.jalr     -> jalr x1, rs1, 0
