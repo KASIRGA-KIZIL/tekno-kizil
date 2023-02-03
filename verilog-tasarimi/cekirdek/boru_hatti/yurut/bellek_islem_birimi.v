@@ -4,80 +4,49 @@
 `include "tanimlamalar.vh"
 
 module bellek_islem_birimi(
-    input clk_i,
-    input rst_i,
-    // denetim durum birimi sinyalleri
-    input ddb_duraklat_i,
-    input ddb_bosalt_i,
-    // yurut -> bib
-    input [2:0] yurut_buyruk_kontrol_i, // TODO: bu sinyali 9 bite cikar
-    input [31:0] yurut_deger1_i, // reg1
-    input [31:0] yurut_address_i, // reg2, imm
-    // bib -> yurut
-    output [31:0] yurut_deger_o, // islem birimlerinden gelen sonuclar
-    // l1 cache controller <-> bib
-    input l1c_stall_i,
-    input l1c_oku_gecerli,
-    input [31:0] l1c_oku_veri_o, // dout
-    output [3:0] l1c_veri_maske_o,
-    output [31:0] l1c_yaz_veri_o, // din
-    output [31:0] l1c_veri_addres_o, // boyut??
-    output l1c_yaz_gecerli_o // write enable
-    );
+    input  wire clk_i,
+    input  wire rst_i,
+    input  wire basla_i,
+    output wire bitti_o,
 
-    ////////////////////////////////////////////////////
-    //                  Tanimlamalar
-    ////////////////////////////////////////////////////
+    // yurut
+    input  wire [ 2:0] kontrol_i,
+    input  wire [31:0] adr_i,
+    output wire [31:0] sonuc_o,
 
-    // Cikis reg
-    reg [31:0] yurut_deger_r;
-    reg yurut_yaz_yazmac_r;
+    // l1 veri bellegi <-> bib
+    input  wire [31:0] l1v_veri_i,
+    input  wire        l1v_durdur_i,
+    output wire [31:0] l1v_veri_o,
+    output wire [31:0] l1v_adr_o,
+    output wire [ 3:0] l1v_veri_maske_o,
+    output wire        l1v_yaz_gecerli_o,
+    output wire        l1v_sec_o
+);
+    reg [ 2:0] kontrol;
 
-    // Store buyruk turu
-    wire sb_w;
-    wire sh_w;
-    wire sw_w;
+    assign bitti_o = l1v_durdur_i; // [TODO] 1 cevrim gecikmeli
 
-    ////////////////////////////////////////////////////
-    //                  Atamalar
-    ////////////////////////////////////////////////////
+    assign sonuc_o = l1v_veri_i;
 
-    // L1'e ayni cevrimde erisilecek
-    // burasi degisebilir, coz zaten hesapliyor
-    assign sb_w = yurut_buyruk_kontrol_i==`BIB_SB;
-    assign sh_w = yurut_buyruk_kontrol_i==`BIB_SH;
-    assign sw_w = yurut_buyruk_kontrol_i==`BIB_SW;
+    assign l1v_sec_o = basla_i;
 
-    // L1c'ye ayni cevrim erisilecek
-    assign l1c_veri_maske_o = sb_w ? (yurut_address_i[1:0]<<3)
-        : (sh_w ? ({yurut_address_i[1], yurut_address_i[1], ~yurut_address_i[1], ~yurut_address_i[1]})
-        : 4'b1111);
-    // ONEMLI: cozden dogru verinin geldigini varsaydin
-    assign l1c_yaz_veri_o = yaz_veri_r;
-    assign l1c_veri_addres_o = yurut_address_i;
-    assign l1c_yaz_gecerli_o = (durum_r==BOSTA) && (sb_w || sh_w || sw_w);
+    assign l1v_veri_maske_o = (kontrol_i == `BIB_SB)  ? 4'b0001 :
+                              (kontrol_i == `BIB_SH)  ? 4'b0011 :
+                              (kontrol_i == `BIB_SW)  ? 4'b1111 :
+                                                        4'b1111;
 
-    // Cikis
-    always @* begin
-        yurut_yaz_yazmac_r = 1'b0;
-        yurut_deger_r = 32'b0;
+    assign l1v_yaz_gecerli_o = basla_i && ((kontrol_i == `BIB_SB) || (kontrol_i == `BIB_SH) || (kontrol_i == `BIB_SW));
 
-        // l1c_oku_gecerli: load buyrugunun istedigi veri getirildi.
-        // Onemli: ddb boru hattini duraklatirken l1c bu modulu duraklatmiyor
-        if(!l1c_stall_i && l1c_oku_gecerli) begin
-            yurut_yaz_yazmac_r = 1'b1;
-            // Onemli: cache 32 bit adresliyor
-            case(yurut_buyruk_kontrol_i)
-            `BIB_LW: yurut_deger_r = l1c_oku_veri_o;
+    assign sonuc_o = (kontrol == `BIB_LB ) ? {{24{l1v_veri_i[ 7]}},l1v_veri_i[7:0]}  :
+                     (kontrol == `BIB_LH ) ? {{16{l1v_veri_i[15]}},l1v_veri_i[15:0]} :
+                     (kontrol == `BIB_LW ) ? l1v_veri_i                              :
+                     (kontrol == `BIB_LBU) ? {24'b0,l1v_veri_i[ 7:0]}                :
+                     (kontrol == `BIB_LHU) ? {16'b0,l1v_veri_i[15:0]}                :
+                                              l1v_veri_i;
 
-            `BIB_LH:  yurut_deger_r = {{16{l1c_oku_veri_o[{yurut_address_i[1]<<4} + 15]}}, l1c_oku_veri_o[(yurut_address_i[1]<<3)+:16]};
-
-            `BIB_LHU: yurut_deger_r = {{16{1'b0}}, l1c_oku_veri_o[(yurut_address_i[1]<<4)+:16]};
-
-            `BIB_LB:  yurut_deger_r = {{24{l1c_oku_veri_o[(yurut_address_i[1:0]<<3) + 7]}}, l1c_oku_veri_o[(yurut_address_i[1:0]<<3)+:8]};
-
-            `BIB_LBU: yurut_deger_r = {{24{1'b0}},l1c_oku_veri_o[(yurut_address_i[1:0]<<3)+:8]};
-            endcase
-        end
+    always @(posedge clk_i)begin
+        kontrol <= kontrol_i;
     end
+
 endmodule

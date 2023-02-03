@@ -7,10 +7,20 @@ module cekirdek(
     input wire clk_i,
     input wire rst_i,
 
+    // l1 buyruk bellegi
     input  wire        l1b_bekle_i,
     input  wire [31:0] l1b_deger_i,
     output wire        l1b_chip_select_n_o,
-    output wire [31:0] l1b_adres_o
+    output wire [31:0] l1b_adres_o,
+
+    // l1 veri bellegi
+    input  wire [31:0] l1v_veri_i,
+    input  wire        l1v_durdur_i,
+    output wire [31:0] l1v_veri_o,
+    output wire [31:0] l1v_adr_o,
+    output wire [ 3:0] l1v_veri_maske_o,
+    output wire        l1v_yaz_gecerli_o,
+    output wire        l1v_sec_o
 
 );
 
@@ -99,7 +109,14 @@ module cekirdek(
         .gy_bib_deger_o   (gy_bib_deger_w ),
         .gy_carpma_deger_o(gy_carpma_deger_w),
         .gy_mikroislem_o  (gy_mikroislem_w),
-        .cyo_yonlendir_deger_o  (cyo_yonlendir_deger_w)
+        .cyo_yonlendir_deger_o  (cyo_yonlendir_deger_w),
+        .l1v_veri_i        (l1v_veri_i        ),
+        .l1v_durdur_i      (l1v_durdur_i      ),
+        .l1v_veri_o        (l1v_veri_o        ),
+        .l1v_adr_o         (l1v_adr_o         ),
+        .l1v_veri_maske_o  (l1v_veri_maske_o  ),
+        .l1v_yaz_gecerli_o (l1v_yaz_gecerli_o ),
+        .l1v_sec_o         (l1v_sec_o         )
     );
 
     coz_yazmacoku coz_yazmacoku_dut (
@@ -172,5 +189,3 @@ module cekirdek(
     assign l1b_adres_o = {l1b_adr_w,1'b0};
 
 endmodule
-
-

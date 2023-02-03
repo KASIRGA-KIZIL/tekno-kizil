@@ -30,12 +30,21 @@ module yurut(
     output reg  [ 4:0] gy_rd_adres_o,              // Rd'nin adresi
     output reg  [31:1] gy_ps_artmis_o,             // Rd=PC+4/2 islemi icin gerekli
     output reg  [31:0] gy_rd_deger_o,              // islem birimlerinden cikan sonuc
-    output reg  [31:0] gy_bib_deger_o,             // Bellek Islem Biriminin ciktisi.
+    output wire [31:0] gy_bib_deger_o,             // Bellek Islem Biriminin ciktisi.
     output wire [31:0] gy_carpma_deger_o,          // Carpma Biriminin ciktisi.
     output reg  [ 2:0] gy_mikroislem_o,            // Rd secimi ve write enable sinyalleri
 
     // Yonlendirme icin
-    output wire [31:0] cyo_yonlendir_deger_o
+    output wire [31:0] cyo_yonlendir_deger_o,
+
+    // l1 veri bellegi
+    input  wire [31:0] l1v_veri_i,
+    input  wire        l1v_durdur_i,
+    output wire [31:0] l1v_veri_o,
+    output wire [31:0] l1v_adr_o,
+    output wire [ 3:0] l1v_veri_maske_o,
+    output wire        l1v_yaz_gecerli_o,
+    output wire        l1v_sec_o
 );
 
     wire [31:0] amb_sonuc_w      ;
@@ -76,6 +85,25 @@ module yurut(
         .deger1_i (carp_deger1),
         .deger2_i (carp_deger2),
         .sonuc_o  (gy_carpma_deger_o)
+    );
+
+
+    wire bib_basla = (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB);
+    bellek_islem_birimi bib (
+        .clk_i (clk_i ),
+        .rst_i (rst_i ),
+        .basla_i (bib_basla),
+        .bitti_o (bib_bitti),
+        .kontrol_i (cyo_mikroislem_i[`BIB] ),
+        .adr_i (amb_sonuc_w ),
+        .sonuc_o (gy_bib_deger_o ),
+        .l1v_veri_i        (l1v_veri_i        ),
+        .l1v_durdur_i      (l1v_durdur_i      ),
+        .l1v_veri_o        (l1v_veri_o        ),
+        .l1v_adr_o         (l1v_adr_o         ),
+        .l1v_veri_maske_o  (l1v_veri_maske_o  ),
+        .l1v_yaz_gecerli_o (l1v_yaz_gecerli_o ),
+        .l1v_sec_o         (l1v_sec_o         )
     );
 
     wire yzh_bitti;
