@@ -38,12 +38,12 @@ module aritmetik_mantik_birimi(
 
     assign deger2_cla = (kontrol == `AMB_CIKARMA) ? ~deger2_i : deger2_i;
 
-    assign sonuc_xor  =  deger1_i  ^   deger2_i;
-    assign sonuc_or   =  deger1_i  |   deger2_i;
-    assign sonuc_and  =  deger1_i  &   deger2_i;
-    assign sonuc_sll  =  deger1_i  <<  deger2_i[4:0];
-    assign sonuc_srl  =  deger1_i  >>  deger2_i[4:0];
-    assign sonuc_sra  =  deger1_i  >>> deger2_i[4:0];
+    assign sonuc_xor  =          deger1_i   ^   deger2_i;
+    assign sonuc_or   =          deger1_i   |   deger2_i;
+    assign sonuc_and  =          deger1_i   &   deger2_i;
+    assign sonuc_sll  =          deger1_i   <<  deger2_i[4:0];
+    assign sonuc_srl  =          deger1_i   >>  deger2_i[4:0];
+    assign sonuc_sra  =  $signed(deger1_i)  >>> deger2_i[4:0];
     assign sonuc_slt  = (deger1_i  <   deger2_i) ? {31'b0,lt_ltu_i[0]} : 32'b0;
     assign sonuc_sltu = ($signed(deger1_i)  <   $signed(deger2_i)) ? {31'b0,lt_ltu_i[1]}  : 32'b0;
 
