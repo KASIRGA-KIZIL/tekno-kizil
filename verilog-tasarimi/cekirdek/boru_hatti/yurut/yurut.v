@@ -43,7 +43,7 @@ module yurut(
     wire [31:0] sifreleme_sonuc_w;
 
     aritmetik_mantik_birimi amb (
-        .kontrol(cyo_mikroislem_i[`AMB]),
+        .kontrol_i(cyo_mikroislem_i[`AMB]),
         .deger1_i(cyo_deger1_i),
         .deger2_i(cyo_deger2_i),
         .sonuc_o(amb_sonuc_w)
@@ -72,7 +72,7 @@ module yurut(
     carpma_birimi cb(
         .clk_i (clk_i ),
         .rst_i (cb_rst),
-        .kontrol (cyo_mikroislem_i[`CARPMA]),
+        .kontrol_i(cyo_mikroislem_i[`CARPMA]),
         .deger1_i (carp_deger1),
         .deger2_i (carp_deger2),
         .sonuc_o  (gy_carpma_deger_o)

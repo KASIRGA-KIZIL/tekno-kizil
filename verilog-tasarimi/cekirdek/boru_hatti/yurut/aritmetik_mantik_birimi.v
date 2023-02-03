@@ -5,8 +5,8 @@
 
 
 module aritmetik_mantik_birimi(
-    // kontrol sinyalleri
-    input  wire [ 3:0] kontrol,
+    // kontrol_i sinyalleri
+    input  wire [ 3:0] kontrol_i,
     // veri sinyalleri
     input  wire [31:0] deger1_i,
     input  wire [31:0] deger2_i,
@@ -25,7 +25,7 @@ module aritmetik_mantik_birimi(
     // Aritmetik Sinyalleri
     wire [31:0] deger2_cla;
     wire [31:0] sonuc_cla;
-    wire  elde_cla = (kontrol == `AMB_CIKARMA);
+    wire  elde_cla = (kontrol_i == `AMB_CIKARMA);
 
     carry_lookahead_toplayici cla(
         .deger1_i(deger1_i),
@@ -34,7 +34,7 @@ module aritmetik_mantik_birimi(
         .sonuc_o (sonuc_cla)
     );
 
-    assign deger2_cla = (kontrol == `AMB_CIKARMA) ? ~deger2_i : deger2_i;
+    assign deger2_cla = (kontrol_i == `AMB_CIKARMA) ? ~deger2_i : deger2_i;
 
     assign sonuc_xor  =          deger1_i   ^   deger2_i;
     assign sonuc_or   =          deger1_i   |   deger2_i;
@@ -45,16 +45,16 @@ module aritmetik_mantik_birimi(
     assign sonuc_slt  = ($signed(deger1_i)  <   $signed(deger2_i)) ? 32'b1 : 32'b0;
     assign sonuc_sltu = (       (deger1_i)  <          (deger2_i)) ? 32'b1 : 32'b0;
 
-    assign sonuc_o = (kontrol == `AMB_CIKARMA) | (kontrol == `AMB_TOPLAMA) ? sonuc_cla :
-                     (kontrol == `AMB_XOR    )                             ? sonuc_xor :
-                     (kontrol == `AMB_OR     )                             ? sonuc_or  :
-                     (kontrol == `AMB_AND    )                             ? sonuc_and :
-                     (kontrol == `AMB_SLL    )                             ? sonuc_sll :
-                     (kontrol == `AMB_SRL    )                             ? sonuc_srl :
-                     (kontrol == `AMB_SRA    )                             ? sonuc_sra :
-                     (kontrol == `AMB_SLT    )                             ? sonuc_slt :
-                     (kontrol == `AMB_SLTU   )                             ? sonuc_sltu:
-                     (kontrol == `AMB_GECIR  )                             ? deger2_i  :
+    assign sonuc_o = (kontrol_i == `AMB_CIKARMA) | (kontrol_i == `AMB_TOPLAMA) ? sonuc_cla :
+                     (kontrol_i == `AMB_XOR    )                             ? sonuc_xor :
+                     (kontrol_i == `AMB_OR     )                             ? sonuc_or  :
+                     (kontrol_i == `AMB_AND    )                             ? sonuc_and :
+                     (kontrol_i == `AMB_SLL    )                             ? sonuc_sll :
+                     (kontrol_i == `AMB_SRL    )                             ? sonuc_srl :
+                     (kontrol_i == `AMB_SRA    )                             ? sonuc_sra :
+                     (kontrol_i == `AMB_SLT    )                             ? sonuc_slt :
+                     (kontrol_i == `AMB_SLTU   )                             ? sonuc_sltu:
+                     (kontrol_i == `AMB_GECIR  )                             ? deger2_i  :
                                                                              32'bx;
 
 endmodule
