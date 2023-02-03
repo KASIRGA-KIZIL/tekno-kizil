@@ -122,9 +122,11 @@ module yurut(
     );
 
     wire bol_bitti_w;
+    wire bol_basla_w = (cyo_mikroislem_i[`BIRIM] == `BIRIM_BOLME);
     bolme_birimi bolb(
       .clk_i (clk_i),
       .rst_i (rst_i),
+      .basla_i (bol_basla_w),
       .islem_i (cyo_mikroislem_i[`BOLME]),
       .bolunen_i (cyo_deger1_i),
       .bolen_i (cyo_deger2_i),
@@ -172,7 +174,7 @@ module yurut(
     // TODO burayi degistirmeliyiz
     // yzhye basla yerine reset ve yine bolmeye reset koyabiliriz, burayi degistirmemek icin
     // reset geliyorsa bitmezler
-    assign ddb_hazir_o = yzh_bitti | bol_bitti_w;
+    assign ddb_hazir_o = yzh_bitti & bol_bitti_w;
 
     `ifdef COCOTB_SIM
         reg [88*13:1] micro_str;
