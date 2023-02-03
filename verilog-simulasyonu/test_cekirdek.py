@@ -28,16 +28,16 @@ riscv_tests["jal"] = {
     "pass_adr": 0x40000084,
     "buyruklar": []
 }
-riscv_tests["lui"] = {
-    "TEST_FILE": "./data/rv32ui-p-lui_static.hex",
-    "fail_adr": 0x4000007c,
-    "pass_adr": 0x40000090,
-    "buyruklar": []
-}
 riscv_tests["jalr"] = {
     "TEST_FILE": "./data/rv32ui-p-jalr_static.hex",
     "fail_adr": 0x40000110,
     "pass_adr": 0x40000124,
+    "buyruklar": []
+}
+riscv_tests["lui"] = {
+    "TEST_FILE": "./data/rv32ui-p-lui_static.hex",
+    "fail_adr": 0x4000007c,
+    "pass_adr": 0x40000090,
     "buyruklar": []
 }
 riscv_tests["andi"] = {
@@ -64,12 +64,6 @@ riscv_tests["addi"] = {
     "pass_adr": 0x400002b8,
     "buyruklar": []
 }
-riscv_tests["andi"] = {
-    "TEST_FILE": "./data/rv32ui-p-andi_static.hex",
-    "fail_adr": 0x400001dc,
-    "pass_adr": 0x400001f0,
-    "buyruklar": []
-}
 riscv_tests["slli"] = {
     "TEST_FILE": "./data/rv32ui-p-slli_static.hex",
     "fail_adr": 0x400002a0,
@@ -82,17 +76,120 @@ riscv_tests["slti"] = {
     "pass_adr": 0x400002a4,
     "buyruklar": []
 }
+riscv_tests["sltiu"] = {
+    "TEST_FILE": "./data/rv32ui-p-sltiu_static.hex",
+    "fail_adr": 0x40000290,
+    "pass_adr": 0x400002a4,
+    "buyruklar": []
+}
+riscv_tests["and"] = {
+    "TEST_FILE": "./data/rv32ui-p-and_static.hex",
+    "fail_adr": 0x400004d4,
+    "pass_adr": 0x400004e8,
+    "buyruklar": []
+}
+riscv_tests["sll"] = {
+    "TEST_FILE": "./data/rv32ui-p-sll_static.hex",
+    "fail_adr": 0x4000056c,
+    "pass_adr": 0x40000580,
+    "buyruklar": []
+}
+riscv_tests["xor"] = {
+    "TEST_FILE": "./data/rv32ui-p-xor_static.hex",
+    "fail_adr": 0x400004dc,
+    "pass_adr": 0x400004f0,
+    "buyruklar": []
+}
+riscv_tests["or"] = {
+    "TEST_FILE": "./data/rv32ui-p-or_static.hex",
+    "fail_adr": 0x400004e0,
+    "pass_adr": 0x400004f4,
+    "buyruklar": []
+}
+riscv_tests["srl"] = {
+    "TEST_FILE": "./data/rv32ui-p-srl_static.hex",
+    "fail_adr": 0x400005a0,
+    "pass_adr": 0x400005b4,
+    "buyruklar": []
+}
+riscv_tests["sra"] = {
+    "TEST_FILE": "./data/rv32ui-p-sra_static.hex",
+    "fail_adr": 0x400005b8,
+    "pass_adr": 0x400005cc,
+    "buyruklar": []
+}
+riscv_tests["slt"] = {
+    "TEST_FILE": "./data/rv32ui-p-slt_static.hex",
+    "fail_adr": 0x400004e4,
+    "pass_adr": 0x400004f8,
+    "buyruklar": []
+}
+riscv_tests["sltu"] = {
+    "TEST_FILE": "./data/rv32ui-p-sltu_static.hex",
+    "fail_adr": 0x400004e4,
+    "pass_adr": 0x400004f8,
+    "buyruklar": []
+}
+riscv_tests["srli"] = {
+    "TEST_FILE": "./data/rv32ui-p-srli_static.hex",
+    "fail_adr": 0x400002bc,
+    "pass_adr": 0x400002d0,
+    "buyruklar": []
+}
+riscv_tests["srai"] = {
+    "TEST_FILE": "./data/rv32ui-p-srai_static.hex",
+    "fail_adr": 0x400002d4,
+    "pass_adr": 0x400002e8,
+    "buyruklar": []
+}
+riscv_tests["sub"] = {
+    "TEST_FILE": "./data/rv32ui-p-sub_static.hex",
+    "fail_adr": 0x400004dc,
+    "pass_adr": 0x400004f0,
+    "buyruklar": []
+}
+
+
+
 
 
 """
+riscv_tests["bgeu"] = {
+    "TEST_FILE": "./data/rv32ui-p-bgeu_static.hex",
+    "fail_adr": 0x40000370,
+    "pass_adr": 0x40000384,
+    "buyruklar": []
+}
+riscv_tests["bltu"] = {
+    "TEST_FILE": "./data/rv32ui-p-bltu_static.hex",
+    "fail_adr": 0x40000310,
+    "pass_adr": 0x40000324,
+    "buyruklar": []
+}
+riscv_tests["blt"] = {
+    "TEST_FILE": "./data/rv32ui-p-blt_static.hex",
+    "fail_adr": 0x400002dc,
+    "pass_adr": 0x400002f0,
+    "buyruklar": []
+}
+riscv_tests["bne"] = {
+    "TEST_FILE": "./data/rv32ui-p-bne_static.hex",
+    "fail_adr": 0x400002e0,
+    "pass_adr": 0x400002f4,
+    "buyruklar": []
+}
+riscv_tests["beq"] = {
+    "TEST_FILE": "./data/rv32ui-p-beq_static.hex",
+    "fail_adr": 0x400002dc,
+    "pass_adr": 0x400002f0,
+    "buyruklar": []
+}
 riscv_tests["bge"] = {
     "TEST_FILE": "./data/rv32ui-p-bge_static.hex",
     "fail_adr": 0x4000033c,
     "pass_adr": 0x40000350,
     "buyruklar": []
 }
-
-
 riscv_tests["add"] = {
     "TEST_FILE": "./data/rv32ui-p-add_static.hex",
     "fail_adr": 0x400004fc,
