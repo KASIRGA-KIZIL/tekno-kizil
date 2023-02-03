@@ -6,6 +6,10 @@
 module wishbone#(
     parameter SLAVE_SAYISI = 3
 )(
+    input clk_i,
+    input rst_i
+    
+    
 );
 
 endmodule
