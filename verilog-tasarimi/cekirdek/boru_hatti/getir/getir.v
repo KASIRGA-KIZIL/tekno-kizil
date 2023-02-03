@@ -95,6 +95,10 @@ module getir (
             ps_artmis = ps + 2; // son bit yok b100 -> b10 oluyor.
         end
         case(hata_duzelt)
+            `YANLIS_ATLADI: begin
+                ps_next = yrt_atlanan_ps_i;
+                ddb_yanlis_tahmin_o = 1'b1;
+            end
             `ATLAMALIYDI: begin
                 ps_next = yrt_atlanan_ps_i;
                 ddb_yanlis_tahmin_o = 1'b1;

@@ -148,12 +148,6 @@ riscv_tests["sub"] = {
     "pass_adr": 0x400004f0,
     "buyruklar": []
 }
-
-
-
-
-
-"""
 riscv_tests["bgeu"] = {
     "TEST_FILE": "./data/rv32ui-p-bgeu_static.hex",
     "fail_adr": 0x40000370,
@@ -196,7 +190,7 @@ riscv_tests["add"] = {
     "pass_adr": 0x40000510,
     "buyruklar": []
 }
-"""
+
 @cocotb.coroutine
 async def buyruklari_oku():
     for test in riscv_tests:

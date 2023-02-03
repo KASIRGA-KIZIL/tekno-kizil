@@ -354,6 +354,7 @@
 `define YON_HICBISEY 2'b10
 
 // Dallanma Ongorucu Sabitleri
+`define YANLIS_ATLADI 2'd3
 `define ATLAMAMALIYDI 2'd2
 `define ATLAMALIYDI   2'd1
 `define SORUN_YOK     2'd0 // Bu 0 olmak zorunda.
