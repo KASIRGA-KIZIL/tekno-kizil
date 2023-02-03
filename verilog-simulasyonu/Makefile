@@ -30,6 +30,24 @@ else ifeq ($(MODULE),test_amb)
 						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
+else ifeq ($(MODULE),test_carpma_birimi)
+	TOPLEVEL        := carpma_birimi
+    VERILOG_SOURCES +=  $(KAYNAKLAR)/cekirdek/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
+else ifeq ($(MODULE),test_bolme_birimi)
+	TOPLEVEL        := bolme_birimi
+    VERILOG_SOURCES +=  $(KAYNAKLAR)/cekirdek/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
 else ifeq ($(MODULE),tb_yurut)
     #VERILOG_SOURCES +=
 else
