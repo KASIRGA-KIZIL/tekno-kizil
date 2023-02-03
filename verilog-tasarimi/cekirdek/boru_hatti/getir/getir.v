@@ -218,30 +218,30 @@ module getir (
     always @(buyruk_16com) begin
         casez(buyruk_16com)
             `C_EBREAK   : cmp_gecerli_r = 1'b1;
-            `C_JR       : cmp_gecerli_r = |buyruk_i[11:7];
-            `C_JALR     : cmp_gecerli_r = |buyruk_i[11:7];
+            `C_JR       : cmp_gecerli_r = |buyruk_16com[11:7];
+            `C_JALR     : cmp_gecerli_r = |buyruk_16com[11:7];
             `C_NOP      : cmp_gecerli_r = 1'b1; // c.nop degilse c.addidir
-            `C_ADDI16SP : cmp_gecerli_r = |{buyruk_i[12],buyruk_i[6:2]};
+            `C_ADDI16SP : cmp_gecerli_r = |{buyruk_16com[12],buyruk_16com[6:2]};
             `C_AND      : cmp_gecerli_r = 1'b1;
             `C_SUB      : cmp_gecerli_r = 1'b1;
             `C_OR       : cmp_gecerli_r = 1'b1;
             `C_XOR      : cmp_gecerli_r = 1'b1;
-            `C_SRAI     , cmp_gecerli_r = |{buyruk_i[12],buyruk_i[6:2]};
-            `C_SRLI     : cmp_gecerli_r = |{buyruk_i[12],buyruk_i[6:2]};
+            `C_SRAI     , cmp_gecerli_r = |{buyruk_16com[12],buyruk_16com[6:2]};
+            `C_SRLI     : cmp_gecerli_r = |{buyruk_16com[12],buyruk_16com[6:2]};
             `C_ANDI     : cmp_gecerli_r = 1'b1;
-            `C_MV       : cmp_gecerli_r = |buyruk_i[11:7];
-            `C_SLLI     : cmp_gecerli_r = ~buyruk_i[12] & (|buyruk_i[6:2]);
-            `C_ADD      : cmp_gecerli_r = |buyruk_i[11:7];
+            `C_MV       : cmp_gecerli_r = |buyruk_16com[11:7];
+            `C_SLLI     : cmp_gecerli_r = ~buyruk_16com[12] & (|buyruk_16com[6:2]);
+            `C_ADD      : cmp_gecerli_r = |buyruk_16com[11:7];
             `C_ADDI     : cmp_gecerli_r = 1'b1; // c.addi degilse c.noptur
-            `C_ADDI4SPN : cmp_gecerli_r = |buyruk_i[12:5];
+            `C_ADDI4SPN : cmp_gecerli_r = |buyruk_16com[12:5];
             `C_BEQZ     ,
             `C_BNEZ     : cmp_gecerli_r = 1'b1;
             `C_J        ,
             `C_JAL      : cmp_gecerli_r = 1'b1;
-            `C_LI       : |buyruk_i[11:7];
-            `C_LUI      : cmp_gecerli_r = |{buyruk_i[12], buyruk_i[6:2]};
+            `C_LI       : |buyruk_16com[11:7];
+            `C_LUI      : cmp_gecerli_r = |{buyruk_16com[12], buyruk_16com[6:2]};
             `C_LW       : cmp_gecerli_r = 1'b1;
-            `C_LWSP     : cmp_gecerli_r = |buyruk_i[11:7];
+            `C_LWSP     : cmp_gecerli_r = |buyruk_16com[11:7];
             `C_SW       : cmp_gecerli_r = 1'b1;
             `C_SWSP     : cmp_gecerli_r = 1'b1;
             default     : begin
