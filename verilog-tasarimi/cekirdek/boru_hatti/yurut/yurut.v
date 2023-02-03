@@ -10,6 +10,7 @@ module yurut(
 
     // DDB sinyalleri
     output wire ddb_hazir_o,
+    output wire ddb_yonlendir_gecerli_o,
 
     // Coz-Yazmacoku bolumu sinyallleri
     input  wire [`MI_BIT-1:0] cyo_mikroislem_i,
@@ -91,6 +92,7 @@ module yurut(
         .carp_deger1_o (yzh_deger1),
         .carp_deger2_o (yzh_deger2)
     );
+    assign ddb_yonlendir_gecerli_o  = ~((cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA) || (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA));
 
     assign gtr_atlanan_ps_gecerli_o = (cyo_mikroislem_i[`DAL] == `DAL_EQ  ) ?  cyo_lt_ltu_eq_i[0]:
                                       (cyo_mikroislem_i[`DAL] == `DAL_NE  ) ? !cyo_lt_ltu_eq_i[0]:

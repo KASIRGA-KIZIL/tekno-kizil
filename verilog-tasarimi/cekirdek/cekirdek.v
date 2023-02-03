@@ -25,7 +25,6 @@ module cekirdek(
     wire               yrt_yapay_zeka_en_w;
     wire [4:0] ddb_rs1_adres_w;
     wire [4:0] ddb_rs2_adres_w;
-    wire       ddb_gecersiz_buyruk_w;
 
     /*wire  l1b_chip_select_n_o;*/
     wire [31:0] cyo_buyruk_w;
@@ -40,6 +39,8 @@ module cekirdek(
     wire [31:0] gy_carpma_deger_w;
     wire [ 2:0] gy_mikroislem_w;
     wire [31:0] cyo_yonlendir_deger_w;
+
+    wire yrt_yonlendir_gecerli_w;
 
     wire [ 4:0] cyo_yaz_adres_w;
     wire [31:0] cyo_yaz_deger_w;
@@ -80,6 +81,7 @@ module cekirdek(
         .clk_i (clk_i ),
         .rst_i (rst_i ),
         .ddb_hazir_o (yrt_hazir_w),
+        .ddb_yonlendir_gecerli_o (yrt_yonlendir_gecerli_w),
 
         .cyo_mikroislem_i    (yrt_mikroislem_w      ),
         .cyo_rd_adres_i      (yrt_rd_adres_w        ),
@@ -159,9 +161,10 @@ module cekirdek(
         .cyo_yonlendir_kontrol2_o (cyo_yonlendir_kontrol2_w),
         .cyo_durdur_o             (cyo_durdur_w            ),
         .cyo_bosalt_o             (cyo_bosalt_w            ),
-        .yrt_yaz_yazmac_i (yrt_mikroislem_w[`YAZMAC]),
-        .yrt_hazir_i      (yrt_hazir_w   ),
-        .yrt_rd_adres_i   (yrt_rd_adres_w),
+        .yrt_yaz_yazmac_i       (yrt_mikroislem_w[`YAZMAC]),
+        .yrt_hazir_i            (yrt_hazir_w   ),
+        .yrt_rd_adres_i         (yrt_rd_adres_w),
+        .yrt_yonlendir_gecerli_i(yrt_yonlendir_gecerli_w),
         .gy_yaz_yazmac_i (cyo_yaz_yazmac_w),
         .gy_rd_adres_i   (cyo_yaz_adres_w )
     );

@@ -123,6 +123,7 @@ module getir (
                 end
             end
         endcase
+        ps_next = ddb_durdur_i ? ps : ps_next;
     end
 
 
