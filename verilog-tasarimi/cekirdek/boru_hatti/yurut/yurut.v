@@ -22,7 +22,6 @@ module yurut(
 
     // Branch ve Jump buyruklari icin. Hepsi ayni cevrimde gidecek
     input  wire [ 2:0] cyo_lt_ltu_eq_i,                // Degerler arasindaki iliski. cyo_lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
-    input  wire [ 2:0] cyo_buyruk_tipi_i,              // J veya B veya digertip. Eger J tipiyse direkt atlanilacak. B tipiyse kosula bakilcak.
     output wire [31:1] gtr_atlanan_ps_o,               // Atlanilan yeni program sayaci, pc+imm veya rs1+imm degerini tasiyor.
     output wire        gtr_atlanan_ps_gecerli_o,       // Yeni program sayacinin gecerli olup olmadiginin sinyali. J tipinde hep gecerli
 
@@ -94,22 +93,22 @@ module yurut(
         .carp_deger2_o (yzh_deger2)
     );
 
-    wire dallanma_kosulu_w = (cyo_mikroislem_i[`DAL] == `DAL_EQ ) ?  cyo_lt_ltu_eq_i[0]:
-                             (cyo_mikroislem_i[`DAL] == `DAL_NE ) ? !cyo_lt_ltu_eq_i[0]:
-                             (cyo_mikroislem_i[`DAL] == `DAL_LT ) ?  cyo_lt_ltu_eq_i[2]:
-                             (cyo_mikroislem_i[`DAL] == `DAL_GE ) ? !cyo_lt_ltu_eq_i[2]:
-                             (cyo_mikroislem_i[`DAL] == `DAL_LTU) ?  cyo_lt_ltu_eq_i[1]:
-                             (cyo_mikroislem_i[`DAL] == `DAL_GEU) ? !cyo_lt_ltu_eq_i[1]:
-                             (cyo_mikroislem_i[`DAL] == `DAL_YOK) ? 1'b0               :
-                                                                    1'b0; // x veya ? yerine 0 cunku dallanma_kosulu surekli okunuyor. Kazayla 1 verirsek gecmis olsun.
+    assign gtr_atlanan_ps_gecerli_o = (cyo_mikroislem_i[`DAL] == `DAL_EQ  ) ?  cyo_lt_ltu_eq_i[0]:
+                                      (cyo_mikroislem_i[`DAL] == `DAL_NE  ) ? !cyo_lt_ltu_eq_i[0]:
+                                      (cyo_mikroislem_i[`DAL] == `DAL_LT  ) ?  cyo_lt_ltu_eq_i[2]:
+                                      (cyo_mikroislem_i[`DAL] == `DAL_GE  ) ? !cyo_lt_ltu_eq_i[2]:
+                                      (cyo_mikroislem_i[`DAL] == `DAL_LTU ) ?  cyo_lt_ltu_eq_i[1]:
+                                      (cyo_mikroislem_i[`DAL] == `DAL_GEU ) ? !cyo_lt_ltu_eq_i[1]:
+                                      (cyo_mikroislem_i[`DAL] == `DAL_JAL ) ?  1'b1              :
+                                      (cyo_mikroislem_i[`DAL] == `DAL_JALR) ?  1'b1              :
+                                      (cyo_mikroislem_i[`DAL] == `DAL_YOK ) ?  1'b0              :
+                                                                               1'b0; // x veya ? yerine 0 cunku dallanma_kosulu surekli okunuyor. Kazayla 1 verirsek gecmis olsun.
 
 
     wire [31:0] rd_deger_sonraki_w = (cyo_mikroislem_i[`BIRIM] == `BIRIM_AMB      ) ? amb_sonuc_w      :
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ? bol_sonuc_w      :
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_SIFRELEME) ? sifreleme_sonuc_w:
-                                                                                    32'hxxxx_xxxx;
-
-    assign gtr_atlanan_ps_gecerli_o = (cyo_buyruk_tipi_i == `J_Tipi) || ((cyo_buyruk_tipi_i == `B_Tipi) && dallanma_kosulu_w);
+                                                                                      32'hxxxx_xxxx;
 
     assign gtr_atlanan_ps_o = amb_sonuc_w[31:1];
 

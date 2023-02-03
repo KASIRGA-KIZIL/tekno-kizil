@@ -57,9 +57,10 @@ module getir (
         tahmin_et    = 1'b0;
         case(l1b_deger_i[6:2])
             5'b11000: begin tahmin_et = 1'b1; end // B-tipi
+            5'b11001,
             5'b11011: begin tahmin_et = 1'b1;
                             buyruk_jtipi = 1'b1;
-            end // jal
+            end // jalr ve jal
             default:  begin tahmin_et = 1'b0; end
         endcase
     end

@@ -13,6 +13,8 @@ from cocotb.handle import SimHandleBase
 from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
+TIMEOUT = 1000
+
 riscv_tests = {}
 riscv_tests["auipc"] = {
     "TEST_FILE": "./data/rv32ui-p-auipc_static.hex",
@@ -30,6 +32,12 @@ riscv_tests["lui"] = {
     "TEST_FILE": "./data/rv32ui-p-lui_static.hex",
     "fail_adr": 0x4000007c,
     "pass_adr": 0x40000090,
+    "buyruklar": []
+}
+riscv_tests["jalr"] = {
+    "TEST_FILE": "./data/rv32ui-p-jalr_static.hex",
+    "fail_adr": 0x40000110,
+    "pass_adr": 0x40000124,
     "buyruklar": []
 }
 
@@ -59,7 +67,7 @@ async def anabellek(dut):
                 assert 0
             await RisingEdge(dut.clk_i)
             timout = timout + 1
-            if(timout > 100):
+            if(timout > TIMEOUT):
                 print("[TEST] ", test, " FAILED TIMOUT")
                 assert 0
                 break

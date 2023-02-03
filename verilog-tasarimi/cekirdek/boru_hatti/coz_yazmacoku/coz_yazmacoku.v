@@ -18,7 +18,6 @@ module coz_yazmacoku(
     output reg [       31:0] yrt_deger1_o,             // Yurut birim girdileri. Yonlendirme ve Immediate secilmis son degerler.
     output reg [       31:0] yrt_deger2_o,
     output reg [        2:0] yrt_lt_ltu_eq_o,          // Dallanma ve atlama icin gerekli. Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
-    output reg [        2:0] yrt_buyruk_tipi_o,        // J veya B tipi veya digertip, branch/jump buyruklari icin
     output reg               yrt_yapay_zeka_en_o,      // Yapay zeka biriminin rs2 icin yazma(enable) sinyali
 
     //
@@ -179,7 +178,6 @@ module coz_yazmacoku(
         if (rst_i) begin
             yrt_mikroislem_o      <= 0;
             yrt_lt_ltu_eq_o       <= 0;
-            yrt_buyruk_tipi_o     <= 0;
         end
         else begin
             if(!ddb_durdur_i) begin
@@ -190,7 +188,6 @@ module coz_yazmacoku(
                 yrt_yapay_zeka_en_o   <= gtr_buyruk_i[31];
                 yrt_lt_ltu_eq_o       <= {lt_w,ltu_w,eq_w};
                 yrt_ps_artmis_o       <= gtr_ps_artmis_i;
-                yrt_buyruk_tipi_o     <= ddb_bosalt_i ? `I_Tipi : buyruk_tipi_r;
             end
         end
     end
