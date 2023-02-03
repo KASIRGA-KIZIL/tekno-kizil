@@ -13,7 +13,7 @@ from cocotb.handle import SimHandleBase
 from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
-TIMEOUT = 1000
+TIMEOUT = 10000
 
 riscv_tests = {}
 riscv_tests["auipc"] = {
@@ -40,7 +40,66 @@ riscv_tests["jalr"] = {
     "pass_adr": 0x40000124,
     "buyruklar": []
 }
+riscv_tests["andi"] = {
+    "TEST_FILE": "./data/rv32ui-p-andi_static.hex",
+    "fail_adr": 0x400001dc,
+    "pass_adr": 0x400001f0,
+    "buyruklar": []
+}
+riscv_tests["ori"] = {
+    "TEST_FILE": "./data/rv32ui-p-ori_static.hex",
+    "fail_adr": 0x400001f8,
+    "pass_adr": 0x4000020c,
+    "buyruklar": []
+}
+riscv_tests["xori"] = {
+    "TEST_FILE": "./data/rv32ui-p-xori_static.hex",
+    "fail_adr": 0x40000200,
+    "pass_adr": 0x40000214,
+    "buyruklar": []
+}
+riscv_tests["addi"] = {
+    "TEST_FILE": "./data/rv32ui-p-addi_static.hex",
+    "fail_adr": 0x400002a4,
+    "pass_adr": 0x400002b8,
+    "buyruklar": []
+}
+riscv_tests["andi"] = {
+    "TEST_FILE": "./data/rv32ui-p-andi_static.hex",
+    "fail_adr": 0x400001dc,
+    "pass_adr": 0x400001f0,
+    "buyruklar": []
+}
+riscv_tests["slli"] = {
+    "TEST_FILE": "./data/rv32ui-p-slli_static.hex",
+    "fail_adr": 0x400002a0,
+    "pass_adr": 0x400002b4,
+    "buyruklar": []
+}
+riscv_tests["slti"] = {
+    "TEST_FILE": "./data/rv32ui-p-slti_static.hex",
+    "fail_adr": 0x40000290,
+    "pass_adr": 0x400002a4,
+    "buyruklar": []
+}
 
+
+"""
+riscv_tests["bge"] = {
+    "TEST_FILE": "./data/rv32ui-p-bge_static.hex",
+    "fail_adr": 0x4000033c,
+    "pass_adr": 0x40000350,
+    "buyruklar": []
+}
+
+
+riscv_tests["add"] = {
+    "TEST_FILE": "./data/rv32ui-p-add_static.hex",
+    "fail_adr": 0x400004fc,
+    "pass_adr": 0x40000510,
+    "buyruklar": []
+}
+"""
 @cocotb.coroutine
 async def buyruklari_oku():
     for test in riscv_tests:

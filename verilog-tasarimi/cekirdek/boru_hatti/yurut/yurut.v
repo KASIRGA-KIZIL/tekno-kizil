@@ -45,7 +45,6 @@ module yurut(
         .kontrol(cyo_mikroislem_i[`AMB]),
         .deger1_i(cyo_deger1_i),
         .deger2_i(cyo_deger2_i),
-        .lt_ltu_i(cyo_lt_ltu_eq_i[2:1]),
         .sonuc_o(amb_sonuc_w)
     );
 
