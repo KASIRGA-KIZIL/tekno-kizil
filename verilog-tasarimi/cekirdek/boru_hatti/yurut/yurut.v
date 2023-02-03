@@ -120,6 +120,18 @@ module yurut(
         .carp_deger1_o (yzh_deger1),
         .carp_deger2_o (yzh_deger2)
     );
+
+    wire bol_bitti_w;
+    bolme_birimi bolb(
+      .clk_i (clk_i),
+      .rst_i (rst_i),
+      .islem_i (cyo_mikroislem_i[`BOLME]),
+      .bolunen_i (cyo_deger1_i),
+      .bolen_i (cyo_deger2_i),
+      .sonuc_o (bol_sonuc_w),
+      .bitti_o  (bol_bitti_w)
+    );
+
     assign ddb_yonlendir_gecerli_o  = ~((cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA) || (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA));
 
     assign gtr_atlanan_ps_gecerli_o = (cyo_mikroislem_i[`DAL] == `DAL_EQ  ) ?  cyo_lt_ltu_eq_i[0]:
@@ -157,7 +169,10 @@ module yurut(
         end
     end
 
-    assign ddb_hazir_o = yzh_bitti;
+    // TODO burayi degistirmeliyiz
+    // yzhye basla yerine reset ve yine bolmeye reset koyabiliriz, burayi degistirmemek icin
+    // reset geliyorsa bitmezler
+    assign ddb_hazir_o = yzh_bitti | bol_bitti_w;
 
     `ifdef COCOTB_SIM
         reg [88*13:1] micro_str;
