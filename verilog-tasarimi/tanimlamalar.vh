@@ -220,10 +220,10 @@
 `define AMB_GECIR    4'ha // deger2 yi aynen gecirsin. sonuc = deger2. LUI icin gerekli
 `define AMB_YOK      4'h0 // Eger BIRIM_AMB degilse icerde ne oldugu onemsiz
 
-`define BOLME_DIV   2'h0
-`define BOLME_DIVU  2'h1
-`define BOLME_REM   2'h2
-`define BOLME_REMU  2'h3
+`define BOLME_DIVU  2'h0
+`define BOLME_REMU  2'h1
+`define BOLME_DIV   2'h2
+`define BOLME_REM   2'h3
 `define BOLME_YOK   2'h0 // Eger BIRIM_BOLME degilse icerde ne oldugu onemsiz
 
 `define CARPMA_MUL    2'h0
