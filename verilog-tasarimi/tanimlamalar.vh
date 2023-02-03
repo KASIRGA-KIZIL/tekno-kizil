@@ -158,7 +158,7 @@
 `define JAL_COZ         14'b?????????11011
 `define LUI_COZ         14'b?????????01101
 
-`define GECERSIZ 18'b00000_0_000000000
+`define GECERSIZ 28'b0000000000000000000000000
 
 //////////// Mikro islemler
 `define GERIYAZ   01:00
