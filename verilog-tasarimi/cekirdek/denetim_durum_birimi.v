@@ -64,7 +64,7 @@ module denetim_durum_birimi(
             bos_basla  <= 1'b1;
         end else begin
             gecersiz[`ASAMA_GETIR]   <= 1'b0;
-            gecersiz[`ASAMA_COZ]     <= (gtr_yanlis_tahmin_i || gtr_durdur_o) ? 1'b1 : gecersiz[`ASAMA_GETIR];
+            gecersiz[`ASAMA_COZ]     <= (gtr_yanlis_tahmin_i) ? 1'b1 : gecersiz[`ASAMA_GETIR];
             gecersiz[`ASAMA_YURUT]   <= (gtr_yanlis_tahmin_i || cyo_durdur_o) ? 1'b1 : gecersiz[`ASAMA_COZ];
             gecersiz[`ASAMA_GERIYAZ] <= gecersiz[`ASAMA_YURUT];
 

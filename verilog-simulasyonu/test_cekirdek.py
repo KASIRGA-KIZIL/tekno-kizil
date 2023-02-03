@@ -196,6 +196,13 @@ riscv_tests["mul"] = {
     "pass_adr": 0x400004f8,
     "buyruklar": []
 }
+riscv_tests["mulh"] = {
+    "TEST_FILE": "./data/rv32um-p-mulh_static.hex",
+    "fail_adr": 0x400004e4,
+    "pass_adr": 0x400004f8,
+    "buyruklar": []
+}
+
 
 @cocotb.coroutine
 async def buyruklari_oku():
