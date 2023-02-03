@@ -21,7 +21,7 @@ module bellek_islem_birimi(
     output wire [31:0] l1v_adr_o,
     output wire [ 3:0] l1v_veri_maske_o,
     output wire        l1v_yaz_gecerli_o,
-    output wire        l1v_sec_o
+    output wire        l1v_sec_n_o
 );
     reg [ 2:0] kontrol;
 
@@ -29,7 +29,7 @@ module bellek_islem_birimi(
 
     assign sonuc_o = l1v_veri_i;
 
-    assign l1v_sec_o = basla_i;
+    assign l1v_sec_n_o = ~basla_i;
 
     assign l1v_veri_maske_o = (kontrol_i == `BIB_SB)  ? 4'b0001 :
                               (kontrol_i == `BIB_SH)  ? 4'b0011 :
