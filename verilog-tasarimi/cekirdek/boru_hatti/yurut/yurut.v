@@ -130,4 +130,74 @@ module yurut(
     end
 
     assign ddb_hazir_o = yzh_bitti;
+
+    `ifdef COCOTB_SIM
+        reg [88*13:1] micro_str;
+        always @* begin
+            case(cyo_mikroislem_i)
+                 `EBREAK_MI:       begin micro_str = "`EBREAK_MI";     end
+                 `ECALL_MI:        begin micro_str = "`ECALL_MI";      end
+                 `CONV_CLR_W_MI:   begin micro_str = "`CONV_CLR_W_MI"; end
+                 `CONV_CLR_X_MI:   begin micro_str = "`CONV_CLR_X_MI"; end
+                 `CONV_RUN_MI:     begin micro_str = "`CONV_RUN_MI";   end
+                 `RVRS_MI:         begin micro_str = "`RVRS_MI";       end
+                 `CNTZ_MI:         begin micro_str = "`CNTZ_MI";       end
+                 `CNTP_MI:         begin micro_str = "`CNTP_MI";       end
+                 `CONV_LD_W_MI:    begin micro_str = "`CONV_LD_W_MI";  end
+                 `CONV_LD_X_MI:    begin micro_str = "`CONV_LD_X_MI";  end
+                 `ADD_MI:          begin micro_str = "`ADD_MI";        end
+                 `AND_MI:          begin micro_str = "`AND_MI";        end
+                 `DIV_MI:          begin micro_str = "`DIV_MI";        end
+                 `DIVU_MI:         begin micro_str = "`DIVU_MI";       end
+                 `MUL_MI:          begin micro_str = "`MUL_MI";        end
+                 `MULH_MI:         begin micro_str = "`MULH_MI";       end
+                 `MULHSU_MI:       begin micro_str = "`MULHSU_MI";     end
+                 `MULHU_MI:        begin micro_str = "`MULHU_MI";      end
+                 `OR_MI:           begin micro_str = "`OR_MI";         end
+                 `REM_MI:          begin micro_str = "`REM_MI";        end
+                 `REMU_MI:         begin micro_str = "`REMU_MI";       end
+                 `SLL_MI:          begin micro_str = "`SLL_MI";        end
+                 `SLT_MI:          begin micro_str = "`SLT_MI";        end
+                 `SLTU_MI:         begin micro_str = "`SLTU_MI";       end
+                 `SRA_MI:          begin micro_str = "`SRA_MI";        end
+                 `SRL_MI:          begin micro_str = "`SRL_MI";        end
+                 `SUB_MI:          begin micro_str = "`SUB_MI";        end
+                 `XOR_MI:          begin micro_str = "`XOR_MI";        end
+                 `HMDST_MI:        begin micro_str = "`HMDST_MI";      end
+                 `PKG_MI:          begin micro_str = "`PKG_MI";        end
+                 `SLADD_MI:        begin micro_str = "`SLADD_MI";      end
+                 `SLLI_MI:         begin micro_str = "`SLLI_MI";       end
+                 `SRAI_MI:         begin micro_str = "`SRAI_MI";       end
+                 `SRLI_MI:         begin micro_str = "`SRLI_MI";       end
+                 `ADDI_MI:         begin micro_str = "`ADDI_MI";       end
+                 `ANDI_MI:         begin micro_str = "`ANDI_MI";       end
+                 `BEQ_MI:          begin micro_str = "`BEQ_MI";        end
+                 `BGE_MI:          begin micro_str = "`BGE_MI";        end
+                 `BGEU_MI:         begin micro_str = "`BGEU_MI";       end
+                 `BLT_MI:          begin micro_str = "`BLT_MI";        end
+                 `BLTU_MI:         begin micro_str = "`BLTU_MI";       end
+                 `BNE_MI:          begin micro_str = "`BNE_MI";        end
+                 `FENCE_MI:        begin micro_str = "`FENCE_MI";      end
+                 `FENCE_I_MI:      begin micro_str = "`FENCE_I_MI";    end
+                 `JALR_MI:         begin micro_str = "`JALR_MI";       end
+                 `LB_MI:           begin micro_str = "`LB_MI";         end
+                 `LBU_MI:          begin micro_str = "`LBU_MI";        end
+                 `LH_MI:           begin micro_str = "`LH_MI";         end
+                 `LHU_MI:          begin micro_str = "`LHU_MI";        end
+                 `LW_MI:           begin micro_str = "`LW_MI";         end
+                 `ORI_MI:          begin micro_str = "`ORI_MI";        end
+                 `SB_MI:           begin micro_str = "`SB_MI";         end
+                 `SH_MI:           begin micro_str = "`SH_MI";         end
+                 `SLTI_MI:         begin micro_str = "`SLTI_MI";       end
+                 `SLTIU_MI:        begin micro_str = "`SLTIU_MI";      end
+                 `SW_MI:           begin micro_str = "`SW_MI";         end
+                 `XORI_MI:         begin micro_str = "`XORI_MI";       end
+                 `AUIPC_MI:        begin micro_str = "`AUIPC_MI";      end
+                 `JAL_MI:          begin micro_str = "`JAL_MI";        end
+                 `LUI_MI:          begin micro_str = "`LUI_MI";        end
+                default:           begin micro_str  = "DEFAULT_MI";    end
+            endcase
+            // $monitor("%s",coz_str);
+        end
+    `endif
 endmodule

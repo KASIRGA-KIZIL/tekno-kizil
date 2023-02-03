@@ -63,3 +63,4 @@ clean::
 		-rm -f *.wlf
 		-rm -f *.fst
 		-rm -f modelsim.ini
+		-rm -f *.vstf

@@ -55,12 +55,12 @@ module denetim_durum_birimi(
 
     always @(posedge clk_i) begin
         if(rst_i)begin
-            gecersiz   <= 4'b1110;
+            gecersiz   <= 4'b1111;
             bos_basla  <= 1'b1;
         end else begin
-            gecersiz[`ASAMA_GETIR]   <= gtr_yanlis_tahmin_i ? 1'b1 : 1'b0;
+            gecersiz[`ASAMA_GETIR]   <= 1'b0;
             gecersiz[`ASAMA_COZ]     <= gtr_yanlis_tahmin_i ? 1'b1 : gecersiz[`ASAMA_GETIR];
-            gecersiz[`ASAMA_YURUT]   <= gecersiz[`ASAMA_COZ];
+            gecersiz[`ASAMA_YURUT]   <= gtr_yanlis_tahmin_i ? 1'b1 : gecersiz[`ASAMA_COZ];
             gecersiz[`ASAMA_GERIYAZ] <= gecersiz[`ASAMA_YURUT];
 
             bos_basla  <= 1'b0;
