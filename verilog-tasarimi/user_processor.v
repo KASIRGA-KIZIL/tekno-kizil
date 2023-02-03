@@ -92,8 +92,8 @@ module user_processor(
       .stall  ( stall)
     );
 
-    wishbone
-    wishbone_dut #(.SLAVE_SAYISI(3))(
+    veriyolu // wishbone
+    veriyolu_dut #(.SLAVE_SAYISI(3))(
         .clk_i (clk_i),
         .rst_i (resetn)
 
