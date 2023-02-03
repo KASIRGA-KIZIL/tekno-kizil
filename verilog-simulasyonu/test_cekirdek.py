@@ -13,7 +13,7 @@ from cocotb.handle import SimHandleBase
 from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
-TIMEOUT = 10000
+TIMEOUT = 15000
 
 riscv_tests = {}
 riscv_tests["auipc"] = {
@@ -200,6 +200,24 @@ riscv_tests["mulh"] = {
     "TEST_FILE": "./data/rv32um-p-mulh_static.hex",
     "fail_adr": 0x400004e4,
     "pass_adr": 0x400004f8,
+    "buyruklar": []
+}
+riscv_tests["mulhu"] = {
+    "TEST_FILE": "./data/rv32um-p-mulhu_static.hex",
+    "fail_adr": 0x400004e4,
+    "pass_adr": 0x400004f8,
+    "buyruklar": []
+}
+riscv_tests["mulhsu"] = {
+    "TEST_FILE": "./data/rv32um-p-mulhsu_static.hex",
+    "fail_adr": 0x400004e4,
+    "pass_adr": 0x400004f8,
+    "buyruklar": []
+}
+riscv_tests["div"] = {
+    "TEST_FILE": "./data/rv32um-p-div_static.hex",
+    "fail_adr": 0x400000f8,
+    "pass_adr": 0x4000010c,
     "buyruklar": []
 }
 
