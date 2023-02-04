@@ -1,7 +1,7 @@
 // user_processor.v (islemci)
 `timescale 1ns / 1ps
 
-//`include "tanimlamalar.vh"
+`include "tanimlamalar.vh"
 
 module user_processor(
     input clk,
@@ -103,13 +103,10 @@ module user_processor(
         .main_addr  (main_l1b_addr ),
         .main_csb   (main_l1b_csb  ),
         .main_dout  (main_l1b_dout ),
-        .main_stall (main_l1b_stall),
+        .main_stall (main_l1b_stall)
     );
 
     anabellek_denetleyici abd (
-        .clk_i (clk ),
-        .rst_i (rst_i ),
-        //
         .iomem_valid (iomem_valid),
         .iomem_ready (iomem_ready),
         .iomem_wstrb (iomem_wstrb),
