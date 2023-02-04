@@ -180,8 +180,7 @@ module yurut(
         reg [88*13:1] micro_str;
         always @* begin
             case(cyo_mikroislem_i)
-                 `EBREAK_MI:       begin micro_str = "`EBREAK_MI";     end
-                 `ECALL_MI:        begin micro_str = "`ECALL_MI";      end
+                 `NOP_MI:          begin micro_str = "`NOP_MI";     end
                  `CONV_CLR_W_MI:   begin micro_str = "`CONV_CLR_W_MI"; end
                  `CONV_CLR_X_MI:   begin micro_str = "`CONV_CLR_X_MI"; end
                  `CONV_RUN_MI:     begin micro_str = "`CONV_RUN_MI";   end
@@ -222,8 +221,6 @@ module yurut(
                  `BLT_MI:          begin micro_str = "`BLT_MI";        end
                  `BLTU_MI:         begin micro_str = "`BLTU_MI";       end
                  `BNE_MI:          begin micro_str = "`BNE_MI";        end
-                 `FENCE_MI:        begin micro_str = "`FENCE_MI";      end
-                 `FENCE_I_MI:      begin micro_str = "`FENCE_I_MI";    end
                  `JALR_MI:         begin micro_str = "`JALR_MI";       end
                  `LB_MI:           begin micro_str = "`LB_MI";         end
                  `LBU_MI:          begin micro_str = "`LBU_MI";        end

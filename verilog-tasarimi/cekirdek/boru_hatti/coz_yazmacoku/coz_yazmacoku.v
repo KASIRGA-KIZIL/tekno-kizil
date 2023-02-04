@@ -74,8 +74,8 @@ module coz_yazmacoku(
         // Cozulmesi gereken bitler 14 bit 30:29, 27, 25, 21:20, 14:12, 6:2
         // bitleri en tamam olandan olmayana kadar gitmek gerek.
         casez(buyruk_coz_w)
-            `EBREAK_COZ:     begin mikroislem_sonraki_r = `EBREAK_MI;    end
-            `ECALL_COZ:      begin mikroislem_sonraki_r = `ECALL_MI;     end
+            `EBREAK_COZ:     begin mikroislem_sonraki_r = `NOP_MI;       end
+            `ECALL_COZ:      begin mikroislem_sonraki_r = `NOP_MI;       end
             `CONV_CLR_W_COZ: begin mikroislem_sonraki_r = `CONV_CLR_W_MI;end
             `CONV_CLR_X_COZ: begin mikroislem_sonraki_r = `CONV_CLR_X_MI;end
             `CONV_RUN_COZ:   begin mikroislem_sonraki_r = `CONV_RUN_MI;  end
@@ -116,8 +116,8 @@ module coz_yazmacoku(
             `BLT_COZ:        begin mikroislem_sonraki_r = `BLT_MI;       end
             `BLTU_COZ:       begin mikroislem_sonraki_r = `BLTU_MI;      end
             `BNE_COZ:        begin mikroislem_sonraki_r = `BNE_MI;       end
-            `FENCE_COZ:      begin mikroislem_sonraki_r = `FENCE_MI;     end
-            `FENCE_I_COZ:    begin mikroislem_sonraki_r = `FENCE_I_MI;   end
+            `FENCE_COZ:      begin mikroislem_sonraki_r = `NOP_MI;       end
+            `FENCE_I_COZ:    begin mikroislem_sonraki_r = `NOP_MI;       end
             `JALR_COZ:       begin mikroislem_sonraki_r = `JALR_MI;      end
             `LB_COZ:         begin mikroislem_sonraki_r = `LB_MI;        end
             `LBU_COZ:        begin mikroislem_sonraki_r = `LBU_MI;       end
@@ -181,7 +181,7 @@ module coz_yazmacoku(
         end
         else begin
             if(!ddb_durdur_i) begin
-                yrt_mikroislem_o      <= ddb_bosalt_i ? 0 : mikroislem_sonraki_r;
+                yrt_mikroislem_o      <= ddb_bosalt_i ? `NOP_MI : mikroislem_sonraki_r;
                 yrt_deger1_o          <= deger1_w;
                 yrt_deger2_o          <= deger2_w;
                 yrt_rd_adres_o        <= gtr_buyruk_i[11:7];
@@ -209,8 +209,8 @@ module coz_yazmacoku(
         reg [88*13:1] coz_str;
         always @* begin
             casez(buyruk_coz_w)
-                `EBREAK_COZ:     begin coz_str = "`EBREAK_MI";     end
-                `ECALL_COZ:      begin coz_str = "`ECALL_MI";      end
+                `EBREAK_COZ:     begin coz_str = "`NOP_MI";        end
+                `ECALL_COZ:      begin coz_str = "`NOP_MI";        end
                 `CONV_CLR_W_COZ: begin coz_str = "`CONV_CLR_W_MI"; end
                 `CONV_CLR_X_COZ: begin coz_str = "`CONV_CLR_X_MI"; end
                 `CONV_RUN_COZ:   begin coz_str = "`CONV_RUN_MI";   end
@@ -251,8 +251,8 @@ module coz_yazmacoku(
                 `BLT_COZ:        begin coz_str = "`BLT_MI";        end
                 `BLTU_COZ:       begin coz_str = "`BLTU_MI";       end
                 `BNE_COZ:        begin coz_str = "`BNE_MI";        end
-                `FENCE_COZ:      begin coz_str = "`FENCE_MI";      end
-                `FENCE_I_COZ:    begin coz_str = "`FENCE_I_MI";    end
+                `FENCE_COZ:      begin coz_str = "`NOP_MI";        end
+                `FENCE_I_COZ:    begin coz_str = "`NOP_MI";        end
                 `JALR_COZ:       begin coz_str = "`JALR_MI";       end
                 `LB_COZ:         begin coz_str = "`LB_MI";         end
                 `LBU_COZ:        begin coz_str = "`LBU_MI";        end

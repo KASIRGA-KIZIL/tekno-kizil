@@ -216,7 +216,7 @@ module getir (
     always @(posedge clk_i) begin
         if (rst_i) begin
             ps               <= ((32'h40000000-4)>>1);
-            cyo_buyruk_o     <= 0;
+            cyo_buyruk_o     <= `EBREAK; // NOP ile ayni. 0-> LB buyruguyla cakisiyor.
             parcaparca       <= 0;
             buyruk_tamponu   <= 0;
             bufferdan_okuyor <= 0;
@@ -225,7 +225,7 @@ module getir (
                 getir_hazir      <= getir_hazir_next;
                 bufferdan_okuyor <= bufferdan_okuyor_next;
                 ps               <= ps_next;
-                cyo_buyruk_o     <= ddb_bosalt_i ? 0 : cyo_buyruk_next;
+                cyo_buyruk_o     <= ddb_bosalt_i ? `EBREAK : cyo_buyruk_next;
                 parcaparca       <= parcaparca_next;
                 buyruk_tamponu   <= l1b_deger_i[31:16];
                 cyo_ps_artmis_o  <= ps_artmis;
@@ -282,8 +282,8 @@ module getir (
 
         always @* begin
             casez(buyruk_coz_debug)
-                `EBREAK_COZ:     begin coz_str_debug = "`EBREAK_MI";     end
-                `ECALL_COZ:      begin coz_str_debug = "`ECALL_MI";      end
+                `EBREAK_COZ:     begin coz_str_debug = "`NOP_MI";        end
+                `ECALL_COZ:      begin coz_str_debug = "`NOP_MI";        end
                 `CONV_CLR_W_COZ: begin coz_str_debug = "`CONV_CLR_W_MI"; end
                 `CONV_CLR_X_COZ: begin coz_str_debug = "`CONV_CLR_X_MI"; end
                 `CONV_RUN_COZ:   begin coz_str_debug = "`CONV_RUN_MI";   end
@@ -324,8 +324,8 @@ module getir (
                 `BLT_COZ:        begin coz_str_debug = "`BLT_MI";        end
                 `BLTU_COZ:       begin coz_str_debug = "`BLTU_MI";       end
                 `BNE_COZ:        begin coz_str_debug = "`BNE_MI";        end
-                `FENCE_COZ:      begin coz_str_debug = "`FENCE_MI";      end
-                `FENCE_I_COZ:    begin coz_str_debug = "`FENCE_I_MI";    end
+                `FENCE_COZ:      begin coz_str_debug = "`NOP_MI";        end
+                `FENCE_I_COZ:    begin coz_str_debug = "`NOP_MI";        end
                 `JALR_COZ:       begin coz_str_debug = "`JALR_MI";       end
                 `LB_COZ:         begin coz_str_debug = "`LB_MI";         end
                 `LBU_COZ:        begin coz_str_debug = "`LBU_MI";        end

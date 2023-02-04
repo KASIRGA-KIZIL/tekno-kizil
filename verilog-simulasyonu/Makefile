@@ -6,7 +6,7 @@
 TOPLEVEL_LANG = verilog
 SIM           = modelsim
 
-MODULE              := test_cekirdek
+MODULE              := test_cekirdek_wrapper
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
@@ -48,8 +48,16 @@ else ifeq ($(MODULE),test_bolme_birimi)
 						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
-else ifeq ($(MODULE),tb_yurut)
-    #VERILOG_SOURCES +=
+else ifeq ($(MODULE),test_cekirdek_wrapper)
+	TOPLEVEL        := cekirdek_wrapper
+    VERILOG_SOURCES +=  $(KAYNAKLAR)/cekirdek/*.v \
+						$(KAYNAKLAR)/bellek/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
 else
     $(error A module was not provided)
 endif
