@@ -25,7 +25,7 @@ module bellek_islem_birimi(
 );
     reg [ 2:0] kontrol;
 
-    assign bitti_o = l1v_durdur_i; // [TODO] 1 cevrim gecikmeli
+    assign bitti_o = basla_i ? ~l1v_durdur_i : 1'b1;
 
     assign sonuc_o = l1v_veri_i;
 
@@ -45,8 +45,11 @@ module bellek_islem_birimi(
                      (kontrol == `BIB_LHU) ? {16'b0,l1v_veri_i[15:0]}                :
                                               l1v_veri_i;
 
+    assign l1v_veri_o = l1v_veri_i;
+    assign l1v_adr_o  = adr_i;
+
     always @(posedge clk_i)begin
-        kontrol <= kontrol_i;
+        kontrol  <= kontrol_i;
     end
 
 endmodule
