@@ -1,22 +1,22 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: TUBITAK TUTEL
-// Engineer: 
-// 
+// Engineer:
+//
 // Create Date: 26.04.2022 15:38:31
 // Design Name: TEKNOFEST
 // Module Name: teknofest_wrapper
 // Project Name: TEKNOFEST
 // Target Devices: Nexys A7
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
+// Tool Versions:
+// Description:
+//
+// Dependencies:
+//
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
-// 
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 module teknofest_wrapper(
@@ -27,12 +27,12 @@ module teknofest_wrapper(
 
   output uart_tx_o,
   input  uart_rx_i,
-  
+
   output spi_cs_o,
   output spi_sck_o,
   output spi_mosi_o,
   input  spi_miso_i,
-  
+
   output pwm0_o,
   output pwm1_o
 );
@@ -129,7 +129,7 @@ teknofest_ram #(
   .NB_COL(4),
   .COL_WIDTH(8),
   .RAM_DEPTH(RAM_DEPTH),
-  .INIT_FILE("")  //Yüklenecek program?n yolu
+  .INIT_FILE("./data/rv32ui-p-auipc_static.hex")  //Yüklenecek program?n yolu
 ) main_memory
 (
   .clk_i           (clk_i ),

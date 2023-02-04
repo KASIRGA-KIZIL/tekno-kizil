@@ -1,19 +1,18 @@
 // user_processor.v (islemci)
 `timescale 1ns / 1ps
 
-`include "tanimlamalar.vh"
+//`include "tanimlamalar.vh"
 
 module user_processor(
     input clk,
     input resetn,
 
-    output iomem_valid,
-    input iomem_ready,
-
-    output [3:0] iomem_wstrb,
+    output        iomem_valid,
+    input         iomem_ready,
+    output [ 3:0] iomem_wstrb,
     output [31:0] iomem_addr,
     output [31:0] iomem_wdata,
-    input [31:0] iomem_rdata,
+    input  [31:0] iomem_rdata,
 
     output spi_cs_o,
     output spi_sck_o,
@@ -21,110 +20,115 @@ module user_processor(
     output spi_miso_i,
 
     output uart_tx_o,
-    input uart_rx_i,
+    input  uart_rx_i,
 
     output pwm0_o,
     output pwm1_o
 );
+    wire rst_i = ~resetn;
 
-    cekirdek 
-    cekirdek_dut (
-      .clk_i (clk ),
-      .rst_i (resetn ),
-      .l1b_bekle_i (l1b_bekle_i ),
-      .l1b_deger_i (l1b_deger_i ),
-      .l1b_chip_select_n_o (l1b_chip_select_n_o ),
-      .l1b_adres_o  (l1b_adres_o)
-    );
+    wire [31:0] l1v_veri_i;
+    wire [31:0] l1v_veri_o;
+    wire [31:0] l1v_adr_o;
+    wire [ 3:0] l1v_veri_maske_o;
+    wire        l1v_durdur_i;
+    wire        l1v_yaz_gecerli_o;
+    wire        l1v_sec_n_o;
 
-    anabellek_denetleyici 
-    anabellek_denetleyici_dut (
-      .clk_i (clk ),
-      .rst_i (resetn ),
-      .ddb_durdur (ddb_durdur ),
-      .iomem_valid (iomem_valid ),
-      .iomem_ready (iomem_ready ),
-      .iomem_wstrb (iomem_wstrb ),
-      .iomem_addr (iomem_addr ),
-      .iomem_wdata (iomem_wdata ),
-      .iomem_rdata (iomem_rdata ),
-      .go_csb (go_csb ),
-      .go_web (go_web ),
-      .go_addr (go_addr ),
-      .go_din (go_din ),
-      .go_dot (go_dot ),
-      .go_oku_valid (go_oku_valid ),
-      .go_stall (go_stall ),
-      .yo_csb (yo_csb ),
-      .yo_web (yo_web ),
-      .yo_addr (yo_addr ),
-      .yo_din (yo_din ),
-      .yo_dot (yo_dot ),
-      .yo_oku_valid (yo_oku_valid ),
-      .yo_stall  (yo_stall)
-    );
+    wire        l1b_bekle_i;
+    wire [31:0] l1b_deger_i;
+    wire [31:0] l1b_adres_o;
+    wire        l1b_chip_select_n_o;
 
-    buyruk_onbellegi 
-    buyruk_onbellegi_dut (
-      .addr (addr ),
-      .clk (clk ),
-      .csb (csb ),
-      .dout (dout ),
-      .main_addr (main_addr ),
-      .main_csb (main_csb ),
-      .main_dout (main_dout ),
-      .main_stall (main_stall ),
-      .rst (resetn ),
-      .stall  ( stall)
-    );
-
-    veri_onbellegi 
-    veri_onbellegi_dut (
-      .addr (addr ),
-      .clk (clk ),
-      .csb (csb ),
-      .dout (dout ),
-      .main_addr (main_addr ),
-      .main_csb (main_csb ),
-      .main_dout (main_dout ),
-      .main_stall (main_stall ),
-      .rst (resetn ),
-      .stall  ( stall)
-    );
-
-    veriyolu // wishbone
-    veriyolu_dut #(.SLAVE_SAYISI(3))(
+    cekirdek cek (
         .clk_i (clk_i),
-        .rst_i (resetn)
-
-
+        .rst_i (rst_i),
+        //
+        .l1b_bekle_i        (l1b_bekle_i        ),
+        .l1b_deger_i        (l1b_deger_i        ),
+        .l1b_adres_o        (l1b_adres_o        ),
+        .l1b_chip_select_n_o(l1b_chip_select_n_o),
+        //
+        .l1v_veri_i       (l1v_veri_i       ),
+        .l1v_durdur_i     (l1v_durdur_i     ),
+        .l1v_veri_o       (l1v_veri_o       ),
+        .l1v_adr_o        (l1v_adr_o        ),
+        .l1v_veri_maske_o (l1v_veri_maske_o ),
+        .l1v_yaz_gecerli_o(l1v_yaz_gecerli_o),
+        .l1v_sec_n_o      (l1v_sec_n_o      )
     );
 
-    uart_denetleyici
-    uart_denetleyici_dut(
-       .clk_i(clk),
-       .rst_i(resetn),
-       .uart_tx_o(uart_tx_o),
-       .uart_rx_i(uart_rx_i)
-   );
 
-    spi_denetleyici 
-    spi_denetleyici_dut(
-       .clk_i(clk),
-       .rst_i(resetn),
-       .spi_cs_o(spi_cs_o),
-       .spi_sck_o(spi_sck_o),
-       .spi_mosi_o(spi_mosi_o),
-       .spi_miso_i(spi_miso_i)    
-   );
+    wire [10:0] main_l1v_addr;
+    wire [31:0] main_l1v_din;
+    wire [31:0] main_l1v_dout;
+    wire        main_l1v_csb;
+    wire        main_l1v_stall;
+    wire        main_l1v_web;
+    // [TODO] l1v <-> cpu olmamali. l1b <-> veriyolu <-> cpu olmali. Gecici olarak direkt cach'e baglandi.
+    // Wishbone master <-> veriyolu kodu yazilmali vs.
+    wire [31:0] real_adr = {2'b0,l1v_adr_o[29:0]};
+    veri_onbellegi vo (
+        .clk  (clk_i ),
+        .rst  (rst_i ),
+        .addr   (real_adr         ),
+        .csb    (l1v_sec_n_o      ),
+        .din    (l1v_veri_o       ),
+        .dout   (l1v_veri_i       ),
+        .stall  (l1v_durdur_i     ),
+        .web    (l1v_yaz_gecerli_o),
+        .wmask  (l1v_veri_maske_o ),
+        .main_addr  (main_l1v_addr ),
+        .main_csb   (main_l1v_csb  ),
+        .main_din   (main_l1v_din  ),
+        .main_dout  (main_l1v_dout ),
+        .main_stall (main_l1v_stall),
+        .main_web   (main_l1v_web  )
+    );
 
-    pwm_denetleyici
-    pwm_denetleyici_dut(
-       .clk_i(clk),
-       .rst_i(resetn),
-       .pwm0_o(pwm0_o),
-       .pwm1_o(pwm1_o)
-   );
+    wire [10:0] main_l1b_addr;
+    wire [31:0] main_l1b_dout;
+    wire        main_l1b_csb;
+    wire        main_l1b_stall;
 
+    buyruk_onbellegi bo (
+        .clk (clk_i ),
+        .rst (rst_i ),
+        //
+        .addr   (l1b_adres_o        ),
+        .csb    (l1b_chip_select_n_o),
+        .dout   (l1b_deger_i        ),
+        .stall  (l1b_bekle_i        ),
+        //
+        .main_addr  (main_l1b_addr ),
+        .main_csb   (main_l1b_csb  ),
+        .main_dout  (main_l1b_dout ),
+        .main_stall (main_l1b_stall),
+    );
+
+    anabellek_denetleyici abd (
+        .clk_i (clk ),
+        .rst_i (rst_i ),
+        //
+        .iomem_valid (iomem_valid),
+        .iomem_ready (iomem_ready),
+        .iomem_wstrb (iomem_wstrb),
+        .iomem_addr  (iomem_addr ),
+        .iomem_wdata (iomem_wdata),
+        .iomem_rdata (iomem_rdata),
+        //
+        .l1b_addr  (main_l1b_addr ),
+        .l1b_dot   (main_l1b_dout ),
+        .l1b_csb   (main_l1b_csb  ),
+        .l1b_stall (main_l1b_stall),
+        //
+        .l1v_addr      (main_l1v_addr ),
+        .l1v_csb       (main_l1v_csb  ),
+        .l1v_din       (main_l1v_din  ),
+        .l1v_dot       (main_l1v_dout ),
+        .l1v_stall     (main_l1v_stall),
+        .l1v_web       (main_l1v_web  )
+    );
 
 endmodule
+

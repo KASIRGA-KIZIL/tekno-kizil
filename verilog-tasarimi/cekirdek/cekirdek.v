@@ -21,7 +21,6 @@ module cekirdek(
     output wire [ 3:0] l1v_veri_maske_o,
     output wire        l1v_yaz_gecerli_o,
     output wire        l1v_sec_n_o
-
 );
 
     wire [31:1] l1b_adr_w;
