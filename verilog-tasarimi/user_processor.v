@@ -25,6 +25,7 @@ module user_processor(
     output pwm0_o,
     output pwm1_o
 );
+    wire clk_i = clk;
     wire rst_i = ~resetn;
 
     wire [31:0] l1v_veri_i;

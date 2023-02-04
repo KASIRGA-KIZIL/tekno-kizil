@@ -29,9 +29,9 @@ module getir (
         output reg  [31:0] cyo_buyruk_o,
         output reg  [31:1] cyo_ps_artmis_o,
         output reg  [31:1] cyo_ps_o
+);
 
-        // Coz ve L1 Buyruk Onbellegi
-    );
+    assign l1b_chip_select_n_o = 1'b0;
 
     reg  [15:0] buyruk_tamponu;
     reg  [31:1] ps;

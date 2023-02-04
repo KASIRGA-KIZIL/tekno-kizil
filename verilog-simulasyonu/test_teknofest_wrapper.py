@@ -35,28 +35,29 @@ async def anabellek(dut):
     timout = 0
     await RisingEdge(dut.clk_i)
     for test in riscv_tests:
+        dut.rst_ni.value = 0
+        await RisingEdge(dut.clk_i)
+        for index, buyruk in enumerate(riscv_tests[test]["buyruklar"]):
+            dut.main_memory.ram[index] = int(buyruk,16)
+        await RisingEdge(dut.clk_i)
+        dut.rst_ni.value = 1
         while(1):
-            memidx = (dut.l1b_adres_o.value.integer-0x40000000) >> 2
             try:
-                dut.l1b_deger_i.value = int(riscv_tests[test]["buyruklar"][memidx],16)
+                if(riscv_tests[test]["pass_adr"] == dut.soc.cek.l1b_adres_o.value.integer):
+                    print("[TEST] ", test, " passed")
+                    break
+                if(riscv_tests[test]["fail_adr"] == dut.soc.cek.l1b_adres_o.value.integer):
+                    print("[TEST] ", test, " FAILED")
+                    assert 0
+                    break
             except:
-                print("Bos adres: {}".format(memidx))
-            if(riscv_tests[test]["pass_adr"] == dut.l1b_adres_o.value.integer):
-                print("[TEST] ", test, " passed")
-                break
-            if(riscv_tests[test]["fail_adr"] == dut.l1b_adres_o.value.integer):
-                print("[TEST] ", test, " FAILED")
-                assert 0
+                print("[WARNING] ADR is XXXXXXXXX")
             await RisingEdge(dut.clk_i)
             timout = timout + 1
             if(timout > TIMEOUT):
                 print("[TEST] ", test, " FAILED TIMOUT")
                 assert 0
                 break
-        dut.rst_i.value = 1
-        await RisingEdge(dut.clk_i)
-        await RisingEdge(dut.clk_i)
-        dut.rst_i.value = 0
 
 @cocotb.test()
 async def test_teknofest_wrapper(dut):
@@ -64,10 +65,9 @@ async def test_teknofest_wrapper(dut):
 
     await cocotb.start(Clock(dut.clk_i, 10, 'ns').start(start_high=False))
 
-    dut.rst_i.value = 1
+    dut.rst_ni.value = 0
     await RisingEdge(dut.clk_i)
     await RisingEdge(dut.clk_i)
+    dut.rst_ni.value = 1
     blk = cocotb.start_soon(anabellek(dut))
-    dut.rst_i.value = 0
-    dut.l1b_bekle_i.value = 0
     await blk
