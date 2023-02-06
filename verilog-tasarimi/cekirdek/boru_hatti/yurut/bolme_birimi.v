@@ -49,7 +49,7 @@ module bolme_birimi(
 		if(basla_i) begin
 			bitti_sonraki_r = 0;
 
-            casez({cevrim_r[33], cevrim_r[0]})
+            case({cevrim_r[33], cevrim_r[0]})
                 2'b01: begin // ilk cevrim
                     isaret_bolen_r = bolen_i[31];
 				    isaret_bolunen_r = bolunen_i[31];
