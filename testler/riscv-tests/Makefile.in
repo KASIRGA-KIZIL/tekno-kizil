@@ -13,7 +13,7 @@ isa_src_dir     := $(abs_top_src_dir)/isa
 debug_src_dir   := $(abs_top_src_dir)/debug
 
 all: 
-	$(MAKE) benchmarks 
+	#$(MAKE) benchmarks 
 	$(MAKE) isa DCSRLI=$(DCSRLI)
 
 CSRLI:

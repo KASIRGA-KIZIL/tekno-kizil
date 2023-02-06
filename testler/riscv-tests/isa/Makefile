@@ -22,6 +22,7 @@ endif
 include $(src_dir)/rv32ui/Makefrag
 include $(src_dir)/rv32uc/Makefrag
 include $(src_dir)/rv32um/Makefrag
+include $(src_dir)/rv32ux/Makefrag
 #include $(src_dir)/rv32ua/Makefrag
 #include $(src_dir)/rv32uf/Makefrag
 #include $(src_dir)/rv32ud/Makefrag
@@ -35,7 +36,7 @@ default: all
 # Build rules
 #--------------------------------------------------------------------
 
-RISCV_PREFIX ?= riscv$(XLEN)-unknown-elf-
+RISCV_PREFIX ?= riscv32-unknown-elf-
 RISCV_GCC ?= $(RISCV_PREFIX)gcc
 RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles $(DCSRLI) -march=rv32imc -mabi=ilp32
 RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.text.init --section=.data -M no-aliases 
@@ -83,6 +84,8 @@ tests += $$($(1)_tests)
 endif
 
 endef
+
+$(eval $(call compile_template,rv32ux,-march=rv32g -mabi=ilp32))
 
 $(eval $(call compile_template,rv32ui,-march=rv32g -mabi=ilp32))
 $(eval $(call compile_template,rv32uc,-march=rv32g -mabi=ilp32))

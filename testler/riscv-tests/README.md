@@ -4,7 +4,7 @@ riscv-tests
 ## ÖRNEK CSRLI
 
 ```bash
-export PATH=/home/shc/projects/riscv64-toolchain/bin:$PATH
+export PATH=/home/shc/projects/tubitak-riscv-toolchain/bin:$PATH
 autoconf
 ./configure
 make CSRLI
