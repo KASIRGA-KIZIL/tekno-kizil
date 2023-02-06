@@ -128,7 +128,7 @@ module bolme_birimi(
 	end
 
 	always @(posedge clk_i)begin
-		if(rst_i) begin
+		if(rst_i | !basla_i) begin
 			bolen_r <= 0; 
 			bolunen_r <= 0;
 			fark_r <= 0;
