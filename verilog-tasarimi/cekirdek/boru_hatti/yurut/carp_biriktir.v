@@ -42,6 +42,7 @@
 module carp_biriktir(
     input wire clk_i,
     input wire rst_i,
+    input wire biriktir_i,
     input wire [32:0] IN1,
     input wire [32:0] IN2,
     output reg [66:0] result);
@@ -191,12 +192,17 @@ wire [67:0] adder_result;
 KS_67 final_adder ({1'b1, m1_0[65], c64, c63, c62, c61, c60, c59, c58, c57, c56, c55, c54, c53, c52, c51, c50, c49, c48, c47, c46, c45, c44, c43, c42, c41, c40, c39, c38, c37, c36, c35, c34, c33, c32, c31, c30, c29, c28, c27, c26, c25, c24, c23, c22, c21, c20, c19, c18, c17, c16, c15, c14, c13, c12, c11, c10, c9, c8, c7, c6, c5, c4, c3, c2, c1, IN3[0] }, {1'b0, c65, s65, s64, s63, s62, s61, s60, s59, s58, s57, s56, s55, s54, s53, s52, s51, s50, s49, s48, s47, s46, s45, s44, s43, s42, s41, s40, s39, s38, s37, s36, s35, s34, s33, s32, s31, s30, s29, s28, s27, s26, s25, s24, s23, s22, s21, s20, s19, s18, s17, s16, s15, s14, s13, s12, s11, s10, s9, s8, s7, s6, s5, s4, s3, s2, s1 }, adder_result );
 always @(posedge clk_i) begin
     if(rst_i)begin
-        IN3 <= 33'b0;
-    end else begin
-        IN3 <= adder_result[32:0];
+        result <= 0;
+    end 
+    else begin
+        if(biriktir_i) begin
+            IN3 <= adder_result[32:0];
+        end
+        else begin
+            IN3 <= 33'b0;
+        end
+        result <= adder_result[66:0];
     end
-
-    result <= adder_result[66:0];
 end
 
 endmodule

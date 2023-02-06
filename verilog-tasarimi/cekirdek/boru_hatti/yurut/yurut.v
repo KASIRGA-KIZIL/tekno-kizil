@@ -77,10 +77,11 @@ module yurut(
                               (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ? yzh_deger2    :
                                                                                32'bx;
 
-    wire cb_rst = rst_i | (cyo_mikroislem_i[`BIRIM] != `BIRIM_YAPAYZEKA);
+    wire biriktir_w = (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA);
     carpma_birimi cb(
         .clk_i (clk_i ),
-        .rst_i (cb_rst),
+        .rst_i (rst_i),
+        .biriktir_i(biriktir_w),
         .kontrol_i(cyo_mikroislem_i[`CARPMA]),
         .deger1_i (carp_deger1),
         .deger2_i (carp_deger2),
