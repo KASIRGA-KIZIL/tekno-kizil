@@ -1,13 +1,16 @@
+// uart_verici.v
 `timescale 1ns / 1ps
 
+`include "tanimlamalar.vh"
+
 module uart_verici(
-input [7:0]veri_i,
-input tx_en_i,
-input baud_rate_i,
-input clk_i,
-input rst_i,
-output hazir_o,
-output reg tx_o
+    input [7:0]veri_i,
+    input tx_en_i,
+    input baud_rate_i,
+    input clk_i,
+    input rst_i,
+    output hazir_o,
+    output reg tx_o
     );
 localparam HAZIR=  2'b00;
 localparam BASLA=  2'b01;
