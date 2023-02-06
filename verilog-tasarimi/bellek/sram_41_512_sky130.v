@@ -1,24 +1,24 @@
 // OpenRAM SRAM model
 // Words: 512
-// Word size: 32
+// Word size: 41
 
-module buyruk_onbellegi_data_array(
+module sram_41_512_sky130(
 `ifdef USE_POWER_PINS
     vccd1,
     vssd1,
 `endif
 // Port 0: W
-    clk0,csb0,addr0,din0,
+    clk0,csb0,spare_wen0,addr0,din0,
 // Port 1: R
     clk1,csb1,addr1,dout1
   );
 
-  parameter DATA_WIDTH = 32 ;
+  parameter DATA_WIDTH = 42 ;
   parameter ADDR_WIDTH = 9 ;
   parameter RAM_DEPTH = 1 << ADDR_WIDTH;
   // FIXME: This delay is arbitrary.
   parameter DELAY = 3 ;
-  parameter VERBOSE = 1 ; //Set to 0 to only display warnings
+  parameter VERBOSE = 0 ; //Set to 0 to only display warnings
   parameter T_HOLD = 1 ; //Delay to hold dout value after posedge. Value is arbitrary
 
 `ifdef USE_POWER_PINS
@@ -28,6 +28,7 @@ module buyruk_onbellegi_data_array(
   input  clk0; // clock
   input   csb0; // active low chip select
   input [ADDR_WIDTH-1:0]  addr0;
+  input           spare_wen0; // spare mask
   input [DATA_WIDTH-1:0]  din0;
   input  clk1; // clock
   input   csb1; // active low chip select
@@ -37,6 +38,7 @@ module buyruk_onbellegi_data_array(
   reg [DATA_WIDTH-1:0]    mem [0:RAM_DEPTH-1];
 
   reg  csb0_reg;
+  reg spare_wen0_reg;
   reg [ADDR_WIDTH-1:0]  addr0_reg;
   reg [DATA_WIDTH-1:0]  din0_reg;
 
@@ -44,6 +46,7 @@ module buyruk_onbellegi_data_array(
   always @(posedge clk0)
   begin
     csb0_reg = csb0;
+    spare_wen0_reg = spare_wen0;
     addr0_reg = addr0;
     din0_reg = din0;
     if ( !csb0_reg && VERBOSE )
@@ -61,8 +64,8 @@ module buyruk_onbellegi_data_array(
     addr1_reg = addr1;
     if (!csb0 && !csb1 && (addr0 == addr1))
          $display($time," WARNING: Writing and reading addr0=%b and addr1=%b simultaneously!",addr0,addr1);
-    #(T_HOLD) dout1 = 32'bx;
-    if ( !csb1_reg && VERBOSE ) 
+    #(T_HOLD) dout1 = 41'bx;
+    if ( !csb1_reg && VERBOSE )
       $display($time," Reading %m addr1=%b dout1=%b",addr1_reg,mem[addr1_reg]);
   end
 
@@ -72,7 +75,9 @@ module buyruk_onbellegi_data_array(
   always @ (negedge clk0)
   begin : MEM_WRITE0
     if (!csb0_reg) begin
-        mem[addr0_reg][31:0] = din0_reg[31:0];
+        mem[addr0_reg][39:0] = din0_reg[39:0];
+        if (spare_wen0_reg)
+                mem[addr0_reg][41] = din0_reg[41];
     end
   end
 

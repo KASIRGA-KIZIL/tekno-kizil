@@ -129,7 +129,7 @@ teknofest_ram #(
   .NB_COL(4),
   .COL_WIDTH(8),
   .RAM_DEPTH(RAM_DEPTH),
-  .INIT_FILE("./data/rv32ui-p-auipc_static.hex")  //Yüklenecek program?n yolu
+  .INIT_FILE("")  //Yüklenecek program?n yolu
 ) main_memory
 (
   .clk_i           (clk_i ),

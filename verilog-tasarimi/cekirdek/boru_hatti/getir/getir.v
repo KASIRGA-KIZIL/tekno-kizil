@@ -171,7 +171,7 @@ module getir (
         endcase
     end
 
-    assign ddb_hazir_o = ~l1b_bekle_i && getir_hazir;
+    assign ddb_hazir_o = (~l1b_bekle_i) && getir_hazir;
 
     wire [15:0] buyruk_16com = buyruk_hizali ? l1b_deger_i[15:0] : buyruk_tamponu;
 
@@ -215,12 +215,12 @@ module getir (
 
     always @(posedge clk_i) begin
         if (rst_i) begin
-            ps               <= ((32'h40000000-4)>>1);
+            ps               <= ((32'h40000000)>>1);
             cyo_buyruk_o     <= `EBREAK; // NOP ile ayni. 0-> LB buyruguyla cakisiyor.
             parcaparca       <= 0;
             buyruk_tamponu   <= 0;
             bufferdan_okuyor <= 0;
-            getir_hazir      <= 0;
+            getir_hazir      <= 1;
         end else if(~ddb_durdur_i) begin
                 getir_hazir      <= getir_hazir_next;
                 bufferdan_okuyor <= bufferdan_okuyor_next;
