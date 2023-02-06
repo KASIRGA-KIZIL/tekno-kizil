@@ -220,6 +220,30 @@ riscv_tests["div"] = {
     "pass_adr": 0x4000010c,
     "buyruklar": []
 }
+riscv_tests["div"] = {
+    "TEST_FILE": "./data/rv32um-p-div_static.hex",
+    "fail_adr": 0x400000f8,
+    "pass_adr": 0x4000010c,
+    "buyruklar": []
+}
+riscv_tests["divu"] = {
+    "TEST_FILE": "./data/rv32um-p-divu_static.hex",
+    "fail_adr": 0x400000fc,
+    "pass_adr": 0x40000110,
+    "buyruklar": []
+}
+riscv_tests["rem"] = {
+    "TEST_FILE": "./data/rv32um-p-rem_static.hex",
+    "fail_adr": 0x400000f8,
+    "pass_adr": 0x4000010c,
+    "buyruklar": []
+}
+riscv_tests["remu"] = {
+    "TEST_FILE": "./data/rv32um-p-remu_static.hex",
+    "fail_adr": 0x400000f8,
+    "pass_adr": 0x4000010c,
+    "buyruklar": []
+}
 
 
 @cocotb.coroutine
