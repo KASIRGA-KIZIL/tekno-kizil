@@ -4,9 +4,9 @@
 
 # sim
 TOPLEVEL_LANG = verilog
-SIM           = modelsim
+SIM           = icarus
 
-MODULE              := test_teknofest_wrapper
+MODULE              := test_uart_denetleyici
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
@@ -60,6 +60,19 @@ else ifeq ($(MODULE),test_teknofest_wrapper)
 						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
+else ifeq ($(MODULE),test_uart_denetleyici)
+	TOPLEVEL        := uart_denetleyici
+    VERILOG_SOURCES +=  ../cevreleyici/*.v \
+						$(KAYNAKLAR)/*.v \
+						$(KAYNAKLAR)/cekirdek/*.v \
+						$(KAYNAKLAR)/bellek/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
+						$(KAYNAKLAR)/cevre_birimleri/uart/*.v
 else
     $(error A module was not provided)
 endif
