@@ -4,31 +4,28 @@
 
 
 // Modul taniminda sinyallerin nereden geldigi isminde ddb_ -> denetim durum biriminden gelen/giden sinyal
-// cyo_l1b_adr -> hem coze hem l1b'ye giden sinyal
-module getir (
-        input  wire clk_i,
-        input  wire rst_i,
+module getir1 (
+    input  wire clk_i,
+    input  wire rst_i,
 
-        //  Denetim Durum Birimi
-        input  wire ddb_durdur_i,
-        input  wire ddb_bosalt_i,
-        output wire ddb_hazir_o,
-        output reg  ddb_yanlis_tahmin_o,
+    //  Denetim Durum Birimi
+    input  wire ddb_durdur_i,
+    input  wire ddb_bosalt_i,
+    output wire ddb_hazir_o,
+    output reg  ddb_yanlis_tahmin_o,
 
-        //  L1 Buyruk Onbellegi
-        input  wire        l1b_bekle_i,
-        input  wire [31:0] l1b_deger_i,
-        output wire        l1b_chip_select_n_o,
-        output wire [31:1] l1b_adr_o,
+    //  L1 Buyruk Onbellegi
+    output wire        l1b_chip_select_n_o,
+    output wire [31:1] l1b_adr_o,
 
-        // Yurut
-        input wire        yrt_atlanan_ps_gecerli_i,
-        input wire [31:1] yrt_atlanan_ps_i,
+    // Yurut 
+    input wire        yrt_atlanan_ps_gecerli_i,
+    input wire [31:1] yrt_atlanan_ps_i,
 
-        // Coz Yazmacoku
-        output reg  [31:0] cyo_buyruk_o,
-        output reg  [31:1] cyo_ps_artmis_o,
-        output reg  [31:1] cyo_ps_o
+    // gtr1 <-> gtr2
+    input  wire [1:0]  buyruk_tipi_i,
+    output reg  [31:1] gtr2_ps_artmis_o,
+    output reg  [31:1] gtr2_ps_o
 );
 
     assign l1b_chip_select_n_o = 1'b0;
@@ -52,28 +49,16 @@ module getir (
 
     wire buyruk_ctipi = buyruk_hizali ? ~(l1b_deger_i   [ 1: 0] == 2'b11) :
                                         ~(buyruk_tamponu[ 1: 0] == 2'b11);
-    always @(*) begin
-        buyruk_jtipi = 1'b0;
-        tahmin_et    = 1'b0;
-        case(l1b_deger_i[6:2])
-            5'b11000: begin tahmin_et = 1'b1; end // B-tipi
-            5'b11001,
-            5'b11011: begin tahmin_et = 1'b1;
-                            buyruk_jtipi = 1'b1;
-            end // jalr ve jal
-            default:  begin tahmin_et = 1'b0; end
-        endcase
-    end
-
+    
     dallanma_ongorucu dal_on(
         .clk_i(clk_i),
         .rst_i(rst_i),
         .ddb_durdur_i(ddb_durdur_i),
         // Tahmin okuma.
         .ps_i                  (ps),
-        .buyruk_ctipi_i        (buyruk_ctipi),
-        .buyruk_jtipi_i        (buyruk_jtipi),
-        .tahmin_et_i           (tahmin_et),
+        .buyruk_ctipi_i        (0),
+        .buyruk_jtipi_i        (buyruk_tipi_i[0]),
+        .tahmin_et_i           (buyruk_tipi_i[1]),
         .ongorulen_ps_o        (ongorulen_ps),
         .ongorulen_ps_gecerli_o(ongorulen_ps_gecerli),
         // Kalibrasyon sinyalleri
@@ -89,11 +74,7 @@ module getir (
     reg bufferdan_okuyor;
     always @(*) begin
         ddb_yanlis_tahmin_o = 1'b0;
-        if(buyruk_ctipi) begin
-            ps_artmis = ps + 1; // son bit yok b10  -> b1  oluyor.
-        end else begin
-            ps_artmis = ps + 2; // son bit yok b100 -> b10 oluyor.
-        end
+        ps_artmis = ps + 2; // son bit yok b100 -> b10 oluyor.
         case(hata_duzelt)
             `YANLIS_ATLADI: begin
                 ps_next = yrt_atlanan_ps_i;
@@ -105,11 +86,7 @@ module getir (
             end
             `ATLAMAMALIYDI: begin
                 ddb_yanlis_tahmin_o = 1'b1;
-                if(yrt_buyruk_ctipi) begin
-                    ps_next = yrt_ps + 1; // son bit yok 10 -> 1 oluyor.
-                end else begin
-                    ps_next = yrt_ps + 2; // son bit yok 100 ->10 oluyor.
-                end
+                ps_next = yrt_ps + 2; // son bit yok 100 ->10 oluyor.
             end
             default: begin
                 if(tahmin_et && ongorulen_ps_gecerli) begin
@@ -123,7 +100,7 @@ module getir (
                 end
             end
         endcase
-        ps_next = ddb_durdur_i ? ps : ps_next;
+        // ps_next = ddb_durdur_i ? ps : ps_next;
     end
 
 
@@ -135,42 +112,6 @@ module getir (
     reg getir_hazir_next;
     reg getir_hazir;
     reg [31:0] cyo_buyruk_next;
-    always @(*) begin
-        getir_hazir_next     = 1'b1;
-        bufferdan_okuyor_next = 1'b0;
-        parcaparca_next = 1'b0;
-        casez({parcaparca,buyruk_hizali,buyruk_ctipi})
-            3'b001: begin
-                cyo_buyruk_next = buyruk_genis;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[16][??]"; `endif
-            end
-            3'b010: begin
-                cyo_buyruk_next = l1b_deger_i;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[32_1][32_0]"; `endif
-            end
-            3'b011: begin
-                cyo_buyruk_next = buyruk_genis;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[??][16]"; `endif
-            end
-            3'b000: begin
-                cyo_buyruk_next = 32'hxxxx_xxxx;
-                getir_hazir_next     = 1'b0;
-                parcaparca_next = 1'b1;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[32_0][????]"; `endif
-            end
-            3'b1?0: begin
-                cyo_buyruk_next = {l1b_deger_i[15:0], buyruk_tamponu};
-                parcaparca_next = 1'b1;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[32_0][32_1]"; `endif
-            end
-            3'b1?1: begin
-                cyo_buyruk_next = buyruk_genis;
-                bufferdan_okuyor_next = 1'b1;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[16][32_1]"; `endif
-            end
-        endcase
-    end
-
     assign ddb_hazir_o = (~l1b_bekle_i) && getir_hazir;
 
     wire [15:0] buyruk_16com = buyruk_hizali ? l1b_deger_i[15:0] : buyruk_tamponu;
@@ -235,46 +176,6 @@ module getir (
 
     // [TODO] Yanlis tahminde: buferdan_okuyor, ps, parcaparca'nin restore edilmesi gerek.
 
-
-    `ifdef COCOTB_SIM
-        wire [31:0] debug_ps = {ps,1'b0};
-        always @(buyruk_16com,buyruk_ctipi) begin
-            casez(buyruk_16com)
-                `C_EBREAK   : begin ctipi_coz_str = "`C_EBREAK   ";                                             end  // c.ebreak  -> ebreak
-                `C_JR       : begin ctipi_coz_str = "`C_JR       ";                                             end // c.jr       -> jalr x0, rd/rs1, 0
-                `C_JALR     : begin ctipi_coz_str = "`C_JALR     ";                                             end // c.jalr     -> jalr x1, rs1, 0
-                `C_NOP      : begin ctipi_coz_str = "`C_NOP      ";                                             end // c.nop      -> addi, 0, 0, 0
-                `C_ADDI16SP : begin ctipi_coz_str = "`C_ADDI16SP ";                                             end // c.addi16sp -> addi x2, x2, nzimm
-                `C_AND      : begin ctipi_coz_str = "`C_AND      ";                                             end // c.and      -> and rd', rd', rs2'
-                `C_SUB      : begin ctipi_coz_str = "`C_SUB      ";                                             end  // c.sub     -> sub rd', rd', rs2'
-                `C_OR       : begin ctipi_coz_str = "`C_OR       ";                                             end // c.or       -> or  rd', rd', rs2'
-                `C_XOR      : begin ctipi_coz_str = "`C_XOR      ";                                             end // c.xor      -> xor rd', rd', rs2'
-                `C_SRAI     , // c.srli -> srli rd, rd, shamt // c.srai -> srai rd, rd, shamt
-                `C_SRLI     : begin ctipi_coz_str = "`C_SRLI     ";                                        end
-                `C_ANDI     : begin ctipi_coz_str = "`C_ANDI     ";                                        end // c.andi     -> andi rd,     rd, imm
-                `C_MV       : begin ctipi_coz_str = "`C_MV       ";                                        end // c.mv       -> add  rd/rs1, x0, rs2
-                `C_SLLI     : begin ctipi_coz_str = "`C_SLLI     ";                                        end // c.slli     -> slli rd,     rd, shamt
-                `C_ADD      : begin ctipi_coz_str = "`C_ADD      ";                                        end // c.add      -> add  rd,     rd, rs2
-                `C_ADDI     : begin ctipi_coz_str = "`C_ADDI     ";                                        end // c.addi     -> addi rd,     rd, nzimm
-                `C_ADDI4SPN : begin ctipi_coz_str = "`C_ADDI4SPN ";                                        end // c.addi4spn -> addi rd',    x2, nzuimm
-                `C_BEQZ     , // c.beqz -> beq rs1', x0, imm // c.bnez -> bne rs1', x0, imm
-                `C_BNEZ     : begin ctipi_coz_str = "`C_BNEZ     ";                                 end
-                `C_J        , // c.jal -> jal x1, imm  // c.j   ->  jal x0, imm
-                `C_JAL      : begin ctipi_coz_str = "`C_JAL      ";                                        end
-                `C_LI       : begin ctipi_coz_str = "`C_LI       ";                                        end // c.li   -> addi  rd ,   x0, imm
-                `C_LUI      : begin ctipi_coz_str = "`C_LUI      ";                                        end // c.lui  -> lui   rd ,  nzimm
-                `C_LW       : begin ctipi_coz_str = "`C_LW       ";                                        end // c.lw   -> lw    rd',   uimm(rs1')
-                `C_LWSP     : begin ctipi_coz_str = "`C_LWSP     ";                                        end // c.lwsp -> lw    rd ,   uimm(x2)
-                `C_SW       : begin ctipi_coz_str = "`C_SW       ";                                        end // c.sw   -> sw   rs2',   uimm(rs1')
-                `C_SWSP     : begin ctipi_coz_str = "`C_SWSP     ";                                        end // c.swsp -> sw   rs2 ,   uimm(x2)
-                default     : begin ctipi_coz_str = "C_DEFAULT";                                             end
-            endcase
-            if(~buyruk_ctipi)
-                ctipi_coz_str = "Ctipi degil";
-
-            // $monitor("%s",ctipi_coz_str);
-        end
-    `endif
 
     `ifdef COCOTB_SIM
         reg [88*13:1]  coz_str_debug;
@@ -347,5 +248,54 @@ module getir (
             // $monitor("%s",coz_str);
         end
     `endif
+
+endmodule
+
+module getir2 (
+    input  wire clk_i,
+    input  wire rst_i,
+    //  Denetim Durum Birimi
+    input  wire ddb_durdur_i,
+    input  wire ddb_bosalt_i,
+    output wire ddb_hazir_o,
+    //  L1 Buyruk Onbellegi
+    input  wire        l1b_bekle_i,
+    input  wire [31:0] l1b_deger_i,
+    // gtr1 <-> gtr2
+    output reg [1:0]  buyruk_tipi_o,
+    input wire  [31:1] gtr1_ps_artmis_i,
+    input wire  [31:1] gtr1_ps_i,
+    // Coz Yazmacoku
+    output reg  [31:0] cyo_buyruk_o,
+    output reg  [31:1] cyo_ps_artmis_o,
+    output reg  [31:1] cyo_ps_o
+);
+
+assign ddb_hazir_o = ~l1b_bekle_i;
+
+
+always @(*) begin
+    case(l1b_deger_i[6:2])
+        5'b11000: begin buyruk_tipi_o = 2'b10; end // B-tipi
+        5'b11001,
+        5'b11011: begin buyruk_tipi_o = 2'b11; end // jalr ve jal
+        default:  begin buyruk_tipi_o = 2'b00; end
+    endcase
+end
+
+
+
+always@(posedge clk_i) begin
+    if(rst_i) begin
+        cyo_buyruk_o <= 0;
+        cyo_ps_o <= 0;
+        cyo_ps_artmis_o <= 0;
+    end
+    else if(~ddb_durdur_i)begin
+        cyo_buyruk_o     <= ddb_bosalt_i ? `EBREAK : l1b_deger_i;
+        cyo_ps_o         <= gtr1_ps_i;
+        cyo_ps_artmis_o <= gtr1_ps_artmis_i;
+    end
+end
 
 endmodule

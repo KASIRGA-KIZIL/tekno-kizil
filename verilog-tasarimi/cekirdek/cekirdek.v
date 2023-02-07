@@ -3,6 +3,7 @@
 
 `include "tanimlamalar.vh"
 
+
 module cekirdek(
     input wire clk_i,
     input wire rst_i,
@@ -40,8 +41,8 @@ module cekirdek(
     wire [31:1] cyo_ps_artmis_w;
     wire [31:1] cyo_ps_w;
 
-    wire [31:1] gtr_atlanan_ps_w;
-    wire  gtr_atlanan_ps_gecerli_w;
+    wire [31:1] gtr1_atlanan_ps_w;
+    wire        gtr1_atlanan_ps_gecerli_w;
     wire [31:1] gy_ps_artmis_w;
     wire [31:0] gy_rd_deger_w;
     wire [31:0] gy_bib_deger_w;
@@ -55,16 +56,22 @@ module cekirdek(
     wire [31:0] cyo_yaz_deger_w;
     wire        cyo_yaz_yazmac_w;
 
-    wire  gtr_durdur_w;
-    wire  gtr_bosalt_w;
+    wire  gtr1_durdur_w;
+    wire  gtr1_bosalt_w;
+    wire [31:1] gtr1_ps_w;
+    wire [31:1] gtr1_ps_artmis_w;
     wire [1:0] cyo_yonlendir_kontrol1_w;
     wire [1:0] cyo_yonlendir_kontrol2_w;
     wire       cyo_durdur_w;
     wire       cyo_bosalt_w;
 
+    wire  gtr2_hazir_w;
+    wire  gtr2_bosalt_w;
+    wire  gtr2_durdur_w;
+    wire [1:0] gtr2_buyruk_tipi_w;
 
-    wire  gtr_yanlis_tahmin_w;
-    wire  gtr_hazir_w;
+    wire  gtr1_yanlis_tahmin_w;
+    wire  gtr1_hazir_w;
     wire  cyo_gecersiz_buyruk_w;
     wire [4:0] cyo_rs1_adres_w;
     wire [4:0] cyo_rs2_adres_w;
@@ -100,8 +107,8 @@ module cekirdek(
         .cyo_yapay_zeka_en_i (yrt_yapay_zeka_en_w   ),
         .cyo_gecersiz_buyruk_i(cyo_gecersiz_buyruk_w),
         .cyo_lt_ltu_eq_i     (yrt_lt_ltu_eq_w    ),
-        .gtr_atlanan_ps_o         (gtr_atlanan_ps_w        ),
-        .gtr_atlanan_ps_gecerli_o (gtr_atlanan_ps_gecerli_w),
+        .gtr_atlanan_ps_o         (gtr1_atlanan_ps_w        ),
+        .gtr_atlanan_ps_gecerli_o (gtr1_atlanan_ps_gecerli_w),
         .gy_rd_adres_o    (gy_rd_adres_w  ),
         .gy_ps_artmis_o   (gy_ps_artmis_w ),
         .gy_rd_deger_o    (gy_rd_deger_w  ),
@@ -145,32 +152,56 @@ module cekirdek(
         .ddb_rs2_adres_o          (cyo_rs2_adres_w )
     );
 
-    getir getir_dut (
-        .clk_i (clk_i ),
-        .rst_i (rst_i ),
-        .ddb_durdur_i       (gtr_durdur_w       ),
-        .ddb_bosalt_i       (gtr_bosalt_w       ),
-        .ddb_hazir_o        (gtr_hazir_w        ),
-        .ddb_yanlis_tahmin_o(gtr_yanlis_tahmin_w),
-        .l1b_bekle_i         (l1b_bekle_i        ),
-        .l1b_deger_i         (l1b_deger_i        ),
-        .l1b_chip_select_n_o (l1b_chip_select_n_o),
-        .l1b_adr_o           (l1b_adr_w          ),
-        .yrt_atlanan_ps_gecerli_i (gtr_atlanan_ps_gecerli_w),
-        .yrt_atlanan_ps_i         (gtr_atlanan_ps_w        ),
-        .cyo_buyruk_o    (cyo_buyruk_w   ),
-        .cyo_ps_artmis_o (cyo_ps_artmis_w),
-        .cyo_ps_o    (cyo_ps_w   )
-    );
+    getir2 getir2_dut (
+      .clk_i (clk_i ),
+      .rst_i (rst_i ),
+      .ddb_durdur_i (gtr2_durdur_w    ),
+      .ddb_bosalt_i (gtr2_bosalt_w    ),
+      .ddb_hazir_o  (gtr2_hazir_w    ),
+      .l1b_bekle_i (l1b_bekle_i ),
+      .l1b_deger_i (l1b_deger_i ),
 
+      .buyruk_tipi_o    (gtr2_buyruk_tipi_w ),
+      .gtr1_ps_artmis_i (gtr1_ps_artmis_w ),
+      .gtr1_ps_i        (gtr1_ps_w ),
+
+      .cyo_buyruk_o (cyo_buyruk_w ),
+      .cyo_ps_artmis_o (cyo_ps_artmis_w ),
+      .cyo_ps_o  ( cyo_ps_w)
+    );
+  
+    getir1 getir1_dut (
+      .clk_i (clk_i ),
+      .rst_i (rst_i ),
+      
+      .ddb_durdur_i        (gtr1_durdur_w        ),
+      .ddb_bosalt_i        (gtr1_bosalt_w        ),
+      .ddb_hazir_o         (gtr1_hazir_w         ),
+      .ddb_yanlis_tahmin_o (gtr1_yanlis_tahmin_w ),
+
+      .l1b_chip_select_n_o (l1b_chip_select_n_o ),
+      .l1b_adr_o           (l1b_adr_w ),
+
+      .yrt_atlanan_ps_gecerli_i (gtr1_atlanan_ps_gecerli_w ),
+      .yrt_atlanan_ps_i         (gtr1_atlanan_ps_w ),
+
+      .buyruk_tipi_i    (gtr2_buyruk_tipi_w ),
+
+      .gtr2_ps_artmis_o (gtr1_ps_artmis_w ),
+      .gtr2_ps_o        (gtr1_ps_w)
+    );
+  
 
     denetim_durum_birimi denetim_durum_birimi_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),
-        .gtr_yanlis_tahmin_i (gtr_yanlis_tahmin_w ),
-        .gtr_hazir_i         (gtr_hazir_w         ),
-        .gtr_durdur_o        (gtr_durdur_w        ),
-        .gtr_bosalt_o        (gtr_bosalt_w        ),
+        .gtr1_yanlis_tahmin_i (gtr1_yanlis_tahmin_w ),
+        .gtr1_hazir_i         (gtr1_hazir_w         ),
+        .gtr1_durdur_o        (gtr1_durdur_w        ),
+        .gtr1_bosalt_o        (gtr1_bosalt_w        ),
+        .gtr2_hazir_i         (gtr2_hazir_w         ),
+        .gtr2_durdur_o        (gtr2_durdur_w        ),
+        .gtr2_bosalt_o        (gtr2_bosalt_w        ),
         .cyo_rs1_adres_i          (cyo_rs1_adres_w         ),
         .cyo_rs2_adres_i          (cyo_rs2_adres_w         ),
         .cyo_yonlendir_kontrol1_o (cyo_yonlendir_kontrol1_w),

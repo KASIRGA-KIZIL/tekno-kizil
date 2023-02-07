@@ -13,10 +13,14 @@ module denetim_durum_birimi(
     input wire clk_i,
     input wire rst_i,
     // GETIR sinyalleri
-    input  wire gtr_yanlis_tahmin_i,       // Dallanma ongorucu, ongoremedi
-    input  wire gtr_hazir_i,               // Getir hazir degil. L1 miss oldu vs. Buyruk gecersiz
-    output wire gtr_durdur_o,
-    output wire gtr_bosalt_o,
+    input  wire gtr1_yanlis_tahmin_i,       // Dallanma ongorucu, ongoremedi
+    input  wire gtr1_hazir_i,               // Getir hazir degil. L1 miss oldu vs. Buyruk gecersiz
+    output wire gtr1_durdur_o,
+    output wire gtr1_bosalt_o,   
+    
+    input  wire gtr2_hazir_i,               // Getir hazir degil. L1 miss oldu vs. Buyruk gecersiz
+    output wire gtr2_durdur_o,
+    output wire gtr2_bosalt_o,
 
     // COZ sinyalleri
     input  wire [4:0] cyo_rs1_adres_i,          // RS1 adresi
@@ -52,11 +56,11 @@ module denetim_durum_birimi(
                                         geriyaz_yonlendir2 ? `YON_GERIYAZ :
                                                              `YON_HICBISEY;
 
-    assign gtr_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
-    assign cyo_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
+    assign gtr1_durdur_o = ~yrt_hazir_i || ~gtr1_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
+    assign cyo_durdur_o = ~yrt_hazir_i || ~gtr1_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
 
-    assign gtr_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
-    assign cyo_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
+    assign gtr1_bosalt_o = bos_basla || gtr1_yanlis_tahmin_i ;
+    assign cyo_bosalt_o = bos_basla || gtr1_yanlis_tahmin_i ;
 
     always @(posedge clk_i) begin
         if(rst_i)begin
@@ -64,8 +68,8 @@ module denetim_durum_birimi(
             bos_basla  <= 1'b1;
         end else begin
             gecersiz[`ASAMA_GETIR]   <= 1'b0;
-            gecersiz[`ASAMA_COZ]     <= (gtr_yanlis_tahmin_i) ? 1'b1 : gecersiz[`ASAMA_GETIR];
-            gecersiz[`ASAMA_YURUT]   <= (gtr_yanlis_tahmin_i || cyo_durdur_o) ? 1'b1 : gecersiz[`ASAMA_COZ];
+            gecersiz[`ASAMA_COZ]     <= (gtr1_yanlis_tahmin_i) ? 1'b1 : gecersiz[`ASAMA_GETIR];
+            gecersiz[`ASAMA_YURUT]   <= (gtr1_yanlis_tahmin_i || cyo_durdur_o) ? 1'b1 : gecersiz[`ASAMA_COZ];
             gecersiz[`ASAMA_GERIYAZ] <= gecersiz[`ASAMA_YURUT];
 
             bos_basla  <= 1'b0;
