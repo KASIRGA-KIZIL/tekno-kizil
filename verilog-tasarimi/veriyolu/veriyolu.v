@@ -14,6 +14,7 @@ module veriyolu(
     input               cekirdek_wb_yaz_gecerli_i,
     input               cekirdek_wb_sec_n_i,
     output [31:0]       wb_cekirdek_veri_o,
+    output              wb_cekirdek_mesgul_o,
 
     // WB --- UART
     input  [31:0]       uart_wb_oku_veri_i,
@@ -27,44 +28,63 @@ module veriyolu(
     // diger cihazlar icin devami eklenecek
     
 );
-    localparam  UART = 2'b00,
-                SPI  = 2'b01,
-                PWM  = 2'b10;
 
-    wire        cihaz_sinyali_w = cekirdek_wb_adres_i[29];
-    wire [1:0]  cihaz_secim_w   = cekirdek_wb_adres_i[17:16];
+    wire [31:0] master_slave_addr_w;
+    wire [31:0] slave_master_data_w;
+    wire [31:0] master_slave_data_w;
+    wire        master_slave_we_w;
 
+    wire        master_slave_cyc_w;
+    wire        master_slave_stb_w;
+    wire        slave_master_ack_w;
 
-    always@*begin
-        wb_uart_adres_i         = 32'b0     ;
-        wb_uart_veri_i          = 32'b0     ;
-        wb_uart_gecerli_i       = 1'b0      ;
-        wb_uart_yaz_gecerli_i   = 1'b0      ;
-        case(cihaz_sinyali_w,cihaz_secim_w)
-            // Veri bellegi
-            // 3'b000:begin
+    wire [1:0]  master_sel_w;
+    wire        slave_sel_w [3:0];
+    assign      slave_sel_w[0] = ~|master_sel_w;
+    assign      slave_sel_w[1] = ~master_sel_w[1] & master_sel_w[0];
+    assign      slave_sel_w[1] = ~master_sel_w[0] & master_sel_w[1];
+    assign      slave_sel_w[3] = &master_sel_w;
 
-            // end
+    wishbone_master wm(
+        .clk_i(clk_i),
+        .rst_i(rst_i),
 
-            // Cihazlar
-            // UART
-            3'b100:begin
-                wb_uart_adres_i         = cekirdek_wb_adres_i       ;
-                wb_uart_veri_i          = cekirdek_wb_veri_i        ;
-                wb_uart_gecerli_i       = 1'b1                      ;
-                wb_uart_yaz_gecerli_i   = cekirdek_wb_yaz_gecerli_i ;
-            end
-            // SPI
-            3'b100:begin
+        .cmd_addr_i(cekirdek_wb_adres_i),
+        .cmd_word_i({cekirdek_wb_yaz_gecerli_i,cekirdek_wb_sec_n_i,cekirdek_wb_veri_i}),
+        .cmd_busy_o(wb_cekirdek_mesgul_o),
+        .cmd_rdata_o(wb_cekirdek_veri_o),
 
-            end
-            // PWM
-            3'b100:begin
+        .addr_o(master_slave_addr_w),
+        .data_i(slave_master_data_w),
+        .data_o(master_slave_data_w),
+        .we_o(master_slave_we_w),
 
-            end
+        .cyc_o(master_slave_cyc_w),
+        .stb_o(master_slave_stb_w),
+        .sel_o(master_sel_w),
+        .ack_i(slave_master_ack_w)
+    );
 
-        endcase
-    end
+    wishbone_slave ws_uart(
+        .clk_i(clk_i),
+        .rst_i(rst_i),
 
+        .addr_i(master_slave_addr_w),
+        .data_i(master_slave_data_w),
+        .data_o(slave_master_data_w),
+        .we_i(master_slave_we_w),  
 
+        .cyc_i(master_slave_cyc_w), 
+        .stb_i(master_slave_stb_w), 
+        .sel_i(master_sel_w), 
+        .ack_o(slave_master_ack_w), 
+
+        .device_ready_i(~uart_wb_mesgul_i),
+        .device_rdata_i(uart_wb_oku_veri_i),
+        .device_rdata_valid_i(uart_wb_oku_veri_gecerli_i)
+        .device_addr_o(wb_uart_adres_o),
+        .device_wdata_o(wb_uart_veri_o),
+        .device_we_o(wb_uart_yaz_gecerli_o)
+    );
+    assign wb_uart_gecerli_o = slave_sel[0] ;
 endmodule
