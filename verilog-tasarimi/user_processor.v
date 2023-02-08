@@ -72,45 +72,4 @@ module user_processor(
         .l1b_adres_i (l1b_adres   )
     );
 
-    veriyolu wb(
-        .clk_i(clk_i),
-        .rst_i(rst_i),
-
-        .cekirdek_wb_adres_i(l1v_adr_o),
-        .cekirdek_wb_veri_i(l1v_veri_o),
-        .cekirdek_wb_veri_maske_i(l1v_veri_maske_o),
-        .cekirdek_wb_yaz_gecerli_i(l1v_yaz_gecerli_o),
-        .cekirdek_wb_sec_n_i(l1v_sec_n_o),
-        .wb_cekirdek_veri_o(l1v_veri_i),
-
-        .uart_wb_oku_veri_i(),
-        .uart_wb_oku_veri_gecerli_i(),
-        .uart_wb_mesgul_i(),
-        .wb_uart_adres_i(),
-        .wb_uart_veri_i(),
-        .wb_uart_gecerli_i(),
-        .wb_uart_yaz_gecerli_i()
-
-    );
-    // TODO bu isimli wirelar olusturulup uart'a baglanacak
-    .uart_wb_oku_veri_i(),
-    .uart_wb_oku_veri_gecerli_i(),
-    .uart_wb_mesgul_i(),
-    .wb_uart_adres_i(),
-    .wb_uart_veri_i(),
-    .wb_uart_gecerli_i(),
-    .wb_uart_yaz_gecerli_i()
-
-    uart_denetleyici ud(
-        .clk_i(clk_i),
-        .rst_i(rst_i),
-        .wb_adres_i(),
-        .wb_veri_i(),
-        .wb_gecerli_i(),
-        .wb_yaz_gecerli_i(),
-        .wb_oku_veri_o(),
-        .wb_oku_gecerli_o(),
-        .uart_mesgul_o()
-    )
-
 endmodule

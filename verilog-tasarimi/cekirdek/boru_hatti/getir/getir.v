@@ -33,6 +33,9 @@ module getir (
 
     assign l1b_chip_select_n_o = 1'b0;
 
+    reg  [31:0] buyruk_tamponu_durdur;
+    wire [31:0] suanki_buyruk = l1b_deger_i;
+
     reg  [15:0] buyruk_tamponu;
     reg  [31:1] ps;
     reg  [31:1] ps_next;
@@ -50,12 +53,12 @@ module getir (
 
     wire buyruk_hizali = ~ps[1]; // ps 4un kat mi
 
-    wire buyruk_ctipi = buyruk_hizali ? ~(l1b_deger_i   [ 1: 0] == 2'b11) :
+    wire buyruk_ctipi = buyruk_hizali ? ~(suanki_buyruk   [ 1: 0] == 2'b11) :
                                         ~(buyruk_tamponu[ 1: 0] == 2'b11);
     always @(*) begin
         buyruk_jtipi = 1'b0;
         tahmin_et    = 1'b0;
-        case(l1b_deger_i[6:2])
+        case(suanki_buyruk[6:2])
             5'b11000: begin tahmin_et = 1'b1; end // B-tipi
             5'b11001,
             5'b11011: begin tahmin_et = 1'b1;
@@ -68,7 +71,7 @@ module getir (
     dallanma_ongorucu dal_on(
         .clk_i(clk_i),
         .rst_i(rst_i),
-        .ddb_durdur_i(ddb_durdur_i),
+        .ddb_durdur_i(ddb_durdur_i | ddb_bosalt_i),
         // Tahmin okuma.
         .ps_i                  (ps),
         .buyruk_ctipi_i        (buyruk_ctipi),
@@ -123,7 +126,7 @@ module getir (
                 end
             end
         endcase
-        ps_next = ddb_durdur_i ? ps : ps_next;
+        // ps_next = ddb_durdur_i ? ps : ps_next;
     end
 
 
@@ -145,7 +148,7 @@ module getir (
                 `ifdef COCOTB_SIM  hizali_durum_str = "[16][??]"; `endif
             end
             3'b010: begin
-                cyo_buyruk_next = l1b_deger_i;
+                cyo_buyruk_next = suanki_buyruk;
                 `ifdef COCOTB_SIM  hizali_durum_str = "[32_1][32_0]"; `endif
             end
             3'b011: begin
@@ -159,7 +162,7 @@ module getir (
                 `ifdef COCOTB_SIM  hizali_durum_str = "[32_0][????]"; `endif
             end
             3'b1?0: begin
-                cyo_buyruk_next = {l1b_deger_i[15:0], buyruk_tamponu};
+                cyo_buyruk_next = {suanki_buyruk[15:0], buyruk_tamponu};
                 parcaparca_next = 1'b1;
                 `ifdef COCOTB_SIM  hizali_durum_str = "[32_0][32_1]"; `endif
             end
@@ -173,7 +176,7 @@ module getir (
 
     assign ddb_hazir_o = (~l1b_bekle_i) && getir_hazir;
 
-    wire [15:0] buyruk_16com = buyruk_hizali ? l1b_deger_i[15:0] : buyruk_tamponu;
+    wire [15:0] buyruk_16com = buyruk_hizali ? suanki_buyruk[15:0] : buyruk_tamponu;
 
     // compressed buyruklari genislet
     always @(buyruk_16com) begin
@@ -211,8 +214,7 @@ module getir (
         endcase
     end
 
-    assign l1b_adr_o = ps_next;
-
+    assign l1b_adr_o = ps;
     always @(posedge clk_i) begin
         if (rst_i) begin
             ps               <= ((32'h40000000)>>1);
@@ -227,7 +229,7 @@ module getir (
                 ps               <= ps_next;
                 cyo_buyruk_o     <= ddb_bosalt_i ? `EBREAK : cyo_buyruk_next;
                 parcaparca       <= parcaparca_next;
-                buyruk_tamponu   <= l1b_deger_i[31:16];
+                buyruk_tamponu   <= suanki_buyruk[31:16];
                 cyo_ps_artmis_o  <= ps_artmis;
                 cyo_ps_o         <= ps;
         end
