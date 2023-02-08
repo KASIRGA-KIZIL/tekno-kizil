@@ -16,7 +16,6 @@ module buyruk_onbellegi(
     output reg         l1b_bekle_o,
     output wire [31:0] l1b_deger_o,
     input  wire [31:0] l1b_adres_i
-
 );
 
     localparam  RESET      = 3'd0,
@@ -53,11 +52,11 @@ module buyruk_onbellegi(
             counter <= counter + 1;
         end
     end
+
     reg csb0;
     reg spare_wen0;
     reg [8:0] addr0;
     reg [40:0] din0;
-
 
     wire valid;
     wire [7:0] tag;
@@ -100,19 +99,19 @@ module buyruk_onbellegi(
 
 
     buyruk_ffram bffram (
-      .clk_i (clk_i ),
+        .clk_i (clk_i ),
 
-      .wen_i ({5{~csb0}} ),
-      .data_i (din0 ),
-      .wadr_i (addr0 ),
+        .wen_i  ({5{~csb0}}),
+        .data_i (din0      ),
+        .wadr_i (addr0     ),
 
-      .data_o ({valid,tag,l1b_deger_o}),
-      .radr_i (l1b_adres_i[`ADR] )
+        .data_o ({valid,tag,l1b_deger_o}),
+        .radr_i (l1b_adres_i[`ADR]      )
     );
 
 
 
     assign iomem_addr  = l1b_adres_i;
-    assign iomem_valid = 1'b1;
+    assign iomem_valid = l1b_bekle_o;
 
 endmodule

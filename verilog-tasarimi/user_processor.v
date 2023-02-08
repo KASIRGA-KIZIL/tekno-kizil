@@ -38,7 +38,6 @@ module user_processor(
     wire        l1b_bekle;
     wire [31:0] l1b_deger;
     wire [31:0] l1b_adres;
-    wire        l1b_chip_select_n_o;
 
     cekirdek cek (
         .clk_i (clk_i),
@@ -47,7 +46,7 @@ module user_processor(
         .l1b_bekle_i        (l1b_bekle          ),
         .l1b_deger_i        (l1b_deger          ),
         .l1b_adres_o        (l1b_adres          ),
-        .l1b_chip_select_n_o(l1b_chip_select_n_o),
+        .l1b_chip_select_n_o( ),
         //
         .l1v_veri_i       (l1v_yaz_veri     ),
         .l1v_durdur_i     (l1v_durdur       ),
@@ -63,13 +62,13 @@ module user_processor(
     buyruk_onbellegi buyruk_onbellegi_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),
-        .iomem_valid (iomem_valid ),
-        .iomem_ready (iomem_ready ),
-        .iomem_addr  (iomem_addr  ),
-        .iomem_rdata (iomem_rdata ),
-        .l1b_bekle_o (l1b_bekle   ),
-        .l1b_deger_o (l1b_deger   ),
-        .l1b_adres_i (l1b_adres   )
+        .iomem_valid   (iomem_valid ),
+        .iomem_ready   (iomem_ready ),
+        .iomem_addr    (iomem_addr  ),
+        .iomem_rdata   (iomem_rdata ),
+        .l1b_bekle_o   (l1b_bekle   ),
+        .l1b_deger_o   (l1b_deger   ),
+        .l1b_adres_i   (l1b_adres   )
     );
 
 endmodule
