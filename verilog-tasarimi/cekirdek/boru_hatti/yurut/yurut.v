@@ -96,6 +96,7 @@ module yurut(
         .bitti_o (bib_bitti),
         .kontrol_i (cyo_mikroislem_i[`BIB] ),
         .adr_i (amb_sonuc_w ),
+        .deger_i (cyo_deger2_i),
         .sonuc_o (gy_bib_deger_o ),
         .l1v_veri_i        (l1v_veri_i        ),
         .l1v_durdur_i      (l1v_durdur_i      ),

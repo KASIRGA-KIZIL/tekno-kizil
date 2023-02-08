@@ -12,6 +12,7 @@ module bellek_islem_birimi(
     // yurut
     input  wire [ 2:0] kontrol_i,
     input  wire [31:0] adr_i,
+    input  wire [31:0] deger_i,
     output wire [31:0] sonuc_o,
 
     // l1 veri bellegi <-> bib
@@ -27,7 +28,9 @@ module bellek_islem_birimi(
 
     assign bitti_o = basla_i ? ~l1v_durdur_i : 1'b1;
 
-    assign sonuc_o = l1v_veri_i;
+
+    // TODO zaten asagida yapilmis?
+    //assign sonuc_o = l1v_veri_i;
 
     assign l1v_sec_n_o = ~basla_i;
 
@@ -38,6 +41,7 @@ module bellek_islem_birimi(
 
     assign l1v_yaz_gecerli_o = basla_i && ((kontrol_i == `BIB_SB) || (kontrol_i == `BIB_SH) || (kontrol_i == `BIB_SW));
 
+    // BIB_LW casei silinebilir?
     assign sonuc_o = (kontrol == `BIB_LB ) ? {{24{l1v_veri_i[ 7]}},l1v_veri_i[7:0]}  :
                      (kontrol == `BIB_LH ) ? {{16{l1v_veri_i[15]}},l1v_veri_i[15:0]} :
                      (kontrol == `BIB_LW ) ? l1v_veri_i                              :
@@ -45,7 +49,7 @@ module bellek_islem_birimi(
                      (kontrol == `BIB_LHU) ? {16'b0,l1v_veri_i[15:0]}                :
                                               l1v_veri_i;
 
-    assign l1v_veri_o = l1v_veri_i;
+    assign l1v_veri_o = deger_i;
     assign l1v_adr_o  = adr_i;
 
     always @(posedge clk_i)begin
