@@ -34,8 +34,7 @@ module getir (
     assign l1b_chip_select_n_o = 1'b0;
 
     reg  [31:0] buyruk_tamponu_durdur;
-    reg durmus;
-    wire [31:0] suanki_buyruk = durmus ? buyruk_tamponu_durdur : l1b_deger_i;
+    wire [31:0] suanki_buyruk = l1b_deger_i;
 
     reg  [15:0] buyruk_tamponu;
     reg  [31:1] ps;
@@ -215,16 +214,15 @@ module getir (
         endcase
     end
 
-    assign l1b_adr_o = ps_next;
+    assign l1b_adr_o = ps;
     always @(posedge clk_i) begin
         if (rst_i) begin
-            ps               <= ((32'h40000000-4)>>1);
+            ps               <= ((32'h40000000)>>1);
             cyo_buyruk_o     <= `EBREAK; // NOP ile ayni. 0-> LB buyruguyla cakisiyor.
             parcaparca       <= 0;
             buyruk_tamponu   <= 0;
             bufferdan_okuyor <= 0;
             getir_hazir      <= 1;
-            durmus           <= 0;
         end else if(~ddb_durdur_i) begin
                 getir_hazir      <= getir_hazir_next;
                 bufferdan_okuyor <= bufferdan_okuyor_next;
@@ -235,9 +233,6 @@ module getir (
                 cyo_ps_artmis_o  <= ps_artmis;
                 cyo_ps_o         <= ps;
         end
-        durmus <= ddb_durdur_i;
-        if (ddb_durdur_i && ~durmus)
-            buyruk_tamponu_durdur <= l1b_deger_i;
     end
 
     // [TODO] Yanlis tahminde: buferdan_okuyor, ps, parcaparca'nin restore edilmesi gerek.

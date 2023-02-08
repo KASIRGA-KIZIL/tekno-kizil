@@ -6,7 +6,7 @@
 TOPLEVEL_LANG = verilog
 SIM           = modelsim
 
-MODULE              := test_cekirdek
+MODULE              := test_teknofest_wrapper
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
