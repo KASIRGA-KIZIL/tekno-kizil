@@ -39,6 +39,18 @@ module user_processor(
     wire [31:0] l1b_deger;
     wire [31:0] l1b_adres;
 
+
+    wire        l1v_iomem_valid;
+    wire        l1v_iomem_ready;
+    wire [ 3:0] l1v_iomem_wstrb;
+    wire [31:0] l1v_iomem_addr;
+    wire [31:0] l1v_iomem_wdata;
+    wire [31:0] l1v_iomem_rdata;
+
+    wire [31:0] l1v_adr_o;
+    wire [31:0] l1b_iomem_addr;
+    wire [31:0] l1b_iomem_rdata;
+
     cekirdek cek (
         .clk_i (clk_i),
         .rst_i (rst_i),
@@ -57,18 +69,65 @@ module user_processor(
         .l1v_sec_n_o      (l1v_sec          )
     );
 
-    assign iomem_wstrb = 4'b0000;
-
     buyruk_onbellegi buyruk_onbellegi_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),
-        .iomem_valid   (iomem_valid ),
-        .iomem_ready   (iomem_ready ),
-        .iomem_addr    (iomem_addr  ),
-        .iomem_rdata   (iomem_rdata ),
+
+        .iomem_valid   (l1b_iomem_valid),
+        .iomem_ready   (l1b_iomem_ready),
+        .iomem_addr    (l1b_iomem_addr ),
+        .iomem_rdata   (l1b_iomem_rdata),
+
         .l1b_bekle_o   (l1b_bekle   ),
         .l1b_deger_o   (l1b_deger   ),
         .l1b_adres_i   (l1b_adres   )
     );
+
+    veri_onbellegi veri_onbellegi_dut (
+        .clk_i (clk_i ),
+        .rst_i (rst_i ),
+
+        .ddb_durdur         (ddb_durdur       ),
+
+        .bib_veri_o         (l1v_yaz_veri     ),
+        .bib_durdur_o       (l1v_durdur       ),
+        .bib_veri_i         (l1v_oku_veri     ),
+        .bib_adr_o          (l1v_adr_o        ),
+        .bib_veri_maske_o   (l1v_mask         ),
+        .bib_yaz_gecerli_o  (l1v_yaz_gecerli  ),
+        .bib_sec_n_o        (l1v_sec          ),
+
+        .ab_ready (l1v_iomem_ready ),
+        .ab_valid (l1v_iomem_valid ),
+        .ab_web   (l1v_iomem_wstrb ),
+        .ab_addr  (l1v_iomem_addr  ),
+        .ab_din   (l1v_iomem_wdata ),
+        .ab_dot   (l1v_iomem_rdata )
+    );
+
+    anabellek_denetleyici abdd (
+        .clk_i (clk_i ),
+        .rst_i (rst_i ),
+
+        .iomem_valid (iomem_valid ),
+        .iomem_ready (iomem_ready ),
+        .iomem_wstrb (iomem_wstrb ),
+        .iomem_addr  (iomem_addr  ),
+        .iomem_wdata (iomem_wdata ),
+        .iomem_rdata (iomem_rdata ),
+
+        .l1b_iomem_valid (l1b_iomem_valid ),
+        .l1b_iomem_ready (l1b_iomem_ready ),
+        .l1b_iomem_addr  (l1b_iomem_addr  ),
+        .l1b_iomem_rdata (l1b_iomem_rdata ),
+
+        .l1v_iomem_valid (l1v_iomem_valid ),
+        .l1v_iomem_ready (l1v_iomem_ready ),
+        .l1v_iomem_wstrb (l1v_iomem_wstrb ),
+        .l1v_iomem_addr  (l1v_iomem_addr  ),
+        .l1v_iomem_wdata (l1v_iomem_wdata ),
+        .l1v_iomem_rdata (l1v_iomem_rdata )
+    );
+
 
 endmodule
