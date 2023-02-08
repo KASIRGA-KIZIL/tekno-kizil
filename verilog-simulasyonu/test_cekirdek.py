@@ -254,7 +254,7 @@ async def buyruklari_oku():
         riscv_tests[test]["buyruklar"] = buyruklar
 
 @cocotb.coroutine
-async def anabellek(dut):
+async def onbellek(dut):
     timout = 0
     await RisingEdge(dut.clk_i)
     for test in riscv_tests:
@@ -270,7 +270,7 @@ async def anabellek(dut):
             if(riscv_tests[test]["fail_adr"] == dut.l1b_adres_o.value.integer):
                 print("[TEST] ", test, " FAILED")
                 assert 0
-            await RisingEdge(dut.clk_i)
+            await FallingEdge(dut.clk_i)
             timout = timout + 1
             if(timout > TIMEOUT):
                 print("[TEST] ", test, " FAILED TIMOUT")
@@ -290,7 +290,7 @@ async def test_cekirdek(dut):
     dut.rst_i.value = 1
     await RisingEdge(dut.clk_i)
     await RisingEdge(dut.clk_i)
-    blk = cocotb.start_soon(anabellek(dut))
+    blk = cocotb.start_soon(onbellek(dut))
     dut.rst_i.value = 0
     dut.l1b_bekle_i.value = 0
     await blk
