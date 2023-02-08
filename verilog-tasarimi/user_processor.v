@@ -27,13 +27,13 @@ module user_processor(
     wire clk_i = clk;
     wire rst_i = ~resetn;
 
-    wire [31:0] l1v_veri_i;
-    wire [31:0] l1v_veri_o;
-    wire [31:0] l1v_adr_o;
-    wire [ 3:0] l1v_veri_maske_o;
-    wire        l1v_durdur_i;
-    wire        l1v_yaz_gecerli_o;
-    wire        l1v_sec_n_o;
+    wire [31:0] l1v_yaz_veri;
+    wire [31:0] l1v_oku_veri;
+    wire [31:0] l1v_adr;
+    wire [ 3:0] l1v_mask;
+    wire        l1v_durdur;
+    wire        l1v_yaz_gecerli;
+    wire        l1v_sec;
 
     wire        l1b_bekle;
     wire [31:0] l1b_deger;
@@ -49,13 +49,13 @@ module user_processor(
         .l1b_adres_o        (l1b_adres          ),
         .l1b_chip_select_n_o(l1b_chip_select_n_o),
         //
-        .l1v_veri_i       (l1v_veri_i       ),
-        .l1v_durdur_i     (l1v_durdur_i     ),
-        .l1v_veri_o       (l1v_veri_o       ),
+        .l1v_veri_i       (l1v_yaz_veri     ),
+        .l1v_durdur_i     (l1v_durdur       ),
+        .l1v_veri_o       (l1v_oku_veri     ),
         .l1v_adr_o        (l1v_adr_o        ),
-        .l1v_veri_maske_o (l1v_veri_maske_o ),
-        .l1v_yaz_gecerli_o(l1v_yaz_gecerli_o),
-        .l1v_sec_n_o      (l1v_sec_n_o      )
+        .l1v_veri_maske_o (l1v_mask         ),
+        .l1v_yaz_gecerli_o(l1v_yaz_gecerli  ),
+        .l1v_sec_n_o      (l1v_sec          )
     );
 
     assign iomem_wstrb = 4'b0000;

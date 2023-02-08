@@ -8,9 +8,9 @@ module buyruk_onbellegi(
     input  wire        clk_i,
     input  wire        rst_i,
 
-    output reg         iomem_valid,
+    output wire        iomem_valid,
     input  wire        iomem_ready,
-    output reg  [31:0] iomem_addr,
+    output wire [31:0] iomem_addr,
     input  wire [31:0] iomem_rdata,
 
     output reg         l1b_bekle_o,
