@@ -14,6 +14,7 @@ module veriyolu(
     input               cekirdek_wb_yaz_gecerli_i,
     input               cekirdek_wb_sec_n_i,
     output [31:0]       wb_cekirdek_veri_o,
+    output              wb_cekirdek_veri_gecerli_o,
     output              wb_cekirdek_mesgul_o,
 
     // WB --- UART
@@ -28,14 +29,6 @@ module veriyolu(
     // diger cihazlar icin devami eklenecek
     
 );
-
-`ifdef COCOTB_SIM
-initial begin
-  $dumpfile ("veriyolu.vcd");
-  $dumpvars (0, veriyolu);
-  #1;
-end
-`endif
 
     wire [31:0] master_slave_addr_w;
     wire [31:0] slave_master_data_w;
@@ -63,6 +56,7 @@ end
         .cmd_word_i({cekirdek_wb_yaz_gecerli_i,cekirdek_wb_sec_n_i,cekirdek_wb_veri_i}),
         .cmd_busy_o(wb_cekirdek_mesgul_o),
         .cmd_rdata_o(wb_cekirdek_veri_o),
+        .cmd_rdata_valid_o(wb_cekirdek_veri_gecerli_o),
 
         .addr_o(master_slave_addr_w),
         .data_i(slave_master_data_w),

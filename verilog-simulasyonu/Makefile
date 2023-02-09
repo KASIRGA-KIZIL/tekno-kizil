@@ -6,7 +6,7 @@
 TOPLEVEL_LANG = verilog
 SIM           = icarus
 
-MODULE              := test_veriyolu
+MODULE              := test_wb_uart
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
@@ -85,6 +85,20 @@ else ifeq ($(MODULE),test_veriyolu)
 						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
+						$(KAYNAKLAR)/veriyolu/*.v
+else ifeq ($(MODULE),test_wb_uart)
+	TOPLEVEL        := wb_uart
+    VERILOG_SOURCES +=  ../cevreleyici/*.v \
+						$(KAYNAKLAR)/*.v \
+						$(KAYNAKLAR)/cekirdek/*.v \
+						$(KAYNAKLAR)/bellek/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
+						$(KAYNAKLAR)/cevre_birimleri/uart/*.v \
 						$(KAYNAKLAR)/veriyolu/*.v
 else
     $(error A module was not provided)

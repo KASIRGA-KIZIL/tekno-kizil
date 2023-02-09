@@ -112,9 +112,12 @@ async def test_rx(dut):
 
     await RisingEdge(dut.clk_i)
 
+    dut.wb_adres_i.value = 0x0000_0000
+    dut.wb_veri_i.value  = 0x0000_0000
     dut.wb_gecerli_i.value = 0
     dut.wb_yaz_gecerli_i.value = 0
 
+    await RisingEdge(dut.clk_i)
     await RisingEdge(dut.clk_i)
     await RisingEdge(dut.clk_i)
 

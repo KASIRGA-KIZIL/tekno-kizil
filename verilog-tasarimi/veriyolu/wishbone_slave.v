@@ -11,7 +11,7 @@ module wishbone_slave(
     // wb slave <-> wb master interface
     input      [31:0] addr_i ,
     input      [31:0] data_i ,
-    output reg [31:0] data_o ,
+    output     [31:0] data_o ,
     input      [0:0]  we_i   ,
 
     input      [0:0]  cyc_i  ,
@@ -34,22 +34,19 @@ module wishbone_slave(
 );
 
     //latches
-    reg [31:0] data_o_n;
     reg [0:0] ack_o_n;
     
     assign device_addr_o = addr_i;
     assign device_wdata_o = data_i;
     assign device_we_o = we_i;
-    assign device_re_o = sel_i & ~we_i & cyc_i & stb_i;
+    assign device_re_o = cyc_i && stb_i && ~we_i;
+    assign data_o = (device_rdata_valid_i & ~ we_i) ? device_rdata_i : 32'b0;
 
     always@*begin
         if(sel_i)begin
             ack_o_n = 1'b0;
             if(cyc_i && stb_i)begin
                 ack_o_n = 1'b1;
-                if(~we_i & device_rdata_valid_i)begin//read request
-                    data_o_n = device_rdata_i;
-                end
             end
             if(ack_o)begin
                 ack_o_n = 1'b0;
@@ -59,10 +56,8 @@ module wishbone_slave(
 
     always@(posedge clk_i)begin
         if(~rst_i)begin
-            data_o <= data_o_n;
             ack_o <= ack_o_n;
         end else begin
-            data_o <= 32'b0;
             ack_o <= 1'b0;
         end
     end

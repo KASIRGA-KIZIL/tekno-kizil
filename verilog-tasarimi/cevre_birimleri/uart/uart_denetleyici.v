@@ -6,6 +6,7 @@
 module uart_denetleyici(
     input           clk_i,
     input           rst_i,
+    
     input [31:0]    wb_adres_i,
     input [31:0]    wb_veri_i,
     input           wb_gecerli_i,
@@ -17,13 +18,7 @@ module uart_denetleyici(
     input           uart_rx_i,
     output          uart_tx_o
 );
-`ifdef COCOTB_SIM
-initial begin
-  $dumpfile ("uart_denetleyici.vcd");
-  $dumpvars (0, uart_denetleyici);
-  #1;
-end
-`endif
+
     reg [4:0] tx_bufIdx_head_r, tx_bufIdx_tail_r; // 0 bos, 32 tamami dolu
     reg [4:0] tx_bufIdx_head_ns, tx_bufIdx_tail_ns;
     reg [4:0] rx_bufIdx_head_r, rx_bufIdx_tail_r;
