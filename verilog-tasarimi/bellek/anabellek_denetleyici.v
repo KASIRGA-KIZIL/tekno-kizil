@@ -39,7 +39,7 @@ module anabellek_denetleyici(
     assign l1v_iomem_rdata = iomem_rdata;
 
     assign l1b_iomem_ready = (switch == `BUYRUK) ? iomem_ready : 1'b0;
-    assign l1v_iomem_ready = (switch == `BUYRUK) ?  1'b0 : iomem_ready;
+    assign l1v_iomem_ready = (switch == `VERI)   ? iomem_ready : 1'b0;
 
     always @(posedge clk_i) begin
         if(rst_i) begin
