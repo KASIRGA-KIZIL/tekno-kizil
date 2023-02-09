@@ -43,7 +43,7 @@ module veriyolu(
     wire        slave_sel_w [3:0]; // 0: UART 1:SPI 2:PWM 3:V$
     genvar i;
     generate
-        for(i = 0; i < 4; i = i + 1)begin
+        for(i = 0; i < 4; i = i + 1)begin : ms_decoder
             assign slave_sel_w[i] = master_sel_w == i;
         end
     endgenerate
