@@ -26,10 +26,10 @@ module pwm_denetleyici(
     output [31:0] wb_oku_veri_o, // daha az bit sayisi olan yazmaclarin on bitleri 0
     output wb_oku_hazir_o,
 
-    // bunlarin hepsi 32  
+    // bunlarin hepsi 32 bitlik wb_veri_i ile geliyor
     /*
     // PWM0
-    input [1:0]  wb_pwm_control_1_i, // wishboneda 0lanmadiysa ayni modda kalmasi lazim, yoksa burada kontrol etmem lazim 
+    input [1:0]  wb_pwm_control_1_i,
     input [31:0] wb_pwm_period_1_i,
     input [31:0] wb_pwm_threshold_1_1_i,
     input [31:0] wb_pwm_threshold_1_2_i,
@@ -47,12 +47,6 @@ module pwm_denetleyici(
     output pwm0_o, // 0x20020028
     output pwm1_o  // 0x2002002c adresten okunabilmesi lazim
 );
-
-    wire resetn_w = ~rst_i;
-    wire standart_aktif1_w = wb_pwm_control_1_i[0];
-    wire kalp_atisi_aktif1_w = wb_pwm_control_1_i[1];
-    wire standart_aktif2_w = wb_pwm_control_2_i[0];
-    wire kalp_atisi_aktif2_w = wb_pwm_control_2_i[1];
 
     wire wb_yaz_w = {wb_gecerli_i, wb_yaz_etkin_i, wb_pwm_adres_i};
     wire wb_oku_w = {wb_gecerli_i, ~wb_yaz_etkin_i, wb_pwm_adres_i};
@@ -105,6 +99,12 @@ module pwm_denetleyici(
     wire pwm0_kalp_atisi_w;
     wire pwm1_standart_w;
     wire pwm1_kalp_atisi_w;
+
+    wire resetn_w = ~rst_i;
+    wire standart_aktif1_w   = pwm_control_1_r[0];
+    wire kalp_atisi_aktif1_w = pwm_control_1_r[1];
+    wire standart_aktif2_w   = pwm_control_2_r[0];
+    wire kalp_atisi_aktif2_w = pwm_control_2_r[1];
 
     // Yazmac sonraki degerleri
     reg [1:0] pwm_control_1_next_r = 0;
