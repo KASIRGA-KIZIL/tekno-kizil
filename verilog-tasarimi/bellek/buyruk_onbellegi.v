@@ -47,14 +47,13 @@ module buyruk_onbellegi(
 
     always @(posedge clk_i) begin
         if(rst_i) begin
-            counter <= 0;
+            counter <= 9'b0;
         end else begin
-            counter <= counter + 1;
+            counter <= counter + 9'b1;
         end
     end
 
     reg csb0;
-    reg spare_wen0;
     reg [8:0] addr0;
     reg [40:0] din0;
 
@@ -89,8 +88,7 @@ module buyruk_onbellegi(
             end
             default: begin
                 csb0        = 1'bx;
-                spare_wen0  = 1'bx;
-                addr0       = 32'bx;
+                addr0       = 9'bx;
                 din0        = 32'bx;
                 l1b_bekle_o = 1'b1;
             end

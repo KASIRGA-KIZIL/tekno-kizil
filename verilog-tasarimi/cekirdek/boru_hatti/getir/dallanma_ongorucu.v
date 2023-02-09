@@ -48,28 +48,37 @@ module dallanma_ongorucu(
     wire atlamadi_tahmin_dogru = (~ongorulen_ps_gecerli[`YURUT] && ~atlanan_ps_gecerli_i);
     wire tahmin_dogru          = atladi_tahmin_dogru || atlamadi_tahmin_dogru;
 
-    wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ {ght[4:1], ongorulen_ps_gecerli};
+    wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ {ght[4:1], ongorulen_ps_gecerli_o};
     integer loop_counter;
     always@(posedge clk_i) begin
-        if(tahmin_et[`YURUT]) begin
-            if(~tahmin_dogru) begin
-                btb[ps[`YURUT][5:1]] <= atlanan_ps_i;
-                for(loop_counter=1 ;loop_counter<5; loop_counter=loop_counter+1) begin
-                    ght[loop_counter] <= ght[loop_counter+ght_ptr];
+        if(rst_i) begin
+            for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin
+                btb[loop_counter]      <= (32'h40000000)>>1;
+                sayaclar[loop_counter] <= 2'b00;
+            end
+            ght <= 0;
+            ght_ptr <= 0;
+        end else begin
+            if(tahmin_et[`YURUT]) begin
+                if(~tahmin_dogru) begin
+                    btb[ps[`YURUT][5:1]] <= atlanan_ps_i;
+                    for(loop_counter=1 ;loop_counter<5; loop_counter=loop_counter+1) begin
+                        ght[loop_counter] <= ght[loop_counter+ght_ptr];
+                    end
+                    ght[0] <= atlanan_ps_gecerli_i;
                 end
-                ght[0] <= atlanan_ps_gecerli_i;
-            end
-            if(~atladi_tahmin_dogru   &&  (sayaclar[sayac_yaz_adr] != 2'b00)) begin
-                if(!buyruk_jtipi_i)
-                    sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] -  2'b1;
-            end
-            if(~atlamadi_tahmin_dogru &&  (sayaclar[sayac_yaz_adr] != 2'b11)) begin
-                if(!buyruk_jtipi_i)
-                    sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] +  2'b1;
-            end
-            if(tahmin_et) begin
-                ght <= {ght[6:0], sayaclar[sayac_oku_adr][1]};
-                ght_ptr <= ght_ptr + 3'd1;
+                if(~atladi_tahmin_dogru   &&  (sayaclar[sayac_yaz_adr] != 2'b00)) begin
+                    if(!buyruk_jtipi_i)
+                        sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] -  2'b1;
+                end
+                if(~atlamadi_tahmin_dogru &&  (sayaclar[sayac_yaz_adr] != 2'b11)) begin
+                    if(!buyruk_jtipi_i)
+                        sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] +  2'b1;
+                end
+                if(tahmin_et) begin
+                    ght <= {ght[5:0], sayaclar[sayac_oku_adr][1]};
+                    ght_ptr <= ght_ptr + 2'd1;
+                end
             end
         end
     end
@@ -88,12 +97,6 @@ module dallanma_ongorucu(
 
     always@(posedge clk_i) begin
         if(rst_i) begin
-            for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin
-                btb[loop_counter]      <= (32'h40000000)>>1;
-                sayaclar[loop_counter] <= 2'b00;
-            end
-            ght <= 0;
-            ght_ptr <= 0;
             ongorulen_ps_gecerli = 0;
             tahmin_et = 0;
             buyruk_ctipi = 0;

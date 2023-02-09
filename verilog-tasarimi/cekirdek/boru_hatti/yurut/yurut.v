@@ -167,7 +167,7 @@ module yurut(
             gy_rd_adres_o   <= 0;
         end
         else begin
-            gy_mikroislem_o <= cyo_mikroislem_i;
+            gy_mikroislem_o <= {cyo_mikroislem_i[`YAZMAC],cyo_mikroislem_i[`GERIYAZ]};
             gy_rd_deger_o   <= rd_deger_sonraki_w;
             gy_rd_adres_o   <= cyo_rd_adres_i;
             gy_ps_artmis_o  <= cyo_ps_artmis_i;

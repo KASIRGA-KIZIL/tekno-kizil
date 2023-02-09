@@ -5,7 +5,7 @@
 ######################################################
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-TOP_MODULE = buyruk_onbellegi
+TOP_MODULE = user_processor
 KAYNAKLAR    = ../verilog-tasarimi
 CEVRELEYICI  = ../cevreleyici
 OUTPUT_DIR = ./build

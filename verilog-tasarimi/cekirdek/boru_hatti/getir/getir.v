@@ -93,9 +93,9 @@ module getir (
     always @(*) begin
         ddb_yanlis_tahmin_o = 1'b0;
         if(buyruk_ctipi) begin
-            ps_artmis = ps + 1; // son bit yok b10  -> b1  oluyor.
+            ps_artmis = ps + 31'd1; // son bit yok b10  -> b1  oluyor.
         end else begin
-            ps_artmis = ps + 2; // son bit yok b100 -> b10 oluyor.
+            ps_artmis = ps + 31'd2; // son bit yok b100 -> b10 oluyor.
         end
         case(hata_duzelt)
             `YANLIS_ATLADI: begin
@@ -109,9 +109,9 @@ module getir (
             `ATLAMAMALIYDI: begin
                 ddb_yanlis_tahmin_o = 1'b1;
                 if(yrt_buyruk_ctipi) begin
-                    ps_next = yrt_ps + 1; // son bit yok 10 -> 1 oluyor.
+                    ps_next = yrt_ps + 31'd1; // son bit yok 10 -> 1 oluyor.
                 end else begin
-                    ps_next = yrt_ps + 2; // son bit yok 100 ->10 oluyor.
+                    ps_next = yrt_ps + 31'd2; // son bit yok 100 ->10 oluyor.
                 end
             end
             default: begin

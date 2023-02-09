@@ -47,6 +47,8 @@ module user_processor(
     wire [31:0] l1v_iomem_wdata;
     wire [31:0] l1v_iomem_rdata;
 
+    wire        l1b_iomem_valid;
+    wire        l1b_iomem_ready;
     wire [31:0] l1v_adr_o;
     wire [31:0] l1b_iomem_addr;
     wire [31:0] l1b_iomem_rdata;

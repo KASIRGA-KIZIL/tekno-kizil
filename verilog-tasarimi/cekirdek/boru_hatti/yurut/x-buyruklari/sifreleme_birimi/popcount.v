@@ -8,10 +8,10 @@ module popcount(
 );
 integer i;
     always@*begin
-        bir_sayisi = 0;
+        bir_sayisi = 6'b0;
         for(i = 0;i<32;i = i+1)begin
             if(deger_i[i])begin
-                bir_sayisi = bir_sayisi + 1;
+                bir_sayisi = bir_sayisi + 6'b1;
             end
         end
     end

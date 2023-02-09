@@ -12,8 +12,7 @@ module buyruk_ffram(
     localparam COLS_N = 512;
     reg [40:0] RAM[0:COLS_N-1];
 
-    always @(posedge clk_i)
-    if(1) begin
+    always @(posedge clk_i) begin
         if(wen_i[0]) RAM[wadr_i][ 7: 0] <= data_i[ 7: 0];
         if(wen_i[1]) RAM[wadr_i][15: 8] <= data_i[15: 8];
         if(wen_i[2]) RAM[wadr_i][23:16] <= data_i[23:16];

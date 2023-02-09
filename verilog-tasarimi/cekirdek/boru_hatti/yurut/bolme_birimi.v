@@ -10,9 +10,11 @@ module bolme_birimi(
 	input [1:0] islem_i, //00 DIVU, 01 REMU, 10 DIV, 11 REM
 	input [31:0] bolunen_i,
 	input [31:0] bolen_i,
-	output reg [31:0] sonuc_o,
+	output wire [31:0] sonuc_o,
 	output reg bitti_o = 1
 );
+	reg [32:0] sonuc;
+	assign sonuc_o = sonuc[31:0];
 
     // TODO 33 cevrimde sonuc
     // bitti 1 cevrim gec 34 cevrim oluyor, duzeltelim
@@ -45,11 +47,11 @@ module bolme_birimi(
         bolunen_sonraki_r = bolunen_r;
         fark_sonraki_r = fark_r;
         cevrim_sonraki_r = cevrim_r;
-		sonuc_o = 32'dx;
+		sonuc = 32'dx;
 		gecici_fark_r    = 33'bx;
 		isaret_bolen_r   = 1'bx;
 		isaret_bolunen_r = 1'bx;
-		//bitti_sonraki_r = 1;
+		bitti_o = 1;
 
 		if(basla_i) begin
 			bitti_o = 0;
@@ -94,28 +96,28 @@ module bolme_birimi(
 
                 2'b10: begin // son cevrim
                     casez({islem_i, (isaret_bolen_r ^ isaret_bolunen_r)})
-				    	{`BOLME_DIVU, 1'b?}: sonuc_o = bolunen_r;
-				    	{`BOLME_REMU, 1'b?}: sonuc_o = fark_r;
+				    	{`BOLME_DIVU, 1'b?}: sonuc = bolunen_r;
+				    	{`BOLME_REMU, 1'b?}: sonuc = fark_r;
 
-				    	{`BOLME_DIV, 1'b0}: sonuc_o = bolunen_r;
-				    	{`BOLME_DIV, 1'b1}: sonuc_o = (~bolunen_r) + 1;
+				    	{`BOLME_DIV, 1'b0}: sonuc = bolunen_r;
+				    	{`BOLME_DIV, 1'b1}: sonuc = (~bolunen_r) + 1;
 				    	{`BOLME_REM, 1'b0}: case (isaret_bolunen_r)
 				    	1'b0: begin
-				    	sonuc_o = fark_r;
+				    	sonuc = fark_r;
 				    	end
 				    	1'b1: begin
-				    	sonuc_o = (~fark_r)+1 ;
+				    	sonuc = (~fark_r)+1 ;
 				    	end
 				    	endcase
 				    	{`BOLME_REM, 1'b1}: case (isaret_bolunen_r)
 				    	1'b0: begin
-				    	sonuc_o = fark_r;
+				    	sonuc = fark_r;
 				    	end
 				    	1'b1: begin
-				    	sonuc_o = (~fark_r)+1 ;
+				    	sonuc = (~fark_r)+1 ;
 				    	end
 				    	endcase
-				    	default: sonuc_o = 32'hxxxx_xxxx;
+				    	default: sonuc = 32'hxxxx_xxxx;
 				    endcase
 
 				    cevrim_sonraki_r = 35'd1;
@@ -123,9 +125,9 @@ module bolme_birimi(
 				    bolen_sonraki_r = 0;
 				    bolunen_sonraki_r = 0;
 					if(islem_i[0] && (bolen_i==0))
-						sonuc_o = bolunen_i;
+						sonuc = bolunen_i;
 					if(!islem_i[0] && (bolen_i == 0))
-						sonuc_o = -1;
+						sonuc = -1;
 				    bitti_o= 1;
                 end
 
@@ -134,7 +136,7 @@ module bolme_birimi(
                     bolunen_sonraki_r = 33'dx;
                     fark_sonraki_r = 33'dx;
                     cevrim_sonraki_r = 1;
-					sonuc_o = 32'dx;
+					sonuc = 32'dx;
 		            bitti_o = 1;
                 end
             endcase
@@ -144,9 +146,8 @@ module bolme_birimi(
             bolunen_sonraki_r = 33'dx;
             fark_sonraki_r = 33'dx;
             cevrim_sonraki_r = 1;
-			sonuc_o = 32'dx;
+			sonuc = 32'dx;
 			bitti_o = 1;
-		    //bitti_sonraki_r = 1;
 		end
 	end
 
@@ -156,18 +157,12 @@ module bolme_birimi(
 			bolunen_r <= 0;
 			fark_r <= 0;
 			cevrim_r <= 1;
-
-            //sonuc_o <= 0;
-			bitti_o <= 1;
 		end
 		else begin
 			bolen_r <= bolen_sonraki_r;
 			bolunen_r <= bolunen_sonraki_r;
 			fark_r <= fark_sonraki_r;
 			cevrim_r <= cevrim_sonraki_r;
-
-            //sonuc_o <= sonuc_sonraki_r;
-			//bitti_o <= bitti_sonraki_r;
 		end
 	end
 

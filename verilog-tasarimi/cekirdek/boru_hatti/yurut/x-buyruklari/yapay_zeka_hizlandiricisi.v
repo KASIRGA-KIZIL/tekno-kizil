@@ -28,12 +28,12 @@ module yapay_zeka_hizlandiricisi(
 
     always @(posedge clk_i) begin
         if (rst_i) begin
-            sayac <= 0;
+            sayac <= 4'b0;
         end else begin
             if(kontrol_i == `YZH_RUN)begin
-                sayac <= sayac + 1;
+                sayac <= sayac + 4'b1;
             end else begin
-                sayac <= 0;
+                sayac <= 4'b0;
             end
         end
     end
@@ -126,21 +126,21 @@ module yapay_zeka_yazmac_obegi(
     integer i = 0;
     always@(posedge clk_i) begin
         if (rst_i) begin
-            adr0 <= 0;
-            adr1 <= 0;
-            for(i = 0; i < 32; i = i + 1)
-                yazmaclar[i] <= 0;
+            adr0 <= 4'd0;
+            adr1 <= 4'd0;
+            for(i = 0; i < 16; i = i + 1)
+                yazmaclar[i] <= 32'd0;
         end
         else if(yaz1_en_i) begin
             yazmaclar[adr0] <= yaz1_deger_i;
-            adr0            <= adr0 + 1;
+            adr0            <= adr0 + 4'd1;
             if(yaz2_en_i)begin
                 yazmaclar[adr0+1] <= yaz2_deger_i;
-                adr0 <= adr0 + 2;
+                adr0 <= adr0 + 4'd2;
             end
         end
         if(oku_en_i)begin
-            adr1 <= adr1 + 1;
+            adr1 <= adr1 + 4'd1;
         end
     end
 
