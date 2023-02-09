@@ -129,5 +129,79 @@ module user_processor(
         .l1v_iomem_rdata (l1v_iomem_rdata )
     );
 
+    veriyolu vy(
+        .clk_i(clk_i),
+        .rst_i(rst_i),
+
+        .cekirdek_wb_adres_i(cekirdek_wb_adres_w),
+        .cekirdek_wb_veri_i(cekirdek_wb_veri_w),
+        .cekirdek_wb_veri_maske_i(cekirdek_wb_veri_maske_w),
+        .cekirdek_wb_yaz_gecerli_i(cekirdek_wb_yaz_gecerli_w),
+        .cekirdek_wb_sec_n_i(cekirdek_wb_sec_n_w),
+        .wb_cekirdek_veri_o(wb_cekirdek_veri_w),
+        .wb_cekirdek_mesgul_o(wb_cekirdek_mesgul_w),
+
+        .uart_wb_oku_veri_i(uart_wb_oku_veri_w),
+        .uart_wb_oku_veri_gecerli_i(uart_wb_oku_veri_gecerli_w),
+        .uart_wb_mesgul_i(uart_wb_mesgul_w),
+        .wb_uart_adres_o(wb_uart_adres_w),
+        .wb_uart_veri_o(wb_uart_veri_w),
+        .wb_uart_gecerli_o(wb_uart_gecerli_w),
+        .wb_uart_yaz_gecerli_o(wb_uart_yaz_gecerli_w)
+
+        .pwm_wb_mesgul_i(),
+        .pwm_wb_oku_veri_i(),
+        .pwm_wb_oku_veri_gecerli_i(),
+        .wb_pwm_adres_o(),
+        .wb_pwm_veri_o(),
+        .wb_pwm_yaz_gecerli_o()
+    );
+
+    wire [31:0] wb_uart_adres_w;
+    wire [31:0] wb_uart_veri_w;
+    wire        wb_uart_gecerli_w;
+    wire        wb_uart_yaz_gecerli_w;
+    wire [31:0] uart_wb_oku_veri_w;
+    wire        uart_wb_oku_veri_gecerli_w;
+    wire        uart_wb_mesgul_w;
+
+    uart_denetleyici ud(
+        .clk_i(clk_i),
+        .rst_i(rst_i),
+
+        .wb_adres_i(wb_uart_adres_w),
+        .wb_veri_i(wb_uart_veri_w),
+        .wb_gecerli_i(wb_uart_gecerli_w),
+        .wb_yaz_gecerli_i(wb_uart_yaz_gecerli_w),
+        .wb_oku_veri_o(uart_wb_oku_veri_w),
+        .wb_oku_gecerli_o(uart_wb_oku_veri_gecerli_w),
+        .uart_mesgul_o(uart_wb_mesgul_w),
+        
+        .uart_rx_i(uart_rx_i),
+        .uart_tx_o(uart_tx_o)
+    );
+
+    wire [31:0] wb_pwm_adres_w;
+    wire [31:0] wb_pwm_veri_w;
+    wire        wb_pwm_gecerli_w;
+    wire        wb_pwm_yaz_etkin_w;
+    wire [31:0] pwm_wb_oku_veri_w;
+    wire        pwm_wb_oku_hazir_w;
+    wire        pwm_wb_mesgul_w;
+
+    pwm_denetleyici pd(
+        .clk_i(clk_i),
+        .rst_i(rst_i),
+        .wb_pwm_adres_i(wb_pwm_adres_w),
+        .wb_veri_i(wb_pwm_veri_w),
+        .wb_gecerli_i(wb_pwm_gecerli_w),
+        .wb_yaz_etkin_i(wb_pwm_yaz_etkin_w),
+        .wb_oku_veri_o(pwm_wb_oku_veri_w),
+        .wb_oku_hazir_o(pwm_wb_oku_hazir_w),
+        .wb_mesgul_o(pwm_wb_mesgul_w),
+        .pwm0_o(pwm0_o),
+        .pwm1_o(pwm1_o) 
+    )
+
 
 endmodule

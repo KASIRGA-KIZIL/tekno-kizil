@@ -1,4 +1,7 @@
 // wb_uart.v
+// bu dosya silinecek
+// çekirdek öncesi wishbone ve uart denemek için oluşturuldu
+
 `timescale 1ns / 1ps
 
 `include "tanimlamalar.vh"
@@ -56,7 +59,7 @@ end
         .wb_uart_adres_o(wb_uart_adres_w),
         .wb_uart_veri_o(wb_uart_veri_w),
         .wb_uart_gecerli_o(wb_uart_gecerli_w),
-        .wb_uart_yaz_gecerli_o(wb_uart_yaz_gecerli_w)
+        .wb_uart_yaz_gecerli_o(wb_uart_yaz_gecerli_w),
     );
 
     uart_denetleyici ud(

@@ -86,7 +86,7 @@ else ifeq ($(MODULE),test_veriyolu)
 						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
 						$(KAYNAKLAR)/veriyolu/*.v
-else ifeq ($(MODULE),test_wb_uart)
+else ifeq ($(MODULE),test_wb_uart) # Bu kontrol silinecek test amacli yazildi
 	TOPLEVEL        := wb_uart
     VERILOG_SOURCES +=  ../cevreleyici/*.v \
 						$(KAYNAKLAR)/*.v \

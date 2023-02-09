@@ -7,12 +7,12 @@ module uart_denetleyici(
     input           clk_i,
     input           rst_i,
     
-    input [31:0]    wb_adres_i,
-    input [31:0]    wb_veri_i,
+    input  [31:0]   wb_adres_i,
+    input  [31:0]   wb_veri_i,
     input           wb_gecerli_i,
     input           wb_yaz_gecerli_i,
-    output reg[31:0]wb_oku_veri_o,
-    output reg      wb_oku_gecerli_o,
+    output [31:0]   wb_oku_veri_o,
+    output          wb_oku_gecerli_o,
     output          uart_mesgul_o,
 
     input           uart_rx_i,

@@ -1,5 +1,8 @@
 # test_wb_uart.py
 
+# bu dosya silinecek
+# çekirdek öncesi wishbone ve uart denemek için oluşturuldu
+
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge

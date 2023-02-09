@@ -24,33 +24,18 @@ module pwm_denetleyici(
     input         wb_gecerli_i,
     input         wb_yaz_etkin_i,
     output [31:0] wb_oku_veri_o, // daha az bit sayisi olan yazmaclarin on bitleri 0
-    output wb_oku_hazir_o,
-
-    // bunlarin hepsi 32 bitlik wb_veri_i ile geliyor
-    /*
-    // PWM0
-    input [1:0]  wb_pwm_control_1_i,
-    input [31:0] wb_pwm_period_1_i,
-    input [31:0] wb_pwm_threshold_1_1_i,
-    input [31:0] wb_pwm_threshold_1_2_i,
-    input [11:0] wb_pwm_step_1_i,
-
-    // PWM1
-    input [1:0]  wb_pwm_control_2_i,
-    input [31:0] wb_pwm_period_2_i,
-    input [31:0] wb_pwm_threshold_2_1_i,
-    input [31:0] wb_pwm_threshold_2_2_i,
-    input [11:0] wb_pwm_step_2_i,
-    */
+    output        wb_oku_hazir_o,
+    output        wb_mesgul_o,
 
     // pwm_denetleyici <-> user_processor
     output pwm0_o, // 0x20020028
     output pwm1_o  // 0x2002002c adresten okunabilmesi lazim
 );
+    assign wb_mesgul_o = 1'b0;
 
     wire wb_yaz_w = {wb_gecerli_i, wb_yaz_etkin_i, wb_pwm_adres_i};
     wire wb_oku_w = {wb_gecerli_i, ~wb_yaz_etkin_i, wb_pwm_adres_i};
-
+    
     reg [31:0] wb_oku_veri_r = 0;
     reg [31:0] wb_oku_veri_next_r = 0;
     assign wb_oku_veri_o = wb_oku_veri_r;
