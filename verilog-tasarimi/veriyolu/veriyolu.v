@@ -20,14 +20,22 @@ module veriyolu(
     input  [31:0]       uart_wb_oku_veri_i,
     input               uart_wb_oku_veri_gecerli_i,
     input               uart_wb_mesgul_i,
-    output reg[31:0]    wb_uart_adres_i,
-    output reg[31:0]    wb_uart_veri_i,
-    output reg          wb_uart_gecerli_i,
-    output reg          wb_uart_yaz_gecerli_i
+    output reg[31:0]    wb_uart_adres_o,
+    output reg[31:0]    wb_uart_veri_o,
+    output reg          wb_uart_gecerli_o,
+    output reg          wb_uart_yaz_gecerli_o
     
     // diger cihazlar icin devami eklenecek
     
 );
+
+`ifdef COCOTB_SIM
+initial begin
+  $dumpfile ("veriyolu.vcd");
+  $dumpvars (0, veriyolu);
+  #1;
+end
+`endif
 
     wire [31:0] master_slave_addr_w;
     wire [31:0] slave_master_data_w;
@@ -39,11 +47,13 @@ module veriyolu(
     wire        slave_master_ack_w;
 
     wire [1:0]  master_sel_w;
-    wire        slave_sel_w [3:0];
-    assign      slave_sel_w[0] = ~|master_sel_w;
-    assign      slave_sel_w[1] = ~master_sel_w[1] & master_sel_w[0];
-    assign      slave_sel_w[1] = ~master_sel_w[0] & master_sel_w[1];
-    assign      slave_sel_w[3] = &master_sel_w;
+    wire        slave_sel_w [3:0]; // 0: UART 1:SPI 2:PWM 3:V$
+    genvar i;
+    generate
+        for(i = 0; i < 4; i = i + 1)begin
+            assign slave_sel_w[i] = master_sel_w == i;
+        end
+    endgenerate
 
     wishbone_master wm(
         .clk_i(clk_i),
@@ -64,7 +74,7 @@ module veriyolu(
         .sel_o(master_sel_w),
         .ack_i(slave_master_ack_w)
     );
-
+    wire wb_uart_oku_gecerli_w;
     wishbone_slave ws_uart(
         .clk_i(clk_i),
         .rst_i(rst_i),
@@ -76,15 +86,16 @@ module veriyolu(
 
         .cyc_i(master_slave_cyc_w), 
         .stb_i(master_slave_stb_w), 
-        .sel_i(master_sel_w), 
+        .sel_i(slave_sel_w[0]), 
         .ack_o(slave_master_ack_w), 
 
         .device_ready_i(~uart_wb_mesgul_i),
         .device_rdata_i(uart_wb_oku_veri_i),
-        .device_rdata_valid_i(uart_wb_oku_veri_gecerli_i)
+        .device_rdata_valid_i(uart_wb_oku_veri_gecerli_i),
         .device_addr_o(wb_uart_adres_o),
         .device_wdata_o(wb_uart_veri_o),
-        .device_we_o(wb_uart_yaz_gecerli_o)
+        .device_we_o(wb_uart_yaz_gecerli_o),
+        .device_re_o(wb_uart_oku_gecerli_w)
     );
-    assign wb_uart_gecerli_o = slave_sel[0] ;
+    assign wb_uart_gecerli_o = slave_sel_w[0] & (wb_uart_yaz_gecerli_o || wb_uart_oku_gecerli_w) ;
 endmodule

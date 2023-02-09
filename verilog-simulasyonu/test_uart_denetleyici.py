@@ -31,10 +31,24 @@ async def test_tx(dut):
 
     await RisingEdge(dut.clk_i)
 
+    dut.wb_adres_i.value = 0x0000_0000
+    dut.wb_veri_i.value  = 0x0000_0000
+    dut.wb_gecerli_i.value = 0
+    dut.wb_yaz_gecerli_i.value = 0
+
+    await RisingEdge(dut.clk_i)
+
     dut.wb_adres_i.value = 0x0000_000C
     dut.wb_veri_i.value  = 0x0000_00BB
     dut.wb_gecerli_i.value = 1
     dut.wb_yaz_gecerli_i.value = 1
+
+    await RisingEdge(dut.clk_i)
+
+    dut.wb_adres_i.value = 0x0000_0000
+    dut.wb_veri_i.value  = 0x0000_0000
+    dut.wb_gecerli_i.value = 0
+    dut.wb_yaz_gecerli_i.value = 0
 
     await RisingEdge(dut.clk_i)
 
@@ -46,9 +60,23 @@ async def test_tx(dut):
     await RisingEdge(dut.clk_i)
 
     dut.wb_adres_i.value = 0x0000_0000
+    dut.wb_veri_i.value  = 0x0000_0000
+    dut.wb_gecerli_i.value = 0
+    dut.wb_yaz_gecerli_i.value = 0
+
+    await RisingEdge(dut.clk_i)
+
+    dut.wb_adres_i.value = 0x0000_0000
     dut.wb_veri_i.value  = 0x0002_0001 # .vcd dosyasinda inceleyebilmek icin yuksek baudrate
     dut.wb_gecerli_i.value = 1
     dut.wb_yaz_gecerli_i.value = 1
+
+    await RisingEdge(dut.clk_i)
+
+    dut.wb_adres_i.value = 0x0000_0000
+    dut.wb_veri_i.value  = 0x0000_0000
+    dut.wb_gecerli_i.value = 0
+    dut.wb_yaz_gecerli_i.value = 0
 
     await RisingEdge(dut.clk_i)
 
