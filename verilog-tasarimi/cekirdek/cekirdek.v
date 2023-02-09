@@ -20,7 +20,7 @@ module cekirdek(
     output wire [31:0] l1v_adr_o,
     output wire [ 3:0] l1v_veri_maske_o,
     output wire        l1v_yaz_gecerli_o,
-    output wire        l1v_sec_n_o
+    output wire        l1v_sec_o
 );
 
     wire [31:1] l1b_adr_w;
@@ -115,7 +115,7 @@ module cekirdek(
         .l1v_adr_o         (l1v_adr_o         ),
         .l1v_veri_maske_o  (l1v_veri_maske_o  ),
         .l1v_yaz_gecerli_o (l1v_yaz_gecerli_o ),
-        .l1v_sec_n_o       (l1v_sec_n_o       )
+        .l1v_sec_o       (l1v_sec_o       )
     );
 
     coz_yazmacoku coz_yazmacoku_dut (
