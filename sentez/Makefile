@@ -3,20 +3,35 @@
 ##      The aim is to see warnings and errors.
 ##
 ######################################################
+rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-TOP_MODULE = top
-RTL      := ../verilog-tasarimi
+TOP_MODULE = buyruk_onbellegi
+KAYNAKLAR    = ../verilog-tasarimi
+CEVRELEYICI  = ../cevreleyici
+OUTPUT_DIR = ./build
+
+KAYNAKLAR_FOREACH   = $(foreach item,$(call rwildcard,$(KAYNAKLAR),*.v),--source=$(item))
+CEVRELEYICI_FOREACH = $(foreach item,$(call rwildcard,$(CEVRELEYICI),*.v),--source=$(item))
 
 .PHONY: sentez
-Sentez:
-		cd ./build && quartus_map $(TOP_MODULE) -l ../$(RTL)
+Sentez: builddir
+		quartus_map $(TOP_MODULE) $(KAYNAKLAR_FOREACH) $(CEVRELEYICI_FOREACH)  -l $(KAYNAKLAR)
 
 .PHONY: show
 show:
-		cd ./build && quartus_npp $(TOP_MODULE) --netlist_type=sgate
-		cd ./build && qnui $(TOP_MODULE)
+		cd $(OUTPUT_DIR) && quartus_npp $(TOP_MODULE) --netlist_type=sgate
+		cd $(OUTPUT_DIR) && qnui $(TOP_MODULE)
+
+.PHONY: builddir
+builddir:
+	mkdir -p $(OUTPUT_DIR)
+
 
 .PHONY: clean
 clean:
-		-rm -rf build/*
-
+	cd ..; \
+	mkdir ./tmp000; \
+	mv ./sentez/Makefile ./tmp000/; \
+	rm -rf sentez/*; \
+	mv ./tmp000/Makefile ./sentez/; \
+	rm -rf ./tmp000
