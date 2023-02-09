@@ -66,7 +66,7 @@ module user_processor(
         .l1v_adr_o        (l1v_adr_o        ),
         .l1v_veri_maske_o (l1v_mask         ),
         .l1v_yaz_gecerli_o(l1v_yaz_gecerli  ),
-        .l1v_sec_n_o      (l1v_sec          )
+        .l1v_sec_o      (l1v_sec          )
     );
 
     buyruk_onbellegi buyruk_onbellegi_dut (
@@ -87,15 +87,13 @@ module user_processor(
         .clk_i (clk_i ),
         .rst_i (rst_i ),
 
-        .ddb_durdur         (ddb_durdur       ),
-
         .bib_veri_o         (l1v_yaz_veri     ),
         .bib_durdur_o       (l1v_durdur       ),
         .bib_veri_i         (l1v_oku_veri     ),
         .bib_adr_o          (l1v_adr_o        ),
         .bib_veri_maske_o   (l1v_mask         ),
         .bib_yaz_gecerli_o  (l1v_yaz_gecerli  ),
-        .bib_sec_n_o        (l1v_sec          ),
+        .bib_sec_o          (l1v_sec          ),
 
         .ab_ready (l1v_iomem_ready ),
         .ab_valid (l1v_iomem_valid ),

@@ -20,7 +20,7 @@ module sram_40b_512_1w_1r_sky130(
   parameter RAM_DEPTH = 1 << ADDR_WIDTH;
   // FIXME: This delay is arbitrary.
   parameter DELAY = 3 ;
-  parameter VERBOSE = 1 ; //Set to 0 to only display warnings
+  parameter VERBOSE = 0 ; //Set to 0 to only display warnings
   parameter T_HOLD = 1 ; //Delay to hold dout value after posedge. Value is arbitrary
 
 `ifdef USE_POWER_PINS
@@ -70,7 +70,7 @@ module sram_40b_512_1w_1r_sky130(
     if (!csb0 && !csb1 && (addr0 == addr1))
          $display($time," WARNING: Writing and reading addr0=%b and addr1=%b simultaneously!",addr0,addr1);
     #(T_HOLD) dout1 = 40'bx;
-    if ( !csb1_reg && VERBOSE ) 
+    if ( !csb1_reg && VERBOSE )
       $display($time," Reading %m addr1=%b dout1=%b",addr1_reg,mem[addr1_reg]);
   end
 

@@ -44,7 +44,7 @@ module yurut(
     output wire [31:0] l1v_adr_o,
     output wire [ 3:0] l1v_veri_maske_o,
     output wire        l1v_yaz_gecerli_o,
-    output wire        l1v_sec_n_o
+    output wire        l1v_sec_o
 );
 
     wire [31:0] amb_sonuc_w      ;
@@ -104,7 +104,7 @@ module yurut(
         .l1v_adr_o         (l1v_adr_o         ),
         .l1v_veri_maske_o  (l1v_veri_maske_o  ),
         .l1v_yaz_gecerli_o (l1v_yaz_gecerli_o ),
-        .l1v_sec_n_o       (l1v_sec_n_o       )
+        .l1v_sec_o       (l1v_sec_o       )
     );
 
     wire yzh_bitti;
@@ -138,7 +138,7 @@ module yurut(
     assign ddb_yonlendir_gecerli_o  = ~((cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ||
                                         (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ||
                                         (cyo_mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ||
-                                        (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB      ));
+                                        (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB      )) || ((cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB) && bib_bitti);
 
     assign gtr_atlanan_ps_gecerli_o = (cyo_mikroislem_i[`DAL] == `DAL_EQ  ) ?  cyo_lt_ltu_eq_i[0]:
                                       (cyo_mikroislem_i[`DAL] == `DAL_NE  ) ? !cyo_lt_ltu_eq_i[0]:
