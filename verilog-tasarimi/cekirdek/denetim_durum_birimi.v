@@ -40,13 +40,13 @@ module denetim_durum_birimi(
     reg [3:0] gecersiz;
     reg bos_basla;
 
-    wire yurut_yonlendir1   = (((cyo_rs1_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs1_adres_i != 0)) && (~gecersiz[`ASAMA_YURUT  ]);
+    wire yurut_yonlendir1   = (((cyo_rs1_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs1_adres_i != 0)) && (~gecersiz[`ASAMA_YURUT  ]||yrt_yonlendir_gecerli_i);
     wire geriyaz_yonlendir1 = (((cyo_rs1_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs1_adres_i != 0)) && (~gecersiz[`ASAMA_GERIYAZ]);
     assign  cyo_yonlendir_kontrol1_o = yurut_yonlendir1   ? `YON_YURUT :
                                        geriyaz_yonlendir1 ? `YON_GERIYAZ :
                                                             `YON_HICBISEY;
 
-    wire yurut_yonlendir2   = (((cyo_rs2_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs2_adres_i != 0)) && (~gecersiz[`ASAMA_YURUT  ]);
+    wire yurut_yonlendir2   = (((cyo_rs2_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs2_adres_i != 0)) && (~gecersiz[`ASAMA_YURUT  ]||yrt_yonlendir_gecerli_i);
     wire geriyaz_yonlendir2 = (((cyo_rs2_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs2_adres_i != 0)) && (~gecersiz[`ASAMA_GERIYAZ]);
     assign  cyo_yonlendir_kontrol2_o =  yurut_yonlendir2   ? `YON_YURUT :
                                         geriyaz_yonlendir2 ? `YON_GERIYAZ :

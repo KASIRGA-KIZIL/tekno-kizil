@@ -26,6 +26,22 @@ module bellek_islem_birimi(
 );
     reg [ 2:0] kontrol;
 
+    wire [31:0] lh_sonuc = adr_i[1] ? {{16{l1v_veri_i[31]}},l1v_veri_i[31:16]} :
+                                      {{16{l1v_veri_i[15]}},l1v_veri_i[15: 0]} ;
+
+    wire [31:0] lhu_sonuc = adr_i[1] ? {{16{1'b0}},l1v_veri_i[31:16]} :
+                                       {{16{1'b0}},l1v_veri_i[15: 0]} ;
+
+    wire [31:0] lbu_sonuc = (adr_i[1:0] == 2'b00) ? {{24{1'b0}},l1v_veri_i[ 7: 0]} :
+                            (adr_i[1:0] == 2'b01) ? {{24{1'b0}},l1v_veri_i[15: 8]} :
+                            (adr_i[1:0] == 2'b10) ? {{24{1'b0}},l1v_veri_i[23:16]} :
+                                                    {{24{1'b0}},l1v_veri_i[31:24]} ;
+
+    wire [31:0] lb_sonuc = (adr_i[1:0] == 2'b00) ? {{24{l1v_veri_i[ 7]}},l1v_veri_i[ 7: 0]} :
+                           (adr_i[1:0] == 2'b01) ? {{24{l1v_veri_i[15]}},l1v_veri_i[15: 8]} :
+                           (adr_i[1:0] == 2'b10) ? {{24{l1v_veri_i[23]}},l1v_veri_i[23:16]} :
+                                                   {{24{l1v_veri_i[31]}},l1v_veri_i[31:24]} ;
+
     assign bitti_o = basla_i ? ~l1v_durdur_i : 1'b1;
 
 
@@ -42,15 +58,16 @@ module bellek_islem_birimi(
     assign l1v_yaz_gecerli_o = basla_i && ((kontrol_i == `BIB_SB) || (kontrol_i == `BIB_SH) || (kontrol_i == `BIB_SW));
 
     // BIB_LW casei silinebilir?
-    assign sonuc_o = (kontrol == `BIB_LB ) ? {{24{l1v_veri_i[ 7]}},l1v_veri_i[7:0]}  :
-                     (kontrol == `BIB_LH ) ? {{16{l1v_veri_i[15]}},l1v_veri_i[15:0]} :
-                     (kontrol == `BIB_LW ) ? l1v_veri_i                              :
-                     (kontrol == `BIB_LBU) ? {24'b0,l1v_veri_i[ 7:0]}                :
-                     (kontrol == `BIB_LHU) ? {16'b0,l1v_veri_i[15:0]}                :
-                                              l1v_veri_i;
+    assign sonuc_o = (kontrol == `BIB_LB ) ? lb_sonuc   :
+                     (kontrol == `BIB_LH ) ? lh_sonuc   :
+                     (kontrol == `BIB_LW ) ? l1v_veri_i :
+                     (kontrol == `BIB_LBU) ? lbu_sonuc  :
+                     (kontrol == `BIB_LHU) ? lhu_sonuc  :
+                                            l1v_veri_i  ;
+
 
     assign l1v_veri_o = deger_i;
-    assign l1v_adr_o  = adr_i;
+    assign l1v_adr_o  = {adr_i[31:2],2'b0};
 
     always @(posedge clk_i)begin
         kontrol  <= kontrol_i;

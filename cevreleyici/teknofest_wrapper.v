@@ -160,4 +160,8 @@ function integer clogb2;
       depth = depth >> 1;
 endfunction
 
+initial begin
+  $dumpfile("fuck_this_shit.vcd");
+  $dumpvars(0, teknofest_wrapper);
+end
 endmodule
