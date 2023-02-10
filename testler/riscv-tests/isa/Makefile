@@ -39,7 +39,7 @@ default: all
 RISCV_PREFIX ?= riscv32-unknown-elf-
 RISCV_GCC ?= $(RISCV_PREFIX)gcc
 RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles $(DCSRLI) -march=rv32imc -mabi=ilp32
-RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.text.init --section=.data -M no-aliases 
+RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.text.init --section=.data -M numeric,no-aliases 
 RISCV_SIM ?= spike
 
 RISCV_OBJCOPY ?= $(RISCV_PREFIX)objcopy
