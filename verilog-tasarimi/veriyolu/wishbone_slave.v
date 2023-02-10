@@ -20,8 +20,8 @@ module wishbone_slave(
     input      [0:0]  sel_i  ,
     output reg [0:0]  ack_o  ,
 
-    // input      [0:0]  tgd_i  ,
-    // input      [0:0]  tgd_o  ,
+    input      [0:0]  tgd_i  ,
+    output     [0:0]  tgd_o  ,
 
     // wb <-> controller interface
     input      [0:0]  device_ready_i,
@@ -38,9 +38,10 @@ module wishbone_slave(
 
     assign device_addr_o = addr_i;
     assign device_wdata_o = data_i;
-    assign device_we_o = we_i;
+    assign device_we_o = (tgd_i == ^data_i) ? we_i : 1'b0;
     assign device_re_o = cyc_i && stb_i && ~we_i;
     assign data_o = (device_rdata_valid_i & ~ we_i) ? device_rdata_i : 32'b0;
+    assign tgd_o = ^data_o;
 
     always@*begin
         ack_o_n = 1'b0;

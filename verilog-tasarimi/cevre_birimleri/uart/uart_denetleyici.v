@@ -9,17 +9,17 @@ module uart_denetleyici(
 
     input  [31:0]   wb_adres_i,
     input  [31:0]   wb_veri_i,
-    input           wb_gecerli_i,
+    input           wb_etkin_i,
     input           wb_yaz_gecerli_i,
     output [31:0]   wb_oku_veri_o,
     output          wb_oku_gecerli_o,
-    output          uart_mesgul_o,
+    output          wb_mesgul_o,
 
     input           uart_rx_i,
     output          uart_tx_o
 );
     wire al_veri_gecerli_o;
-    assign uart_mesgul_o = 1'b0;
+    assign wb_mesgul_o = 1'b0;
 
     reg [4:0] tx_bufIdx_head_r, tx_bufIdx_tail_r; // 0 bos, 32 tamami dolu
     reg [4:0] tx_bufIdx_head_ns, tx_bufIdx_tail_ns;
@@ -88,7 +88,7 @@ module uart_denetleyici(
                 rx_bufIdx_head_ns = rx_bufIdx_head_r + 5'd1;
             end
         end
-        if(wb_gecerli_i)begin
+        if(wb_etkin_i)begin
             case({wb_yaz_gecerli_i,wb_adres_i[3:0]})
                 5'h10:begin //yaz gecerli
                   baud_div_ns = wb_veri_i[31:16];

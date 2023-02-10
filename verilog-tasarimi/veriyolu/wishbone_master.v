@@ -27,17 +27,17 @@ module wishbone_master(
     output reg [1:0]  sel_o  ,
     input      [0:0]  ack_i
 
-    // output reg [0:0]  tgd_i  ,
-    // output reg [0:0]  tgd_o  ,
+    input      [0:0]  tgd_i  ,
+    output     [0:0]  tgd_o  ,
 );
 
     //latches
     reg [31:0]    addr_o_n;
     reg [31:0]    data_o_n;
     reg [0:0]     we_o_n  ;
-
     reg [0:0]     cyc_o_n ;
     reg [0:0]     stb_o_n ;
+    reg [1:0] sel_o_n;
 
     reg [31:0]    cmd_rdata_o_n;
     reg [0:0]     cmd_rdata_valid_o_n;
@@ -47,8 +47,7 @@ module wishbone_master(
     wire write_request_w = cmd_word_i[33];
 
     assign cmd_busy_o = cyc_o || stb_o;
-
-    reg [1:0] sel_o_n;
+    assign tgd_o = ^data_o;
 
     always@*begin
         sel_o_n = (read_request_w | write_request_w) ? (cmd_addr_i[29] ? cmd_addr_i[17:16]   //Cihazlar
@@ -91,13 +90,15 @@ module wishbone_master(
         end
 
         if(cyc_o && ~stb_o && ack_i)begin
-            cmd_rdata_o_n = data_i;
-            cyc_o_n = 1'b0;
-            stb_o_n = 1'b0;
-            we_o_n  = 1'b0;
-            if(okuma_istegi_r)begin
-                cmd_rdata_valid_o_n = 1'b1;
-                okuma_istegi_n = 1'b0;
+            if(tgd_i == ^data_i)begin
+                cmd_rdata_o_n = data_i;
+                cyc_o_n = 1'b0;
+                stb_o_n = 1'b0;
+                we_o_n  = 1'b0;
+                if(okuma_istegi_r)begin
+                    cmd_rdata_valid_o_n = 1'b1;
+                    okuma_istegi_n = 1'b0;
+                end
             end
         end
 

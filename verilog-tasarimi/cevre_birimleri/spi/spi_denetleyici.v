@@ -12,7 +12,7 @@ module spi_denetleyici (
     output        wb_oku_hazir_o, // =valid.
     input  [31:0] wb_yaz_veri_i,
     input         wb_yaz_etkin_i,
-    input         wb_gecerli_i,
+    input         wb_etkin_i,
     output        wb_mesgul_o,
 
     // spi i/o
@@ -262,7 +262,7 @@ module spi_denetleyici (
 
             STATUS: // Sadece okuma yazmaci
             begin
-                if(wb_gecerli_i) begin
+                if(wb_etkin_i) begin
                     spi_rdata_next = {miso_empty, mosi_empty, miso_full, mosi_full};
                     valid_next = 1'b1;
                 end
@@ -270,11 +270,11 @@ module spi_denetleyici (
 
             CTRL:
             begin
-                if(wb_yaz_etkin_i && wb_gecerli_i) begin
+                if(wb_yaz_etkin_i && wb_etkin_i) begin
                     spi_ctrl_next = wb_yaz_veri_i;// && 32'hFFFF000F;
                     valid_next = 1'b1;
                 end
-                else if(wb_gecerli_i) begin
+                else if(wb_etkin_i) begin
                     spi_rdata_next = spi_ctrl;
                     valid_next = 1'b1;
                 end
@@ -282,11 +282,11 @@ module spi_denetleyici (
 
             CMD:
             begin
-                if(wb_yaz_etkin_i && wb_gecerli_i) begin
+                if(wb_yaz_etkin_i && wb_etkin_i) begin
                     spi_cmd_next = wb_yaz_veri_i;//&& 32'h000031FF; // 0011_0011_1111_1111 *********************************** mask yanli
                     valid_next = 1'b1;
                 end
-                else if(wb_gecerli_i) begin
+                else if(wb_etkin_i) begin
                     spi_rdata_next = spi_cmd;
                     valid_next = 1'b1;
                 end
@@ -294,7 +294,7 @@ module spi_denetleyici (
 
             RDATA:
             begin
-                if(!miso_empty && wb_gecerli_i) begin
+                if(!miso_empty && wb_etkin_i) begin
                     spi_rdata_next = miso_buffer[0];
                     valid_next = 1'b1;
 
@@ -317,7 +317,7 @@ module spi_denetleyici (
 
             WDATA:
             begin
-                if(!mosi_full && wb_yaz_etkin_i && wb_gecerli_i) begin
+                if(!mosi_full && wb_yaz_etkin_i && wb_etkin_i) begin
                     mosi_buffer_next[(mosi_empty?mosi_tail:(mosi_tail-1))] = wb_yaz_veri_i;
                     mosi_tail_next = mosi_tail + 4'b1;
 

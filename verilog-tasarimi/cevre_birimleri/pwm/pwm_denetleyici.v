@@ -21,7 +21,7 @@ module pwm_denetleyici(
     // wishbone <-> pwm_denetleyici
     input  [5:0]  wb_pwm_adres_i, // 32 bit adres gelmesine gerek yok, sadece son 6 bitine bakmak yeterli
     input  [31:0] wb_veri_i,
-    input         wb_gecerli_i,
+    input         wb_etkin_i,
     input         wb_yaz_etkin_i,
     output [31:0] wb_oku_veri_o, // daha az bit sayisi olan yazmaclarin on bitleri 0
     output        wb_oku_hazir_o,
@@ -33,8 +33,8 @@ module pwm_denetleyici(
 );
     assign wb_mesgul_o = 1'b0;
 
-    wire [7:0] wb_yaz_w = {wb_gecerli_i, wb_yaz_etkin_i, wb_pwm_adres_i};
-    wire [7:0] wb_oku_w = {wb_gecerli_i, ~wb_yaz_etkin_i, wb_pwm_adres_i};
+    wire [7:0] wb_yaz_w = {wb_etkin_i, wb_yaz_etkin_i, wb_pwm_adres_i};
+    wire [7:0] wb_oku_w = {wb_etkin_i, ~wb_yaz_etkin_i, wb_pwm_adres_i};
 
     reg [31:0] wb_oku_veri_r = 0;
     reg [31:0] wb_oku_veri_next_r = 0;
