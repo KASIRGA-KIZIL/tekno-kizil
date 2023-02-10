@@ -147,7 +147,7 @@ module user_processor(
         .wb_uart_adres_o(wb_uart_adres_w),
         .wb_uart_veri_o(wb_uart_veri_w),
         .wb_uart_gecerli_o(wb_uart_gecerli_w),
-        .wb_uart_yaz_gecerli_o(wb_uart_yaz_gecerli_w)
+        .wb_uart_yaz_gecerli_o(wb_uart_yaz_gecerli_w),
 
         .pwm_wb_mesgul_i(),
         .pwm_wb_oku_veri_i(),
@@ -156,14 +156,6 @@ module user_processor(
         .wb_pwm_veri_o(),
         .wb_pwm_yaz_gecerli_o()
     );
-
-    wire [31:0] wb_uart_adres_w;
-    wire [31:0] wb_uart_veri_w;
-    wire        wb_uart_gecerli_w;
-    wire        wb_uart_yaz_gecerli_w;
-    wire [31:0] uart_wb_oku_veri_w;
-    wire        uart_wb_oku_veri_gecerli_w;
-    wire        uart_wb_mesgul_w;
 
     uart_denetleyici ud(
         .clk_i(clk_i),
@@ -176,7 +168,7 @@ module user_processor(
         .wb_oku_veri_o(uart_wb_oku_veri_w),
         .wb_oku_gecerli_o(uart_wb_oku_veri_gecerli_w),
         .uart_mesgul_o(uart_wb_mesgul_w),
-        
+
         .uart_rx_i(uart_rx_i),
         .uart_tx_o(uart_tx_o)
     );
@@ -200,8 +192,8 @@ module user_processor(
         .wb_oku_hazir_o(pwm_wb_oku_hazir_w),
         .wb_mesgul_o(pwm_wb_mesgul_w),
         .pwm0_o(pwm0_o),
-        .pwm1_o(pwm1_o) 
-    )
+        .pwm1_o(pwm1_o)
+    );
 
 
 endmodule

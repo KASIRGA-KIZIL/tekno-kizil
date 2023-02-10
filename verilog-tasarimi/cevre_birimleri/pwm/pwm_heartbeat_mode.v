@@ -23,8 +23,8 @@ module pwm_heartbeat_mode #(
   reg   [Resolution-1:0]   larger_number_reg;
   wire  [Resolution-1:0]   smaller_number;
   wire  [Resolution-1:0]   larger_number;
-  
-  
+
+
   pwm_standard_mode #(
     .Resolution         (Resolution)
   ) standard_mode_pwm (
@@ -35,7 +35,7 @@ module pwm_heartbeat_mode #(
     .step               (step),
     .pwm_signal         (pwm_signal)
   );
-  
+
   /*
   pwm_find_smaller #(
     .Resolution         (Resolution)
@@ -46,21 +46,21 @@ module pwm_heartbeat_mode #(
     .larger_number      (larger_number)
   );
   */
-  
-  function [Resolution-1:0] find_smaller; 
-   input [Resolution-1:0] number_1; 
+
+  function [Resolution-1:0] find_smaller;
+   input [Resolution-1:0] number_1;
    input [Resolution-1:0] number_2;
-      begin 
-        assign find_smaller = (number_1 <= number_2) ? number_1 : number_2;
-      end 
+      begin
+        find_smaller = (number_1 <= number_2) ? number_1 : number_2;
+      end
   endfunction
 
-  function [Resolution-1:0] find_larger; 
-   input [Resolution-1:0] number_1; 
+  function [Resolution-1:0] find_larger;
+   input [Resolution-1:0] number_1;
    input [Resolution-1:0] number_2;
-      begin 
-        assign find_larger  = (number_1 > number_2)  ? number_1 : number_2;
-      end 
+      begin
+        find_larger  = (number_1 > number_2)  ? number_1 : number_2;
+      end
   endfunction
 
   assign smaller_number = find_smaller(threshold_counter_1, threshold_counter_2);
@@ -75,7 +75,7 @@ module pwm_heartbeat_mode #(
       larger_number_reg  <= larger_number;
     end
   end
-  
+
   always @(posedge clk_i) begin
     if (rst_ni == 0) begin
       counter_temp <= 0;
@@ -107,7 +107,7 @@ module pwm_heartbeat_mode #(
           end
         end
       end
-    end       
+    end
   end
 endmodule
 

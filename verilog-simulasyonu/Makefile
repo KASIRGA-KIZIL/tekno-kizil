@@ -4,9 +4,9 @@
 
 # sim
 TOPLEVEL_LANG = verilog
-SIM           = icarus
+SIM           = modelsim
 
-MODULE              := test_wb_uart
+MODULE              := test_teknofest_wrapper
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
@@ -59,7 +59,12 @@ else ifeq ($(MODULE),test_teknofest_wrapper)
 						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
+						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
+						$(KAYNAKLAR)/veriyolu/*.v \
+						$(KAYNAKLAR)/cevre_birimleri/pwm/*.v \
+						$(KAYNAKLAR)/cevre_birimleri/spi/*.v \
+						$(KAYNAKLAR)/cevre_birimleri/uart/*.v
+
 else ifeq ($(MODULE),test_uart_denetleyici)
 	TOPLEVEL        := uart_denetleyici
     VERILOG_SOURCES +=  ../cevreleyici/*.v \

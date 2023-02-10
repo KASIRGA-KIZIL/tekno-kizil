@@ -16,19 +16,20 @@ module uart_verici(
     localparam HAZIR=  2'b00;
     localparam BASLA=  2'b01;
     localparam GONDER= 2'b10;
-    localparam DUR=    2'b11;  
+    localparam DUR=    2'b11;
 
     reg [15:0] baud_sayac_r,baud_sayac_sonraki_r = 0;
     reg [1:0] durum_r= HAZIR, durum_sonraki_r;
-    wire [15:0]bit_period_w=baud_rate_i;// degisecek
+    //wire [15:0]bit_period_w=baud_rate_i;// degisecek
     reg [2:0]bitSirasi_r=3'b000,bitSirasi_sonraki_r=3'b000;
     assign hazir_o= durum_sonraki_r == HAZIR;
-    
+
     wire baud_saat_w = baud_rate_i == baud_sayac_r;
 
     always @(*)begin
         durum_sonraki_r=durum_r;
         bitSirasi_sonraki_r=bitSirasi_r;
+        baud_sayac_sonraki_r=baud_sayac_r;
 
         case(durum_r)
             HAZIR:begin
@@ -56,7 +57,7 @@ module uart_verici(
                         bitSirasi_sonraki_r=3'b000;
                     end
                     else begin
-                        bitSirasi_sonraki_r=bitSirasi_r+1;
+                        bitSirasi_sonraki_r=bitSirasi_r + 3'b1;
                     end
                 end else begin
                     baud_sayac_sonraki_r = baud_sayac_r + 16'b1;

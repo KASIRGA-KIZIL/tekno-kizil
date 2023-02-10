@@ -7,7 +7,7 @@ module wishbone_slave(
     //syscon
     input [0:0] clk_i,
     input [0:0] rst_i,
-    
+
     // wb slave <-> wb master interface
     input      [31:0] addr_i ,
     input      [31:0] data_i ,
@@ -35,7 +35,7 @@ module wishbone_slave(
 
     //latches
     reg [0:0] ack_o_n;
-    
+
     assign device_addr_o = addr_i;
     assign device_wdata_o = data_i;
     assign device_we_o = we_i;
@@ -43,6 +43,7 @@ module wishbone_slave(
     assign data_o = (device_rdata_valid_i & ~ we_i) ? device_rdata_i : 32'b0;
 
     always@*begin
+        ack_o_n = 1'b0;
         if(sel_i)begin
             ack_o_n = 1'b0;
             if(cyc_i && stb_i)begin

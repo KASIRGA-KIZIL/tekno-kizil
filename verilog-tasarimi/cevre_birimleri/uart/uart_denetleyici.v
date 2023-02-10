@@ -6,7 +6,7 @@
 module uart_denetleyici(
     input           clk_i,
     input           rst_i,
-    
+
     input  [31:0]   wb_adres_i,
     input  [31:0]   wb_veri_i,
     input           wb_gecerli_i,
@@ -18,6 +18,8 @@ module uart_denetleyici(
     input           uart_rx_i,
     output          uart_tx_o
 );
+    wire al_veri_gecerli_o;
+    assign uart_mesgul_o = 1'b0;
 
     reg [4:0] tx_bufIdx_head_r, tx_bufIdx_tail_r; // 0 bos, 32 tamami dolu
     reg [4:0] tx_bufIdx_head_ns, tx_bufIdx_tail_ns;
@@ -30,9 +32,9 @@ module uart_denetleyici(
    reg [7:0] tx_buffer_r [31:0];
    // ---------------******************-------------- //
    reg [31:0] wb_oku_veri_o_ns, wb_oku_veri_o_r;
-   reg wb_oku_gecerli_o_ns, wb_oku_gecerli_o_r; 
+   reg wb_oku_gecerli_o_ns, wb_oku_gecerli_o_r;
    reg tx_gecerli_ns,tx_gecerli_r;
-    // Sartnamede verilen yazmaclar ve parametreler. 
+    // Sartnamede verilen yazmaclar ve parametreler.
     // ------------*******************--------------- //
     reg tx_en_ns,tx_en_r ; // Okuma ve yazma yapilir.
     reg rx_en_ns,rx_en_r ; // Okuma ve yazma yapilir.
@@ -138,15 +140,15 @@ module uart_denetleyici(
             tx_buffer_r[i]  <= 8'd0;
             rx_buffer_r[i]  <= 8'd0;
          end
-         
+
       end else begin
          tx_bufIdx_head_r <= tx_bufIdx_head_ns;
          rx_bufIdx_head_r <= rx_bufIdx_head_ns;
          tx_bufIdx_tail_r <= tx_bufIdx_tail_ns;
          rx_bufIdx_tail_r <= rx_bufIdx_tail_ns;
          tx_gecerli_r     <= tx_gecerli_ns;
-         tx_en_r          <= tx_en_ns;  
-         rx_en_r          <= rx_en_ns;   
+         tx_en_r          <= tx_en_ns;
+         rx_en_r          <= rx_en_ns;
          baud_div_r       <= baud_div_ns;
          wb_oku_veri_o_r  <= wb_oku_veri_o_ns;
          wb_oku_gecerli_o_r <= wb_oku_gecerli_o_ns;

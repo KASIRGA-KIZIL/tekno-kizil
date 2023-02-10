@@ -59,7 +59,7 @@ end
         .wb_uart_adres_o(wb_uart_adres_w),
         .wb_uart_veri_o(wb_uart_veri_w),
         .wb_uart_gecerli_o(wb_uart_gecerli_w),
-        .wb_uart_yaz_gecerli_o(wb_uart_yaz_gecerli_w),
+        .wb_uart_yaz_gecerli_o(wb_uart_yaz_gecerli_w)
     );
 
     uart_denetleyici ud(
@@ -73,7 +73,7 @@ end
         .wb_oku_veri_o(uart_wb_oku_veri_w),
         .wb_oku_gecerli_o(uart_wb_oku_veri_gecerli_w),
         .uart_mesgul_o(uart_wb_mesgul_w),
-        
+
         .uart_rx_i(uart_rx_i),
         .uart_tx_o(uart_tx_o)
     );

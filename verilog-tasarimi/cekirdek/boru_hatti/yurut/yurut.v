@@ -30,7 +30,6 @@ module yurut(
     output reg  [ 4:0] gy_rd_adres_o,              // Rd'nin adresi
     output reg  [31:1] gy_ps_artmis_o,             // Rd=PC+4/2 islemi icin gerekli
     output reg  [31:0] gy_rd_deger_o,              // islem birimlerinden cikan sonuc
-    output wire [31:0] gy_bib_deger_o,             // Bellek Islem Biriminin ciktisi.
     output wire [31:0] gy_carpma_deger_o,          // Carpma Biriminin ciktisi.
     output reg  [ 2:0] gy_mikroislem_o,            // Rd secimi ve write enable sinyalleri
 
@@ -50,6 +49,7 @@ module yurut(
     wire [31:0] amb_sonuc_w      ;
     wire [31:0] bol_sonuc_w      ;
     wire [31:0] sifreleme_sonuc_w;
+    wire [31:0] bib_sonuc_w;
 
     aritmetik_mantik_birimi amb (
         .kontrol_i(cyo_mikroislem_i[`AMB]),
@@ -97,7 +97,7 @@ module yurut(
         .kontrol_i (cyo_mikroislem_i[`BIB] ),
         .adr_i (amb_sonuc_w ),
         .deger_i (cyo_deger2_i),
-        .sonuc_o (gy_bib_deger_o ),
+        .sonuc_o (bib_sonuc_w ),
         .l1v_veri_i        (l1v_veri_i        ),
         .l1v_durdur_i      (l1v_durdur_i      ),
         .l1v_veri_o        (l1v_veri_o        ),
@@ -136,9 +136,7 @@ module yurut(
     );
 
     assign ddb_yonlendir_gecerli_o  = ~((cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ||
-                                        (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ||
-                                        (cyo_mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ||
-                                        (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB      )) || ((cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB) && bib_bitti);
+                                        (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA));
 
     assign gtr_atlanan_ps_gecerli_o = (cyo_mikroislem_i[`DAL] == `DAL_EQ  ) ?  cyo_lt_ltu_eq_i[0]:
                                       (cyo_mikroislem_i[`DAL] == `DAL_NE  ) ? !cyo_lt_ltu_eq_i[0]:
@@ -154,6 +152,7 @@ module yurut(
     wire [31:0] rd_deger_sonraki_w = (cyo_mikroislem_i[`BIRIM] == `BIRIM_AMB      ) ? amb_sonuc_w      :
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ? bol_sonuc_w      :
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_SIFRELEME) ? sifreleme_sonuc_w:
+                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB      ) ? bib_sonuc_w:
                                                                                       32'hxxxx_xxxx;
 
     assign gtr_atlanan_ps_o = amb_sonuc_w[31:1];

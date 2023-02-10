@@ -14,7 +14,7 @@ module wishbone_master(
     output     [0:0]  cmd_busy_o ,
     output reg [31:0] cmd_rdata_o,
     output reg [0:0]  cmd_rdata_valid_o,
-    
+
     //wb master <-> wb slave interface
     output reg [31:0] addr_o ,
     input      [31:0] data_i ,
@@ -25,7 +25,7 @@ module wishbone_master(
     output reg [0:0]  stb_o  ,
 
     output reg [1:0]  sel_o  ,
-    input      [0:0]  ack_i  
+    input      [0:0]  ack_i
 
     // output reg [0:0]  tgd_i  ,
     // output reg [0:0]  tgd_o  ,
@@ -35,7 +35,7 @@ module wishbone_master(
     reg [31:0]    addr_o_n;
     reg [31:0]    data_o_n;
     reg [0:0]     we_o_n  ;
-     
+
     reg [0:0]     cyc_o_n ;
     reg [0:0]     stb_o_n ;
 
@@ -47,15 +47,23 @@ module wishbone_master(
     wire write_request_w = cmd_word_i[33];
 
     assign cmd_busy_o = cyc_o || stb_o;
-    
+
     reg [1:0] sel_o_n;
 
     always@*begin
         sel_o_n = (read_request_w | write_request_w) ? (cmd_addr_i[29] ? cmd_addr_i[17:16]   //Cihazlar
                                     : 2'b11)    // Veri bellegi
-                                    : 2'b00;    // Inaktif     
+                                    : 2'b00;    // Inaktif
 
         cmd_rdata_valid_o_n = 1'b0;
+        //
+        addr_o_n       = 32'b0;
+        cyc_o_n        = 1'b0;
+        stb_o_n        = 1'b0;
+        okuma_istegi_n = 1'b0;
+        data_o_n       = 32'b0;
+        we_o_n         = 1'b0;
+        cmd_rdata_o_n  = 32'b0;
         // IDLE
         if(!cyc_o && !stb_o)begin
             if(read_request_w)begin//read request
@@ -92,7 +100,7 @@ module wishbone_master(
                 okuma_istegi_n = 1'b0;
             end
         end
-        
+
     end
 
     always@(posedge clk_i)begin
@@ -101,7 +109,7 @@ module wishbone_master(
             cmd_rdata_valid_o <= cmd_rdata_valid_o_n;
             okuma_istegi_r <= okuma_istegi_n;
 
-            addr_o <= addr_o_n ;    
+            addr_o <= addr_o_n ;
             data_o <= data_o_n ;
             we_o   <= we_o_n   ;
 

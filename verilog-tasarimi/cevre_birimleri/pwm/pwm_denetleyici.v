@@ -33,9 +33,9 @@ module pwm_denetleyici(
 );
     assign wb_mesgul_o = 1'b0;
 
-    wire wb_yaz_w = {wb_gecerli_i, wb_yaz_etkin_i, wb_pwm_adres_i};
-    wire wb_oku_w = {wb_gecerli_i, ~wb_yaz_etkin_i, wb_pwm_adres_i};
-    
+    wire [7:0] wb_yaz_w = {wb_gecerli_i, wb_yaz_etkin_i, wb_pwm_adres_i};
+    wire [7:0] wb_oku_w = {wb_gecerli_i, ~wb_yaz_etkin_i, wb_pwm_adres_i};
+
     reg [31:0] wb_oku_veri_r = 0;
     reg [31:0] wb_oku_veri_next_r = 0;
     assign wb_oku_veri_o = wb_oku_veri_r;
@@ -111,28 +111,28 @@ module pwm_denetleyici(
     reg pwm_output_2_next_r = 0;
 
     always @* begin
-        pwm_control_1_next_r     = pwm_control_1_r;     
-        pwm_period_1_next_r      = pwm_period_1_r;      
-        pwm_threshold_1_1_next_r = pwm_threshold_1_1_r; 
-        pwm_threshold_1_2_next_r = pwm_threshold_1_2_r; 
+        pwm_control_1_next_r     = pwm_control_1_r;
+        pwm_period_1_next_r      = pwm_period_1_r;
+        pwm_threshold_1_1_next_r = pwm_threshold_1_1_r;
+        pwm_threshold_1_2_next_r = pwm_threshold_1_2_r;
         pwm_step_1_next_r        = pwm_step_1_r;
 
-        pwm_control_2_next_r     = pwm_control_2_r;     
-        pwm_period_2_next_r      = pwm_period_2_r;      
-        pwm_threshold_2_1_next_r = pwm_threshold_2_1_r; 
-        pwm_threshold_2_2_next_r = pwm_threshold_2_2_r; 
+        pwm_control_2_next_r     = pwm_control_2_r;
+        pwm_period_2_next_r      = pwm_period_2_r;
+        pwm_threshold_2_1_next_r = pwm_threshold_2_1_r;
+        pwm_threshold_2_2_next_r = pwm_threshold_2_2_r;
         pwm_step_2_next_r        = pwm_step_2_r;
 
         wb_oku_veri_next_r = wb_oku_veri_r;
         wb_oku_hazir_next_r = 0;
-        
+
         // PWM yazmaclarina yazma islemleri
         case(wb_yaz_w)
             // 0x20020000 --> pwm_control_1
             8'hc0: begin //8'b11_00_0000: begin
                 pwm_control_1_next_r = wb_pwm_control_1_w;
             end
-            // 0x20020004 --> pwm_control_2 
+            // 0x20020004 --> pwm_control_2
             8'hc4: begin //8'b11_00_0100: begin
                 pwm_control_2_next_r = wb_pwm_control_2_w;
             end
@@ -140,19 +140,19 @@ module pwm_denetleyici(
             8'hc8: begin //8'b11_00_1000: begin
                 pwm_period_1_next_r = wb_pwm_period_1_w;
             end
-            // 0x2002000c --> pwm_period_2 
+            // 0x2002000c --> pwm_period_2
             8'hcc: begin //8'b11_00_1100: begin
                 pwm_period_2_next_r = wb_pwm_period_2_w;
             end
-            // 0x20020010 --> pwm_threshold_1_1 
+            // 0x20020010 --> pwm_threshold_1_1
             8'hd0: begin //8'b11_01_0000: begin
                 pwm_threshold_1_1_next_r = wb_pwm_threshold_1_1_w;
             end
-            // 0x20020014 --> pwm_threshold_1_2 
+            // 0x20020014 --> pwm_threshold_1_2
             8'hd4: begin //8'b11_01_0100: begin
                 pwm_threshold_1_2_next_r = wb_pwm_threshold_1_2_w;
             end
-            // 0x20020018 --> pwm_threshold_2_1 
+            // 0x20020018 --> pwm_threshold_2_1
             8'hd8: begin //8'b11_01_1000: begin
                 pwm_threshold_2_1_next_r = wb_pwm_threshold_2_1_w;
             end
@@ -177,7 +177,7 @@ module pwm_denetleyici(
             end
             // 0x2002002c --> pwm_output_2
             8'hec: begin //8'b11_10_1100: begin
-                
+
             end
             */
         endcase
@@ -189,7 +189,7 @@ module pwm_denetleyici(
                 wb_oku_veri_next_r = {30'd0, pwm_control_1_r};
                 wb_oku_hazir_next_r  = 1'b1;
             end
-            // 0x20020004 --> pwm_control_2 
+            // 0x20020004 --> pwm_control_2
             8'hc4: begin //8'b11_00_0100: begin
                 wb_oku_veri_next_r = {30'd0, pwm_control_2_r};
                 wb_oku_hazir_next_r  = 1'b1;
@@ -199,22 +199,22 @@ module pwm_denetleyici(
                 wb_oku_veri_next_r = pwm_period_1_r;
                 wb_oku_hazir_next_r  = 1'b1;
             end
-            // 0x2002000c --> pwm_period_2 
+            // 0x2002000c --> pwm_period_2
             8'hcc: begin //8'b11_00_1100: begin
                 wb_oku_veri_next_r = pwm_period_2_r;
                 wb_oku_hazir_next_r  = 1'b1;
             end
-            // 0x20020010 --> pwm_threshold_1_1 
+            // 0x20020010 --> pwm_threshold_1_1
             8'hd0: begin //8'b11_01_0000: begin
                 wb_oku_veri_next_r = pwm_threshold_1_1_r;
                 wb_oku_hazir_next_r  = 1'b1;
             end
-            // 0x20020014 --> pwm_threshold_1_2 
+            // 0x20020014 --> pwm_threshold_1_2
             8'hd4: begin //8'b11_01_0100: begin
                 wb_oku_veri_next_r = pwm_threshold_1_2_r;
                 wb_oku_hazir_next_r  = 1'b1;
             end
-            // 0x20020018 --> pwm_threshold_2_1 
+            // 0x20020018 --> pwm_threshold_2_1
             8'hd8: begin //8'b11_01_1000: begin
                 wb_oku_veri_next_r = pwm_threshold_2_1_r;
                 wb_oku_hazir_next_r  = 1'b1;
@@ -261,7 +261,7 @@ module pwm_denetleyici(
                 pwm_output_1_next_r = 0;
             end
         endcase
-        
+
         // PWM1 durumlari
         case(pwm_control_2_r)
             `BOSTA: begin
@@ -274,22 +274,25 @@ module pwm_denetleyici(
                 pwm_output_2_next_r = pwm1_kalp_atisi_w;
             end
             default: begin
-                pwm_output_1_next_r = 0;
+                pwm_output_2_next_r = 0;
             end
         endcase
 
-    end 
+    end
 
     always @(posedge clk_i) begin
         if(rst_i) begin
+            pwm_output_1_r <= 0;
+            pwm_output_2_r <= 0;
+
             pwm_control_1_r     <= 0;
-            pwm_period_1_r      <= 0; 
+            pwm_period_1_r      <= 0;
             pwm_threshold_1_1_r <= 0;
             pwm_threshold_1_2_r <= 0;
             pwm_step_1_r        <= 0;
 
             pwm_control_2_r     <= 0;
-            pwm_period_2_r      <= 0; 
+            pwm_period_2_r      <= 0;
             pwm_threshold_2_1_r <= 0;
             pwm_threshold_2_2_r <= 0;
             pwm_step_2_r        <= 0;
@@ -298,14 +301,17 @@ module pwm_denetleyici(
             wb_oku_hazir_r      <= 0;
         end
         else begin
+            pwm_output_1_r <= pwm_output_1_next_r;
+            pwm_output_2_r <= pwm_output_2_next_r;
+
             pwm_control_1_r     <= pwm_control_1_next_r;
-            pwm_period_1_r      <= pwm_period_1_next_r; 
+            pwm_period_1_r      <= pwm_period_1_next_r;
             pwm_threshold_1_1_r <= pwm_threshold_1_1_next_r;
             pwm_threshold_1_2_r <= pwm_threshold_1_2_next_r;
             pwm_step_1_r        <= pwm_step_1_next_r;
 
             pwm_control_2_r     <= pwm_control_2_next_r;
-            pwm_period_2_r      <= pwm_period_2_next_r; 
+            pwm_period_2_r      <= pwm_period_2_next_r;
             pwm_threshold_2_1_r <= pwm_threshold_2_1_next_r;
             pwm_threshold_2_2_r <= pwm_threshold_2_2_next_r;
             pwm_step_2_r        <= pwm_step_2_next_r;
@@ -318,7 +324,7 @@ module pwm_denetleyici(
     // PWM0 ICIN
     pwm_standard_mode #(
       .Resolution          (`RESOLUTION)
-    ) psm0 (  
+    ) psm0 (
       .clk_i               (clk_i),
       .rst_ni              (resetn_w & standart_aktif1_w),
       .threshold_counter   (pwm_threshold_1_1_r),
@@ -326,7 +332,7 @@ module pwm_denetleyici(
       .step                (`STEP),
       .pwm_signal          (pwm0_standart_w)
     );
-    
+
     pwm_heartbeat_mode #(
       .Resolution          (`RESOLUTION)
     ) phm0 (
@@ -343,7 +349,7 @@ module pwm_denetleyici(
     // PWM1 ICIN
     pwm_standard_mode #(
       .Resolution          (`RESOLUTION)
-    ) psm1 (  
+    ) psm1 (
         .clk_i               (clk_i),
         .rst_ni              (resetn_w & standart_aktif2_w),
         .threshold_counter   (pwm_threshold_2_1_r),
@@ -351,7 +357,7 @@ module pwm_denetleyici(
         .step                (`STEP),
         .pwm_signal          (pwm1_standart_w)
     );
-    
+
     pwm_heartbeat_mode #(
       .Resolution          (`RESOLUTION)
     ) phm1 (

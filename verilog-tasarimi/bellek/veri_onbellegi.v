@@ -58,7 +58,7 @@ reg [31:0] anabellek_veri_r, anabellek_veri_next_r;
 reg anabellek_veri_kullan_r, anabellek_veri_kullan_next_r;
 
 // assign cs_yaz_r =
-
+wire dummy;
 sram_40b_512_1w_1r_sky130 veri_onbellegi(
     // write port
     .clk0       (clk_i),
@@ -142,11 +142,15 @@ always @* begin
         end
         CACHE_YAZ: begin
             // Okuma
-            if(!bib_yaz_gecerli_o)
+            if(!bib_yaz_gecerli_o) begin
                 durum_next_r = CACHE_OKU;
+                dirty_next_r[bib_adr_o[`ADR]] = 1'b0;
+            end
             // Yazma
-            else
+            else begin
                 durum_next_r = BITTI;
+                dirty_next_r[bib_adr_o[`ADR]] = 1'b1;
+            end
         end
 
         BELLEK_OKU: begin
@@ -200,6 +204,7 @@ always @(posedge clk_i) begin
         ab_web <= 4'b0;
     end
     else begin
+        dirty_r <= dirty_next_r;
         durum_r <= durum_next_r;
         valid_r <= valid_next_r;
         valid_r <= valid_next_r;
