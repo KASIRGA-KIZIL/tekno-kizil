@@ -22,10 +22,19 @@ module veriyolu(
     input               uart_wb_mesgul_i,
     input  [31:0]       uart_wb_oku_veri_i,
     input               uart_wb_oku_veri_gecerli_i,
-    output wire[31:0]    wb_uart_adres_o,
-    output wire[31:0]    wb_uart_veri_o,
+    output wire[31:0]   wb_uart_adres_o,
+    output wire[31:0]   wb_uart_veri_o,
     output wire         wb_uart_gecerli_o,
-    output wire          wb_uart_yaz_gecerli_o,
+    output wire         wb_uart_yaz_gecerli_o,
+
+    // WB --- SPI
+    input           spi_wb_mesgul_i,
+    input  [31:0]   spi_wb_oku_veri_i,
+    input           spi_wb_oku_veri_gecerli_i,
+    output [31:0]   wb_spi_adres_o,
+    output [31:0]   wb_spi_veri_o,
+    output          wb_spi_gecerli_o,
+    output          wb_spi_yaz_gecerli_o,
 
     // WB --- PWM
     input           pwm_wb_mesgul_i,
@@ -33,10 +42,28 @@ module veriyolu(
     input           pwm_wb_oku_veri_gecerli_i,
     output [31:0]   wb_pwm_adres_o,
     output [31:0]   wb_pwm_veri_o,
-    output          wb_pwm_yaz_gecerli_o
-    // diger cihazlar icin devami eklenecek
+    output          wb_pwm_gecerli_o,
+    output          wb_pwm_yaz_gecerli_o,
+
+    // WB --- VB
+    input           vb_wb_mesgul_i,
+    input  [31:0]   vb_wb_oku_veri_i,
+    input           vb_wb_oku_veri_gecerli_i,
+    output [31:0]   wb_vb_adres_o,
+    output [31:0]   wb_vb_veri_o,
+    output          wb_vb_gecerli_o,
+    output          wb_vb_yaz_gecerli_o
 
 );
+
+`ifdef COCOTB_SIM
+initial begin
+  $dumpfile ("veriyolu.vcd");
+  $dumpvars (0, veriyolu);
+  #1;
+end
+`endif
+
 
     wire [31:0] master_slave_addr_w;
     wire [31:0] master_slave_data_w;
@@ -46,7 +73,7 @@ module veriyolu(
     wire        master_slave_stb_w;
 
     wire [1:0]  master_sel_w;
-    wire        slave_sel_w [3:0]; // 0: UART 1:SPI 2:PWM 3:V$
+    wire        slave_sel_w [3:0]; // 0: UART 1:SPI 2:PWM 3:VB
 
     genvar i;
     generate
@@ -62,8 +89,7 @@ module veriyolu(
     wire        master_ack_in_w =   (master_sel_w == 0) ? uart_master_ack_w  :
                                     (master_sel_w == 1) ? spi_master_ack_w   :
                                     (master_sel_w == 2) ? pwm_master_ack_w   :
-                                    (master_sel_w == 3) ? veri_master_ack_w  :
-                                                            1'b0;
+                                                          veri_master_ack_w  ;
 
     wire [31:0] uart_master_data_w;
     wire [31:0] spi_master_data_w;
@@ -72,8 +98,7 @@ module veriyolu(
     wire [31:0] master_data_in_w =  (master_sel_w == 0) ? uart_master_data_w :
                                     (master_sel_w == 1) ? spi_master_data_w  :
                                     (master_sel_w == 2) ? pwm_master_data_w  :
-                                    (master_sel_w == 3) ? veri_master_data_w :
-                                                            32'dx;
+                                                          veri_master_data_w ;
 
     wishbone_master wm(
         .clk_i(clk_i),
@@ -121,6 +146,31 @@ module veriyolu(
     );
     assign wb_uart_gecerli_o = slave_sel_w[0] & (wb_uart_yaz_gecerli_o || wb_uart_oku_gecerli_w) ;
 
+    wire wb_spi_oku_gecerli_w;
+    wishbone_slave ws_spi(
+        .clk_i(clk_i),
+        .rst_i(rst_i),
+
+        .addr_i(master_slave_addr_w),
+        .data_i(master_slave_data_w),
+        .data_o(spi_master_data_w),
+        .we_i(master_slave_we_w),
+
+        .cyc_i(master_slave_cyc_w),
+        .stb_i(master_slave_stb_w),
+        .sel_i(slave_sel_w[0]),
+        .ack_o(spi_master_ack_w),
+
+        .device_ready_i(~spi_wb_mesgul_i),
+        .device_rdata_i(spi_wb_oku_veri_i),
+        .device_rdata_valid_i(spi_wb_oku_veri_gecerli_i),
+        .device_addr_o(wb_spi_adres_o),
+        .device_wdata_o(wb_spi_veri_o),
+        .device_we_o(wb_spi_yaz_gecerli_o),
+        .device_re_o(wb_spi_oku_gecerli_w)
+    );
+    assign wb_spi_gecerli_o = slave_sel_w[1] & (wb_spi_yaz_gecerli_o || wb_spi_oku_gecerli_w) ;
+
     wire wb_pwm_oku_gecerli_w;
     wishbone_slave ws_pwm(
         .clk_i(clk_i),
@@ -144,5 +194,31 @@ module veriyolu(
         .device_we_o(wb_pwm_yaz_gecerli_o),
         .device_re_o(wb_pwm_oku_gecerli_w)
     );
-    assign wb_pwm_oku_gecerli_w = slave_sel_w[2] & (wb_pwm_yaz_gecerli_o || wb_pwm_oku_gecerli_w) ;
+    assign wb_pwm_gecerli_o = slave_sel_w[2] & (wb_pwm_yaz_gecerli_o || wb_pwm_oku_gecerli_w) ;
+
+    wire wb_vb_oku_gecerli_w;
+    wishbone_slave ws_vb(
+        .clk_i(clk_i),
+        .rst_i(rst_i),
+
+        .addr_i(master_slave_addr_w),
+        .data_i(master_slave_data_w),
+        .data_o(vb_master_data_w),
+        .we_i(master_slave_we_w),
+
+        .cyc_i(master_slave_cyc_w),
+        .stb_i(master_slave_stb_w),
+        .sel_i(slave_sel_w[0]),
+        .ack_o(vb_master_ack_w),
+
+        .device_ready_i(~vb_wb_mesgul_i),
+        .device_rdata_i(vb_wb_oku_veri_i),
+        .device_rdata_valid_i(vb_wb_oku_veri_gecerli_i),
+        .device_addr_o(wb_vb_adres_o),
+        .device_wdata_o(wb_vb_veri_o),
+        .device_we_o(wb_vb_yaz_gecerli_o),
+        .device_re_o(wb_vb_oku_gecerli_w)
+    );
+    assign wb_vb_gecerli_o = slave_sel_w[3] & (wb_vb_yaz_gecerli_o || wb_vb_oku_gecerli_w) ;
+
 endmodule
