@@ -52,7 +52,7 @@ reg [31:0] data_in_r;
 reg cs_yaz_r;
 reg yaz_en_r;
 reg cs_oku_r;
-reg [3:0] veri_maske_w;
+reg [3:0] veri_maske_r;
 
 reg [31:0] anabellek_adr_r, anabellek_adr_next_r;
 reg [31:0] anabellek_veri_r, anabellek_veri_next_r;
@@ -61,12 +61,12 @@ reg anabellek_veri_kullan_r, anabellek_veri_kullan_next_r;
 // assign cs_yaz_r =
 wire dummy;
 
-wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? ab_dot : bib_veri_i;
+wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : bib_veri_i;
 sram_40b_512_1w_1r_sky130 veri_onbellegi(
     // write port
     .clk0       (clk_i),
     .csb0       (cs_yaz_r),
-    .wmask0     ({1'b1, bib_veri_maske_o}),
+    .wmask0     ({1'b1, veri_maske_r}),
     .spare_wen0 (yaz_en_r),
     // zaten islemci durmus olucagi icin kontrole gerek yok
     .addr0      (yaz_adres_r),
@@ -99,8 +99,11 @@ always @* begin
         BEKLE: begin
             // Yazma istegi
             // Cache oku
-            if(bib_sec_o && bib_yaz_gecerli_o && (!cache_valid_w || (cache_valid_w && !cache_dirty_w)))
+            if(bib_sec_o && bib_yaz_gecerli_o && (!cache_valid_w || (cache_valid_w && !cache_dirty_w)) && (&bib_veri_maske_o))
                 durum_next_r = CACHE_YAZ;
+
+            if(bib_sec_o && bib_yaz_gecerli_o && (!cache_valid_w || (cache_valid_w && !cache_dirty_w)) && ~(&bib_veri_maske_o))
+                durum_next_r = BELLEK_OKU;
 
             if(bib_sec_o && bib_yaz_gecerli_o && (cache_valid_w && cache_dirty_w))
                 durum_next_r = CACHE_OKU;
@@ -124,7 +127,7 @@ always @* begin
                     if(cache_dirty_w) begin
                         durum_next_r = BELLEK_YAZ;
                         anabellek_adr_next_r = {4'h04,9'b0,c_oku_tag_w,bib_adr_o[`ADR],2'b0};
-                        anabellek_veri_next_r = data_out_w;
+                        anabellek_veri_next_r = ab_dot;
                         anabellek_veri_kullan_next_r = 1'b1;
                     end
                     else
@@ -139,7 +142,7 @@ always @* begin
                     if(cache_dirty_w) begin
                         durum_next_r = BELLEK_YAZ;
                         anabellek_adr_next_r = {4'h04,9'b0,c_oku_tag_w,bib_adr_o[`ADR],2'b0};
-                        anabellek_veri_next_r = data_out_w;
+                        anabellek_veri_next_r = ab_dot;
                         anabellek_veri_kullan_next_r = 1'b1;
                     end
                 end
@@ -168,6 +171,23 @@ always @* begin
                     durum_next_r = CACHE_YAZ;
                     anabellek_adr_next_r = bib_adr_o;
                     anabellek_veri_next_r = ab_dot;
+                    anabellek_veri_kullan_next_r = 1'b1;
+                end
+            end
+            // yazma
+            else begin
+                // TODO bunu kaldirabiliriz
+                if(ab_ready && ~(&bib_veri_maske_o)) begin
+                    durum_next_r = CACHE_YAZ;
+                    anabellek_adr_next_r = bib_adr_o;
+                    case(bib_veri_maske_o)
+                        4'b0001: anabellek_veri_next_r = {ab_dot[31:8],bib_veri_i[7:0]};
+                        4'b0010: anabellek_veri_next_r = {ab_dot[31:16],bib_veri_i[15:8],ab_dot[7:0]};
+                        4'b0100: anabellek_veri_next_r = {ab_dot[31:24],bib_veri_i[23:16],ab_dot[15:0]};
+                        4'b1000: anabellek_veri_next_r = {bib_veri_i[31:24],ab_dot[23:0]};
+                        4'b0011: anabellek_veri_next_r = {ab_dot[31:16],bib_veri_i[15:0]};
+                        4'b1100: anabellek_veri_next_r = {bib_veri_i[31:16],ab_dot[15:0]};
+                    endcase
                     anabellek_veri_kullan_next_r = 1'b1;
                 end
             end
@@ -224,8 +244,7 @@ end
 always @(*) begin
     case(durum_next_r)
         CACHE_YAZ: begin
-
-            veri_maske_w = (|bib_veri_maske_o) ? bib_veri_maske_o : 4'b1111;
+            veri_maske_r = (durum_r==BELLEK_OKU) ? 4'b1111 : bib_veri_maske_o;
             // Bellekten gelen veri yazilacak
             if(anabellek_veri_kullan_r) begin
                 yaz_adres_r = anabellek_adr_r;
