@@ -9,6 +9,7 @@ rv32ux_sc_tests = \
 	sladd \
 	cntz \
 	cntp \
+	conv \
 
 rv32ux_p_tests = $(addprefix rv32ux-p-, $(rv32ux_sc_tests))
 rv32ux_v_tests = $(addprefix rv32ux-v-, $(rv32ux_sc_tests))
