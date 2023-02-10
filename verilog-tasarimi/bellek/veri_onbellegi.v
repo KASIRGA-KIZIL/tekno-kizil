@@ -99,7 +99,7 @@ always @* begin
         BEKLE: begin
             // Yazma istegi
             // Cache oku
-            if(bib_sec_o && bib_yaz_gecerli_o && (!cache_valid_w && (cache_valid_w && !cache_dirty_w)))
+            if(bib_sec_o && bib_yaz_gecerli_o && (!cache_valid_w || (cache_valid_w && !cache_dirty_w)))
                 durum_next_r = CACHE_YAZ;
 
             if(bib_sec_o && bib_yaz_gecerli_o && (cache_valid_w && cache_dirty_w))

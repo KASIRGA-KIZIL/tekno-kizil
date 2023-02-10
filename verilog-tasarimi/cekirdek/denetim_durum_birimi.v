@@ -27,6 +27,7 @@ module denetim_durum_birimi(
     output wire       cyo_bosalt_o,
 
     // YURUT sinyalleri
+    output wire      yrt_durdur_o,
     input wire       yrt_yaz_yazmac_i,         // Rd geri yaziliyor ise 1
     input wire       yrt_hazir_i,              // Birden fazla cevrim suren bolme vs. icin
     input wire [4:0] yrt_rd_adres_i,           // Rd nin adresi
@@ -54,6 +55,7 @@ module denetim_durum_birimi(
 
     assign gtr_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
     assign cyo_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
+    assign yrt_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
 
     assign gtr_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
     assign cyo_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
@@ -72,3 +74,4 @@ module denetim_durum_birimi(
         end
     end
 endmodule
+//if(gtr_durdur_o | cyo_durdur_o | yrt_durdur_o) begin

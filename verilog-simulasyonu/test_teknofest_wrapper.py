@@ -267,6 +267,33 @@ riscv_tests["lhu"] = {
     "pass_adr": 0x400002e8,
     "buyruklar": []
 }
+riscv_tests["sw"] = {
+    "TEST_FILE": "./data/rv32ui-p-sw_static.hex",
+    "fail_adr": 0x40000520,
+    "pass_adr": 0x40000534,
+    "buyruklar": []
+}
+riscv_tests["sb"] = {
+    "TEST_FILE": "./data/rv32ui-p-sb_static.hex",
+    "fail_adr": 0x40000490,
+    "pass_adr": 0x400004a4,
+    "buyruklar": []
+}
+riscv_tests["sh"] = {
+    "TEST_FILE": "./data/rv32ui-p-sh_static.hex",
+    "fail_adr": 0x40000514,
+    "pass_adr": 0x40000528,
+    "buyruklar": []
+}
+
+
+
+
+
+
+
+
+
 
 @cocotb.coroutine
 async def buyruklari_oku():

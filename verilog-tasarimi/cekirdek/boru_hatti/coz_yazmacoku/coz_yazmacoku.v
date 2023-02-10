@@ -19,6 +19,7 @@ module coz_yazmacoku(
     output reg [       31:0] yrt_deger2_o,
     output reg [        2:0] yrt_lt_ltu_eq_o,          // Dallanma ve atlama icin gerekli. Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
     output reg               yrt_yapay_zeka_en_o,      // Yapay zeka biriminin rs2 icin yazma(enable) sinyali
+    output reg [       31:0] yrt_rs2_o,
 
     //
     output reg [       31:1] yrt_ps_artmis_o,      // GERIYAZ'a kadar giden sinyaller
@@ -188,6 +189,7 @@ module coz_yazmacoku(
                 yrt_yapay_zeka_en_o   <= gtr_buyruk_i[31];
                 yrt_lt_ltu_eq_o       <= {lt_w,ltu_w,eq_w};
                 yrt_ps_artmis_o       <= gtr_ps_artmis_i;
+                yrt_rs2_o             <= deger2_tmp_w;
             end
         end
     end

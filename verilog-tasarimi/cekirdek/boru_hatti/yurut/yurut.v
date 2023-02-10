@@ -9,6 +9,7 @@ module yurut(
     input wire rst_i,
 
     // DDB sinyalleri
+    output wire ddb_durdur_i,
     output wire ddb_hazir_o,
     output wire ddb_yonlendir_gecerli_o,
 
@@ -20,6 +21,7 @@ module yurut(
     input  wire [       31:0] cyo_deger2_i,
     input  wire               cyo_yapay_zeka_en_i,          // yapay zeka buyruklari rs2 enable biti
     input  wire               cyo_gecersiz_buyruk_i,        // Exceptionlar icin gerekli
+    input  wire [       31:0] cyo_rs2_i,
 
     // Branch ve Jump buyruklari icin. Hepsi ayni cevrimde gidecek
     input  wire [ 2:0] cyo_lt_ltu_eq_i,                // Degerler arasindaki iliski. cyo_lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
@@ -96,7 +98,7 @@ module yurut(
         .bitti_o (bib_bitti),
         .kontrol_i (cyo_mikroislem_i[`BIB] ),
         .adr_i (amb_sonuc_w ),
-        .deger_i (cyo_deger2_i),
+        .deger_i (cyo_rs2_i),
         .sonuc_o (bib_sonuc_w ),
         .l1v_veri_i        (l1v_veri_i        ),
         .l1v_durdur_i      (l1v_durdur_i      ),
@@ -104,7 +106,7 @@ module yurut(
         .l1v_adr_o         (l1v_adr_o         ),
         .l1v_veri_maske_o  (l1v_veri_maske_o  ),
         .l1v_yaz_gecerli_o (l1v_yaz_gecerli_o ),
-        .l1v_sec_o       (l1v_sec_o       )
+        .l1v_sec_o         (l1v_sec_o       )
     );
 
     wire yzh_bitti;
@@ -166,10 +168,12 @@ module yurut(
             gy_rd_adres_o   <= 0;
         end
         else begin
-            gy_mikroislem_o <= {cyo_mikroislem_i[`YAZMAC],cyo_mikroislem_i[`GERIYAZ]};
-            gy_rd_deger_o   <= rd_deger_sonraki_w;
-            gy_rd_adres_o   <= cyo_rd_adres_i;
-            gy_ps_artmis_o  <= cyo_ps_artmis_i;
+            if(!ddb_durdur_i)begin
+                gy_mikroislem_o <= {cyo_mikroislem_i[`YAZMAC],cyo_mikroislem_i[`GERIYAZ]};
+                gy_rd_deger_o   <= rd_deger_sonraki_w;
+                gy_rd_adres_o   <= cyo_rd_adres_i;
+                gy_ps_artmis_o  <= cyo_ps_artmis_i;
+            end
         end
     end
 

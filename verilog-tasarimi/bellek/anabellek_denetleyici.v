@@ -29,7 +29,7 @@ module anabellek_denetleyici(
 );
     reg switch;
 
-    assign iomem_wstrb = l1v_iomem_wstrb;
+    assign iomem_wstrb = (switch == `VERI) ? l1v_iomem_wstrb : 4'b0;
     assign iomem_wdata = l1v_iomem_wdata;
 
     assign iomem_valid = (switch == `BUYRUK) ? l1b_iomem_valid : l1v_iomem_valid;

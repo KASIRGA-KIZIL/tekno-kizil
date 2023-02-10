@@ -42,6 +42,15 @@ module bellek_islem_birimi(
                            (adr_i[1:0] == 2'b10) ? {{24{l1v_veri_i[23]}},l1v_veri_i[23:16]} :
                                                    {{24{l1v_veri_i[31]}},l1v_veri_i[31:24]} ;
 
+
+    wire [3:0] sh_mask = adr_i[1] ? 4'b0011:
+                                     4'b1100;
+
+    wire [3:0] sb_mask =  (adr_i[1:0] == 2'b00) ? 4'b0001 :
+                           (adr_i[1:0] == 2'b01) ? 4'b0010 :
+                           (adr_i[1:0] == 2'b10) ? 4'b0100 :
+                                                   4'b1000 ;
+
     assign bitti_o = basla_i ? ~l1v_durdur_i : 1'b1;
 
 
@@ -50,10 +59,10 @@ module bellek_islem_birimi(
 
     assign l1v_sec_o = basla_i;
 
-    assign l1v_veri_maske_o = (kontrol_i == `BIB_SB)  ? 4'b0001 :
-                              (kontrol_i == `BIB_SH)  ? 4'b0011 :
+    assign l1v_veri_maske_o = (kontrol_i == `BIB_SB)  ? sb_mask :
+                              (kontrol_i == `BIB_SH)  ? sh_mask :
                               (kontrol_i == `BIB_SW)  ? 4'b1111 :
-                                                        4'b1111;
+                                                        4'b1111 ;
 
     assign l1v_yaz_gecerli_o = basla_i && ((kontrol_i == `BIB_SB) || (kontrol_i == `BIB_SH) || (kontrol_i == `BIB_SW));
 

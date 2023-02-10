@@ -24,6 +24,7 @@ module cekirdek(
 );
 
     wire [31:1] l1b_adr_w;
+    wire yrt_durdur_w;
 
     wire [`MI_BIT-1:0] yrt_mikroislem_w;
     wire [       31:0] yrt_deger1_w;
@@ -32,6 +33,7 @@ module cekirdek(
     wire [       31:1] yrt_ps_artmis_w;
     wire [        4:0] yrt_rd_adres_w;
     wire               yrt_yapay_zeka_en_w;
+    wire [       31:0] yrt_rs2_w;
     wire [4:0] ddb_rs1_adres_w;
     wire [4:0] ddb_rs2_adres_w;
 
@@ -87,7 +89,8 @@ module cekirdek(
     yurut yurut_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),
-        .ddb_hazir_o (yrt_hazir_w),
+        .ddb_durdur_i (yrt_durdur_w ),
+        .ddb_hazir_o  (yrt_hazir_w),
         .ddb_yonlendir_gecerli_o (yrt_yonlendir_gecerli_w),
 
         .cyo_mikroislem_i    (yrt_mikroislem_w      ),
@@ -97,6 +100,7 @@ module cekirdek(
         .cyo_deger2_i        (yrt_deger2_w          ),
         .cyo_yapay_zeka_en_i (yrt_yapay_zeka_en_w   ),
         .cyo_gecersiz_buyruk_i(cyo_gecersiz_buyruk_w),
+        .cyo_rs2_i           (yrt_rs2_w          ),
         .cyo_lt_ltu_eq_i     (yrt_lt_ltu_eq_w    ),
         .gtr_atlanan_ps_o         (gtr_atlanan_ps_w        ),
         .gtr_atlanan_ps_gecerli_o (gtr_atlanan_ps_gecerli_w),
@@ -127,6 +131,7 @@ module cekirdek(
         .yrt_deger2_o          (yrt_deger2_w         ),
         .yrt_lt_ltu_eq_o       (yrt_lt_ltu_eq_w      ),
         .yrt_yapay_zeka_en_o   (yrt_yapay_zeka_en_w  ),
+        .yrt_rs2_o             (yrt_rs2_w            ),
         .yrt_ps_artmis_o       (yrt_ps_artmis_w      ),
         .yrt_rd_adres_o        (yrt_rd_adres_w       ),
         .yrt_yonlendir_deger_i (cyo_yonlendir_deger_w),
@@ -174,6 +179,7 @@ module cekirdek(
         .cyo_yonlendir_kontrol2_o (cyo_yonlendir_kontrol2_w),
         .cyo_durdur_o             (cyo_durdur_w            ),
         .cyo_bosalt_o             (cyo_bosalt_w            ),
+        .yrt_durdur_o           (yrt_durdur_w),
         .yrt_yaz_yazmac_i       (yrt_mikroislem_w[`YAZMAC]),
         .yrt_hazir_i            (yrt_hazir_w   ),
         .yrt_rd_adres_i         (yrt_rd_adres_w),
