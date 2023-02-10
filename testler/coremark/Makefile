@@ -28,7 +28,13 @@ run: $(OUTFILE) rerun score
 score:
 	@echo "Check run1.log and run2.log for results."
 	@echo "See README.md for run and reporting rules." 
-	
+
+PORT_DIR ?= riscv32-baremetal
+
+# baremetal olmayacaksa bunu acin usttekini kapatin
+# ya da terminaldeyken export PORT_DIR=riscv32 yapın.
+#PORT_DIR=riscv32
+
 ifndef PORT_DIR
 # Ports for a couple of common self hosted platforms
 UNAME=$(shell if command -v uname 2> /dev/null; then uname ; fi)
@@ -45,12 +51,6 @@ ifneq (,$(findstring Linux,$(UNAME)))
 PORT_DIR=linux
 endif
 endif
-
-PORT_DIR ?= riscv32-baremetal
-
-# baremetal olmayacaksa bunu acin usttekini kapatin
-# ya da terminaldeyken export PORT_DIR=riscv32 yapın.
-#PORT_DIR=riscv32
 
 ifndef PORT_DIR
 $(error PLEASE define PORT_DIR! (e.g. make PORT_DIR=simple)) 
