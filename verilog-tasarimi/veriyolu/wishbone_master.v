@@ -53,7 +53,7 @@ module wishbone_master(
     always@*begin
         sel_o_n = (read_request_w | write_request_w) ? (cmd_addr_i[29] ? cmd_addr_i[17:16]   //Cihazlar
                                     : 2'b11)    // Veri bellegi
-                                    : 2'b00;    // Inaktif
+                                    : 2'b11;    // Inaktif
 
         cmd_rdata_valid_o_n = 1'b0;
         //
