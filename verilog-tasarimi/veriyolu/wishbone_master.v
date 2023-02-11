@@ -25,7 +25,7 @@ module wishbone_master(
     output reg [0:0]  stb_o  ,
 
     output reg [1:0]  sel_o  ,
-    input      [0:0]  ack_i
+    input      [0:0]  ack_i  ,
 
     input      [0:0]  tgd_i  ,
     output     [0:0]  tgd_o
