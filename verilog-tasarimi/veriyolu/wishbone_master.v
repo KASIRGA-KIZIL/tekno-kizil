@@ -28,7 +28,7 @@ module wishbone_master(
     input      [0:0]  ack_i
 
     input      [0:0]  tgd_i  ,
-    output     [0:0]  tgd_o  ,
+    output     [0:0]  tgd_o
 );
 
     //latches
