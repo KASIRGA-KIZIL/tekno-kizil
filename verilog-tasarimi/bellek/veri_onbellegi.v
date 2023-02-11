@@ -182,11 +182,11 @@ always @* begin
                     anabellek_adr_next_r = bib_adr_o;
                     case(bib_veri_maske_o)
                         4'b0001: anabellek_veri_next_r = {ab_dot[31:8],bib_veri_i[7:0]};
-                        4'b0010: anabellek_veri_next_r = {ab_dot[31:16],bib_veri_i[15:8],ab_dot[7:0]};
-                        4'b0100: anabellek_veri_next_r = {ab_dot[31:24],bib_veri_i[23:16],ab_dot[15:0]};
-                        4'b1000: anabellek_veri_next_r = {bib_veri_i[31:24],ab_dot[23:0]};
+                        4'b0010: anabellek_veri_next_r = {ab_dot[31:16],bib_veri_i[7:0],ab_dot[7:0]};
+                        4'b0100: anabellek_veri_next_r = {ab_dot[31:24],bib_veri_i[7:0],ab_dot[15:0]};
+                        4'b1000: anabellek_veri_next_r = {bib_veri_i[7:0],ab_dot[23:0]};
                         4'b0011: anabellek_veri_next_r = {ab_dot[31:16],bib_veri_i[15:0]};
-                        4'b1100: anabellek_veri_next_r = {bib_veri_i[31:16],ab_dot[15:0]};
+                        4'b1100: anabellek_veri_next_r = {bib_veri_i[15:0],ab_dot[15:0]};
                     endcase
                     anabellek_veri_kullan_next_r = 1'b1;
                 end
