@@ -8,6 +8,7 @@ module bellek_islem_birimi(
     input  wire rst_i,
     input  wire basla_i,
     output wire bitti_o,
+    input  wire ddb_durdur_i,
 
     // yurut
     input  wire [ 2:0] kontrol_i,
@@ -53,16 +54,12 @@ module bellek_islem_birimi(
 
     assign bitti_o = basla_i ? ~bib_durdur_i : 1'b1;
 
-
-    // TODO zaten asagida yapilmis?
-    //assign sonuc_o = bib_veri_i;
-
-    assign bib_sec_o = basla_i;
+    assign bib_sec_o = (ddb_durdur_i) ? 1'b0 : basla_i;
 
     assign bib_veri_maske_o = (kontrol_i == `BIB_SB)  ? sb_mask :
-                             (kontrol_i == `BIB_SH)  ? sh_mask :
-                             (kontrol_i == `BIB_SW)  ? 4'b1111 :
-                                                       4'b1111 ;
+                              (kontrol_i == `BIB_SH)  ? sh_mask :
+                              (kontrol_i == `BIB_SW)  ? 4'b1111 :
+                                                        4'b1111 ;
 
     assign bib_yaz_gecerli_o = basla_i && ((kontrol_i == `BIB_SB) || (kontrol_i == `BIB_SH) || (kontrol_i == `BIB_SW));
 
@@ -73,7 +70,6 @@ module bellek_islem_birimi(
                      (kontrol == `BIB_LBU) ? lbu_sonuc  :
                      (kontrol == `BIB_LHU) ? lhu_sonuc  :
                                             bib_veri_i  ;
-
 
     assign bib_veri_o = deger_i;
     assign bib_adr_o  = {adr_i[31:2],2'b0};

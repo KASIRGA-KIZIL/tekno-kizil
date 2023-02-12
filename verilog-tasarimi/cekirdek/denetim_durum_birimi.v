@@ -55,7 +55,7 @@ module denetim_durum_birimi(
 
     assign gtr_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
     assign cyo_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
-    assign yrt_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
+    assign yrt_durdur_o = ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
 
     assign gtr_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
     assign cyo_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;

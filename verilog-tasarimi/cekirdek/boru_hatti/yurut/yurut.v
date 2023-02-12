@@ -96,6 +96,7 @@ module yurut(
         .rst_i (rst_i ),
         .basla_i (bib_basla),
         .bitti_o (bib_bitti),
+        .ddb_durdur_i (ddb_durdur_i),
         .kontrol_i (cyo_mikroislem_i[`BIB] ),
         .adr_i (amb_sonuc_w ),
         .deger_i (cyo_rs2_i),
@@ -168,7 +169,7 @@ module yurut(
             gy_rd_adres_o   <= 0;
         end
         else begin
-            if(!ddb_durdur_i)begin
+            if(!ddb_durdur_i | !ddb_hazir_o)begin
                 gy_mikroislem_o <= {cyo_mikroislem_i[`YAZMAC],cyo_mikroislem_i[`GERIYAZ]};
                 gy_rd_deger_o   <= rd_deger_sonraki_w;
                 gy_rd_adres_o   <= cyo_rd_adres_i;
