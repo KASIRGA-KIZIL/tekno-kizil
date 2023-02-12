@@ -1,6 +1,7 @@
 
 import math
 import os
+import glob
 from random import getrandbits
 from typing import Any, Dict, List
 
@@ -15,8 +16,16 @@ from cocotb.triggers import RisingEdge, FallingEdge, Edge
 TIMEOUT = 10000
 
 riscv_tests = {}
+"""
+# Sonsuz test. TIMEOUT bekleniyor.
+riscv_tests["uart"] = {
+    "TEST_FILE": "./data/basit_dongu.hex",
+    "fail_adr": 0x40f00060,
+    "pass_adr": 0x40f00074,
+    "buyruklar": []
+}
+"""
 
-import glob
 # insttestlist = ["auipc","jal","jalr","lui","andi","ori","xori","addi","slli","slti","sltiu","and","sll","xor","or","srl","sra","slt","sltu","srli","srai","sub","bgeu","bltu","blt","bne","beq","bge","add","mul","mulh","mulhu","mulhsu","div","divu","rem","remu","lw","lh","lb","lbu","lhu","sw","sb","sh"]
 insttestlist = ['addi', 'mul', 'sw', 'sb']
 for each in insttestlist:
