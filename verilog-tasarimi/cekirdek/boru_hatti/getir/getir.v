@@ -18,7 +18,6 @@ module getir (
         //  L1 Buyruk Onbellegi
         input  wire        l1b_bekle_i,
         input  wire [31:0] l1b_deger_i,
-        output wire        l1b_chip_select_n_o,
         output wire [31:1] l1b_adr_o,
 
         // Yurut
@@ -31,7 +30,6 @@ module getir (
         output reg  [31:1] cyo_ps_o
 );
 
-    assign l1b_chip_select_n_o = 1'b0;
 
     reg  [31:0] buyruk_tamponu_durdur;
     wire [31:0] suanki_buyruk = l1b_deger_i;

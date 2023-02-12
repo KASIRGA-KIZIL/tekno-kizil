@@ -38,14 +38,14 @@ module yurut(
     // Yonlendirme icin
     output wire [31:0] cyo_yonlendir_deger_o,
 
-    // l1 veri bellegi
-    input  wire [31:0] l1v_veri_i,
-    input  wire        l1v_durdur_i,
-    output wire [31:0] l1v_veri_o,
-    output wire [31:0] l1v_adr_o,
-    output wire [ 3:0] l1v_veri_maske_o,
-    output wire        l1v_yaz_gecerli_o,
-    output wire        l1v_sec_o
+    // Bellek Islem Birimi
+    input  wire [31:0] bib_veri_i,
+    input  wire        bib_durdur_i,
+    output wire [31:0] bib_veri_o,
+    output wire [31:0] bib_adr_o,
+    output wire [ 3:0] bib_veri_maske_o,
+    output wire        bib_yaz_gecerli_o,
+    output wire        bib_sec_o
 );
 
     wire [31:0] amb_sonuc_w      ;
@@ -100,13 +100,13 @@ module yurut(
         .adr_i (amb_sonuc_w ),
         .deger_i (cyo_rs2_i),
         .sonuc_o (bib_sonuc_w ),
-        .l1v_veri_i        (l1v_veri_i        ),
-        .l1v_durdur_i      (l1v_durdur_i      ),
-        .l1v_veri_o        (l1v_veri_o        ),
-        .l1v_adr_o         (l1v_adr_o         ),
-        .l1v_veri_maske_o  (l1v_veri_maske_o  ),
-        .l1v_yaz_gecerli_o (l1v_yaz_gecerli_o ),
-        .l1v_sec_o         (l1v_sec_o       )
+        .bib_veri_i        (bib_veri_i        ),
+        .bib_durdur_i      (bib_durdur_i      ),
+        .bib_veri_o        (bib_veri_o        ),
+        .bib_adr_o         (bib_adr_o         ),
+        .bib_veri_maske_o  (bib_veri_maske_o  ),
+        .bib_yaz_gecerli_o (bib_yaz_gecerli_o ),
+        .bib_sec_o         (bib_sec_o       )
     );
 
     wire yzh_bitti;

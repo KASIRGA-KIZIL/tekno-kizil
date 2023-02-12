@@ -10,17 +10,16 @@ module cekirdek(
     // l1 buyruk bellegi
     input  wire        l1b_bekle_i,
     input  wire [31:0] l1b_deger_i,
-    output wire        l1b_chip_select_n_o,
     output wire [31:0] l1b_adres_o,
 
-    // l1 veri bellegi
-    input  wire [31:0] l1v_veri_i,
-    input  wire        l1v_durdur_i,
-    output wire [31:0] l1v_veri_o,
-    output wire [31:0] l1v_adr_o,
-    output wire [ 3:0] l1v_veri_maske_o,
-    output wire        l1v_yaz_gecerli_o,
-    output wire        l1v_sec_o
+    // Bellek Islem Birimi
+    input  wire [31:0] bib_veri_i,
+    input  wire        bib_durdur_i,
+    output wire [31:0] bib_veri_o,
+    output wire [31:0] bib_adr_o,
+    output wire [ 3:0] bib_veri_maske_o,
+    output wire        bib_yaz_gecerli_o,
+    output wire        bib_sec_o
 );
 
     wire [31:1] l1b_adr_w;
@@ -37,7 +36,6 @@ module cekirdek(
     wire [4:0] ddb_rs1_adres_w;
     wire [4:0] ddb_rs2_adres_w;
 
-    /*wire  l1b_chip_select_n_o;*/
     wire [31:0] cyo_buyruk_w;
     wire [31:1] cyo_ps_artmis_w;
     wire [31:1] cyo_ps_w;
@@ -110,13 +108,13 @@ module cekirdek(
         .gy_carpma_deger_o(gy_carpma_deger_w),
         .gy_mikroislem_o  (gy_mikroislem_w),
         .cyo_yonlendir_deger_o  (cyo_yonlendir_deger_w),
-        .l1v_veri_i        (l1v_veri_i        ),
-        .l1v_durdur_i      (l1v_durdur_i      ),
-        .l1v_veri_o        (l1v_veri_o        ),
-        .l1v_adr_o         (l1v_adr_o         ),
-        .l1v_veri_maske_o  (l1v_veri_maske_o  ),
-        .l1v_yaz_gecerli_o (l1v_yaz_gecerli_o ),
-        .l1v_sec_o         (l1v_sec_o       )
+        .bib_veri_i        (bib_veri_i        ),
+        .bib_durdur_i      (bib_durdur_i      ),
+        .bib_veri_o        (bib_veri_o        ),
+        .bib_adr_o         (bib_adr_o         ),
+        .bib_veri_maske_o  (bib_veri_maske_o  ),
+        .bib_yaz_gecerli_o (bib_yaz_gecerli_o ),
+        .bib_sec_o         (bib_sec_o       )
     );
 
     coz_yazmacoku coz_yazmacoku_dut (
@@ -156,7 +154,6 @@ module cekirdek(
         .ddb_yanlis_tahmin_o(gtr_yanlis_tahmin_w),
         .l1b_bekle_i         (l1b_bekle_i        ),
         .l1b_deger_i         (l1b_deger_i        ),
-        .l1b_chip_select_n_o (l1b_chip_select_n_o),
         .l1b_adr_o           (l1b_adr_w          ),
         .yrt_atlanan_ps_gecerli_i (gtr_atlanan_ps_gecerli_w),
         .yrt_atlanan_ps_i         (gtr_atlanan_ps_w        ),
