@@ -4,16 +4,16 @@
 `include "tanimlamalar.vh"
 
 
-module uart_tx (
+module uart_rx (
     input  wire         clk_i,
     input  wire         rst_i,
     input  wire [15: 0] baud_div_i,
-    input  wire         we_i,
+    input  wire         re_i,
     input  wire         stall_i,
-    input  wire [ 7: 0] data_i,
+    output wire [ 7: 0] data_o,
     output wire         full_o,
     output wire         empty_o,
-    output reg          tx_o
+    input  wire         rx_i
 );
 
     localparam DATA_SIZE = 4'd8;
@@ -42,6 +42,10 @@ module uart_tx (
     wire [4:0] limit = read_ptr-1;
     assign full_o  = (limit    == write_ptr);
     assign empty_o = (read_ptr == write_ptr);
+    assign data_o  = queue[read_ptr];
+
+    reg [3:0] start_pattern;
+    reg       start_r;
 
     always @(posedge clk_i) begin
         if(rst_i)                state <= IDLE;
@@ -52,29 +56,39 @@ module uart_tx (
             write_ptr      <= 0;
             counter        <= 0;
             uart_clk_pulse <= 0;
+            start_pattern  <= 0;
+            start_r        <= 0;
         end else begin
-            if(we_i) begin
-                write_ptr        <= write_ptr + 1;
-                queue[write_ptr] <= data_i;
+            if(re_i) begin
+                read_ptr         <= read_ptr + 1;
             end
             if(uart_clk_pulse)begin
-                if((state == STOP_BIT) && (next == IDLE))
-                    read_ptr <= read_ptr + 1;
+                if((state == STOP_BIT) && (next == IDLE)) begin
+                    write_ptr <= write_ptr + 1;
+                    start_r  <= 1'b0;
+                end
             end
             if(counter == baud_div_i) begin
                 counter        <= 0;
                 uart_clk_pulse <= 1'b1;
             end else begin
-                counter <= counter + 1;
+                if(start_r) counter <= counter + 1;
                 uart_clk_pulse <= 1'b0;
             end
+            start_pattern <= {start_pattern[2:0],rx_i};
         end
-
+        if(start_pattern == 4'b1100) begin
+            start_r <= 1'b1;
+            if(~start_r) begin
+                uart_clk_pulse <= 1'b1;
+                counter <= baud_div_i >> 2;
+            end
+        end
     end
 
     always @(*) begin
         case(state)
-            IDLE:  if(~empty_o && ~stall_i) next = START_BIT;
+            IDLE:  if(start_r && ~stall_i) next = START_BIT;
                    else                     next = IDLE;
             START_BIT:          next = DATA_0;
             DATA_0:             next = DATA_1;
@@ -89,20 +103,18 @@ module uart_tx (
             default:            next = IDLE;
         endcase
     end
-    always @(*) begin
-        case(state)
-            IDLE:      tx_o = 1'b1;
-            START_BIT: tx_o = 1'b0;
-            DATA_0:    tx_o = queue[read_ptr][0];
-            DATA_1:    tx_o = queue[read_ptr][1];
-            DATA_2:    tx_o = queue[read_ptr][2];
-            DATA_3:    tx_o = queue[read_ptr][3];
-            DATA_4:    tx_o = queue[read_ptr][4];
-            DATA_5:    tx_o = queue[read_ptr][5];
-            DATA_6:    tx_o = queue[read_ptr][6];
-            DATA_7:    tx_o = queue[read_ptr][7];
-            STOP_BIT:  tx_o = 1'b1;
-            default:   tx_o = 1'b1;
-        endcase
+    always @(posedge clk_i) begin
+        if(uart_clk_pulse)begin
+            case(state)
+                DATA_0:     queue[write_ptr][0] <= rx_i;
+                DATA_1:     queue[write_ptr][1] <= rx_i;
+                DATA_2:     queue[write_ptr][2] <= rx_i;
+                DATA_3:     queue[write_ptr][3] <= rx_i;
+                DATA_4:     queue[write_ptr][4] <= rx_i;
+                DATA_5:     queue[write_ptr][5] <= rx_i;
+                DATA_6:     queue[write_ptr][6] <= rx_i;
+                DATA_7:     queue[write_ptr][7] <= rx_i;
+            endcase
+        end
     end
 endmodule

@@ -20,26 +20,43 @@ module uart_denetleyici (
     output wire uart_tx_o
 );
 
+    reg [15:0] baud_div;
 
     reg tx_en;
-    reg rx_en;
     reg tx_we;
-    reg [15:0] baud_div;
     wire tx_full;
     wire tx_empty;
 
-    reg uart_clk_pulse;
+    reg  rx_en;
+    reg  rx_re;
+    wire rx_full;
+    wire rx_empty;
+    wire [7:0] rx_data;
+
+
 
     uart_tx uart_tx_dut (
       .clk_i (clk_i ),
       .rst_i (rst_i ),
-      .uart_clk_pulse_i (uart_clk_pulse),
+      .baud_div_i(baud_div),
       .we_i    (tx_we        ),
       .stall_i (~tx_en       ),
       .data_i  (wb_dat_i[7:0]),
       .full_o  (tx_full      ),
       .empty_o (tx_empty     ),
       .tx_o    (uart_tx_o    )
+    );
+
+    uart_rx uart_rx_dut (
+      .clk_i (clk_i ),
+      .rst_i (rst_i ),
+      .baud_div_i (baud_div),
+      .re_i    (rx_re    ),
+      .stall_i (~rx_en   ),
+      .data_o  (rx_data  ),
+      .full_o  (rx_full  ),
+      .empty_o (rx_empty ),
+      .rx_i    (uart_rx_i)
     );
 
 
@@ -60,10 +77,13 @@ module uart_denetleyici (
                         wb_dat_o <= {baud_div, 13'b0, rx_en, tx_en};
                     end
                     4'h4: begin
-                        wb_dat_o <= {30'b0,tx_empty,tx_full}; // [TODO] RX REGS
+                        wb_dat_o <= {28'b0,rx_empty,rx_full,tx_empty,tx_full};
                     end
                     4'h8: begin
-
+                        if(wb_stb_i & !wb_ack_o) begin
+                            rx_re <= 1'b1;
+                            wb_dat_o <= {24'b0,rx_data};
+                        end
                     end
                     4'hc: begin
                         if(wb_stb_i & wb_we_i & !wb_ack_o) begin
@@ -72,21 +92,6 @@ module uart_denetleyici (
                     end
                 endcase
             end
-        end
-    end
-
-    reg [20:0] counter;
-    always @(posedge clk_i) begin
-        if (rst_i) begin
-            baud_div <= 0;
-            counter  <= 0;
-            uart_clk_pulse <= 1'b0;
-        end else if(counter == baud_div) begin
-            counter <= 0;
-            uart_clk_pulse <= 1'b1;
-        end else begin
-            counter <= counter + 1;
-            uart_clk_pulse <= 1'b0;
         end
     end
 endmodule
