@@ -15,6 +15,8 @@ from cocotb.triggers import RisingEdge, FallingEdge, Edge
 TIMEOUT = 10000
 
 riscv_tests = {}
+
+"""
 riscv_tests["auipc"] = {
     "TEST_FILE": "./data/rv32ui-p-auipc_static.hex",
     "fail_adr": 0x40000060,
@@ -285,14 +287,37 @@ riscv_tests["sh"] = {
     "pass_adr": 0x40000528,
     "buyruklar": []
 }
+"""
 
 
+import glob
 
-
-
-
-
-
+insttestlist = ['addi', 'mul', 'sw', 'sb']
+for each in insttestlist:
+  ecallfail = False
+  ecallpass = False
+  fail_adr = 0
+  pass_adr = 0
+  filename = glob.glob('./data/*' + each + '.dump')[0] #'./data/rv32ui-p-sb.dump'
+  with open(filename, 'r') as f:
+    for line in f:
+      if 'fail' in line:
+          ecallfail = True
+      elif 'pass' in line:
+          ecallpass = True
+          
+      if ecallfail and 'ecall' in line:
+          ecallfail = False
+          fail_adr = int(line.split(':')[0].replace(' ', ''), 16)
+      elif ecallpass and 'ecall' in line:
+          ecallpass = False
+          pass_adr = int(line.split(':')[0].replace(' ', ''), 16)
+  riscv_tests[each] = {
+    "TEST_FILE": glob.glob('./data/*' + each + '_static.hex')[0], #"./data/rv32ui-p-sb_static.hex",
+    "fail_adr": fail_adr,
+    "pass_adr": pass_adr,
+    "buyruklar": []
+  }
 
 
 @cocotb.coroutine
