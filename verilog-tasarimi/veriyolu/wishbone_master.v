@@ -2,137 +2,104 @@
 `timescale 1ns / 1ps
 
 `include "tanimlamalar.vh"
-
+/*
+0x20020000 = PWM  = 00100000000000100000000000000000
+0x20010000 = SPI  = 00100000000000010000000000000000
+0x20000000 = UART = 00100000000000000000000000000000
+*/
 module wishbone_master(
-    //syscon
     input [0:0] clk_i,
     input [0:0] rst_i,
 
-    //cpu <-> wb interface
-    input      [31:0] cmd_addr_i ,
-    input      [33:0] cmd_word_i , //33. bit write, 32. bit read request
-    output     [0:0]  cmd_busy_o ,
-    output reg [31:0] cmd_rdata_o,
-    output reg [0:0]  cmd_rdata_valid_o,
+    //veriyolu <-> wb interface
+    input  [31:0] vy_adres_i,
+    input  [31:0] vy_veri_i,
+    input  [ 3:0] vy_veri_maske_i,
+    input         vy_yaz_gecerli_i,
+    input         vy_sec_i,
+    output [31:0] vy_veri_o,
+    output        vy_durdur_o,
 
     //wb master <-> wb slave interface
-    output reg [31:0] addr_o ,
-    input      [31:0] data_i ,
-    output reg [31:0] data_o ,
-    output reg [0:0]  we_o   ,
-
-    output reg [0:0]  cyc_o  ,
-    output reg [0:0]  stb_o  ,
-
-    output reg [1:0]  sel_o  ,
-    input      [0:0]  ack_i  ,
-
-    input      [0:0]  tgd_i  ,
-    output     [0:0]  tgd_o
+    output wire [ 7:0] adr_o ,
+    output wire [31:0] dat_o ,
+    output wire [0:0]  we_o  ,
+    output reg  [0:0]  stb_o ,
+    output wire [3:0]  sel_o , // byte select/mask
+    // UART
+    output     [0:0]  uart_cyc_o ,
+    input      [0:0]  uart_ack_i ,
+    input      [31:0] uart_dat_i ,
+    // SPI
+    output     [0:0]  spi_cyc_o ,
+    input      [0:0]  spi_ack_i ,
+    input      [31:0] spi_dat_i ,
+    // PWM
+    output     [0:0]  pwm_cyc_o ,
+    input      [0:0]  pwm_ack_i ,
+    input      [31:0] pwm_dat_i
 );
 
-    //latches
-    reg [31:0]    addr_o_n;
-    reg [31:0]    data_o_n;
-    reg [0:0]     we_o_n  ;
-    reg [0:0]     cyc_o_n ;
-    reg [0:0]     stb_o_n ;
-    reg [1:0] sel_o_n;
+    reg  cyc;
 
-    reg [31:0]    cmd_rdata_o_n;
-    reg [0:0]     cmd_rdata_valid_o_n;
-    reg [0:0]     okuma_istegi_r,okuma_istegi_n;
+    wire ack = (vy_adres_i[17:16] == 2'b00) ? uart_ack_i :
+               (vy_adres_i[17:16] == 2'b01) ? spi_ack_i  :
+               (vy_adres_i[17:16] == 2'b10) ? pwm_ack_i  :
+                                              1'b0;
 
-    wire read_request_w = cmd_word_i[32];
-    wire write_request_w = cmd_word_i[33];
+    assign vy_veri_o = (vy_adres_i[17:16] == 2'b00) ? uart_dat_i :
+                       (vy_adres_i[17:16] == 2'b01) ? spi_dat_i  :
+                       (vy_adres_i[17:16] == 2'b10) ? pwm_dat_i  :
+                                                      1'b0;
 
-    assign cmd_busy_o = cyc_o || stb_o;
-    assign tgd_o = ^data_o;
+    assign adr_o = vy_adres_i[7:0];
+    assign dat_o = vy_veri_i;
+    assign we_o  = vy_yaz_gecerli_i;
+    assign sel_o = vy_veri_maske_i;
 
-    always@*begin
-        sel_o_n = (read_request_w | write_request_w) ? (cmd_addr_i[29] ? cmd_addr_i[17:16]   //Cihazlar
-                                    : 2'b11)    // Veri bellegi
-                                    : 2'b11;    // Inaktif
+    assign pwm_cyc_o  = (vy_adres_i[17:16] == 2'b10) ? cyc : 1'b0;
+    assign spi_cyc_o  = (vy_adres_i[17:16] == 2'b01) ? cyc : 1'b0;
+    assign uart_cyc_o = (vy_adres_i[17:16] == 2'b00) ? cyc : 1'b0;
 
-        cmd_rdata_valid_o_n = 1'b0;
-        //
-        addr_o_n       = 32'b0;
-        cyc_o_n        = 1'b0;
-        stb_o_n        = 1'b0;
-        okuma_istegi_n = 1'b0;
-        data_o_n       = 32'b0;
-        we_o_n         = 1'b0;
-        cmd_rdata_o_n  = 32'b0;
-        // IDLE
-        if(!cyc_o && !stb_o)begin
-            if(read_request_w)begin//read request
-                addr_o_n = cmd_addr_i;
-                cyc_o_n = 1'b1;
-                stb_o_n = 1'b1;
-                okuma_istegi_n = 1'b1;
-            end else if(write_request_w)begin//write request
-                addr_o_n = cmd_addr_i;
-                data_o_n = cmd_word_i[31:0];
-                cyc_o_n = 1'b1;
-                stb_o_n = 1'b1;
-                we_o_n  = 1'b1;
-            end else begin//idle
-                cyc_o_n = cyc_o;
-                stb_o_n = stb_o;
-            end
-        end
+    reg sec_r;
+    reg durdur_r;
+    assign vy_durdur_o = (~sec_r&vy_sec_i) | durdur_r;
 
-        if(cyc_o && stb_o)begin
-            stb_o_n = 1'b0;
-            addr_o_n = 32'b0;
-            data_o_n = 32'b0;
-            we_o_n  = 1'b0;
-        end
+    reg state;
+    reg next;
+    localparam  IDLE = 1'b0,
+                BUS  = 1'b1;
 
-        if(cyc_o && ~stb_o && ack_i)begin
-            if(tgd_i == ^data_i)begin
-                cmd_rdata_o_n = data_i;
-                cyc_o_n = 1'b0;
-                stb_o_n = 1'b0;
-                we_o_n  = 1'b0;
-                if(okuma_istegi_r)begin
-                    cmd_rdata_valid_o_n = 1'b1;
-                    okuma_istegi_n = 1'b0;
-                end
-            end
-        end
 
+    always @(posedge clk_i) begin
+        if(rst_i) state <= IDLE;
+        else      state <= next;
+
+        sec_r <= vy_sec_i;
     end
 
-    always@(posedge clk_i)begin
-        if(~rst_i)begin
-            cmd_rdata_o <= cmd_rdata_o_n;
-            cmd_rdata_valid_o <= cmd_rdata_valid_o_n;
-            okuma_istegi_r <= okuma_istegi_n;
-
-            addr_o <= addr_o_n ;
-            data_o <= data_o_n ;
-            we_o   <= we_o_n   ;
-
-            cyc_o  <= cyc_o_n  ;
-            stb_o  <= stb_o_n  ;
-
-            sel_o  <= sel_o_n  ;
-        end else begin
-            //reset
-            cmd_rdata_o <= 32'b0;
-            cmd_rdata_valid_o <= 1'b0;
-            okuma_istegi_r <= 1'b0;
-
-            addr_o <= 32'b0;
-            data_o <= 32'b0;
-            we_o   <= 1'b0 ;
-
-            cyc_o  <= 1'b0 ;
-            stb_o  <= 1'b0 ;
-
-            sel_o  <= 2'b0 ;
-        end
+    always @(*) begin
+        case(state)
+            IDLE:  if(vy_sec_i) next = BUS;
+                   else         next = IDLE;
+            BUS:   if(ack)      next = IDLE;
+                   else         next = BUS;
+            default: next = IDLE;
+        endcase
     end
 
+    always @(*) begin
+        case(state)
+            IDLE: begin
+                stb_o    = 1'b0;
+                cyc      = 1'b0;
+                durdur_r = 1'b0;
+            end
+            BUS: begin
+                stb_o    = 1'b1;
+                cyc      = 1'b1;
+                durdur_r = (next==IDLE) ? 1'b0 : 1'b1;
+            end
+        endcase
+    end
 endmodule

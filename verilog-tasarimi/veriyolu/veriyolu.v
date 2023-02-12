@@ -9,182 +9,90 @@ module veriyolu(
     input rst_i,
 
     // VYD --- WB
-    input  [31:0]       vyd_wb_adres_i,
-    input  [31:0]       vyd_wb_veri_i,
-    input               vyd_wb_yaz_etkin_i,
-    input               vyd_wb_sec_i,
-    output [31:0]       wb_vyd_veri_o,
-    output              wb_vyd_veri_hazir_o,
-    output              wb_vyd_mesgul_o,
+    input  [31:0]       vy_adres_i,
+    input  [31:0]       vy_veri_i,
+    input  [ 3:0]       vy_veri_maske_i,
+    input               vy_yaz_gecerli_i,
+    input               vy_sec_i,
+    output [31:0]       vy_veri_o,
+    output              vy_durdur_o,
 
-    // WB --- UART
-    input               uart_wb_mesgul_i,
-    input  [31:0]       uart_wb_oku_veri_i,
-    input               uart_wb_oku_veri_hazir_i,
-    output [31:0]       wb_uart_adres_o,
-    output [31:0]       wb_uart_veri_o,
-    output              wb_uart_etkin_o,
-    output              wb_uart_yaz_etkin_o,
+    output uart_tx_o,
+    input  uart_rx_i,
 
-    // WB --- SPI
-    input               spi_wb_mesgul_i,
-    input  [31:0]       spi_wb_oku_veri_i,
-    input               spi_wb_oku_veri_hazir_i,
-    output [31:0]       wb_spi_adres_o,
-    output [31:0]       wb_spi_veri_o,
-    output              wb_spi_etkin_o,
-    output              wb_spi_yaz_etkin_o,
+    output spi_cs_o,
+    output spi_sck_o,
+    output spi_mosi_o,
+    output spi_miso_i,
 
-    // WB --- PWM
-    input               pwm_wb_mesgul_i,
-    input  [31:0]       pwm_wb_oku_veri_i,
-    input               pwm_wb_oku_veri_hazir_i,
-    output [31:0]       wb_pwm_adres_o,
-    output [31:0]       wb_pwm_veri_o,
-    output              wb_pwm_etkin_o,
-    output              wb_pwm_yaz_etkin_o
+    output pwm0_o,
+    output pwm1_o
 
 );
 
-    wire [31:0] master_slave_addr_w;
-    wire [31:0] master_slave_data_w;
-    wire        master_slave_we_w;
+    wire [ 7:0] wb_adr;
+    wire [31:0] wb_dat;
+    wire        wb_we ;
+    wire        wb_stb;
+    wire [ 3:0] wb_sel;
 
-    wire        master_slave_cyc_w;
-    wire        master_slave_stb_w;
+    wire        uart_cyc;
+    wire        uart_ack;
+    wire [31:0] uart_dat;
 
-    wire [1:0]  master_sel_w;
-    wire uart_sel_w = master_sel_w == 2'b00;
-    wire spi_sel_w  = master_sel_w == 2'b01;
-    wire pwm_sel_w  = master_sel_w == 2'b10;   
+    wire        spi_cyc;
+    wire        spi_ack;
+    wire [31:0] spi_dat;
 
-    wire [31:0] uart_master_data_w;
-    wire [31:0] spi_master_data_w;
-    wire [31:0] pwm_master_data_w;
-    wire [31:0] slave_master_data_w =   (master_sel_w == 0) ? uart_master_data_w :
-                                        (master_sel_w == 1) ? spi_master_data_w  :
-                                        (master_sel_w == 2) ? pwm_master_data_w  :
-                                                              32'bX              ;
-
-    wire uart_master_ack_w;
-    wire spi_master_ack_w;
-    wire pwm_master_ack_w;    
-    wire master_ack_in_w =              (master_sel_w == 0) ? uart_master_ack_w  :
-                                        (master_sel_w == 1) ? spi_master_ack_w   :
-                                        (master_sel_w == 2) ? pwm_master_ack_w   :
-                                                              1'b0               ;
-    wire uart_master_tgd_w;
-    wire spi_master_tgd_w;
-    wire pwm_master_tgd_w;
-    wire slave_master_tgd_w =           (master_sel_w == 0) ? uart_master_data_w :
-                                        (master_sel_w == 1) ? spi_master_data_w  :
-                                        (master_sel_w == 2) ? pwm_master_data_w  :
-                                                              1'b0               ;
-
-    wire master_slave_tgd_w;
+    wire        pwm_cyc;
+    wire        pwm_ack;
+    wire [31:0] pwm_dat;
 
     wishbone_master wm(
         .clk_i(clk_i),
         .rst_i(rst_i),
 
-        .cmd_addr_i(vyd_wb_adres_i),
-        .cmd_word_i({vyd_wb_yaz_etkin_i,vyd_wb_sec_i,vyd_wb_veri_i}),
-        .cmd_busy_o(wb_vyd_mesgul_o),
-        .cmd_rdata_o(wb_vyd_veri_o),
-        .cmd_rdata_valid_o(wb_vyd_veri_hazir_o),
+        .vy_adres_i       (vy_adres_i       ),
+        .vy_veri_i        (vy_veri_i        ),
+        .vy_veri_maske_i  (vy_veri_maske_i  ),
+        .vy_yaz_gecerli_i (vy_yaz_gecerli_i ),
+        .vy_sec_i         (vy_sec_i         ),
+        .vy_veri_o        (vy_veri_o        ),
+        .vy_durdur_o      (vy_durdur_o      ),
 
-        .addr_o(master_slave_addr_w),
-        .data_i(slave_master_data_w),
-        .data_o(master_slave_data_w),
-        .we_o(master_slave_we_w),
+        .adr_o (wb_adr),
+        .dat_o (wb_dat),
+        .we_o  (wb_we ),
+        .stb_o (wb_stb),
+        .sel_o (wb_sel),
 
-        .cyc_o(master_slave_cyc_w),
-        .stb_o(master_slave_stb_w),
-        .sel_o(master_sel_w),
-        .ack_i(master_ack_w),
-        .tgd_o(master_slave_tgd_w),
-        .tgd_i(slave_master_tgd_w)
+        .uart_cyc_o (uart_cyc),
+        .uart_ack_i (uart_ack),
+        .uart_dat_i (uart_dat),
+
+        .spi_cyc_o (spi_cyc),
+        .spi_ack_i (spi_ack),
+        .spi_dat_i (spi_dat),
+
+        .pwm_cyc_o (pwm_cyc),
+        .pwm_ack_i (pwm_ack),
+        .pwm_dat_i (pwm_dat)
     );
 
-    wire wb_uart_oku_etkin_w;
-    wishbone_slave ws_uart(
+    uart_denetleyici uart_denetleyici_dut (
         .clk_i(clk_i),
         .rst_i(rst_i),
+        .wb_adr_i (wb_adr   ),
+        .wb_dat_i (wb_dat   ),
+        .wb_we_i  (wb_we    ),
+        .wb_stb_i (wb_stb   ),
+        .wb_sel_i (wb_sel   ),
+        .wb_cyc_i (uart_cyc ),
+        .wb_ack_o (uart_ack ),
+        .wb_dat_o (uart_dat ),
 
-        .addr_i(master_slave_addr_w),
-        .data_i(master_slave_data_w),
-        .data_o(uart_master_data_w),
-        .we_i(master_slave_we_w),
-
-        .cyc_i(master_slave_cyc_w),
-        .stb_i(master_slave_stb_w),
-        .sel_i(uart_sel_w),
-        .ack_o(uart_master_ack_w),
-        .tgd_i(master_slave_tgd_w),
-        .tgd_o(uart_master_tgd_w),
-
-        .device_ready_i(~uart_wb_mesgul_i),
-        .device_rdata_i(uart_wb_oku_veri_i),
-        .device_rdata_valid_i(uart_wb_oku_veri_hazir_i),
-        .device_addr_o(wb_uart_adres_o),
-        .device_wdata_o(wb_uart_veri_o),
-        .device_we_o(wb_uart_yaz_etkin_o),
-        .device_re_o(wb_uart_oku_etkin_w)
+        .uart_rx_i  (uart_rx_i ),
+        .uart_tx_o  (uart_tx_o )
     );
-    assign wb_uart_etkin_o = uart_sel_w & (wb_uart_yaz_etkin_o || wb_uart_oku_etkin_w) ;
 
-    wire wb_spi_oku_etkin_w;
-    wishbone_slave ws_spi(
-        .clk_i(clk_i),
-        .rst_i(rst_i),
-
-        .addr_i(master_slave_addr_w),
-        .data_i(master_slave_data_w),
-        .data_o(spi_master_data_w),
-        .we_i(master_slave_we_w),
-
-        .cyc_i(master_slave_cyc_w),
-        .stb_i(master_slave_stb_w),
-        .sel_i(spi_sel_w),
-        .ack_o(spi_master_ack_w),
-        .tgd_i(master_slave_tgd_w),
-        .tgd_o(spi_master_tgd_w),
-
-        .device_ready_i(~spi_wb_mesgul_i),
-        .device_rdata_i(spi_wb_oku_veri_i),
-        .device_rdata_valid_i(spi_wb_oku_veri_hazir_i),
-        .device_addr_o(wb_spi_adres_o),
-        .device_wdata_o(wb_spi_veri_o),
-        .device_we_o(wb_spi_yaz_etkin_o),
-        .device_re_o(wb_spi_oku_etkin_w)
-    );
-    assign wb_spi_etkin_o = spi_sel_w & (wb_spi_yaz_etkin_o || wb_spi_oku_etkin_w) ;
-
-    wire wb_pwm_oku_etkin_w;
-    wishbone_slave ws_pwm(
-        .clk_i(clk_i),
-        .rst_i(rst_i),
-
-        .addr_i(master_slave_addr_w),
-        .data_i(master_slave_data_w),
-        .data_o(pwm_master_data_w),
-        .we_i(master_slave_we_w),
-
-        .cyc_i(master_slave_cyc_w),
-        .stb_i(master_slave_stb_w),
-        .sel_i(pwm_sel_w),
-        .ack_o(pwm_master_ack_w),
-        .tgd_i(master_slave_tgd_w),
-        .tgd_o(pwm_master_tgd_w),
-
-        .device_ready_i(~pwm_wb_mesgul_i),
-        .device_rdata_i(pwm_wb_oku_veri_i),
-        .device_rdata_valid_i(pwm_wb_oku_veri_hazir_i),
-        .device_addr_o(wb_pwm_adres_o),
-        .device_wdata_o(wb_pwm_veri_o),
-        .device_we_o(wb_pwm_yaz_etkin_o),
-        .device_re_o(wb_pwm_oku_etkin_w)
-    );
-    assign wb_pwm_etkin_o = pwm_sel_w & (wb_pwm_yaz_etkin_o || wb_pwm_oku_etkin_w) ;
-    
 endmodule
