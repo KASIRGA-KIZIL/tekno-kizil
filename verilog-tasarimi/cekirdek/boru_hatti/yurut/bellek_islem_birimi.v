@@ -71,7 +71,7 @@ module bellek_islem_birimi(
                      (kontrol == `BIB_LHU) ? lhu_sonuc  :
                                              bib_veri_i  ;
 
-    assign bib_veri_o = (kontrol_i == `BIB_SB)  ? (deger_i << ($clog2(sb_mask)*8))           :
+    assign bib_veri_o = (kontrol_i == `BIB_SB)  ? (deger_i << (mylog2(sb_mask)*8))           :
                         (kontrol_i == `BIB_SH)  ? ((sh_mask[3]) ? (deger_i << 16) : deger_i ):
                         (kontrol_i == `BIB_SW)  ?  deger_i :
                                                    deger_i ;
@@ -82,4 +82,13 @@ module bellek_islem_birimi(
         kontrol  <= kontrol_i;
     end
 
+    function automatic [1:0] mylog2;
+        input [3:0] data;
+    begin
+        mylog2 = data[0] ? 2'd0 :
+                 data[1] ? 2'd1 :
+                 data[2] ? 2'd2 :
+                           2'd3 ;
+    end
+    endfunction
 endmodule
