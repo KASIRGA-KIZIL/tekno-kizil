@@ -16,7 +16,7 @@ module uart_denetleyici (
     output reg         wb_ack_o,
     output reg  [31:0] wb_dat_o,
 
-    output wire uart_rx_i,
+    input  wire uart_rx_i,
     output wire uart_tx_o
 );
 
