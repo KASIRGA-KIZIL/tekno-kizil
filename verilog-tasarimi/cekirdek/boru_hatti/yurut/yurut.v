@@ -9,7 +9,7 @@ module yurut(
     input wire rst_i,
 
     // DDB sinyalleri
-    output wire ddb_durdur_i,
+    input  wire ddb_durdur_i,
     output wire ddb_hazir_o,
     output wire ddb_yonlendir_gecerli_o,
 
@@ -20,7 +20,6 @@ module yurut(
     input  wire [       31:0] cyo_deger1_i,                 // Islem birimi girdileri. Yonlendirme ve Immediate secilmis son degerler.
     input  wire [       31:0] cyo_deger2_i,
     input  wire               cyo_yapay_zeka_en_i,          // yapay zeka buyruklari rs2 enable biti
-    input  wire               cyo_gecersiz_buyruk_i,        // Exceptionlar icin gerekli
     input  wire [       31:0] cyo_rs2_i,
 
     // Branch ve Jump buyruklari icin. Hepsi ayni cevrimde gidecek

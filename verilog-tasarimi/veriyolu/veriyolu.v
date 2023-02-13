@@ -82,7 +82,7 @@ module veriyolu(
     uart_denetleyici uart_denetleyici_dut (
         .clk_i(clk_i),
         .rst_i(rst_i),
-        .wb_adr_i (wb_adr   ),
+        .wb_adr_i (wb_adr[3:0]   ),
         .wb_dat_i (wb_dat   ),
         .wb_we_i  (wb_we    ),
         .wb_stb_i (wb_stb   ),

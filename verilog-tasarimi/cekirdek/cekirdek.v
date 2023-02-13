@@ -64,7 +64,6 @@ module cekirdek(
 
     wire  gtr_yanlis_tahmin_w;
     wire  gtr_hazir_w;
-    wire  cyo_gecersiz_buyruk_w;
     wire [4:0] cyo_rs1_adres_w;
     wire [4:0] cyo_rs2_adres_w;
     wire  yrt_yaz_yazmac_w;
@@ -97,7 +96,6 @@ module cekirdek(
         .cyo_deger1_i        (yrt_deger1_w          ),
         .cyo_deger2_i        (yrt_deger2_w          ),
         .cyo_yapay_zeka_en_i (yrt_yapay_zeka_en_w   ),
-        .cyo_gecersiz_buyruk_i(cyo_gecersiz_buyruk_w),
         .cyo_rs2_i           (yrt_rs2_w          ),
         .cyo_lt_ltu_eq_i     (yrt_lt_ltu_eq_w    ),
         .gtr_atlanan_ps_o         (gtr_atlanan_ps_w        ),
