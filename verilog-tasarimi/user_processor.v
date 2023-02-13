@@ -113,7 +113,7 @@ module user_processor(
         .bib_veri_o        (l1v_oku_veri   ),
         .bib_durdur_o      (l1v_durdur     ),
         .bib_veri_i        (bib_yaz_veri   ),
-        .bib_adr_o         (bib_adr        ),
+        .bib_adr_i         (bib_adr        ),
         .bib_veri_maske_o  (bib_mask       ),
         .bib_yaz_gecerli_o (bib_yaz_gecerli),
         .bib_sec_o         (l1v_sec        ),
