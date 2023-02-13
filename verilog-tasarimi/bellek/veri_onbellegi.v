@@ -126,7 +126,7 @@ always @* begin
                 else begin
                     if(cache_dirty_w) begin
                         durum_next_r = BELLEK_YAZ;
-                        anabellek_adr_next_r = {4'h04,9'b0,c_oku_tag_w,bib_adr_o[`ADR],2'b0};
+                        anabellek_adr_next_r = {8'h04,5'b0,c_oku_tag_w,bib_adr_o[`ADR],2'b0};
                         anabellek_veri_next_r = ab_dot;
                         anabellek_veri_kullan_next_r = 1'b1;
                     end
@@ -141,7 +141,7 @@ always @* begin
                 else begin
                     if(cache_dirty_w) begin
                         durum_next_r = BELLEK_YAZ;
-                        anabellek_adr_next_r = {4'h04,9'b0,c_oku_tag_w,bib_adr_o[`ADR],2'b0};
+                        anabellek_adr_next_r = {8'h04,5'b0,c_oku_tag_w,bib_adr_o[`ADR],2'b0};
                         anabellek_veri_next_r = ab_dot;
                         anabellek_veri_kullan_next_r = 1'b1;
                     end
@@ -220,16 +220,6 @@ always @(posedge clk_i) begin
         anabellek_adr_r <= 0;
         anabellek_veri_r <= 0;
         anabellek_veri_kullan_r <= 0;
-        yaz_adres_r <= 0;
-        yaz_tag_r <= 0;
-        data_in_r <= 0;
-        cs_yaz_r <= 1'b1;
-        yaz_en_r <= 0;
-        cs_oku_r <= 1'b1;
-        ab_addr <= 0;
-        ab_valid <= 1'b0;
-        ab_din <= 0;
-        ab_web <= 4'b0;
     end
     else begin
         dirty_r <= dirty_next_r;
@@ -313,72 +303,6 @@ always @(*) begin
             yaz_en_r = 1'b0;
             cs_oku_r = 1'b1;
             ab_valid = 1'b0;
-            ab_web = 4'b0;
-        end
-    endcase
-end
-
-
-always @(*) begin
-    case(durum_r)
-        CACHE_YAZ: begin
-            // Bellekten gelen veri yazilacak
-            if(anabellek_veri_kullan_r) begin
-                ab_addr = 0;
-                ab_valid = 1'b0;
-                ab_din = 0;
-                ab_web = 4'b0;
-            end
-            // Bibden gelen veri yazilacak
-            else begin
-
-                ab_addr = 0;
-                ab_valid = 1'b0;
-                ab_din = 0;
-                ab_web = 4'b0;
-            end
-        end
-
-        CACHE_OKU: begin
-            // Bellekten gelen veri okunacak
-            if(anabellek_veri_kullan_r) begin
-
-                ab_addr = 0;
-                ab_valid = 1'b0;
-                ab_din = 0;
-                ab_web = 4'b0;
-            end
-            // Bibden gelen veri okunacak
-            else begin
-                ab_addr = 0;
-                ab_valid = 1'b0;
-                ab_din = 0;
-                ab_web = 4'b0;
-            end
-        end
-
-        BELLEK_OKU: begin
-            yaz_adres_r = 0;
-            yaz_tag_r = 0;
-            data_in_r = 0;
-            cs_yaz_r = 1'b1;
-            yaz_en_r = 1'b0;
-            cs_oku_r = 1'b0;
-        end
-
-        BELLEK_YAZ: begin
-            yaz_adres_r = 0;
-            yaz_tag_r = 0;
-            data_in_r = 0;
-            cs_yaz_r = 1'b1;
-            yaz_en_r = 1'b0;
-            cs_oku_r = 1'b0;
-        end
-
-        default: begin
-            ab_addr = 0;
-            ab_valid = 1'b0;
-            ab_din = 0;
             ab_web = 4'b0;
         end
     endcase

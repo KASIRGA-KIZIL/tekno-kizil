@@ -44,8 +44,8 @@ module bellek_islem_birimi(
                                                    {{24{bib_veri_i[31]}},bib_veri_i[31:24]} ;
 
 
-    wire [3:0] sh_mask = adr_i[1] ? 4'b0011:
-                                     4'b1100;
+    wire [3:0] sh_mask = adr_i[1] ? 4'b1100:
+                                    4'b0011;
 
     wire [3:0] sb_mask =  (adr_i[1:0] == 2'b00) ? 4'b0001 :
                           (adr_i[1:0] == 2'b01) ? 4'b0010 :
@@ -69,9 +69,13 @@ module bellek_islem_birimi(
                      (kontrol == `BIB_LW ) ? bib_veri_i :
                      (kontrol == `BIB_LBU) ? lbu_sonuc  :
                      (kontrol == `BIB_LHU) ? lhu_sonuc  :
-                                            bib_veri_i  ;
+                                             bib_veri_i  ;
 
-    assign bib_veri_o = deger_i;
+    assign bib_veri_o = (kontrol_i == `BIB_SB)  ? (deger_i << ($clog2(sb_mask)*8))           :
+                        (kontrol_i == `BIB_SH)  ? ((sh_mask[3]) ? (deger_i << 16) : deger_i ):
+                        (kontrol_i == `BIB_SW)  ?  deger_i :
+                                                   deger_i ;
+
     assign bib_adr_o  = {adr_i[31:2],2'b0};
 
     always @(posedge clk_i)begin

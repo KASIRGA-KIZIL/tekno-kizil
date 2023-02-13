@@ -21,7 +21,7 @@
 
 module teknofest_wrapper_basys3(
   input  clk,
-  
+
   input  program_rx_i,
 
   output uart_tx_o,
@@ -30,9 +30,9 @@ module teknofest_wrapper_basys3(
   output [15:0] LED,
   input  [15:0] sw
 );
-
+wire    prog_mode_led_o;
 wire    rst_ni  = sw[0];
-assign  LED[15] = prog_mode_led_o; 
+assign  LED[15] = prog_mode_led_o;
 
 wire spi_cs_o;
 wire spi_sck_o;
