@@ -23,7 +23,7 @@ module veriyolu(
     output spi_cs_o,
     output spi_sck_o,
     output spi_mosi_o,
-    output spi_miso_i,
+    input  spi_miso_i,
 
     output pwm0_o,
     output pwm1_o
