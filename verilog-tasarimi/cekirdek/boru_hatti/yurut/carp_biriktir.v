@@ -2967,21 +2967,6 @@ assign OUT[66] = p_0[66] ^ g_7_65;
 assign OUT[67] = g_7_66;
 endmodule
 
-module KS_67_spec (
-    input wire [66:0] IN1,
-    input wire [66:0] IN2,
-    output wire adder_correct,
-    output wire [67:0] spec_res);
-
-assign spec_res = IN1 + IN2;
-wire [67:0] adder_res;
-KS_67 adder(IN1, IN2, adder_res);
-assign adder_correct = ((spec_res == adder_res) ? 1 : 0);
-
-endmodule
-
-
-
 module ha (
     input wire a,
     input wire b,
