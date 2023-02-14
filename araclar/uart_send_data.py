@@ -8,7 +8,7 @@ file_format = 1
 
 if file_format == 1:
     program_data = open(file, 'r').read()
-    lines = file.split('\n')
+    lines = program_data.split('\n')
     
     ser = serial.Serial(port, baud_rate)
     ser.timeout = 1
