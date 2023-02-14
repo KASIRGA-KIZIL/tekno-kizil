@@ -95,7 +95,7 @@ compile: $(OPATH) $(SRCS) $(HEADERS)
 	
 	$(CC) -S $(CFLAGS) $(XCFLAGS) $(SRCS)
 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(SRCS)
-	$(RISCVTYPE)-objdump -d $(CFILE).riscv > $(CFILE)_disassembled.dump
+	$(RISCVTYPE)-objdump -d -M numeric,no-aliases $(CFILE).riscv > $(CFILE)_disassembled.dump
 	$(RISCVTYPE)-objcopy -O binary $(CFILE).riscv $(CFILE).bin
 	python3 ./get_static_hex.py --binfile=$(CFILE).bin
 	$(RISCVTYPE)-objcopy -O verilog $(CFILE).riscv $(CFILE).vh
