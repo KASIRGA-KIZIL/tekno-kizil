@@ -78,10 +78,12 @@ module yurut(
                               (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ? yzh_deger2    :
                                                                                32'bx;
 
-    wire cb_rst = rst_i | (cyo_mikroislem_i[`BIRIM] != `BIRIM_YAPAYZEKA);
+    wire yzh_carpma_rst;
+    wire cb_rst = rst_i | yzh_carpma_rst;
     carpma_birimi cb(
         .clk_i (clk_i ),
         .rst_i (cb_rst),
+        .durdur_i (ddb_durdur_i),
         .kontrol_i(cyo_mikroislem_i[`CARPMA]),
         .deger1_i (carp_deger1),
         .deger2_i (carp_deger2),
@@ -106,7 +108,7 @@ module yurut(
         .bib_adr_o         (bib_adr_o         ),
         .bib_veri_maske_o  (bib_veri_maske_o  ),
         .bib_yaz_gecerli_o (bib_yaz_gecerli_o ),
-        .bib_sec_o         (bib_sec_o       )
+        .bib_sec_o         (bib_sec_o         )
     );
 
     wire yzh_bitti;
@@ -114,7 +116,9 @@ module yurut(
     yapay_zeka_hizlandiricisi yzh (
         .clk_i (clk_i ),
         .rst_i (rst_i ),
+        .ddb_durdur_i (ddb_durdur_i),
         .kontrol_i (cyo_mikroislem_i[`CONV]),
+        .carpma_rst_o(yzh_carpma_rst),
         .basla_i  (yzh_basla),
         .bitti_o  (yzh_bitti),
         .rs2_en_i (cyo_yapay_zeka_en_i),

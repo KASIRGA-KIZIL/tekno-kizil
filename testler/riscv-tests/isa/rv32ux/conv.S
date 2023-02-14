@@ -19,7 +19,7 @@ RVTEST_CODE_BEGIN
 
       li  x1, 32;
       li  x2, 4;
-      li  x3, 189;
+      li  x31, 189;
       li  x4, 2;
       li  x5, 5;
       li  x6, 16;
@@ -45,8 +45,8 @@ RVTEST_CODE_BEGIN
       li  x21, 28;
 
       conv.ld.w.en x1, x2;
-      conv.ld.w x3, x4;
-      conv.ld.w x4, x3;
+      conv.ld.w x31, x4;
+      conv.ld.w x4, x31;
 
       conv.ld.x.en x5, x6;
       conv.ld.x x27, x8;
@@ -63,8 +63,8 @@ RVTEST_CODE_BEGIN
   )
 
   conv.ld.w.en x1, x2
-  conv.ld.w x3, x4
-  conv.ld.w x4, x3
+  conv.ld.w x31, x4
+  conv.ld.w x4, x31
 
   conv.ld.x.en x5, x6
   conv.ld.x x27, x8

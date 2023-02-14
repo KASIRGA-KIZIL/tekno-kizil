@@ -8,9 +8,11 @@
 module yapay_zeka_hizlandiricisi(
     input wire clk_i,
     input wire rst_i,
+    input  wire ddb_durdur_i,
 
     // Kontrol sinyalleri
     input  wire [2:0] kontrol_i,
+    output reg  carpma_rst_o,
     input  wire       basla_i,
     output wire       bitti_o,
     input  wire       rs2_en_i,
@@ -26,18 +28,6 @@ module yapay_zeka_hizlandiricisi(
 
     assign bitti_o = (sayac == `YAPAY_ZEKA_RUN_GECIKMESI) || (kontrol_i != `YZH_RUN);
 
-    always @(posedge clk_i) begin
-        if (rst_i) begin
-            sayac <= 4'b0;
-        end else begin
-            if(kontrol_i == `YZH_RUN)begin
-                sayac <= sayac + 4'b1;
-            end else begin
-                sayac <= 4'b0;
-            end
-        end
-    end
-
     reg rst_veri;
     reg yaz1_veri_en;
     reg yaz2_veri_en;
@@ -46,6 +36,20 @@ module yapay_zeka_hizlandiricisi(
     reg yaz2_katsayi_en;
     reg oku_veri_en;
     reg oku_katsayi_en;
+
+    always @(posedge clk_i) begin
+        if (rst_i) begin
+            sayac <= 4'b0;
+            carpma_rst_o    <= 1'b1;
+        end else begin
+            if(kontrol_i == `YZH_RUN && ~ddb_durdur_i)begin
+                sayac <= sayac + 4'b1;
+            end else begin
+                sayac <= 4'b0;
+            end
+        end
+    end
+
 
     always @(*) begin
         yaz1_veri_en    = 1'b0;
@@ -56,8 +60,9 @@ module yapay_zeka_hizlandiricisi(
         rst_veri        = 1'b0;
         oku_katsayi_en  = 1'b0;
         oku_veri_en     = 1'b0;
+        carpma_rst_o    = 1'b1;
 
-        if(basla_i)begin
+        if(basla_i & ~ddb_durdur_i) begin
             case(kontrol_i)
                 `YZH_LD_W:begin
                     yaz1_katsayi_en = 1'b1;
@@ -76,6 +81,7 @@ module yapay_zeka_hizlandiricisi(
                 `YZH_RUN:begin
                     oku_katsayi_en  = 1'b1;
                     oku_veri_en     = 1'b1;
+                    carpma_rst_o    = 1'b0;
                 end
             endcase
         end
@@ -83,7 +89,7 @@ module yapay_zeka_hizlandiricisi(
 
     yapay_zeka_yazmac_obegi veri_yo(
         .clk_i        (clk_i),
-        .rst_i        (rst_veri),
+        .rst_i        (rst_veri | rst_i),
         .oku_deger_o  (carp_deger1_o),
         .oku_en_i     (oku_veri_en),
         .yaz1_deger_i (deger1_i),
@@ -94,7 +100,7 @@ module yapay_zeka_hizlandiricisi(
 
     yapay_zeka_yazmac_obegi katsayi_yo(
         .clk_i        (clk_i),
-        .rst_i        (rst_katsayi),
+        .rst_i        (rst_katsayi | rst_i),
         .oku_deger_o  (carp_deger2_o),
         .oku_en_i     (oku_katsayi_en),
         .yaz1_deger_i (deger1_i),
@@ -117,30 +123,30 @@ module yapay_zeka_yazmac_obegi(
     input  wire        yaz1_en_i,
     input  wire        yaz2_en_i
 );
-    reg [3:0] adr0;
-    reg [3:0] adr1;
+    reg [3:0] adr_oku;
+    reg [3:0] adr_yaz;
 
     reg [31:0] yazmaclar[15:0];
-    assign oku_deger_o = yazmaclar[adr1];
+    assign oku_deger_o = yazmaclar[adr_yaz];
 
     integer i = 0;
     always@(posedge clk_i) begin
         if (rst_i) begin
-            adr0 <= 4'd0;
-            adr1 <= 4'd0;
+            adr_oku <= 4'd0;
+            adr_yaz <= 4'd0;
             for(i = 0; i < 16; i = i + 1)
                 yazmaclar[i] <= 32'd0;
         end
         else if(yaz1_en_i) begin
-            yazmaclar[adr0] <= yaz1_deger_i;
-            adr0            <= adr0 + 4'd1;
+            yazmaclar[adr_oku] <= yaz1_deger_i;
+            adr_oku            <= adr_oku + 4'd1;
             if(yaz2_en_i)begin
-                yazmaclar[adr0+1] <= yaz2_deger_i;
-                adr0 <= adr0 + 4'd2;
+                yazmaclar[adr_oku+1] <= yaz2_deger_i;
+                adr_oku <= adr_oku + 4'd2;
             end
         end
         if(oku_en_i)begin
-            adr1 <= adr1 + 4'd1;
+            adr_yaz <= adr_yaz + 4'd1;
         end
     end
 
