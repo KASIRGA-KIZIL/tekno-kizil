@@ -33,7 +33,7 @@ module sifreleme_birimi(
     wire [31:0] sladd_sonuc;
     sladd_unit su_inst(
         .deger1_i(deger1_i),
-        .deger2_i(deger1_i),
+        .deger2_i(deger2_i),
         .sladd_sonuc(sladd_sonuc)
     );
 

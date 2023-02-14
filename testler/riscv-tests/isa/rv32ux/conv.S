@@ -14,50 +14,51 @@
 RVTEST_RV64U
 RVTEST_CODE_BEGIN
 
-  li  x1, 32;
-  li  x2, 4;
-  li  x3, 189;
-  li  x4, 2;
-  li  x5, 5;
-  li  x6, 16;
-  li  x27, 28;
-  li  x8, 677;
 
-  li  x9, 323;
-  li  x10, 14;
-  li  x11, 1819;
-  li  x12, 21;
-  li  x13, 1455;
+  TEST_CASE( 2, x22, 6870, \
 
-  li  x14, 3;
+      li  x1, 32;
+      li  x2, 4;
+      li  x3, 189;
+      li  x4, 2;
+      li  x5, 5;
+      li  x6, 16;
+      li  x27, 28;
+      li  x8, 677;
 
-  li  x15, 11111;
-  li  x16, 123;
+      li  x9, 323;
+      li  x10, 14;
+      li  x11, 1819;
+      li  x12, 21;
+      li  x13, 1455;
 
-  li  x17, 321;
-  li  x18, 136;
-  li  x23, 248;
-  li  x19, 6577;
-  li  x20, 6771;
-  li  x21, 28;
+      li  x14, 3;
 
-  conv.ld.w.en x1, x2
-  conv.ld.w x3, x4
-  conv.ld.w x4, x3
+      li  x15, 11111;
+      li  x16, 123;
 
-  conv.ld.x.en x5, x6
-  conv.ld.x x27, x8
-  conv.ld.x x8, x27
+      li  x17, 321;
+      li  x18, 136;
+      li  x23, 248;
+      li  x19, 6577;
+      li  x20, 6771;
+      li  x21, 28;
 
-  
-  TEST_CASE( 1, x22, 6870, \
+      conv.ld.w.en x1, x2;
+      conv.ld.w x3, x4;
+      conv.ld.w x4, x3;
+
+      conv.ld.x.en x5, x6;
+      conv.ld.x x27, x8;
+      conv.ld.x x8, x27;
+
       conv.run x22; \
   )
 
   conv.clr.x
   conv.clr.w
 
-  TEST_CASE( 2, x22, 0, \
+  TEST_CASE( 25, x22, 0, \
       conv.run x22; \
   )
 
@@ -87,11 +88,11 @@ RVTEST_CODE_BEGIN
   conv.ld.x.en x20, x21
   conv.ld.x.en x20, x21
   conv.ld.x.en x20, x21
-  
+
   TEST_CASE( 4, x22, 86003120, \
       conv.run x22; \
   )
-  
+
   TEST_PASSFAIL
 
 RVTEST_CODE_END

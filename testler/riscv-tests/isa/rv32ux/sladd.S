@@ -18,7 +18,7 @@ RVTEST_CODE_BEGIN
   #-------------------------------------------------------------
   # TEST_RR_OP( testnum, inst, result, val1, val2 )
 
-  TEST_RR_OP( 2, sladd, 0xc3f907d6, 0x848207d6, 0xfdb9c3f9 );
+  TEST_RR_OP( 2, sladd, 0x06bdd3a5, 0x848207d6, 0xfdb9c3f9 );
 
   #-------------------------------------------------------------
   # Source/Destination tests
