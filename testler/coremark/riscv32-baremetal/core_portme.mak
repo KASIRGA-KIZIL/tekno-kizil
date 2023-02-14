@@ -31,7 +31,7 @@ CC = $(RISCVTYPE)-gcc
 # Flag: CFLAGS
 #	Use this flag to define compiler options. Note, you can add compiler options from the command line using XCFLAGS="other flags"
 #PORT_CFLAGS = -O2 -static -std=gnu99
-PORT_CFLAGS = -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -lm -lgcc -T $(PORT_DIR)/link.ld #-mcmodel=medlow
+PORT_CFLAGS = -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -fno-builtin -lm -lgcc -T $(PORT_DIR)/link.ld #-mcmodel=medlow
 FLAGS_STR = "$(PORT_CFLAGS) $(XCFLAGS) $(XLFLAGS) $(LFLAGS_END)"
 CFLAGS = $(PORT_CFLAGS) -march=rv32imc -mabi=ilp32 -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\"
 #Flag: LFLAGS_END
@@ -40,7 +40,7 @@ CFLAGS = $(PORT_CFLAGS) -march=rv32imc -mabi=ilp32 -I$(PORT_DIR) -I. -DFLAGS_STR
 LFLAGS_END +=
 # Flag: PORT_SRCS
 # Port specific source files can be added here
-PORT_SRCS = $(PORT_DIR)/core_portme.c $(PORT_DIR)/syscalls.c #$(PORT_DIR)/crt.S
+PORT_SRCS = $(PORT_DIR)/core_portme.c $(PORT_DIR)/ee_printf.c #$(PORT_DIR)/syscalls.c #$(PORT_DIR)/crt.S
 # Flag: LOAD
 #	Define this flag if you need to load to a target, as in a cross compile environment.
 
@@ -58,7 +58,7 @@ PORT_SRCS = $(PORT_DIR)/core_portme.c $(PORT_DIR)/syscalls.c #$(PORT_DIR)/crt.S
 
 #For native compilation and execution
 LOAD = echo Loading done
-RUN = spike pk
+#RUN = spike pk
 
 OEXT = .o
 EXE = _baremetal.riscv
@@ -75,7 +75,7 @@ OFLAG 	= -o
 COUT 	= -c
 # Flag: PORT_OBJS
 # Port specific object files can be added here
-PORT_OBJS = $(PORT_DIR)/core_portme$(OEXT)
+PORT_OBJS = $(PORT_DIR)/core_portme$(OEXT) $(PORT_DIR)/ee_printf$(OEXT)
 PORT_CLEAN = *$(OEXT)
 
 $(OPATH)%$(OEXT) : %.c
@@ -145,3 +145,4 @@ MKDIR = mkdir -p
 # FLAG: PERL
 # Define perl executable to calculate the geomean if running separate.
 PERL=/usr/bin/perl
+

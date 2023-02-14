@@ -26,3 +26,4 @@ with open(binFile, "rb") as f:
 	
 	f.close()
 	hexFile.close()
+

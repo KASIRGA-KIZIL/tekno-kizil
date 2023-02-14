@@ -1,8 +1,7 @@
 # coremark
-**Not:** UART ve TIMER ile çalışması için daha fazla şey eklememiz lazım.
-**Not:** CSR buyruklarını eklersek crt.S'i de dahil edelim.
+**Not:** CSR buyruklarını eklersek crt.S de koyalim.
 
-**Önemli Not:** _coremark/riscv32-baremetal/core_portme.c_ 111. satırdaki _NSECS_PER_SEC_ değişkenine işlemcinin saat hızını verin tekrar `make compile` yapın, şimdilik 100 Mhz (100000000) verdim, eğer olmazsa daha düşük saat hızları deneyin, yoksa fpga'de hiç çalışmayabilir.
+**Önemli Not:** coremark/riscv32-baremetal/core_portme.h'da  CLOCKS_PER_SEC değişkenine işlemcinin saat hızını vermeliyiz.
 
 riscv-gnu-toolchain (indirdiğiniz ya da daha önceden RV32 için build edilmiş olan) dosya yolunu export edin:
 
@@ -22,10 +21,10 @@ Bunu ~/.bashrc dosyanıza atarsanız kalıcı olur, yoksa her yeni terminal açt
 export PATH=/home/shc/projects/tubitak-riscv-toolchain/bin:$PATH >> ~/.bashrc
 ```
 
-Coremark'ı derlemek için (Burası da sadece make olabilir ama diğer yerleri kaldırmadım, gereksiz yerler hata veriyor compile yazılmazsa.):
+Coremark'ı derlemek için:
 
 ```bash
-make compile
+make
 ```
 
 Oluşan dosyaları temizlemek için:
@@ -33,17 +32,11 @@ Oluşan dosyaları temizlemek için:
 make clean
 ```
 
-Baremetal derlemek iste**mi**yorsanız Makefile'da değişiklik yapın ya da:
-
-```bash
-export PORT_DIR=riscv32
-```
-
-Linux çalışsaydı onun üzerinde de bu şekilde derlenmiş coremark'ı çalıştırabilirdiniz.
-
 # Introduction
 
 CoreMark's primary goals are simplicity and providing a method for testing only a processor's core features. For more information about EEMBC's comprehensive embedded benchmark suites, please see www.eembc.org.
+
+For a more compute-intensive version of CoreMark that uses larger datasets and execution loops taken from common applications, please check out EEMBC's [CoreMark-PRO](https://www.github.com/eembc/coremark-pro) benchmark, also on GitHub.
 
 # Building and Running
 	
@@ -61,14 +54,14 @@ For cross compile platforms please adjust `core_portme.mak`, `core_portme.h` (an
 ~~~
 
 ## Make Targets
-`run` - Default target, creates `run1.log` and `run2.log`.
-`run1.log` - Run the benchmark with performance parameters, and output to `run1.log`
-`run2.log` - Run the benchmark with validation parameters, and output to `run2.log`
-`run3.log` - Run the benchmark with profile generation parameters, and output to `run3.log`
-`compile` - compile the benchmark executable 
-`link` - link the benchmark executable
-`check` - test MD5 of sources that may not be modified
-`clean` - clean temporary files
+* `run` - Default target, creates `run1.log` and `run2.log`.
+* `run1.log` - Run the benchmark with performance parameters, and output to `run1.log`
+* `run2.log` - Run the benchmark with validation parameters, and output to `run2.log`
+* `run3.log` - Run the benchmark with profile generation parameters, and output to `run3.log`
+* `compile` - compile the benchmark executable 
+* `link` - link the benchmark executable
+* `check` - test MD5 of sources that may not be modified
+* `clean` - clean temporary files
 
 ### Make flag: `ITERATIONS` 
 By default, the benchmark will run between 10-100 seconds. To override, use `ITERATIONS=N`
@@ -87,7 +80,7 @@ Minimum required run time: **Results are only valid for reporting if the benchma
 To add compiler flags from the command line, use `XCFLAGS` e.g.:
 
 ~~~
-% make XCFLAGS="-g -DMULTITHREAD=4 -DUSE_FORK=1"
+% make XCFLAGS="-DMULTITHREAD=4 -DUSE_FORK"
 ~~~
 
 ### Make flag: `CORE_DEBUG`
@@ -122,10 +115,16 @@ The above will compile the benchmark for a performance run and 1000 iterations. 
 Use `XCFLAGS=-DMULTITHREAD=N` where N is number of threads to run in parallel. Several implementations are available to execute in multiple contexts, or you can implement your own in `core_portme.c`.
 
 ~~~
-% make XCFLAGS="-DMULTITHREAD=4 -DUSE_PTHREAD"
+% make XCFLAGS="-DMULTITHREAD=4 -DUSE_PTHREAD -pthread"
 ~~~
 
-Above will compile the benchmark for execution on 4 cores, using POSIX Threads API.
+The above will compile the benchmark for execution on 4 cores, using POSIX Threads API. Forking is also supported:
+
+~~~
+% make XCFLAGS="-DMULTITHREAD=4 -DUSE_FORK"
+~~~
+
+Note: linking may fail on the previous command if your linker does not automatically add the `pthread` library. If you encounter `undefined reference` errors, please modify the `core_portme.mak` file for your platform, (e.g. `linux/core_portme.mak`) and add `-pthread` to the `LFLAGS_END` parameter.
 
 # Run Parameters for the Benchmark Executable
 CoreMark's executable takes several parameters as follows (but only if `main()` accepts arguments):
@@ -151,7 +150,7 @@ The default for such a target when testing different configurations could be:
 
 # Submitting Results
 
-CoreMark results can be submitted on the web. Open a web browser and go to https://www.eembc.org/coremark/login.php?url=enter_score.php. After registering an account you may enter a score.
+CoreMark results can be submitted on the web. Open a web browser and go to the [submission page](https://www.eembc.org/coremark/submit.php). After registering an account you may enter a score.
 
 # Run Rules
 What is and is not allowed.
@@ -428,7 +427,7 @@ Many thanks to all of the individuals who helped with the development or testing
 * Shumpei Kawasaki, RENESAS
 
 # Legal
-Please refer to LICENSE.md in this reposity for a description of your rights to use this code.
+Please refer to LICENSE.md in this repository for a description of your rights to use this code.
 
 # Copyright
 Copyright © 2009 EEMBC All rights reserved. 

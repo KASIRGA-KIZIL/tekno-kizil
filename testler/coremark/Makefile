@@ -14,11 +14,6 @@
 # 
 # Original Author: Shay Gal-on
 
-RISCVTYPE ?= riscv32-unknown-elf
-CC = $(RISCVTYPE)-gcc
-
-CFILE ?= coremark_baremetal
-
 # Make sure the default target is to simply build and run the benchmark.
 RSTAMP = v1.0
 
@@ -29,12 +24,13 @@ score:
 	@echo "Check run1.log and run2.log for results."
 	@echo "See README.md for run and reporting rules." 
 
+CFILE ?= coremark_baremetal
+
+RISCVTYPE ?= riscv32-unknown-elf
+CC = $(RISCVTYPE)-gcc
+
 PORT_DIR ?= riscv32-baremetal
-
-# baremetal olmayacaksa bunu acin usttekini kapatin
-# ya da terminaldeyken export PORT_DIR=riscv32 yapın.
-#PORT_DIR=riscv32
-
+	
 ifndef PORT_DIR
 # Ports for a couple of common self hosted platforms
 UNAME=$(shell if command -v uname 2> /dev/null; then uname ; fi)
@@ -51,7 +47,6 @@ ifneq (,$(findstring Linux,$(UNAME)))
 PORT_DIR=linux
 endif
 endif
-
 ifndef PORT_DIR
 $(error PLEASE define PORT_DIR! (e.g. make PORT_DIR=simple)) 
 endif
@@ -67,7 +62,7 @@ ifdef REBUILD
 FORCE_REBUILD=force_rebuild
 endif
 
-CFLAGS += -DITERATIONS=$(ITERATIONS)
+CFLAGS += -DITERATIONS=$(ITERATIONS) -march=rv32imc -mabi=ilp32
 
 CORE_FILES = core_list_join core_main core_matrix core_state core_util
 ORIG_SRCS = $(addsuffix .c,$(CORE_FILES))
@@ -97,17 +92,14 @@ else
 
 compile: $(OPATH) $(SRCS) $(HEADERS) 
 	$(CC) $(CFLAGS) $(XCFLAGS) $(SRCS) $(OUTCMD)
+	
 	$(CC) -S $(CFLAGS) $(XCFLAGS) $(SRCS)
 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(SRCS)
-	
-	$(RISCVTYPE)-objdump -d $(CFILE).riscv > $(CFILE)_disassembled.txt
-	
+	$(RISCVTYPE)-objdump -d $(CFILE).riscv > $(CFILE)_disassembled.dump
 	$(RISCVTYPE)-objcopy -O binary $(CFILE).riscv $(CFILE).bin
-	python3 ../get_static_hex.py --binfile=$(CFILE).bin
-	
+	python3 ./get_static_hex.py --binfile=$(CFILE).bin
 	$(RISCVTYPE)-objcopy -O verilog $(CFILE).riscv $(CFILE).vh
-	python3 ../vhtocoe.py --vhfile=$(CFILE).vh
-	
+	python3 ./vhtocoe.py --vhfile=$(CFILE).vh
 link: compile 
 	@echo "Link performed along with compile"
 
@@ -133,7 +125,7 @@ run3.log-PARAM=$(PARAM3) 7 1 1200
 
 run1.log run2.log run3.log: load
 	$(MAKE) port_prerun
-	$(RUN) $(OUTFILE) $($(@)-PARAM) > $(OPATH)$@
+	#$(RUN) $(OUTFILE) $($(@)-PARAM) > $(OPATH)$@
 	$(MAKE) port_postrun
 	
 .PHONY: gen_pgo_data
@@ -147,7 +139,7 @@ load: $(OUTFILE)
 
 .PHONY: clean
 clean:
-	rm -f $(OUTFILE) $(OBJS) $(OPATH)*.log *.info $(OPATH)index.html $(PORT_CLEAN) *.o *.s *.riscv *.bin *.hex *.vh *.coe *.txt
+	rm -f $(OUTFILE) $(OBJS) $(OPATH)*.log *.info $(OPATH)index.html $(PORT_CLEAN) *.o *.coe *.hex *.s *.dump *.bin *.vh
 
 .PHONY: force_rebuild
 force_rebuild:
