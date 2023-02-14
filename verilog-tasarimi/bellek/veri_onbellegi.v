@@ -29,7 +29,6 @@ reg [511:0] valid_r, valid_next_r;
 
 reg [ 8:0] yaz_adres_next_r;
 reg [ 7:0] yaz_tag_next_r;
-reg [31:0] data_in_next_r;
 reg        cs_yaz_next_r;
 reg        yaz_en_next_r;
 reg        cs_oku_next_r;
@@ -71,7 +70,6 @@ wire oku_valid_w;
 
 reg [8:0] yaz_adres_r;
 reg [7:0] yaz_tag_r;
-reg [31:0] data_in_r;
 reg cs_yaz_r;
 reg yaz_en_r;
 reg cs_oku_r;
@@ -258,7 +256,6 @@ end
 always @(*) begin
     yaz_adres_next_r = yaz_adres_r;
     yaz_tag_next_r   = yaz_tag_r;
-    data_in_next_r   = data_in_r;
     cs_yaz_next_r    = 1'b1;
     yaz_en_next_r    = yaz_en_r;
     cs_oku_next_r    = 1'b1;
@@ -273,7 +270,6 @@ always @(*) begin
             if(anabellek_veri_kullan_r) begin
                 yaz_adres_next_r = anabellek_adr_r;
                 yaz_tag_next_r = anabellek_adr_r[`TAG];
-                data_in_next_r = anabellek_veri_r;
                 cs_yaz_next_r = 1'b0;
                 yaz_en_next_r = 1'b1;
                 cs_oku_next_r = 1'b1;
@@ -283,7 +279,6 @@ always @(*) begin
             else begin
                 yaz_adres_next_r = bib_adr_i[`ADR];
                 yaz_tag_next_r = bib_adr_i[`TAG];
-                data_in_next_r = bib_veri_i;
                 cs_yaz_next_r = 1'b0;
                 yaz_en_next_r = 1'b1;
                 cs_oku_next_r = 1'b1;
@@ -296,7 +291,6 @@ always @(*) begin
             if(anabellek_veri_kullan_r) begin
                 yaz_adres_next_r = anabellek_adr_r;
                 yaz_tag_next_r = anabellek_adr_r[`TAG];
-                data_in_next_r = 0;
                 cs_yaz_next_r = 1'b1;
                 yaz_en_next_r = 1'b0;
                 cs_oku_next_r = 1'b0;
@@ -306,7 +300,6 @@ always @(*) begin
             else begin
                 yaz_adres_next_r = bib_adr_i[`ADR];
                 yaz_tag_next_r = bib_adr_i[`TAG];
-                data_in_next_r = 0;
                 cs_yaz_next_r = 1'b1;
                 yaz_en_next_r = 1'b0;
                 cs_oku_next_r = 1'b0;
@@ -333,7 +326,6 @@ always @(posedge clk_i) begin
     if(rst_i)begin
         yaz_adres_r <= 0;
         yaz_tag_r   <= 0;
-        data_in_r   <= 0;
         cs_yaz_r    <= 1'b1;
         yaz_en_r    <= 1'b0;
         cs_oku_r    <= 1'b1;
@@ -341,7 +333,6 @@ always @(posedge clk_i) begin
     end else begin
         yaz_adres_r <= yaz_adres_next_r;
         yaz_tag_r   <= yaz_tag_next_r;
-        data_in_r   <= data_in_next_r;
         cs_yaz_r    <= cs_yaz_next_r;
         yaz_en_r    <= yaz_en_next_r;
         cs_oku_r    <= cs_oku_next_r;
