@@ -41,7 +41,7 @@ SRCS += $(call rwildcard,$(CEVRELEYICI),*.v)
 all: smart.log $(PROJECT).asm.rpt $(PROJECT).sta.rpt
 
 clean:
-	$(RM) -rf *.rpt *.chg smart.log *.htm *.eqn *.pin *.sof *.pof db incremental_db *.summary *.smsg *.jdi $(ASSIGNMENT_FILES) *.qpf *.qsf build/ *.txt *.qws *.sld *.stp *.done *.hex *.mif
+	$(RM) -rf *.rpt *.chg smart.log *.htm *.eqn *.pin *.sof *.pof db incremental_db *.summary *.smsg *.jdi $(ASSIGNMENT_FILES) *.qpf *.qsf build/ *.txt *.qws *.sld *.stp *.done *.hex *.mif output_files/
 
 map: smart.log $(PROJECT).map.rpt
 fit: smart.log $(PROJECT).fit.rpt
