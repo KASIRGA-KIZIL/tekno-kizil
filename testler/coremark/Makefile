@@ -62,7 +62,7 @@ ifdef REBUILD
 FORCE_REBUILD=force_rebuild
 endif
 
-CFLAGS += -DITERATIONS=$(ITERATIONS) -march=rv32imc -mabi=ilp32
+CFLAGS += -DITERATIONS=$(ITERATIONS)
 
 CORE_FILES = core_list_join core_main core_matrix core_state core_util
 ORIG_SRCS = $(addsuffix .c,$(CORE_FILES))
