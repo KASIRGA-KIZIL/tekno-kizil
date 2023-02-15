@@ -63,6 +63,9 @@ module uart_denetleyici (
     always @(posedge clk_i) begin
         if (rst_i) begin
             wb_ack_o <= 1'b0;
+            baud_div <= 16'b0;
+            rx_en    <= 1'b0;
+            tx_en    <= 1'b0;
         end else begin
             tx_we <= 1'b0;
             if(wb_cyc_i) begin
