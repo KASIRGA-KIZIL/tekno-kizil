@@ -36,7 +36,7 @@ for each in insttestlist:
   ecallpass = False
   fail_adr = 0
   pass_adr = 0
-  filename = glob.glob(TESTS_FOLDER + '/*' + each + '.dump')[0] #'./data/rv32ui-p-sb.dump'
+  filename = glob.glob(TESTS_FOLDER + '/*-' + each + '.dump')[0] #'./data/rv32ui-p-sb.dump'
   with open(filename, 'r') as f:
     for line in f:
       if 'fail' in line:
@@ -51,7 +51,7 @@ for each in insttestlist:
           ecallpass = False
           pass_adr = int(line.split(':')[0].replace(' ', ''), 16)
   riscv_tests[each] = {
-    "TEST_FILE": glob.glob(TESTS_FOLDER + '/*' + each + '_static.hex')[0], #"./data/rv32ui-p-sb_static.hex",
+    "TEST_FILE": glob.glob(TESTS_FOLDER + '/*-' + each + '_static.hex')[0], #"./data/rv32ui-p-sb_static.hex",
     "fail_adr": fail_adr,
     "pass_adr": pass_adr,
     "buyruklar": []
