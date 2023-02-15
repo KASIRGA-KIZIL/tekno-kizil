@@ -33,14 +33,14 @@ module uart_tx (
                DATA_7    = 4'd9,
                STOP_BIT  = 4'd10;
 
-    reg [7:0]  queue [31:0];
-    reg [4:0]  read_ptr;
-    reg [4:0]  write_ptr;
+    reg [7:0]  queue [127:0];
+    reg [6:0]  read_ptr;
+    reg [6:0]  write_ptr;
     reg [20:0] counter;
     reg        uart_clk_pulse;
 
     wire [4:0] limit = read_ptr-1;
-    assign full_o  = (limit    == write_ptr);
+    assign full_o  = (limit    == write_ptr) || (limit-1    == write_ptr) || (limit-2    == write_ptr) || (limit-3    == write_ptr);
     assign empty_o = (read_ptr == write_ptr);
 
     always @(posedge clk_i) begin
