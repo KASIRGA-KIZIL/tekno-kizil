@@ -4,7 +4,7 @@ CC = $(RISCVTYPE)-gcc
 
 LINKER_SCRIPT ?= link.ld
 
-CFLAGS ?= -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -fno-builtin -ffunction-sections -lm -lgcc -T $(LINKER_SCRIPT) -march=rv32im -mabi=ilp32
+CFLAGS ?= -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -fno-builtin -ffunction-sections -lm -lgcc -T $(LINKER_SCRIPT) -march=rv32imc -mabi=ilp32
 
 CFILE ?= uart_demo
 
