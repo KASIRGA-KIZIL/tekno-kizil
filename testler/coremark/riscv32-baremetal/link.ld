@@ -28,7 +28,11 @@ SECTIONS
   . = ALIGN(0x1000);
   .tohost : { *(.tohost) }
 
-  .text : { *(.text) }
+  /* .text : { *(.text) } */
+  .text : {
+        *(.text*.main);
+        *(.text*);
+  }
 
   /* data segment */
   .data : { *(.data) }
