@@ -40,7 +40,6 @@ module yapay_zeka_hizlandiricisi(
     always @(posedge clk_i) begin
         if (rst_i) begin
             sayac <= 4'b0;
-            carpma_rst_o    <= 1'b1;
         end else begin
             if(kontrol_i == `YZH_RUN && ~ddb_durdur_i)begin
                 sayac <= sayac + 4'b1;
