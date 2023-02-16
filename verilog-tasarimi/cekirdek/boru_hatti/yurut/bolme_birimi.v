@@ -37,8 +37,8 @@ module bolme_birimi(
 
 	reg[32:0] gecici_fark_r = 0;
 
-	reg isaret_bolunen_r = 0;
-	reg isaret_bolen_r = 0;
+	wire isaret_bolunen_r = bolunen_i[31];
+	wire isaret_bolen_r = bolen_i[31];
 
 	wire [31:0] tmp_bolen = ~bolen_i + 1;
 	wire [31:0] tmp_bolunen = ~bolunen_i + 1;
@@ -49,8 +49,6 @@ module bolme_birimi(
         cevrim_sonraki_r = cevrim_r;
 		sonuc = 32'dx;
 		gecici_fark_r    = 33'bx;
-		isaret_bolen_r   = 1'bx;
-		isaret_bolunen_r = 1'bx;
 		bitti_o = 1;
 
 		if(basla_i) begin
@@ -58,8 +56,6 @@ module bolme_birimi(
 
             case({cevrim_r[34], cevrim_r[0]})
                 2'b01: begin // ilk cevrim
-                    isaret_bolen_r = bolen_i[31];
-				    isaret_bolunen_r = bolunen_i[31];
 
 				    if(islem_i[1] & bolen_i[31]) begin
 				       bolen_sonraki_r = {1'b0,tmp_bolen};

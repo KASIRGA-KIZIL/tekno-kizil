@@ -44,11 +44,9 @@ module cekirdek(
     wire  gtr_atlanan_ps_gecerli_w;
     wire [31:1] gy_ps_artmis_w;
     wire [31:0] gy_rd_deger_w;
-    wire [31:0] gy_carpma_deger_w;
     wire [ 2:0] gy_mikroislem_w;
     wire [31:0] cyo_yonlendir_deger_w;
 
-    wire yrt_yonlendir_gecerli_w;
 
     wire [ 4:0] cyo_yaz_adres_w;
     wire [31:0] cyo_yaz_deger_w;
@@ -76,7 +74,6 @@ module cekirdek(
         .yrt_rd_adres_i    (gy_rd_adres_w    ),
         .yrt_rd_deger_i    (gy_rd_deger_w    ),
         .yrt_mikroislem_i  (gy_mikroislem_w  ),
-        .yrt_carpma_deger_i(gy_carpma_deger_w),
         .yrt_ps_artmis_i   (gy_ps_artmis_w   ),
         .cyo_yaz_adres_o (cyo_yaz_adres_w),
         .cyo_yaz_deger_o (cyo_yaz_deger_w),
@@ -88,7 +85,6 @@ module cekirdek(
         .rst_i (rst_i ),
         .ddb_durdur_i (yrt_durdur_w ),
         .ddb_hazir_o  (yrt_hazir_w),
-        .ddb_yonlendir_gecerli_o (yrt_yonlendir_gecerli_w),
 
         .cyo_mikroislem_i    (yrt_mikroislem_w      ),
         .cyo_rd_adres_i      (yrt_rd_adres_w        ),
@@ -103,7 +99,6 @@ module cekirdek(
         .gy_rd_adres_o    (gy_rd_adres_w  ),
         .gy_ps_artmis_o   (gy_ps_artmis_w ),
         .gy_rd_deger_o    (gy_rd_deger_w  ),
-        .gy_carpma_deger_o(gy_carpma_deger_w),
         .gy_mikroislem_o  (gy_mikroislem_w),
         .cyo_yonlendir_deger_o  (cyo_yonlendir_deger_w),
         .bib_veri_i        (bib_veri_i        ),
@@ -178,7 +173,6 @@ module cekirdek(
         .yrt_yaz_yazmac_i       (yrt_mikroislem_w[`YAZMAC]),
         .yrt_hazir_i            (yrt_hazir_w   ),
         .yrt_rd_adres_i         (yrt_rd_adres_w),
-        .yrt_yonlendir_gecerli_i(yrt_yonlendir_gecerli_w),
         .gy_yaz_yazmac_i (cyo_yaz_yazmac_w),
         .gy_rd_adres_i   (cyo_yaz_adres_w )
     );

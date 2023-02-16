@@ -42,10 +42,9 @@
 module carp_biriktir(
     input wire clk_i,
     input wire rst_i,
-    input wire durdur_i,
     input wire [32:0] IN1,
     input wire [32:0] IN2,
-    output reg [66:0] result);
+    output wire [66:0] result);
 wire [66:0] m1_0;
 wire [66:0] m1_1;
 DT_SB4_33x33_67 m1 (IN1[32:0], IN2[32:0], m1_0, m1_1);
@@ -196,9 +195,10 @@ always @(posedge clk_i) begin
     end else begin
         IN3 <= adder_result[32:0];
     end
-    if(!durdur_i)
-        result <= adder_result[66:0];
+
 end
+
+assign  result = adder_result[66:0];
 
 endmodule
 

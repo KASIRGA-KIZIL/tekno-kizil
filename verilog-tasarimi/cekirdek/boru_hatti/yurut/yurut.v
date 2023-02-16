@@ -11,7 +11,6 @@ module yurut(
     // DDB sinyalleri
     input  wire ddb_durdur_i,
     output wire ddb_hazir_o,
-    output wire ddb_yonlendir_gecerli_o,
 
     // Coz-Yazmacoku bolumu sinyallleri
     input  wire [`MI_BIT-1:0] cyo_mikroislem_i,
@@ -31,7 +30,6 @@ module yurut(
     output reg  [ 4:0] gy_rd_adres_o,              // Rd'nin adresi
     output reg  [31:1] gy_ps_artmis_o,             // Rd=PC+4/2 islemi icin gerekli
     output reg  [31:0] gy_rd_deger_o,              // islem birimlerinden cikan sonuc
-    output wire [31:0] gy_carpma_deger_o,          // Carpma Biriminin ciktisi.
     output reg  [ 2:0] gy_mikroislem_o,            // Rd secimi ve write enable sinyalleri
 
     // Yonlendirme icin
@@ -51,6 +49,7 @@ module yurut(
     wire [31:0] bol_sonuc_w      ;
     wire [31:0] sifreleme_sonuc_w;
     wire [31:0] bib_sonuc_w;
+    wire [31:0] cb_sonuc_w;
 
     aritmetik_mantik_birimi amb (
         .kontrol_i(cyo_mikroislem_i[`AMB]),
@@ -83,11 +82,10 @@ module yurut(
     carpma_birimi cb(
         .clk_i (clk_i ),
         .rst_i (cb_rst),
-        .durdur_i (ddb_durdur_i),
         .kontrol_i(cyo_mikroislem_i[`CARPMA]),
         .deger1_i (carp_deger1),
         .deger2_i (carp_deger2),
-        .sonuc_o  (gy_carpma_deger_o)
+        .sonuc_o  (cb_sonuc_w)
     );
 
     wire bib_bitti;
@@ -141,9 +139,6 @@ module yurut(
       .bitti_o  (bol_bitti_w)
     );
 
-    assign ddb_yonlendir_gecerli_o  = ~((cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ||
-                                        (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA));
-
     assign gtr_atlanan_ps_gecerli_o = (cyo_mikroislem_i[`DAL] == `DAL_EQ  ) ?  cyo_lt_ltu_eq_i[0]:
                                       (cyo_mikroislem_i[`DAL] == `DAL_NE  ) ? !cyo_lt_ltu_eq_i[0]:
                                       (cyo_mikroislem_i[`DAL] == `DAL_LT  ) ?  cyo_lt_ltu_eq_i[2]:
@@ -158,7 +153,9 @@ module yurut(
     wire [31:0] rd_deger_sonraki_w = (cyo_mikroislem_i[`BIRIM] == `BIRIM_AMB      ) ? amb_sonuc_w      :
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ? bol_sonuc_w      :
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_SIFRELEME) ? sifreleme_sonuc_w:
-                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB      ) ? bib_sonuc_w:
+                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB      ) ? bib_sonuc_w      :
+                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ? cb_sonuc_w       :
+                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ? cb_sonuc_w       :
                                                                                       32'hxxxx_xxxx;
 
     assign gtr_atlanan_ps_o = amb_sonuc_w[31:1];
@@ -172,7 +169,7 @@ module yurut(
             gy_rd_adres_o   <= 0;
         end
         else begin
-            if(!ddb_durdur_i | !ddb_hazir_o)begin
+            if(!ddb_durdur_i)begin
                 gy_mikroislem_o <= {cyo_mikroislem_i[`YAZMAC],cyo_mikroislem_i[`GERIYAZ]};
                 gy_rd_deger_o   <= rd_deger_sonraki_w;
                 gy_rd_adres_o   <= cyo_rd_adres_i;
@@ -181,9 +178,6 @@ module yurut(
         end
     end
 
-    // TODO burayi degistirmeliyiz
-    // yzhye basla yerine reset ve yine bolmeye reset koyabiliriz, burayi degistirmemek icin
-    // reset geliyorsa bitmezler
     assign ddb_hazir_o = yzh_bitti & bol_bitti_w & bib_bitti;
 
     `ifdef COCOTB_SIM
