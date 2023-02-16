@@ -89,22 +89,22 @@ module user_processor(
         .iomem_addr    (l1b_iomem_addr ),
         .iomem_rdata   (l1b_iomem_rdata),
 
-        .l1b_bekle_o   (l1b_bekle   ),
-        .l1b_deger_o   (l1b_deger   ),
-        .l1b_adres_i   (l1b_adres   )
+        .l1b_bekle_o   (l1b_bekle),
+        .l1b_deger_o   (l1b_deger),
+        .l1b_adres_i   (l1b_adres)
     );
 
-    assign l1v_sec = bib_adr[30] ? bib_sec : 1'b0;
-    assign vy_sec  = bib_adr[29] ? bib_sec : 1'b0;
-    assign tmr_sec = bib_adr[28] ? bib_sec : 1'b0;
+    assign l1v_sec = bib_adr[30]               ? bib_sec : 1'b0;
+    assign vy_sec  = bib_adr[29]&&~bib_adr[28] ? bib_sec : 1'b0;
+    assign tmr_sec = bib_adr[28]               ? bib_sec : 1'b0;
 
     assign bib_durdur = bib_adr[30] ? l1v_durdur :
-                        bib_adr[29] ? vy_durdur  :
-                                        1'b0     ;
+                        bib_adr[28] ?   1'b0     :
+                                      vy_durdur  ;
 
     assign bib_oku_veri  = bib_adr[30] ? l1v_oku_veri :
-                           bib_adr[29] ? vy_oku_veri  :
-                                         tmr_oku_veri ;
+                           bib_adr[28] ? tmr_oku_veri :
+                                         vy_oku_veri  ;
 
     veri_onbellegi veri_onbellegi_dut (
         .clk_i (clk_i ),

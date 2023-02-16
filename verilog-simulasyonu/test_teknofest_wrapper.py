@@ -25,39 +25,33 @@ riscv_tests["uart"] = {
     "pass_adr": 0x40f00074,
     "buyruklar": []
 }
-insttestlist = []
-"""
-
-"""
 riscv_tests["bol_carp_bol_carp"] = {
     "TEST_FILE": "../testler/el-yapimi-testler/build/bol_carp_bol_carp.hex",
     "fail_adr": 0x40000060,
     "pass_adr": 0x40000078,
     "buyruklar": []
 }
-insttestlist = []
-"""
-
-"""
 riscv_tests["coremark"] = {
     "TEST_FILE": "../testler/coremark/coremark_baremetal_static.hex",
     "fail_adr": 0x40f00060,
     "pass_adr": 0x40f00078,
     "buyruklar": []
 }
-insttestlist = []
-"""
-
-"""
 riscv_tests["geriyazdir"] = {
     "TEST_FILE": "../testler/el-yapimi-testler/build/geriyazdir.hex",
     "fail_adr": 0x4000005c,
     "pass_adr": 0x40000074,
     "buyruklar": []
 }
+riscv_tests["timer_oku"] = {
+    "TEST_FILE": "../testler/el-yapimi-testler/build/timer_oku.hex",
+    "fail_adr": 0x4010005c,
+    "pass_adr": 0x40000034,
+    "buyruklar": []
+}
 insttestlist = []
-
 """
+
 
 
 insttestlist = ["auipc","jal","jalr","lui","andi","ori","xori","addi","slli","slti","sltiu","and","sll","xor","or","srl","sra","slt","sltu","srli","srai","sub","bgeu","bltu","blt","bne","beq","bge","add","mul","mulh","mulhu","mulhsu","div","divu","rem","remu","lw","lh","lb","lbu","lhu","sw","sb","sh", 'hmdst', 'rvrs', 'pkg', 'sladd', 'cntz', 'cntp','conv']

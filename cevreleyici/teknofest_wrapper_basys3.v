@@ -38,7 +38,7 @@ wire clk_i;
 wire dummy;
 
 assign  LED[0]  = rst_ni;
-assign  LED[14:1] = sw[14:1]; 
+assign  LED[14:1] = sw[14:1];
 assign  LED[15] = prog_mode_led_o;
 assign  uart_tx_header_o = uart_tx_o;
 assign  clk_header_o = clk_i;
@@ -71,11 +71,11 @@ parameter [31:0] RAM_BASE_ADDR = 32'h4000_0000;
 parameter [31:0] RAM_MASK_ADDR = 32'h000f_ffff;
 parameter [31:0] CHIP_IO_BASE_ADDR = SPI_BASE_ADDR + SPI_MASK_ADDR;
 parameter [31:0] CHIP_IO_MASK_ADDR = RAM_BASE_ADDR + RAM_MASK_ADDR;
-parameter RAM_DEPTH = 10000; 
+parameter RAM_DEPTH = 10000;
 parameter INIT_FILE = "/mnt/second/rep/teknofest/tekno-kizil/testler/uart-demo/uart_demo_static.hex";
 parameter CPU_CLK   = 25_000_000;
 parameter BAUD_RATE = 9600;
-  
+
 (* mark_debug = "yes" *) wire        iomem_valid;
 (* mark_debug = "yes" *) wire        iomem_ready;
 (* mark_debug = "yes" *) wire [ 3:0] iomem_wstrb;
@@ -148,7 +148,7 @@ assign main_mem_rd_en = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE
 
 
 
-teknofest_ram #(
+teknofest_ram_basys3 #(
   .NB_COL(4),
   .COL_WIDTH(8),
   .RAM_DEPTH(RAM_DEPTH),

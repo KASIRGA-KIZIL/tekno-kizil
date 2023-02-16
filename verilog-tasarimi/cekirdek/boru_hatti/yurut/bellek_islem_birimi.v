@@ -25,8 +25,6 @@ module bellek_islem_birimi(
     output wire        bib_yaz_gecerli_o,
     output wire        bib_sec_o
 );
-    reg [ 2:0] kontrol;
-
     wire [31:0] lh_sonuc = adr_i[1] ? {{16{bib_veri_i[31]}},bib_veri_i[31:16]} :
                                       {{16{bib_veri_i[15]}},bib_veri_i[15: 0]} ;
 
@@ -64,11 +62,11 @@ module bellek_islem_birimi(
     assign bib_yaz_gecerli_o = basla_i && ((kontrol_i == `BIB_SB) || (kontrol_i == `BIB_SH) || (kontrol_i == `BIB_SW));
 
     // BIB_LW casei silinebilir?
-    assign sonuc_o = (kontrol == `BIB_LB ) ? lb_sonuc   :
-                     (kontrol == `BIB_LH ) ? lh_sonuc   :
-                     (kontrol == `BIB_LW ) ? bib_veri_i :
-                     (kontrol == `BIB_LBU) ? lbu_sonuc  :
-                     (kontrol == `BIB_LHU) ? lhu_sonuc  :
+    assign sonuc_o = (kontrol_i == `BIB_LB ) ? lb_sonuc   :
+                     (kontrol_i == `BIB_LH ) ? lh_sonuc   :
+                     (kontrol_i == `BIB_LW ) ? bib_veri_i :
+                     (kontrol_i == `BIB_LBU) ? lbu_sonuc  :
+                     (kontrol_i == `BIB_LHU) ? lhu_sonuc  :
                                              bib_veri_i  ;
 
     assign bib_veri_o = (kontrol_i == `BIB_SB)  ? (deger_i << (mylog2(sb_mask)*8))           :
@@ -77,10 +75,6 @@ module bellek_islem_birimi(
                                                    deger_i ;
 
     assign bib_adr_o  = {adr_i[31:2],2'b0};
-
-    always @(posedge clk_i)begin
-        kontrol  <= kontrol_i;
-    end
 
     function automatic [1:0] mylog2;
         input [3:0] data;
