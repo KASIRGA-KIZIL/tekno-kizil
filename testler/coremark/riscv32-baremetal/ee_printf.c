@@ -18,7 +18,7 @@ limitations under the License.
 #include <stdarg.h>
 
 #include <stdint.h>
-
+/*
 #define UART_CTRL        (*(volatile uint32_t*)0x20000000)
 #define UART_STATUS      (*(volatile uint32_t*)0x20000004)
 #define UART_RDATA       (*(volatile uint32_t*)0x20000008)
@@ -63,7 +63,7 @@ void zputchar(char c)
 		zputchar('\r');
 	UART_WDATA = c;
 }
-
+*/
 #define ZEROPAD   (1 << 0) /* Pad with zero */
 #define SIGN      (1 << 1) /* Unsigned/signed long */
 #define PLUS      (1 << 2) /* Show plus */
@@ -706,6 +706,40 @@ ee_vsprintf(char *buf, const char *fmt, va_list args)
     return str - buf;
 }
 
+//volatile unsigned int* UART_CTRL = 0x20000000; // UART_BASE + 0x0000;
+volatile unsigned int* UART_STAT = 0x20000004; //UART_BASE + 0x0004;
+volatile unsigned int* UART_RX_FIFO = 0x20000008; //UART_BASE + 0x0008;
+volatile unsigned int* UART_TX_FIFO = 0x2000000c; //UART_BASE + 0x000C;
+
+static inline int rx_has_data()
+{
+    return ((*UART_STAT) & 0x8) != 0x8;
+}
+
+static inline int tx_empty()
+{
+    return ((*UART_STAT) & 0x4) == 0x4;
+}
+
+static inline char read_uart()
+{
+    return (*UART_RX_FIFO) & 0xff;
+}
+
+static inline void write_uart(char wdata)
+{
+    (*UART_TX_FIFO) = wdata;
+}
+
+static void send_string(char* string, int len)
+{
+    for (int i = 0 ; i < len ; i++)
+    {
+        while(!tx_empty());
+        write_uart(string[i]);
+    }
+}
+
 void
 uart_send_char(char c)
 {
@@ -723,7 +757,9 @@ uart_send_char(char c)
             Check the UART sample code on your platform or the board
        documentation.
     */
-    zputchar(c);
+    //zputchar(c);
+    char *pChar = &c;
+    send_string(pChar, 1);
 }
 
 int

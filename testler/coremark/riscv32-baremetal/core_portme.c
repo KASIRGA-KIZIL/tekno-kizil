@@ -20,11 +20,12 @@ Original Author: Shay Gal-on
 
 #include <stdint.h>
 
+
 #define UART_CTRL        (*(volatile uint32_t*)0x20000000)
-#define UART_STATUS      (*(volatile uint32_t*)0x20000004)
+/*#define UART_STATUS      (*(volatile uint32_t*)0x20000004)
 #define UART_RDATA       (*(volatile uint32_t*)0x20000008)
 #define UART_WDATA       (*(volatile uint32_t*)0x2000000c)
-
+*/
 #define CPU_CLK CLOCKS_PER_SEC //50000000  // 50 Mhz 
 #define BAUD_RATE 115200
 
@@ -183,6 +184,8 @@ ee_u32 default_num_contexts = 1;
         Target specific initialization code
         Test for some common mistakes.
 */
+//volatile unsigned int* UART_CTRL = 0x20000000;
+
 void
 portable_init(core_portable *p, int *argc, char *argv[])
 {
@@ -190,6 +193,7 @@ portable_init(core_portable *p, int *argc, char *argv[])
     "Call board initialization routines in portable init (if needed), in particular initialize UART!\n"
 
     init_uart();
+    //(*UART_CTRL) = 0x01b20003;
 
     (void)argc; // prevent unused warning
     (void)argv; // prevent unused warning

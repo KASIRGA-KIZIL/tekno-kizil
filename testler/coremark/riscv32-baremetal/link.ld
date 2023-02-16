@@ -1,70 +1,48 @@
-/*======================================================================*/
-/* Proxy kernel linker script                                           */
-/*======================================================================*/
-/* This is the linker script used when building the proxy kernel. */
-
-/*----------------------------------------------------------------------*/
-/* Setup                                                                */
-/*----------------------------------------------------------------------*/
-
-/* The OUTPUT_ARCH command specifies the machine architecture where the
-   argument is one of the names used in the BFD library. More
-   specifically one of the entires in bfd/cpu-mips.c */
-
+/*-- Assembler Linker --*/
+/*-- There is ram and rom --*/
 OUTPUT_ARCH( "riscv" )
 ENTRY(_start)
 
-/*----------------------------------------------------------------------*/
-/* Sections                                                             */
-/*----------------------------------------------------------------------*/
+MEMORY{  
+    ram ( wxa!ri ) : ORIGIN = 0x40000000, LENGTH = 0x20000
+}
 
 SECTIONS
 {
 
   /* text: test code section */
-  . = 0x40000000;
-  .text.init : { *(.text.init) }
+ . = 0x40000000;   
 
-  . = ALIGN(0x1000);
-  .tohost : { *(.tohost) }
+  PROVIDE( __global_pointer$ = . + 0x02000 );
 
-  /* .text : { *(.text) } */
+    /* The program code and other data goes into ROM */
   .text : {
-        *(.text*.main);
-        *(.text*);
-  }
+		. = ALIGN(4);
+        *(.text)           /* .text sections (code) */
+        *(.text*)          /* .text* sections (code) */
+        *(.rodata)         /* .rodata sections (constants, strings, etc.) */
+        *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
+        *(.data)           /* .data sections */
+        *(.data*)          /* .data* sections */
+        *(.sdata)           /* .sdata sections */
+        *(.sdata*)          /* .sdata* sections */
+        *(.srodata)        /* .rodata sections (constants, strings, etc.) */
+        *(.srodata*)       /* .rodata* sections (constants, strings, etc.) */
+		. = ALIGN(4);
+	} > ram
 
-  /* data segment */
-  .data : { *(.data) }
 
-  .sdata : {
-    __global_pointer$ = . + 0x800;
-    *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2) *(.srodata*)
-    *(.sdata .sdata.* .gnu.linkonce.s.*)
-  }
+    .bss :                 /* uninitialized data */
+    {
+        . = ALIGN(4);
+        *(.bss)
+        *(.bss*)
+        *(.sbss)
+        *(.sbss*)
+        *(COMMON)
 
-  /* bss segment */
-  .sbss : {
-    *(.sbss .sbss.* .gnu.linkonce.sb.*)
-    *(.scommon)
-  }
-  .bss : { *(.bss) }
-
-  /* thread-local data segment */
-  .tdata :
-  {
-    _tls_data = .;
-    *(.tdata.begin)
-    *(.tdata)
-    *(.tdata.end)
-  }
-  .tbss :
-  {
-    *(.tbss)
-    *(.tbss.end)
-  }
-
-  /* End of uninitalized data segement */
-  _end = .;
+        . = ALIGN(4);
+    } > ram
+  
 }
 
