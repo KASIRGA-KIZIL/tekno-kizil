@@ -148,7 +148,7 @@ always @* begin
                     if(cache_dirty_w) begin
                         durum_next_r = BELLEK_YAZ;
                         anabellek_adr_next_r = {8'h40,5'b0,c_oku_tag_w,bib_adr_i[`ADR],2'b0};
-                        anabellek_veri_next_r = ab_dot;
+                        anabellek_veri_next_r = data_out_w;
                         anabellek_veri_kullan_next_r = 1'b1;
                     end
                     else
@@ -163,7 +163,7 @@ always @* begin
                     if(cache_dirty_w) begin
                         durum_next_r = BELLEK_YAZ;
                         anabellek_adr_next_r = {8'h40,5'b0,c_oku_tag_w,bib_adr_i[`ADR],2'b0};
-                        anabellek_veri_next_r = ab_dot;
+                        anabellek_veri_next_r = data_out_w;
                         anabellek_veri_kullan_next_r = 1'b1;
                     end
                 end
