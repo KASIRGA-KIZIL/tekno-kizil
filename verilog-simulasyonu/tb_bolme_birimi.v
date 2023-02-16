@@ -1,7 +1,7 @@
 
 `timescale 1ns / 1ps
 
-//Bazý durumlarda sonuc x donuyor
+//Bazi durumlarda sonuc x donuyor
 
 module tb_bolme_birimi();
 
@@ -23,11 +23,11 @@ module tb_bolme_birimi();
 	    
 	    .basla_i(basla_i),
 	    .islem_i(islem_i),
-       	.bolunen_i(bolunen_i),
-		.bolen_i(bolen_i),
+       	    .bolunen_i(bolunen_i),
+	    .bolen_i(bolen_i),
 		 
-		.sonuc_o(sonuc_o),
-		.bitti_o(bitti_o)
+	    .sonuc_o(sonuc_o),
+	    .bitti_o(bitti_o)
 	);
 	
       always begin
