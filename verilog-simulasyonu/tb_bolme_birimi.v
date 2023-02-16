@@ -1,7 +1,7 @@
 
 `timescale 1ns / 1ps
 
-//Bazý durumlarda sonuc x donuyor
+//BazÃ½ durumlarda sonuc x donuyor
 
 module tb_bolme_birimi();
 
@@ -44,125 +44,125 @@ module tb_bolme_birimi();
 	    bolunen_i = 32'd41; 
 	    bolen_i =   32'd9;
  	    islem_i =   2'b00;
-		#66;
-		if(sonuc_o==32'd4) $display("passed"); else $display("FAILED!: %d",sonuc_o);#1;
+	    #66;
+	    if(sonuc_o==32'd4) $display("passed"); else $display("FAILED!: %d",sonuc_o);#1;
 	
-		bolunen_i = 32'd9; 
+	    bolunen_i = 32'd9; 
 	    bolen_i =   32'd41;
  	    islem_i =   2'b00;
-		#70;
+	    #70;
 	    if(sonuc_o==32'd0) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 	    
 	    bolunen_i =-32'd41; 
 	    bolen_i =   32'd9;
  	    islem_i =   2'b00;
-		#70;
-		if(sonuc_o==32'd477218583) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+	    if(sonuc_o==32'd477218583) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 		
-		bolunen_i = 32'd41; 
+	    bolunen_i = 32'd41; 
 	    bolen_i =  -32'd9;
  	    islem_i =   2'b00;
-		#70;
-        if(sonuc_o==32'd0) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+            if(sonuc_o==32'd0) $display("passed"); else $display("FAILED!: %d",sonuc_o);
         
-        bolunen_i = 32'd41; 
+            bolunen_i = 32'd41; 
 	    bolen_i =   32'd0;
  	    islem_i =   2'b00;
-		#70;
-        if(sonuc_o==32'd0) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+            if(sonuc_o==32'd0) $display("passed"); else $display("FAILED!: %d",sonuc_o);
   
-        //DIV
-        bolunen_i = 32'd41; 
+            //DIV
+            bolunen_i = 32'd41; 
 	    bolen_i =   32'd9;
  	    islem_i =   2'b10;
-		#70;
-		if(sonuc_o==32'd4) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+	    if(sonuc_o==32'd4) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 		
-		bolunen_i = 32'd9; 
+	    bolunen_i = 32'd9; 
 	    bolen_i =   32'd41;
  	    islem_i =   2'b10;
-		#70;
+	    #70;
 	    if(sonuc_o==32'd0) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 	    
 	    bolunen_i =-32'd41; 
 	    bolen_i =   32'd9;
  	    islem_i =   2'b10;
-		#70;
-		if(sonuc_o==-32'd4) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+	    if(sonuc_o==-32'd4) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 		
-		bolunen_i = 32'd41; 
+	    bolunen_i = 32'd41; 
 	    bolen_i =  -32'd9;
  	    islem_i =   2'b10;
-		#70;
-        if(sonuc_o==-32'd4) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+            if(sonuc_o==-32'd4) $display("passed"); else $display("FAILED!: %d",sonuc_o);
         
-        bolunen_i = 32'd41; 
+            bolunen_i = 32'd41; 
 	    bolen_i =   32'd0;
  	    islem_i =   2'b00;
-		#70;
-        if(sonuc_o==32'd0) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+            if(sonuc_o==32'd0) $display("passed"); else $display("FAILED!: %d",sonuc_o);
         
-        //REMU
-        bolunen_i = 32'd41; 
+            //REMU
+            bolunen_i = 32'd41; 
 	    bolen_i =   32'd9;
  	    islem_i =   2'b01;
-		#70;
-		if(sonuc_o== 32'd5) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+	    if(sonuc_o== 32'd5) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 		
-		bolunen_i = 32'd9; 
+	    bolunen_i = 32'd9; 
 	    bolen_i =   32'd41;
  	    islem_i =   2'b01;
-		#70;
+	    #70;
 	    if(sonuc_o== 32'd9) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 	   
 	    bolunen_i =-32'd41; 
 	    bolen_i =   32'd9;
  	    islem_i =   2'b01;
-		#70;
-		if(sonuc_o== 32'd8) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+	    if(sonuc_o== 32'd8) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 		
-		bolunen_i = 32'd41; 
+	    bolunen_i = 32'd41; 
 	    bolen_i =   -32'd9;
  	    islem_i =   2'b01;
-		#70;
-        if(sonuc_o== 32'd0) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+            if(sonuc_o== 32'd0) $display("passed"); else $display("FAILED!: %d",sonuc_o);
         
-        bolunen_i = 32'd41; 
+            bolunen_i = 32'd41; 
 	    bolen_i =   32'd0;
  	    islem_i =   2'b00;
-		#70;
-        if(sonuc_o== -32'd1) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+            if(sonuc_o== -32'd1) $display("passed"); else $display("FAILED!: %d",sonuc_o);
         
-        //REM
-        bolunen_i = 32'd41; 
+       	    //REM
+            bolunen_i = 32'd41; 
 	    bolen_i =   32'd9;
  	    islem_i =   2'b11;
-		#70;
-		if(sonuc_o== 32'd5) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+	    if(sonuc_o== 32'd5) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 		
-		bolunen_i = 32'd9; 
+	    bolunen_i = 32'd9; 
 	    bolen_i =   32'd41;
  	    islem_i =   2'b11;
-		#70;
+	    #70;
 	    if(sonuc_o== 32'd9) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 	    
 	    bolunen_i =-32'd41; 
 	    bolen_i =   32'd9;
  	    islem_i =   2'b11;
-		#70;
-		if(sonuc_o== -32'd5) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+	    if(sonuc_o== -32'd5) $display("passed"); else $display("FAILED!: %d",sonuc_o);
 		
-		bolunen_i = 32'd41; 
+	    bolunen_i = 32'd41; 
 	    bolen_i =  -32'd9;
  	    islem_i =   2'b11;
-		#70;
-        if(sonuc_o== 32'd5) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+            if(sonuc_o== 32'd5) $display("passed"); else $display("FAILED!: %d",sonuc_o);
         
-        bolunen_i = 32'd41; 
+            bolunen_i = 32'd41; 
 	    bolen_i =   32'd0;
  	    islem_i =   2'b00;
-		#70;
-        if(sonuc_o== -32'd1) $display("passed"); else $display("FAILED!: %d",sonuc_o);
+	    #70;
+            if(sonuc_o== -32'd1) $display("passed"); else $display("FAILED!: %d",sonuc_o);
         
 	end
       
