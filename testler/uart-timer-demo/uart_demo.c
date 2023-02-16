@@ -77,21 +77,25 @@ static void send_string(char* string, int len)
 }
 */
 
-#include <stdio.h>
+//#include <stdio.h>
 
-#define TIMER_LOW        (*(volatile uint32_t*)0x30000000)
-#define TIMER_HIGH       (*(volatile uint32_t*)0x30000004)
+//#define TIMER_LOW        (*(volatile uint32_t*)0x30000000)
+//#define TIMER_HIGH       (*(volatile uint32_t*)0x30000004)
+
+volatile unsigned int* TIMER_LOW = 0x30000000;
+volatile unsigned int* TIMER_HIGH = 0x30000004;
 
 uint32_t get_timer_low(){
-    return TIMER_LOW;
+    return (*TIMER_LOW); //& 0xff;
 }
 uint32_t get_timer_high(){
-    return TIMER_HIGH;
+    return (*TIMER_HIGH); //& 0xff;
 }
 // TODO ust bitlere bakacaksak hem bura hem core_portme.hda degisiklik gerek
 uint32_t /*uint64_t*/ get_timer(){
-    //return (get_timer_high() << 32) + get_timer_low();
-    return get_timer_low();
+    //return (get_timer_high() << 5) + get_timer_low();
+    return (get_timer_high() << 32) + get_timer_low();
+    //return get_timer_low();
 }
 
 
@@ -108,9 +112,11 @@ int main()
     //asm volatile("li x27, 4123425342");
     //while(1)
     //print(logo);
-    char str[100];
-    sprintf(str, "%d", get_timer());
-    print(str);
+    //char str[100];
+    //sprintf(str, "%d", get_timer());
+    //print(str);
+    //tekno_printf("%lu\n", get_timer());
+    tekno_printf("%lu\n", (get_timer_high() << 32) + get_timer_low());
     //send_string("KASIRGA", sizeof("KASIRGA"));
 
      
