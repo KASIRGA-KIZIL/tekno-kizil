@@ -13,21 +13,21 @@ from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
 
-TIMEOUT = 10000
+TIMEOUT = 40000
 
 riscv_tests = {}
 """
 # Sonsuz test. TIMEOUT bekleniyor.
 riscv_tests["uart"] = {
-    "TEST_FILE": "./data/basit_dongu.hex",
+    "TEST_FILE": "../testler/uart-demo/uart_demo_static.hex",
     "fail_adr": 0x40f00060,
     "pass_adr": 0x40f00074,
     "buyruklar": []
 }
+insttestlist = []
 """
 
 insttestlist = ["auipc","jal","jalr","lui","andi","ori","xori","addi","slli","slti","sltiu","and","sll","xor","or","srl","sra","slt","sltu","srli","srai","sub","bgeu","bltu","blt","bne","beq","bge","add","mul","mulh","mulhu","mulhsu","div","divu","rem","remu","lw","lh","lb","lbu","lhu","sw","sb","sh", 'hmdst', 'rvrs', 'pkg', 'sladd', 'cntz', 'cntp','conv']
-
 
 
 TESTS_FOLDER = "../testler/riscv-tests/isa"

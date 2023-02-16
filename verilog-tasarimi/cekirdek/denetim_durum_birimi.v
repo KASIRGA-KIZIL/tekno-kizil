@@ -55,7 +55,7 @@ module denetim_durum_birimi(
 
     assign gtr_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
     assign cyo_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
-    assign yrt_durdur_o = ~gtr_hazir_i || (~yrt_yonlendir_gecerli_i && (yurut_yonlendir2 || yurut_yonlendir1));
+    assign yrt_durdur_o = ~gtr_hazir_i;
 
     assign gtr_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
     assign cyo_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
@@ -66,12 +66,11 @@ module denetim_durum_birimi(
             bos_basla  <= 1'b1;
         end else begin
             gecersiz[`ASAMA_GETIR]   <= 1'b0;
-            gecersiz[`ASAMA_COZ]     <= (gtr_yanlis_tahmin_i) ? 1'b1 : gecersiz[`ASAMA_GETIR];
-            gecersiz[`ASAMA_YURUT]   <= (gtr_yanlis_tahmin_i || cyo_durdur_o) ? 1'b1 : gecersiz[`ASAMA_COZ];
+            gecersiz[`ASAMA_COZ]     <= 1'b0;
+            gecersiz[`ASAMA_YURUT]   <= (gtr_yanlis_tahmin_i) ? 1'b1 : ~yrt_yonlendir_gecerli_i;
             gecersiz[`ASAMA_GERIYAZ] <= gecersiz[`ASAMA_YURUT];
 
             bos_basla  <= 1'b0;
         end
     end
 endmodule
-//if(gtr_durdur_o | cyo_durdur_o | yrt_durdur_o) begin

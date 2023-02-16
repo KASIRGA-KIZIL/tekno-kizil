@@ -51,8 +51,8 @@ module getir (
 
     wire buyruk_hizali = ~ps[1]; // ps 4un kat mi
 
-    wire buyruk_ctipi = buyruk_hizali ? ~(suanki_buyruk   [ 1: 0] == 2'b11) :
-                                        ~(buyruk_tamponu[ 1: 0] == 2'b11);
+    wire buyruk_ctipi = buyruk_hizali ? ~(suanki_buyruk [ 1: 0] == 2'b11) :
+                                        ~(buyruk_tamponu[ 1: 0] == 2'b11) ;
     always @(*) begin
         buyruk_jtipi = 1'b0;
         tahmin_et    = 1'b0;
@@ -69,7 +69,7 @@ module getir (
     dallanma_ongorucu dal_on(
         .clk_i(clk_i),
         .rst_i(rst_i),
-        .ddb_durdur_i(ddb_durdur_i | ddb_bosalt_i),
+        .ddb_durdur_i(ddb_durdur_i),
         // Tahmin okuma.
         .ps_i                  (ps),
         .buyruk_ctipi_i        (buyruk_ctipi),

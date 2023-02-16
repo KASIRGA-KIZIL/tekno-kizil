@@ -16,31 +16,42 @@ module uart_tx (
     output reg          tx_o
 );
 
-    localparam DATA_SIZE = 4'd8;
 
-    reg [3:0] state;
-    reg [3:0] next;
+    reg [4:0] state;
+    reg [4:0] next;
 
-    localparam IDLE      = 4'd0,
-               START_BIT = 4'd1,
-               DATA_0    = 4'd2,
-               DATA_1    = 4'd3,
-               DATA_2    = 4'd4,
-               DATA_3    = 4'd5,
-               DATA_4    = 4'd6,
-               DATA_5    = 4'd7,
-               DATA_6    = 4'd8,
-               DATA_7    = 4'd9,
-               STOP_BIT  = 4'd10;
+    localparam IDLE       = 5'd0,
+               START_BIT  = 5'd1,
+               DATA_0     = 5'd2,
+               DATA_1     = 5'd3,
+               DATA_2     = 5'd4,
+               DATA_3     = 5'd5,
+               DATA_4     = 5'd6,
+               DATA_5     = 5'd7,
+               DATA_6     = 5'd8,
+               DATA_7     = 5'd9,
+               STOP_BIT0  = 5'd10,
+               STOP_BIT1  = 5'd11,
+               STOP_BIT2  = 5'd12,
+               STOP_BIT3  = 5'd13,
+               STOP_BIT4  = 5'd14,
+               STOP_BIT5  = 5'd15,
+               STOP_BIT6  = 5'd16,
+               STOP_BIT7  = 5'd17,
+               STOP_BIT8  = 5'd18,
+               STOP_BIT9  = 5'd19;
 
-    reg [7:0]  queue [127:0];
-    reg [6:0]  read_ptr;
-    reg [6:0]  write_ptr;
+    reg [7:0]  queue [31:0];
+
+    reg  [4:0] read_ptr;
+    reg  [4:0] write_ptr;
+    wire [4:0] limit = read_ptr-1;
+
     reg [20:0] counter;
     reg        uart_clk_pulse;
 
-    wire [4:0] limit = read_ptr-1;
-    assign full_o  = (limit    == write_ptr) || (limit-1    == write_ptr) || (limit-2    == write_ptr) || (limit-3    == write_ptr);
+
+    assign full_o  = (limit    == write_ptr);
     assign empty_o = (read_ptr == write_ptr);
 
     always @(posedge clk_i) begin
@@ -58,7 +69,7 @@ module uart_tx (
                 queue[write_ptr] <= data_i;
             end
             if(uart_clk_pulse)begin
-                if((state == STOP_BIT) && (next == IDLE))
+                if((state == STOP_BIT9) && (next == IDLE))
                     read_ptr <= read_ptr + 1;
             end
             if(counter == baud_div_i) begin
@@ -69,7 +80,6 @@ module uart_tx (
                 uart_clk_pulse <= 1'b0;
             end
         end
-
     end
 
     always @(*) begin
@@ -84,8 +94,17 @@ module uart_tx (
             DATA_4:             next = DATA_5;
             DATA_5:             next = DATA_6;
             DATA_6:             next = DATA_7;
-            DATA_7:             next = STOP_BIT;
-            STOP_BIT:           next = IDLE;
+            DATA_7:             next = STOP_BIT0;
+            STOP_BIT0:          next = STOP_BIT1;
+            STOP_BIT1:          next = STOP_BIT2;
+            STOP_BIT2:          next = STOP_BIT3;
+            STOP_BIT3:          next = STOP_BIT4;
+            STOP_BIT4:          next = STOP_BIT5;
+            STOP_BIT5:          next = STOP_BIT6;
+            STOP_BIT6:          next = STOP_BIT7;
+            STOP_BIT7:          next = STOP_BIT8;
+            STOP_BIT8:          next = STOP_BIT9;
+            STOP_BIT9:          next = IDLE;
             default:            next = IDLE;
         endcase
     end
@@ -101,7 +120,16 @@ module uart_tx (
             DATA_5:    tx_o = queue[read_ptr][5];
             DATA_6:    tx_o = queue[read_ptr][6];
             DATA_7:    tx_o = queue[read_ptr][7];
-            STOP_BIT:  tx_o = 1'b1;
+            STOP_BIT0,
+            STOP_BIT1,
+            STOP_BIT2,
+            STOP_BIT3,
+            STOP_BIT4,
+            STOP_BIT5,
+            STOP_BIT6,
+            STOP_BIT7,
+            STOP_BIT8,
+            STOP_BIT9: tx_o = 1'b1;
             default:   tx_o = 1'b1;
         endcase
     end
