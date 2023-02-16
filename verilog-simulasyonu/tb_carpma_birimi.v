@@ -22,10 +22,10 @@ module tb_carpma_birimi();
 	    
 	    .durdur_i(durdur_i),
 	    .kontrol_i(kontrol_i),
-      .deger1_i(deger1_i),
-		  .deger2_i(deger2_i),
+            .deger1_i(deger1_i),
+            .deger2_i(deger2_i),
 		 
-		  .sonuc_o(sonuc_o)	
+            .sonuc_o(sonuc_o)	
 	);
 	
 	always begin
