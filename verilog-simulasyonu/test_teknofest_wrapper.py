@@ -16,6 +16,7 @@ from cocotb.triggers import RisingEdge, FallingEdge, Edge
 TIMEOUT = 45000
 
 riscv_tests = {}
+
 """
 # Sonsuz test. TIMEOUT bekleniyor.
 riscv_tests["uart"] = {
@@ -35,7 +36,9 @@ riscv_tests["bol_carp_bol_carp"] = {
     "buyruklar": []
 }
 insttestlist = []
+"""
 
+"""
 riscv_tests["coremark"] = {
     "TEST_FILE": "../testler/coremark/coremark_baremetal_static.hex",
     "fail_adr": 0x40f00060,
@@ -45,6 +48,7 @@ riscv_tests["coremark"] = {
 insttestlist = []
 """
 
+"""
 riscv_tests["geriyazdir"] = {
     "TEST_FILE": "../testler/el-yapimi-testler/build/geriyazdir.hex",
     "fail_adr": 0x4000005c,
@@ -53,9 +57,10 @@ riscv_tests["geriyazdir"] = {
 }
 insttestlist = []
 
+"""
 
 
-# insttestlist = ["auipc","jal","jalr","lui","andi","ori","xori","addi","slli","slti","sltiu","and","sll","xor","or","srl","sra","slt","sltu","srli","srai","sub","bgeu","bltu","blt","bne","beq","bge","add","mul","mulh","mulhu","mulhsu","div","divu","rem","remu","lw","lh","lb","lbu","lhu","sw","sb","sh", 'hmdst', 'rvrs', 'pkg', 'sladd', 'cntz', 'cntp','conv']
+insttestlist = ["auipc","jal","jalr","lui","andi","ori","xori","addi","slli","slti","sltiu","and","sll","xor","or","srl","sra","slt","sltu","srli","srai","sub","bgeu","bltu","blt","bne","beq","bge","add","mul","mulh","mulhu","mulhsu","div","divu","rem","remu","lw","lh","lb","lbu","lhu","sw","sb","sh", 'hmdst', 'rvrs', 'pkg', 'sladd', 'cntz', 'cntp','conv']
 
 
 

@@ -69,8 +69,7 @@ wire [31:0] data_out_w;
 wire oku_valid_w;
 
 reg [8:0] yaz_adres_r;
-reg [7:0] yaz_tag_r;
-reg cs_yaz_r;
+reg [7:0] yaz_tag_r; 
 reg yaz_en_r;
 reg cs_oku_r;
 wire [3:0] veri_maske_w = (durum_r==BELLEK_OKU) ? 4'b1111 : bib_veri_maske_o;
@@ -78,8 +77,7 @@ wire [3:0] veri_maske_w = (durum_r==BELLEK_OKU) ? 4'b1111 : bib_veri_maske_o;
 reg [31:0] anabellek_adr_r, anabellek_adr_next_r;
 reg [31:0] anabellek_veri_r, anabellek_veri_next_r;
 reg anabellek_veri_kullan_r, anabellek_veri_kullan_next_r;
-
-// assign cs_yaz_r =
+ 
 wire dummy;
 
 wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : bib_veri_i;
@@ -326,14 +324,12 @@ always @(posedge clk_i) begin
     if(rst_i)begin
         yaz_adres_r <= 0;
         yaz_tag_r   <= 0;
-        cs_yaz_r    <= 1'b1;
         yaz_en_r    <= 1'b0;
         cs_oku_r    <= 1'b1;
         ab_web_r      <= 4'b0;
     end else begin
         yaz_adres_r <= yaz_adres_next_r;
-        yaz_tag_r   <= yaz_tag_next_r;
-        cs_yaz_r    <= cs_yaz_next_r;
+        yaz_tag_r   <= yaz_tag_next_r; 
         yaz_en_r    <= yaz_en_next_r;
         cs_oku_r    <= cs_oku_next_r;
 
