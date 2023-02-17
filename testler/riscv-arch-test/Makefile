@@ -40,7 +40,7 @@ $(info RISCV_DEVICE: ${RISCV_DEVICE} [origin: $(origin RISCV_DEVICE)])
 $(info =============================================================================)
 $(info )
 
-RVTEST_DEFINES = 
+RVTEST_DEFINES = -march=rv32imc -mabi=ilp32 -ffunction-sections
 ifeq ($(RISCV_ASSERT),1)
 	RVTEST_DEFINES += -DRVMODEL_ASSERT
 endif

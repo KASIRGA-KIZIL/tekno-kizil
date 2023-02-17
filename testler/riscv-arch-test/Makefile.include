@@ -5,7 +5,7 @@ export TARGETDIR ?= $(ROOTDIR)/riscv-target
 export XLEN               ?= 32
 
 # name of the target. Note a folder of the same name must exist in the TARGETDIR directory
-export RISCV_TARGET       ?= spike
+export RISCV_TARGET       ?= kizil-islemci
 
 #set the RISCV_DEVICE environment to the extension you want to compile, simulate and verify. Leave
 #this blank if you want to iterate through all the supported extensions of your target. Allowed values

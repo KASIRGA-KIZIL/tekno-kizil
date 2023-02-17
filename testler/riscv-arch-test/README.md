@@ -1,3 +1,10 @@
+# kizil-islemci arch test
+
+```
+export PATH=/home/shc/tekno/riscv-tekno/bin:$PATH
+make clean
+make compile
+```
 
 # :red_circle: IMPORTANT DISCLAIMER :red_circle:
 
