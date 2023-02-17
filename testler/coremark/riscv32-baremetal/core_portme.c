@@ -20,14 +20,8 @@ Original Author: Shay Gal-on
 
 #include <stdint.h>
 
-
-#define UART_CTRL        (*(volatile uint32_t*)0x20000000)
-/*#define UART_STATUS      (*(volatile uint32_t*)0x20000004)
-#define UART_RDATA       (*(volatile uint32_t*)0x20000008)
-#define UART_WDATA       (*(volatile uint32_t*)0x2000000c)
-*/
-#define CPU_CLK CLOCKS_PER_SEC //50000000  // 50 Mhz 
-#define BAUD_RATE 115200
+#define CPU_CLK CLOCKS_PER_SEC //50000000  // 50 Mhz
+#define BAUD_RATE 9600
 
 typedef union
 {
@@ -52,10 +46,12 @@ typedef union
 	uint32_t bits;
 }uart_status;
 
+#define UART_CTRL        (*(volatile uint32_t*)0x20000000)
+
 void init_uart(){
     uart_ctrl uart_control;
-    uart_control.fields.tx_en = 0x1; 
-    uart_control.fields.tx_en = 0x1; 
+    uart_control.fields.tx_en = 0x1;
+    uart_control.fields.tx_en = 0x1;
     uart_control.fields.baud_div = CPU_CLK/BAUD_RATE;
     UART_CTRL = uart_control.bits;
 }

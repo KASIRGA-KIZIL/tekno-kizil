@@ -125,6 +125,7 @@ main(int argc, char *argv[])
 #endif
     /* first call any initializations needed */
     portable_init(&(results[0].port), &argc, argv);
+    ee_printf("pikachu\n");
     /* First some checks to make sure benchmark will run ok */
     if (sizeof(struct list_head_s) > 128)
     {

@@ -13,7 +13,7 @@ from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
 
-TIMEOUT = 49000
+TIMEOUT = 59000*9
 
 riscv_tests = {}
 
@@ -84,8 +84,14 @@ for each in insttestlist:
   }
 """
 
-insttestlist = ["auipc"]
+# auipc add addi and andi or ori sll slli slt slti sltiu sra srai srl srli sub xori xor
+
+# mul div mulh mulhsu mulhu rem remu
+
+insttestlist = ["sw"]
 TESTS_FOLDER = "../testler/riscv-arch-test/work/rv32i_m/I"
+# TESTS_FOLDER = "../testler/riscv-arch-test/work/rv32i_m/M"
+
 for each in insttestlist:
   ecallfail = False
   ecallpass = False
@@ -145,6 +151,7 @@ async def anabellek(dut):
             timout = timout + 1
             if(timout > TIMEOUT):
                 print("[TEST] ", test, " FAILED TIMOUT")
+                print("current PC: ", dut.soc.cek.l1b_adres_o.value.integer)
                 assert 0
                 break
 
