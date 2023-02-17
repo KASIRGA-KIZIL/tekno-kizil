@@ -2,7 +2,7 @@
 /*-- There is ram and rom --*/
 OUTPUT_ARCH( "riscv" )
 
-MEMORY{  
+MEMORY{
     ram ( wxa!ri ) : ORIGIN = 0x40000000, LENGTH = 0x200000
 }
 
@@ -10,7 +10,7 @@ SECTIONS
 {
 
   /* text: test code section */
- . = 0x40000000;   
+ . = 0x40000000;
 
   PROVIDE( __global_pointer$ = . + 0x02000 );
 
@@ -42,5 +42,5 @@ SECTIONS
 
         . = ALIGN(4);
     } > ram
-  
+
 }

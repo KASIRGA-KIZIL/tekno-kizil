@@ -25,22 +25,22 @@
 //TODO: declare the end of the signature region here. Add other target specific contents here.
 #define RVMODEL_DATA_END                                                      \
   .align 4; .global end_signature; end_signature:                             \
-  RVMODEL_DATA_SECTION                                                        
+  RVMODEL_DATA_SECTION
 
 
 //RVMODEL_BOOT
 //TODO:Any specific target init code should be put here or the macro can be left empty
 
 // For code that has a split rom/ram area
-// Code below will copy from the rom area to ram the 
+// Code below will copy from the rom area to ram the
 // data.strings and .data sections to ram.
-// Use linksplit.ld 
+// Use linksplit.ld
 #define RVMODEL_BOOT \
     .text ; \
     .global _start ; \
     .type   _start, @function ; \
   _start: ; \
-    
+
   // x2 (sp) is initialized by reset
     li  x1, 0 ; \
     li  x2, 0 ; \
@@ -164,15 +164,15 @@
 // _SP = (volatile register)
 // _R = GPR
 // _I = Immediate
-// This code will check a test to see if the results 
+// This code will check a test to see if the results
 // match the expected value.
 // It can also be used to tell if a set of tests is still running or has crashed
 #if 0
-// Spinning | =  "I am alive" 
+// Spinning | =  "I am alive"
 #define RVMODEL_IO_ASSERT_GPR_EQ(_SP, _R, _I)                                 \
     LOCAL_IO_PUSH(_SP)                                                  \
     RVMODEL_IO_WRITE_STR2("|");                                       \
-    RVMODEL_IO_WRITE_STR2("\b=\b");                                       \    
+    RVMODEL_IO_WRITE_STR2("\b=\b");                                       \
     LOCAL_IO_POP(_SP)
 
 #else
@@ -194,15 +194,15 @@
     jal FN_WriteNmbr;                                                   \
     j 20003f;                                                           \
 20002:                                                                  \
-    j pass;        \                     
+    jal x23, pass;        \
 20003:                                                                  \
     LOCAL_IO_WRITE_STR("\n");                                        \
     LOCAL_IO_POP(_SP)
-    
+
 #endif
 
 // //LOCAL_IO_WRITE_STR("Test Failed ");
-// //LOCAL_IO_WRITE_STR("Test Passed ");  
+// //LOCAL_IO_WRITE_STR("Test Passed ");
 
 #define TESTNUM gp
 #define RVTEST_PASS                                                     \
@@ -210,7 +210,7 @@
         li TESTNUM, 1;                                                  \
         li a7, 93;                                                      \
         li a0, 0;                                                       \
-        ecall
+        jr x23
 
 #define RVTEST_FAIL                                                     \
         fence;                                                          \
