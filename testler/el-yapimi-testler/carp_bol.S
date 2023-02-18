@@ -1,5 +1,7 @@
 .globl _start
 _start:
+# art arda carpma ve bolme yap
+
 
 addi	x7,x0,170
 bne     x7,x7,fail

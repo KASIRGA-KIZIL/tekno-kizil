@@ -8,19 +8,28 @@ from cocotb.handle import SimHandleBase
 from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
-from testler.el_yapimi_testler import uart_test
-from testler.el_yapimi_testler import bol_carp_bol_carp_test
-from testler.el_yapimi_testler import geriyazdir
+# PASS FAIL Testleri
+from testler.el_yapimi_testler import carp_bol
+from testler.el_yapimi_testler import yaz_oku_1
+from testler.el_yapimi_testler import yaz_oku_0
 from testler.el_yapimi_testler import timer_oku
+from testler.el_yapimi_testler import j_branch
 from testler.riscv_tests       import riscv_tests
-from testler.riscv_arch_tests  import riscv_arch_tests
+# from testler.riscv_arch_tests  import riscv_arch_tests
 
-TIMEOUT = 20000
+# Sonsuz Testler
+# from testler.el_yapimi_testler import uart_test
+
+# ;(
+# from testler.el_yapimi_testler import coremark
+
+
+TIMEOUT = 200000
 tests = {}
 
 # tests.update(uart_test)
 # tests.update(riscv_tests)
-tests.update(riscv_arch_tests)
+tests.update(riscv_tests)
 
 @cocotb.coroutine
 async def buyruklari_oku():

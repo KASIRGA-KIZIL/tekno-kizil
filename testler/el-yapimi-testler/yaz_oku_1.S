@@ -1,11 +1,11 @@
 .globl _start
 _start:
-
+# Cache'i tasiracak kadar yaz ve geri oku.
 
 
 la	x7, tdat1
 addi    x1,x0,0
-li      x2,4000
+li      x2,600
 
 
 here:

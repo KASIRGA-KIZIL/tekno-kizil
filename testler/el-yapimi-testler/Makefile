@@ -1,18 +1,21 @@
 ######################################################
 ## Simulasyonlar icin make dosyasi.
 ######################################################
+rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-TEST_DOSYASI_KLASOR= .
-TEST_DOSYASI_ADI= bol_carp_bol_carp
+TEST_DOSYASI_KLASOR = .
+TESTLER             = $(call rwildcard,$(TEST_DOSYASI_KLASOR),*.S)
 
 .PHONY: all
-all: builddir
+all: builddir $(TESTLER)
 
+.PHONY: $(TESTLER)
+$(TESTLER):
+		riscv32-unknown-elf-gcc $@ -nostartfiles -nostdlib -march=rv32im -mabi=ilp32 -T$(TEST_DOSYASI_KLASOR)/link.ld -o ./build/$@.elf
+		riscv32-unknown-elf-objcopy ./build/$@.elf -O binary ./build/$@.bin
+		riscv32-unknown-elf-objdump -M numeric,no-aliases -D ./build/$@.elf > ./build/$@.txt
+		python3 ../../araclar/makehex.py ./build/$@.bin > ./build/$@.hex
 
-		riscv32-unknown-elf-gcc $(TEST_DOSYASI_KLASOR)/$(TEST_DOSYASI_ADI).S -nostartfiles -nostdlib -march=rv32im -mabi=ilp32 -T$(TEST_DOSYASI_KLASOR)/link.ld -o ./build/$(TEST_DOSYASI_ADI).elf
-		riscv32-unknown-elf-objcopy ./build/$(TEST_DOSYASI_ADI).elf -O binary ./build/$(TEST_DOSYASI_ADI).bin
-		riscv32-unknown-elf-objdump -D ./build/$(TEST_DOSYASI_ADI).elf > ./build/$(TEST_DOSYASI_ADI).txt
-		python3 ./makehex.py ./build/$(TEST_DOSYASI_ADI).bin > ./build/$(TEST_DOSYASI_ADI).hex
 
 
 .PHONY: builddir
