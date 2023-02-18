@@ -37,7 +37,7 @@ module user_processor(
 
     wire        l1b_bekle;
     wire [31:0] l1b_deger;
-    wire [31:0] l1b_adres;
+    wire [18:2] l1b_adres;
 
     wire [31:0] l1v_oku_veri;
     wire        l1v_sec;

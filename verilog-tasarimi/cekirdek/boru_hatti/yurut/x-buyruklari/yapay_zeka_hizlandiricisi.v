@@ -82,6 +82,8 @@ module yapay_zeka_hizlandiricisi(
                     oku_veri_en     = 1'b1;
                     carpma_rst_o    = 1'b0;
                 end
+                default: begin
+                end
             endcase
         end
     end

@@ -5,7 +5,6 @@
 
 module yazmac_obegi(
     input  wire clk_i,
-    input  wire rst_i,
     // okuma arayuzu
     input  wire [ 4:0] oku1_adr_i, // rs1
     input  wire [ 4:0] oku2_adr_i, // rs2
@@ -18,16 +17,14 @@ module yazmac_obegi(
 );
 
     reg [31:0] yazmaclar[31:0];
+    initial begin
+        yazmaclar[0] = 0;
+    end
     assign oku1_deger_o = yazmaclar[oku1_adr_i];
     assign oku2_deger_o = yazmaclar[oku2_adr_i];
 
-    integer i = 0;
     always@(posedge clk_i) begin
-        if (rst_i) begin
-            for(i = 0; i < 32; i = i + 1)
-                yazmaclar[i] <= 0;
-        end
-        else if(yaz_i && (yaz_adr_i != 0)) begin
+        if(yaz_i && (yaz_adr_i != 0)) begin
             yazmaclar[yaz_adr_i] <=  yaz_deger_i;
         end
     end

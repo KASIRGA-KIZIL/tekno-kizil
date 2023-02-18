@@ -50,7 +50,7 @@ module wishbone_master(
     assign vy_veri_o = (vy_adres_i[17:16] == 2'b00) ? uart_dat_i :
                        (vy_adres_i[17:16] == 2'b01) ? spi_dat_i  :
                        (vy_adres_i[17:16] == 2'b10) ? pwm_dat_i  :
-                                                      1'b0;
+                                                      32'b0;
 
     assign adr_o = vy_adres_i[7:0];
     assign dat_o = vy_veri_i;

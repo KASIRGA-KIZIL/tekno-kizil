@@ -36,7 +36,7 @@ module uart_rx (
     reg [7:0]  queue [31:0];
     reg [4:0]  read_ptr;
     reg [4:0]  write_ptr;
-    reg [20:0] counter;
+    reg [15:0] counter;
     reg        uart_clk_pulse;
 
     wire [4:0] limit = read_ptr-1;
@@ -114,6 +114,8 @@ module uart_rx (
                 DATA_5:     queue[write_ptr][5] <= rx_i;
                 DATA_6:     queue[write_ptr][6] <= rx_i;
                 DATA_7:     queue[write_ptr][7] <= rx_i;
+                default: begin
+                end
             endcase
         end
     end

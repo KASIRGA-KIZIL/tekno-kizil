@@ -69,7 +69,7 @@ wire [31:0] data_out_w;
 wire oku_valid_w;
 
 reg [8:0] yaz_adres_r;
-reg [7:0] yaz_tag_r; 
+reg [7:0] yaz_tag_r;
 reg yaz_en_r;
 reg cs_oku_r;
 wire [3:0] veri_maske_w = (durum_r==BELLEK_OKU) ? 4'b1111 : bib_veri_maske_o;
@@ -77,25 +77,45 @@ wire [3:0] veri_maske_w = (durum_r==BELLEK_OKU) ? 4'b1111 : bib_veri_maske_o;
 reg [31:0] anabellek_adr_r, anabellek_adr_next_r;
 reg [31:0] anabellek_veri_r, anabellek_veri_next_r;
 reg anabellek_veri_kullan_r, anabellek_veri_kullan_next_r;
- 
+
 wire dummy;
 
 wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : bib_veri_i;
-sram_40b_512_1w_1r_sky130 sram(
-    // write port
-    .clk0       (clk_i),
-    .csb0       (cs_yaz_next_r),
-    .wmask0     ({1'b1, veri_maske_w}),
-    .spare_wen0 (yaz_en_next_r),
-    // zaten islemci durmus olucagi icin kontrole gerek yok
-    .addr0      (yaz_adres_next_r),
-    .din0       ({1'bx, yaz_tag_next_r, data_in_w}),
-    // read port
-    .clk1  (clk_i),
-    .csb1  (cs_oku_next_r),
-    .addr1 (c_oku_adres_w),
-    .dout1 ({dummy, c_oku_tag_w, data_out_w})
-);
+
+
+`ifdef COCOTB_SIM
+    sram_40b_512_1w_1r_sky130_verilator sram(
+        // write port
+        .clk0       (clk_i),
+        .csb0       (cs_yaz_next_r),
+        .wmask0     ({1'b1, veri_maske_w}),
+        .spare_wen0 (yaz_en_next_r),
+        // zaten islemci durmus olucagi icin kontrole gerek yok
+        .addr0      (yaz_adres_next_r),
+        .din0       ({1'bx, yaz_tag_next_r, data_in_w}),
+        // read port
+        .clk1  (clk_i),
+        .csb1  (cs_oku_next_r),
+        .addr1 (c_oku_adres_w),
+        .dout1 ({dummy, c_oku_tag_w, data_out_w})
+    );
+`else
+    sram_40b_512_1w_1r_sky130 sram(
+        // write port
+        .clk0       (clk_i),
+        .csb0       (cs_yaz_next_r),
+        .wmask0     ({1'b1, veri_maske_w}),
+        .spare_wen0 (yaz_en_next_r),
+        // zaten islemci durmus olucagi icin kontrole gerek yok
+        .addr0      (yaz_adres_next_r),
+        .din0       ({1'bx, yaz_tag_next_r, data_in_w}),
+        // read port
+        .clk1  (clk_i),
+        .csb1  (cs_oku_next_r),
+        .addr1 (c_oku_adres_w),
+        .dout1 ({dummy, c_oku_tag_w, data_out_w})
+    );
+`endif
 
 // okumada hit varsa bile 1 cycle durmali -> CACHE_OKU
 // not: fazladan durdur silinebilir
@@ -206,6 +226,8 @@ always @* begin
                         4'b1000: anabellek_veri_next_r = {bib_veri_i[7:0],ab_dot[23:0]};
                         4'b0011: anabellek_veri_next_r = {ab_dot[31:16],bib_veri_i[15:0]};
                         4'b1100: anabellek_veri_next_r = {bib_veri_i[15:0],ab_dot[15:0]};
+                        default: begin
+                        end
                     endcase
                     anabellek_veri_kullan_next_r = 1'b1;
                 end
@@ -226,6 +248,8 @@ always @* begin
         end
         BITTI: begin
             durum_next_r = BEKLE;
+        end
+        default:begin
         end
     endcase
 end
@@ -266,7 +290,7 @@ always @(*) begin
         CACHE_YAZ: begin
             // Bellekten gelen veri yazilacak
             if(anabellek_veri_kullan_r) begin
-                yaz_adres_next_r = anabellek_adr_r;
+                yaz_adres_next_r = anabellek_adr_r[`ADR];
                 yaz_tag_next_r = anabellek_adr_r[`TAG];
                 cs_yaz_next_r = 1'b0;
                 yaz_en_next_r = 1'b1;
@@ -287,7 +311,7 @@ always @(*) begin
         CACHE_OKU: begin
             // Bellekten gelen veri okunacak
             if(anabellek_veri_kullan_r) begin
-                yaz_adres_next_r = anabellek_adr_r;
+                yaz_adres_next_r = anabellek_adr_r[`ADR];
                 yaz_tag_next_r = anabellek_adr_r[`TAG];
                 cs_yaz_next_r = 1'b1;
                 yaz_en_next_r = 1'b0;
@@ -315,7 +339,8 @@ always @(*) begin
             ab_addr_next_r  = anabellek_adr_r;
             ab_din_next_r   = anabellek_veri_r;
             ab_web_next_r   = 4'b1111;
-
+        end
+        default:begin
         end
     endcase
 end
@@ -329,7 +354,7 @@ always @(posedge clk_i) begin
         ab_web_r      <= 4'b0;
     end else begin
         yaz_adres_r <= yaz_adres_next_r;
-        yaz_tag_r   <= yaz_tag_next_r; 
+        yaz_tag_r   <= yaz_tag_next_r;
         yaz_en_r    <= yaz_en_next_r;
         cs_oku_r    <= cs_oku_next_r;
 

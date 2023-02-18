@@ -10,8 +10,8 @@ module coz_yazmacoku(
 
     // GETIR'den gelen sinyaller
     input wire [31:0] gtr_buyruk_i,
-    input wire [31:1] gtr_ps_i,
-    input wire [31:1] gtr_ps_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
+    input wire [18:1] gtr_ps_i,
+    input wire [18:1] gtr_ps_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
 
     // YURUT'e giden sinyaller
     output reg [`MI_BIT-1:0] yrt_mikroislem_o,         // mikroislem buyruklara ait tum bilgiyi bitleriyle veriyor
@@ -22,7 +22,7 @@ module coz_yazmacoku(
     output reg [       31:0] yrt_rs2_o,
 
     //
-    output reg [       31:1] yrt_ps_artmis_o,      // GERIYAZ'a kadar giden sinyaller
+    output reg [       18:1] yrt_ps_artmis_o,      // GERIYAZ'a kadar giden sinyaller
     output reg [        4:0] yrt_rd_adres_o,       // GERIYAZ'a kadar giden sinyaller
     //
     input wire [       31:0] yrt_yonlendir_deger_i, // Yonlendirme (Forwarding) sinyalleri
@@ -62,7 +62,7 @@ module coz_yazmacoku(
                                                                                rs2_deger_w;
 
     wire sec_pc = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) || (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PCIMM);
-    wire [31:0] deger1_w = sec_pc ? {gtr_ps_i,1'b0} : deger1_tmp_w;
+    wire [31:0] deger1_w = sec_pc ? {8'h40,5'b0,gtr_ps_i,1'b0} : deger1_tmp_w;
 
     wire sec_imm = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) || (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PCIMM);
     wire [31:0] deger2_w = sec_imm ? imm_r : deger2_tmp_w;
@@ -196,7 +196,6 @@ module coz_yazmacoku(
 
     yazmac_obegi yo(
         .clk_i        (clk_i),
-        .rst_i        (rst_i),
         .oku1_adr_i   (gtr_buyruk_i[19:15]),
         .oku2_adr_i   (gtr_buyruk_i[24:20]),
         .oku1_deger_o (rs1_deger_w),
@@ -207,7 +206,7 @@ module coz_yazmacoku(
     );
 
     `ifdef COCOTB_SIM
-        wire [31:0] debug_ps = {gtr_ps_i,1'b0};
+        wire [31:0] debug_ps = {8'h40,5'b0,gtr_ps_i,1'b0} ;
         reg [88*13:1] coz_str;
         always @* begin
             casez(buyruk_coz_w)

@@ -10,7 +10,7 @@ module cekirdek(
     // l1 buyruk bellegi
     input  wire        l1b_bekle_i,
     input  wire [31:0] l1b_deger_i,
-    output wire [31:0] l1b_adres_o,
+    output wire [18:2] l1b_adres_o,
 
     // Bellek Islem Birimi
     input  wire [31:0] bib_veri_i,
@@ -22,14 +22,14 @@ module cekirdek(
     output wire        bib_sec_o
 );
 
-    wire [31:1] l1b_adr_w;
+    wire [18:2] l1b_adr_w;
     wire yrt_durdur_w;
 
     wire [`MI_BIT-1:0] yrt_mikroislem_w;
     wire [       31:0] yrt_deger1_w;
     wire [       31:0] yrt_deger2_w;
     wire [        2:0] yrt_lt_ltu_eq_w;
-    wire [       31:1] yrt_ps_artmis_w;
+    wire [       18:1] yrt_ps_artmis_w;
     wire [        4:0] yrt_rd_adres_w;
     wire               yrt_yapay_zeka_en_w;
     wire [       31:0] yrt_rs2_w;
@@ -37,12 +37,12 @@ module cekirdek(
     wire [4:0] ddb_rs2_adres_w;
 
     wire [31:0] cyo_buyruk_w;
-    wire [31:1] cyo_ps_artmis_w;
-    wire [31:1] cyo_ps_w;
+    wire [18:1] cyo_ps_artmis_w;
+    wire [18:1] cyo_ps_w;
 
-    wire [31:1] gtr_atlanan_ps_w;
+    wire [18:1] gtr_atlanan_ps_w;
     wire  gtr_atlanan_ps_gecerli_w;
-    wire [31:1] gy_ps_artmis_w;
+    wire [18:1] gy_ps_artmis_w;
     wire [31:0] gy_rd_deger_w;
     wire [ 2:0] gy_mikroislem_w;
     wire [31:0] cyo_yonlendir_deger_w;
@@ -177,6 +177,6 @@ module cekirdek(
         .gy_rd_adres_i   (cyo_yaz_adres_w )
     );
 
-    assign l1b_adres_o = {l1b_adr_w,1'b0};
+    assign l1b_adres_o = l1b_adr_w;
 
 endmodule

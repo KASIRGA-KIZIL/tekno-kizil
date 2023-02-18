@@ -31,8 +31,7 @@ module simpleuart #(parameter integer DEFAULT_DIV = 1) (
 	input         reg_dat_we,
 	input         reg_dat_re,
 	input  [31:0] reg_dat_di,
-	output [31:0] reg_dat_do,
-	output        reg_dat_wait
+	output [31:0] reg_dat_do
 );
 	reg [31:0] cfg_divider;
 
@@ -49,8 +48,7 @@ module simpleuart #(parameter integer DEFAULT_DIV = 1) (
 
 	assign reg_div_do = cfg_divider;
 
-	assign reg_dat_wait = reg_dat_we && (send_bitcnt || send_dummy);
-	assign reg_dat_do = recv_buf_valid ? recv_buf_data : ~0;
+	assign reg_dat_do = recv_buf_valid ? {24'b0,recv_buf_data} : ~0;
 
 	always @(posedge clk) begin
 		if (!resetn) begin
@@ -107,7 +105,7 @@ module simpleuart #(parameter integer DEFAULT_DIV = 1) (
 	assign ser_tx = send_pattern[0];
 
 	always @(posedge clk) begin
-		if (reg_div_we)
+		if (reg_div_we != 0)
 			send_dummy <= 1;
 		send_divcnt <= send_divcnt + 1;
 		if (!resetn) begin
@@ -116,18 +114,18 @@ module simpleuart #(parameter integer DEFAULT_DIV = 1) (
 			send_divcnt <= 0;
 			send_dummy <= 1;
 		end else begin
-			if (send_dummy && !send_bitcnt) begin
+			if (send_dummy && (send_bitcnt == 0)) begin
 				send_pattern <= ~0;
 				send_bitcnt <= 15;
 				send_divcnt <= 0;
 				send_dummy <= 0;
 			end else
-			if (reg_dat_we && !send_bitcnt) begin
+			if (reg_dat_we && (send_bitcnt == 0)) begin
 				send_pattern <= {1'b1, reg_dat_di[7:0], 1'b0};
 				send_bitcnt <= 10;
 				send_divcnt <= 0;
 			end else
-			if (send_divcnt > cfg_divider && send_bitcnt) begin
+			if ((send_divcnt > cfg_divider) && (send_bitcnt != 0)) begin
 				send_pattern <= {1'b1, send_pattern[9:1]};
 				send_bitcnt <= send_bitcnt - 1;
 				send_divcnt <= 0;

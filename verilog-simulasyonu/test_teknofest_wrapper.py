@@ -13,7 +13,7 @@ from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
 
-TIMEOUT = 59000*9
+TIMEOUT = 20000
 
 riscv_tests = {}
 
@@ -52,10 +52,9 @@ riscv_tests["timer_oku"] = {
 insttestlist = []
 """
 
-
-# teknofest/tekno-kizil/testler/riscv-arch-test/work/rv32i_m/I
-"""
 insttestlist = ["auipc","jal","jalr","lui","andi","ori","xori","addi","slli","slti","sltiu","and","sll","xor","or","srl","sra","slt","sltu","srli","srai","sub","bgeu","bltu","blt","bne","beq","bge","add","mul","mulh","mulhu","mulhsu","div","divu","rem","remu","lw","lh","lb","lbu","lhu","sw","sb","sh", 'hmdst', 'rvrs', 'pkg', 'sladd', 'cntz', 'cntp','conv']
+
+
 TESTS_FOLDER = "../testler/riscv-tests/isa"
 for each in insttestlist:
   ecallfail = False
@@ -65,9 +64,9 @@ for each in insttestlist:
   filename = glob.glob(TESTS_FOLDER + '/*-' + each + '.dump')[0] #'./data/rv32ui-p-sb.dump'
   with open(filename, 'r') as f:
     for line in f:
-      if 'fail' in line:
+      if '<fail>:' in line:
           ecallfail = True
-      elif 'pass' in line:
+      elif '<pass>:' in line:
           ecallpass = True
 
       if ecallfail and 'ecall' in line:
@@ -78,41 +77,6 @@ for each in insttestlist:
           pass_adr = int(line.split(':')[0].replace(' ', ''), 16)
   riscv_tests[each] = {
     "TEST_FILE": glob.glob(TESTS_FOLDER + '/*-' + each + '_static.hex')[0], #"./data/rv32ui-p-sb_static.hex",
-    "fail_adr": fail_adr,
-    "pass_adr": pass_adr,
-    "buyruklar": []
-  }
-"""
-
-# auipc add addi and andi or ori sll slli slt slti sltiu sra srai srl srli sub xori xor
-
-# mul div mulh mulhsu mulhu rem remu
-
-insttestlist = ["sw"]
-TESTS_FOLDER = "../testler/riscv-arch-test/work/rv32i_m/I"
-# TESTS_FOLDER = "../testler/riscv-arch-test/work/rv32i_m/M"
-
-for each in insttestlist:
-  ecallfail = False
-  ecallpass = False
-  fail_adr = 0
-  pass_adr = 0
-  filename = glob.glob(TESTS_FOLDER + '/' + each + '-*.objdump')[0] #'./data/rv32ui-p-sb.dump'
-  with open(filename, 'r') as f:
-    for line in f:
-      if '<fail>:' in line:
-          ecallfail = True
-      elif '<rvtest_code_end>:' in line:
-          ecallpass = True
-
-      if ecallfail and 'ecall' in line:
-          ecallfail = False
-          fail_adr = int(line.split(':')[0].replace(' ', ''), 16)
-      elif ecallpass and 'jal' in line:
-          ecallpass = False
-          pass_adr = int(line.split(':')[0].replace(' ', ''), 16)
-  riscv_tests[each] = {
-    "TEST_FILE": glob.glob(TESTS_FOLDER + '/' + each + '-*.hex')[0], #'./data/rv32ui-p-sb.dump'
     "fail_adr": fail_adr,
     "pass_adr": pass_adr,
     "buyruklar": []
@@ -133,15 +97,15 @@ async def anabellek(dut):
         dut.rst_ni.value = 0
         await RisingEdge(dut.clk_i)
         for index, buyruk in enumerate(riscv_tests[test]["buyruklar"]):
-            dut.main_memory.ram[index] = int(buyruk,16)
+            dut.main_memory.ram[index].value = int(buyruk,16)
         await RisingEdge(dut.clk_i)
         dut.rst_ni.value = 1
         while(1):
             try:
-                if(riscv_tests[test]["pass_adr"] == dut.soc.cek.l1b_adres_o.value.integer):
+                if(riscv_tests[test]["pass_adr"] == dut.iomem_addr.value.integer):
                     print("[TEST] ", test, " passed")
                     break
-                if(riscv_tests[test]["fail_adr"] == dut.soc.cek.l1b_adres_o.value.integer):
+                if(riscv_tests[test]["fail_adr"] == dut.iomem_addr.value.integer):
                     print("[TEST] ", test, " FAILED")
                     assert 0
                     break
@@ -151,7 +115,7 @@ async def anabellek(dut):
             timout = timout + 1
             if(timout > TIMEOUT):
                 print("[TEST] ", test, " FAILED TIMOUT")
-                print("current PC: ", dut.soc.cek.l1b_adres_o.value.integer)
+                print("current PC: ", dut.iomem_addr.value.integer)
                 assert 0
                 break
 

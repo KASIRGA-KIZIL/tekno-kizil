@@ -1,22 +1,22 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: TUBITAK TUTEL 
-// Engineer: 
-// 
+// Company: TUBITAK TUTEL
+// Engineer:
+//
 // Create Date: 27.04.2022 10:41:19
 // Design Name: TEKNOFEST
 // Module Name: teknofest_ram
 // Project Name: TEKNOFEST
 // Target Devices: Nexys A7
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
+// Tool Versions:
+// Description:
+//
+// Dependencies:
+//
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
-// 
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -29,13 +29,13 @@ module teknofest_ram #(
 (
   input clk_i,
   input rst_ni,
-  
+
   input [clogb2(RAM_DEPTH-1)-1:0] wr_addr,
   input [clogb2(RAM_DEPTH-1)-1:0] rd_addr,
   input [(NB_COL*COL_WIDTH)-1:0]  wr_data,
   input [NB_COL-1:0]              wr_strb,
   output [(NB_COL*COL_WIDTH)-1:0] rd_data,
-  
+
   input  rd_en,
   input  ram_prog_rx_i,
   output system_reset_o,
@@ -50,11 +50,11 @@ reg [(NB_COL*COL_WIDTH)-1:0] ram_data;
 
 wire [31:0] ram_prog_data;
 wire        ram_prog_data_valid;
-  
+
 reg  [clogb2(RAM_DEPTH-1)-1:0] prog_addr;
 wire [clogb2(RAM_DEPTH-1)-1:0] wr_addr_ram;
 wire [(NB_COL*COL_WIDTH)-1:0]  wr_data_ram;
-  
+
 assign wr_addr_ram = (prog_mode_led_o && ram_prog_data_valid) ? prog_addr : wr_addr;
 assign wr_data_ram = (prog_mode_led_o && ram_prog_data_valid) ? ram_prog_data : wr_data;
 
@@ -82,7 +82,7 @@ genvar i;
          ram[wr_addr_ram][(i+1)*COL_WIDTH-1:i*COL_WIDTH] <= wr_data_ram[(i+1)*COL_WIDTH-1:i*COL_WIDTH];
    end
 endgenerate
-  
+
 always @(posedge clk_i) begin
   if (!(rst_ni && system_reset_o)) begin
     prog_addr <= 'h0;
@@ -101,7 +101,7 @@ function integer clogb2;
     for (clogb2=0; depth>0; clogb2=clogb2+1)
       depth = depth >> 1;
 endfunction
-  
+
 //  programmer program_ram(
 //    .clock(clk_i),
 //    .reset(rst_ni),
@@ -120,8 +120,8 @@ localparam SEQ_BREAK_THRESHOLD = 32'd1000000;
 reg [PROG_SEQ_LENGTH*8-1:0] received_sequence;
 reg [3:0] rcv_seq_ctr;
 
-reg  [31:0] sequence_break_ctr; 
-wire        sequence_break; 
+reg  [31:0] sequence_break_ctr;
+wire        sequence_break;
 wire [31:0] prog_uart_do;
 
 localparam SequenceWait       = 3'b000;
@@ -193,6 +193,8 @@ always @(*) begin
     end
     SequenceFinish: begin
       state_prog_next = SequenceWait;
+    end
+    default:begin
     end
   endcase
 end
@@ -274,6 +276,8 @@ always @(posedge clk_i) begin
       SequenceFinish: begin
         prog_sys_rst_n <= 1'b0;
       end
+      default: begin
+      end
     endcase
   end
 end
@@ -289,14 +293,13 @@ simpleuart #(
 		.ser_rx      (ram_prog_rx_i),
 
 		.reg_div_we  (4'h0),
-		.reg_div_di  (4'h0),
+		.reg_div_di  (32'h0),
 		.reg_div_do  (),
 
 		.reg_dat_we  (1'b0),
 		.reg_dat_re  (ram_prog_rd_en),
 		.reg_dat_di  (32'h0),
-		.reg_dat_do  (prog_uart_do),
-		.reg_dat_wait()
+		.reg_dat_do  (prog_uart_do)
 	);
-  
+
 endmodule

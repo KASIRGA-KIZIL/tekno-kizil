@@ -51,7 +51,7 @@ parameter [31:0] RAM_BASE_ADDR = 32'h4000_0000;
 parameter [31:0] RAM_MASK_ADDR = 32'h000f_ffff;
 parameter [31:0] CHIP_IO_BASE_ADDR = SPI_BASE_ADDR + SPI_MASK_ADDR;
 parameter [31:0] CHIP_IO_MASK_ADDR = RAM_BASE_ADDR + RAM_MASK_ADDR;
-parameter RAM_DEPTH = 2097152; //[TODO] simulasyon hizli bitsin diye degisti. Bi ara eski haline getir.
+parameter RAM_DEPTH = 131072;
 
 (* mark_debug = "yes" *) wire        iomem_valid;
 (* mark_debug = "yes" *) wire        iomem_ready;
@@ -134,8 +134,8 @@ teknofest_ram #(
 (
   .clk_i           (clk_i ),
   .rst_ni          (rst_ni),
-  .wr_addr         (iomem_addr[clogb2(RAM_DEPTH*4)-1:2]),
-  .rd_addr         (iomem_addr[clogb2(RAM_DEPTH*4)-1:2]),
+  .wr_addr         (iomem_addr[$clog2(RAM_DEPTH*4)-1:2]),
+  .rd_addr         (iomem_addr[$clog2(RAM_DEPTH*4)-1:2]),
   .wr_data         (iomem_wdata),
 
   .wr_strb         (main_mem_wstrb   ),
@@ -153,11 +153,5 @@ always @(posedge clk_i) begin
     timer <= timer + 64'h1;
   end
 end
-
-function integer clogb2;
-  input integer depth;
-    for (clogb2=0; depth>0; clogb2=clogb2+1)
-      depth = depth >> 1;
-endfunction
 
 endmodule

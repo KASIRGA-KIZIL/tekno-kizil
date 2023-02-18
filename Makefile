@@ -21,6 +21,8 @@ dogrulama:
 .PHONY: clean
 clean:
 		@echo "Ciktilar temizleniyor...";
-		+@$(SUBMAKE) sentez/ clean
-		+@$(SUBMAKE) verilog-simulasyonu/ clean
-		+@$(SUBMAKE) dogrulama/ clean
+		-+@$(SUBMAKE) sentez/ clean
+		-+@$(SUBMAKE) verilog-simulasyonu/ clean
+		-+@$(SUBMAKE) dogrulama/ clean
+		-+@$(SUBMAKE) sentez/ clean
+		-+@$(SUBMAKE) testler/ clean

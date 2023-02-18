@@ -15,7 +15,7 @@ module yurut(
     // Coz-Yazmacoku bolumu sinyallleri
     input  wire [`MI_BIT-1:0] cyo_mikroislem_i,
     input  wire [        4:0] cyo_rd_adres_i,               // Rd'nin adresi
-    input  wire [       31:1] cyo_ps_artmis_i,              // Rd=PC+4/2 islemi icin gerekli
+    input  wire [       18:1] cyo_ps_artmis_i,              // Rd=PC+4/2 islemi icin gerekli
     input  wire [       31:0] cyo_deger1_i,                 // Islem birimi girdileri. Yonlendirme ve Immediate secilmis son degerler.
     input  wire [       31:0] cyo_deger2_i,
     input  wire               cyo_yapay_zeka_en_i,          // yapay zeka buyruklari rs2 enable biti
@@ -23,12 +23,12 @@ module yurut(
 
     // Branch ve Jump buyruklari icin. Hepsi ayni cevrimde gidecek
     input  wire [ 2:0] cyo_lt_ltu_eq_i,                // Degerler arasindaki iliski. cyo_lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
-    output wire [31:1] gtr_atlanan_ps_o,               // Atlanilan yeni program sayaci, pc+imm veya rs1+imm degerini tasiyor.
+    output wire [18:1] gtr_atlanan_ps_o,               // Atlanilan yeni program sayaci, pc+imm veya rs1+imm degerini tasiyor.
     output wire        gtr_atlanan_ps_gecerli_o,       // Yeni program sayacinin gecerli olup olmadiginin sinyali. J tipinde hep gecerli
 
     // GERIYAZ icin
     output reg  [ 4:0] gy_rd_adres_o,              // Rd'nin adresi
-    output reg  [31:1] gy_ps_artmis_o,             // Rd=PC+4/2 islemi icin gerekli
+    output reg  [18:1] gy_ps_artmis_o,             // Rd=PC+4/2 islemi icin gerekli
     output reg  [31:0] gy_rd_deger_o,              // islem birimlerinden cikan sonuc
     output reg  [ 2:0] gy_mikroislem_o,            // Rd secimi ve write enable sinyalleri
 
@@ -158,7 +158,7 @@ module yurut(
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ? cb_sonuc_w       :
                                                                                       32'hxxxx_xxxx;
 
-    assign gtr_atlanan_ps_o = amb_sonuc_w[31:1];
+    assign gtr_atlanan_ps_o = amb_sonuc_w[18:1];
 
     assign cyo_yonlendir_deger_o = rd_deger_sonraki_w;
 
@@ -181,6 +181,7 @@ module yurut(
     assign ddb_hazir_o = yzh_bitti & bol_bitti_w & bib_bitti;
 
     `ifdef COCOTB_SIM
+        wire [31:0] debug_ps = {8'h40,5'b0,gtr_atlanan_ps_o,1'b0} ;
         reg [88*13:1] micro_str;
         always @* begin
             case(cyo_mikroislem_i)

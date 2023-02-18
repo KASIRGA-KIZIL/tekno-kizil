@@ -47,7 +47,7 @@ module uart_tx (
     reg  [4:0] write_ptr;
     wire [4:0] limit = read_ptr-1;
 
-    reg [20:0] counter;
+    reg [15:0] counter;
     reg        uart_clk_pulse;
 
 

@@ -12,33 +12,37 @@
 `define BLTU       32'b?????????????????110?????1100011
 `define BNE        32'b?????????????????001?????1100011
 
+// C_JALR     ve C_EBREAK ve C_ADD
+// C_MV       ve C_JR
+// C_ADDI     ve C_NOP
+// C_LUI      ve C_ADDI16SP
+`define C_EBREAK   16'b1001000000000010
+`define C_JALR     16'b1001?????0000010
 `define C_ADD      16'b1001??????????10
+`define C_JR       16'b1000?????0000010
+`define C_MV       16'b1000??????????10
+`define C_SLLI     16'b0000??????????10
+`define C_LWSP     16'b010???????????10
+`define C_SWSP     16'b110???????????10
+`define C_AND      16'b100011???11???01
+`define C_OR       16'b100011???10???01
+`define C_XOR      16'b100011???01???01
+`define C_SUB      16'b100011???00???01
+`define C_NOP      16'b000?00000?????01
 `define C_ADDI     16'b000???????????01
 `define C_ADDI16SP 16'b011?00010?????01
-`define C_ADDI4SPN 16'b000???????????00
-`define C_AND      16'b100011???11???01
-`define C_ANDI     16'b100?10????????01
-`define C_BEQZ     16'b110???????????01
-`define C_BNEZ     16'b111???????????01
-`define C_EBREAK   16'b1001000000000010
-`define C_J        16'b101???????????01
-`define C_JAL      16'b001???????????01
-`define C_JALR     16'b1001?????0000010
-`define C_JR       16'b1000?????0000010
-`define C_LI       16'b010???????????01
 `define C_LUI      16'b011???????????01
-`define C_LW       16'b010???????????00
-`define C_LWSP     16'b010???????????10
-`define C_MV       16'b1000??????????10
-`define C_NOP      16'b000?00000?????01
-`define C_OR       16'b100011???10???01
-`define C_SLLI     16'b0000??????????10
 `define C_SRAI     16'b100001????????01
 `define C_SRLI     16'b100000????????01
-`define C_SUB      16'b100011???00???01
+`define C_ANDI     16'b100?10????????01
+`define C_BNEZ     16'b111???????????01
+`define C_BEQZ     16'b110???????????01
+`define C_J        16'b101???????????01
+`define C_LI       16'b010???????????01
+`define C_JAL      16'b001???????????01
 `define C_SW       16'b110???????????00
-`define C_SWSP     16'b110???????????10
-`define C_XOR      16'b100011???01???01
+`define C_LW       16'b010???????????00
+`define C_ADDI4SPN 16'b000???????????00
 
 `define DIV        32'b0000001??????????100?????0110011
 `define DIVU       32'b0000001??????????101?????0110011
@@ -182,10 +186,10 @@
 `define YAZMAC_YAZMA 1'b0
 `define YAZMAC_YAZ   1'b1
 
-`define OPERAND_REG      2'b00 // Yurut'e giden deger1 ve deger2'yi secmek icin.
-`define OPERAND_IMM      2'b01 // deger2 <- imm
-`define OPERAND_PC       2'b10 // deger1 <- pc
-`define OPERAND_PCIMM    2'b11 // deger2 <- imm ve deger1 <- pc
+`define OPERAND_REG      2'b00
+`define OPERAND_IMM      2'b01
+`define OPERAND_PC       2'b10
+`define OPERAND_PCIMM    2'b11
 
 `define BIRIM_AMB        3'h0
 `define BIRIM_CARPMA     3'h1
@@ -201,9 +205,9 @@
 `define DAL_GE     3'b011
 `define DAL_LTU    3'b100
 `define DAL_GEU    3'b101
-`define DAL_JAL    3'b110 // jalr nin aynisi
-`define DAL_JALR   3'b110 // jal in aynisi
-`define DAL_YOK    3'b111 // Kesin deger almali. 3'hx ya da 3'h0 olmamali. Surekli okunan bir deger.
+`define DAL_JAL    3'b110
+`define DAL_JALR   3'b110
+`define DAL_YOK    3'b111
 
 `define AMB_TOPLAMA  4'h0
 `define AMB_CIKARMA  4'h1
@@ -215,20 +219,20 @@
 `define AMB_SRA      4'h7
 `define AMB_SLT      4'h8
 `define AMB_SLTU     4'h9
-`define AMB_GECIR    4'ha // deger2 yi aynen gecirsin. sonuc = deger2. LUI icin gerekli
-`define AMB_YOK      4'h0 // Eger BIRIM_AMB degilse icerde ne oldugu onemsiz
+`define AMB_GECIR    4'ha
+`define AMB_YOK      4'h0
 
 `define BOLME_DIVU  2'h0
 `define BOLME_REMU  2'h1
 `define BOLME_DIV   2'h2
 `define BOLME_REM   2'h3
-`define BOLME_YOK   2'h0 // Eger BIRIM_BOLME degilse icerde ne oldugu onemsiz
+`define BOLME_YOK   2'h0
 
 `define CARPMA_MUL    2'h0
 `define CARPMA_MULH   2'h1
 `define CARPMA_MULHSU 2'h2
 `define CARPMA_MULHU  2'h3
-`define CARPMA_YOK    2'h0 // Eger BIRIM_CARPMA degilse icerde ne oldugu onemsiz
+`define CARPMA_YOK    2'h0
 
 `define BIB_LB        3'h0
 `define BIB_LBU       3'h1
@@ -238,7 +242,7 @@
 `define BIB_SB        3'h5
 `define BIB_SH        3'h6
 `define BIB_SW        3'h7
-`define BIB_YOK       3'h0 // Eger BIRIM_BIB degilse icerde ne oldugu onemsiz
+`define BIB_YOK       3'h0
 
 `define SIFRELEME_HMDST  3'h0
 `define SIFRELEME_PKG    3'h1
@@ -246,17 +250,14 @@
 `define SIFRELEME_SLADD  3'h3
 `define SIFRELEME_CNTZ   3'h4
 `define SIFRELEME_CNTP   3'h5
-`define SIFRELEME_YOK    3'h0 //Eger BIRIM_SIFRELEME degilse icerde ne oldugu onemsiz
+`define SIFRELEME_YOK    3'h0
 
 `define YZH_LD_W   3'h0
 `define YZH_CLR_W  3'h1
 `define YZH_LD_X   3'h2
 `define YZH_CLR_X  3'h3
 `define YZH_RUN    3'h4
-`define YZH_YOK    3'h0 // 1 bitlik yzh_basla sinyali yzh'yi kontrol ediyor. Bu yuzden onemsiz.
-
-
-// bible bolmeyi cikarabiliriz
+`define YZH_YOK    3'h0
 
 `define ADD_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_TOPLAMA, `DAL_YOK, `BIRIM_AMB, `OPERAND_REG,   `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define SUB_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_CIKARMA, `DAL_YOK, `BIRIM_AMB, `OPERAND_REG,   `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
@@ -357,4 +358,5 @@
 `define YANLIS_ATLADI 2'd3
 `define ATLAMAMALIYDI 2'd2
 `define ATLAMALIYDI   2'd1
-`define SORUN_YOK     2'd0 // Bu 0 olmak zorunda.
+`define SORUN_YOK     2'd0
+// SORUN_YOK 0 olmak zorunda.

@@ -7,7 +7,7 @@
 module uart_denetleyici (
     input wire clk_i,
     input wire rst_i,
-    input  wire [ 3:0] wb_adr_i,
+    input  wire [ 1:0] wb_adr_i,
     input  wire [31:0] wb_dat_i,
     input  wire        wb_we_i ,
     input  wire        wb_stb_i,
@@ -70,20 +70,20 @@ module uart_denetleyici (
             tx_we <= 1'b0;
             if(wb_cyc_i) begin
                 case(wb_adr_i)
-                    4'h0: begin
+                    2'h0: begin
                         wb_ack_o <= wb_stb_i & !wb_ack_o;
                         if(wb_stb_i & wb_we_i & !wb_ack_o) begin
                             tx_en    <=   wb_sel_i[0]    ? wb_dat_i[0]     : tx_en;
                             rx_en    <=   wb_sel_i[0]    ? wb_dat_i[1]     : rx_en;
                             baud_div <= (&wb_sel_i[3:2]) ? wb_dat_i[31:16] : baud_div;
                         end
-                        wb_dat_o <= {baud_div, 13'b0, rx_en, tx_en};
+                        wb_dat_o <= {baud_div, 14'b0, rx_en, tx_en};
                     end
-                    4'h4: begin
+                    2'h1: begin
                         wb_ack_o <= wb_stb_i & !wb_ack_o;
                         wb_dat_o <= {28'b0,rx_empty,rx_full,tx_empty,tx_full};
                     end
-                    4'h8: begin
+                    2'h2: begin
                         if(wb_stb_i & !wb_ack_o) begin
                             if(~rx_empty)begin
                                 wb_ack_o <= wb_stb_i & !wb_ack_o;
@@ -92,7 +92,7 @@ module uart_denetleyici (
                             end
                         end
                     end
-                    4'hc: begin
+                    2'h3: begin
                         if(wb_stb_i & wb_we_i & !wb_ack_o) begin
                             if(~tx_full) begin
                                 wb_ack_o <= wb_stb_i & !wb_ack_o;
