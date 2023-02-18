@@ -1,7 +1,3 @@
-
-import math
-import os
-import glob
 from random import getrandbits
 from typing import Any, Dict, List
 
@@ -12,100 +8,44 @@ from cocotb.handle import SimHandleBase
 from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
+from testler.el_yapimi_testler import uart_test
+from testler.el_yapimi_testler import bol_carp_bol_carp_test
+from testler.el_yapimi_testler import geriyazdir
+from testler.el_yapimi_testler import timer_oku
+from testler.riscv_tests       import riscv_tests
+from testler.riscv_arch_tests  import riscv_arch_tests
 
 TIMEOUT = 20000
+tests = {}
 
-riscv_tests = {}
-
-"""
-# Sonsuz test. TIMEOUT bekleniyor.
-riscv_tests["uart"] = {
-    "TEST_FILE": "../testler/uart-demo/uart_demo_static.hex",
-    "fail_adr": 0x40f00060,
-    "pass_adr": 0x40f00074,
-    "buyruklar": []
-}
-riscv_tests["bol_carp_bol_carp"] = {
-    "TEST_FILE": "../testler/el-yapimi-testler/build/bol_carp_bol_carp.hex",
-    "fail_adr": 0x40000060,
-    "pass_adr": 0x40000078,
-    "buyruklar": []
-}
-riscv_tests["coremark"] = {
-    "TEST_FILE": "../testler/coremark/coremark_baremetal_static.hex",
-    "fail_adr": 0x40f00060,
-    "pass_adr": 0x40f00078,
-    "buyruklar": []
-}
-riscv_tests["geriyazdir"] = {
-    "TEST_FILE": "../testler/el-yapimi-testler/build/geriyazdir.hex",
-    "fail_adr": 0x4000005c,
-    "pass_adr": 0x40000074,
-    "buyruklar": []
-}
-riscv_tests["timer_oku"] = {
-    "TEST_FILE": "../testler/el-yapimi-testler/build/timer_oku.hex",
-    "fail_adr": 0x4010005c,
-    "pass_adr": 0x40000034,
-    "buyruklar": []
-}
-insttestlist = []
-"""
-
-insttestlist = ["auipc","jal","jalr","lui","andi","ori","xori","addi","slli","slti","sltiu","and","sll","xor","or","srl","sra","slt","sltu","srli","srai","sub","bgeu","bltu","blt","bne","beq","bge","add","mul","mulh","mulhu","mulhsu","div","divu","rem","remu","lw","lh","lb","lbu","lhu","sw","sb","sh", 'hmdst', 'rvrs', 'pkg', 'sladd', 'cntz', 'cntp','conv']
-
-
-TESTS_FOLDER = "../testler/riscv-tests/isa"
-for each in insttestlist:
-  ecallfail = False
-  ecallpass = False
-  fail_adr = 0
-  pass_adr = 0
-  filename = glob.glob(TESTS_FOLDER + '/*-' + each + '.dump')[0] #'./data/rv32ui-p-sb.dump'
-  with open(filename, 'r') as f:
-    for line in f:
-      if '<fail>:' in line:
-          ecallfail = True
-      elif '<pass>:' in line:
-          ecallpass = True
-
-      if ecallfail and 'ecall' in line:
-          ecallfail = False
-          fail_adr = int(line.split(':')[0].replace(' ', ''), 16)
-      elif ecallpass and 'ecall' in line:
-          ecallpass = False
-          pass_adr = int(line.split(':')[0].replace(' ', ''), 16)
-  riscv_tests[each] = {
-    "TEST_FILE": glob.glob(TESTS_FOLDER + '/*-' + each + '_static.hex')[0], #"./data/rv32ui-p-sb_static.hex",
-    "fail_adr": fail_adr,
-    "pass_adr": pass_adr,
-    "buyruklar": []
-  }
+# tests.update(uart_test)
+# tests.update(riscv_tests)
+tests.update(riscv_arch_tests)
 
 @cocotb.coroutine
 async def buyruklari_oku():
-    for test in riscv_tests:
-        with open(riscv_tests[test]["TEST_FILE"], 'r') as f:
+    for test in tests:
+        with open(tests[test]["TEST_FILE"], 'r') as f:
             buyruklar = [line.rstrip('\n') for line in f]
-        riscv_tests[test]["buyruklar"] = buyruklar
+        tests[test]["buyruklar"] = buyruklar
 
 @cocotb.coroutine
 async def anabellek(dut):
     await RisingEdge(dut.clk_i)
-    for test in riscv_tests:
+    for test in tests:
         timout = 0
         dut.rst_ni.value = 0
         await RisingEdge(dut.clk_i)
-        for index, buyruk in enumerate(riscv_tests[test]["buyruklar"]):
+        for index, buyruk in enumerate(tests[test]["buyruklar"]):
             dut.main_memory.ram[index].value = int(buyruk,16)
         await RisingEdge(dut.clk_i)
         dut.rst_ni.value = 1
         while(1):
             try:
-                if(riscv_tests[test]["pass_adr"] == dut.iomem_addr.value.integer):
+                if(tests[test]["pass_adr"] == dut.iomem_addr.value.integer):
                     print("[TEST] ", test, " passed")
                     break
-                if(riscv_tests[test]["fail_adr"] == dut.iomem_addr.value.integer):
+                if(tests[test]["fail_adr"] == dut.iomem_addr.value.integer):
                     print("[TEST] ", test, " FAILED")
                     assert 0
                     break

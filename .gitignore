@@ -1,0 +1,4 @@
+__pycache__/*
+*.pyc
+.fuse_hidden*
+*.vstf
