@@ -6,7 +6,7 @@
 TOPLEVEL_LANG = verilog
 SIM           = icarus
 
-MODULE              := test_teknofest_wrapper
+MODULE              := test_random_teknofest_wrapper
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
@@ -49,6 +49,23 @@ else ifeq ($(MODULE),test_bolme_birimi)
 						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
 						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
 else ifeq ($(MODULE),test_teknofest_wrapper)
+	TOPLEVEL        := teknofest_wrapper
+    VERILOG_SOURCES +=  ../cevreleyici/*.v \
+						$(KAYNAKLAR)/*.v \
+						$(KAYNAKLAR)/cekirdek/*.v \
+						$(KAYNAKLAR)/bellek/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
+						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
+						$(KAYNAKLAR)/veriyolu/*.v \
+						$(KAYNAKLAR)/cevre_birimleri/pwm/*.v \
+						$(KAYNAKLAR)/cevre_birimleri/spi/*.v \
+						$(KAYNAKLAR)/cevre_birimleri/uart/*.v
+
+else ifeq ($(MODULE),test_random_teknofest_wrapper)
 	TOPLEVEL        := teknofest_wrapper
     VERILOG_SOURCES +=  ../cevreleyici/*.v \
 						$(KAYNAKLAR)/*.v \
@@ -137,3 +154,4 @@ clean::
 		-rm -f *.fst
 		-rm -f modelsim.ini
 		-rm -f *.vstf
+		-rm -f *.log

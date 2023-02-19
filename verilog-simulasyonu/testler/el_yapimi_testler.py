@@ -30,6 +30,14 @@ j_branch = {'j_branch':{
     "pass_adr": 0x40000110,
     "buyruklar": []
 }}
+j_branch = {'j_branch':{
+    "TEST_FILE": "../testler/el-yapimi-testler/build/out_config_00000.S.hex",
+    "fail_adr": 0x400000f8,
+    "pass_adr": 0x40000110,
+    "buyruklar": []
+}}
+
+
 
 ########################################
 # Sonsuz test. TIMEOUT bekleniyor.

@@ -11,9 +11,9 @@ all: builddir $(TESTLER)
 
 .PHONY: $(TESTLER)
 $(TESTLER):
-		riscv32-unknown-elf-gcc $@ -nostartfiles -nostdlib -march=rv32im -mabi=ilp32 -T$(TEST_DOSYASI_KLASOR)/link.ld -o ./build/$@.elf
-		riscv32-unknown-elf-objcopy ./build/$@.elf -O binary ./build/$@.bin
-		riscv32-unknown-elf-objdump -M numeric,no-aliases -D ./build/$@.elf > ./build/$@.txt
+		riscv64-unknown-elf-gcc $@ -nostartfiles -nostdlib -march=rv32im -mabi=ilp32 -T$(TEST_DOSYASI_KLASOR)/link.ld -o ./build/$@.elf
+		riscv64-unknown-elf-objcopy ./build/$@.elf -O binary ./build/$@.bin
+		riscv64-unknown-elf-objdump -M numeric,no-aliases -D ./build/$@.elf > ./build/$@.txt
 		python3 ../../araclar/makehex.py ./build/$@.bin > ./build/$@.hex
 
 
