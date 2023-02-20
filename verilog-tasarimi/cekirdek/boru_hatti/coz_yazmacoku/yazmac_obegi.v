@@ -3,7 +3,9 @@
 
 `include "tanimlamalar.vh"
 
-module yazmac_obegi(
+module yazmac_obegi #(
+    parameter STACKADDR = 32'h40060000
+)(
     input  wire clk_i,
     // okuma arayuzu
     input  wire [ 4:0] oku1_adr_i, // rs1
@@ -19,6 +21,7 @@ module yazmac_obegi(
     reg [31:0] yazmaclar[31:0];
     initial begin
         yazmaclar[0] = 0;
+        yazmaclar[2] = STACKADDR;
     end
     assign oku1_deger_o = yazmaclar[oku1_adr_i];
     assign oku2_deger_o = yazmaclar[oku2_adr_i];

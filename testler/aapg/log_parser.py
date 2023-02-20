@@ -1,17 +1,7 @@
 import argparse
 
-parser = argparse.ArgumentParser("Extract PC and instruction address from spike log. The output is printed. Use commandline pipe to write to a file")
 
-parser.add_argument('-i', type=str, required=True, help="Path to spike log file")
-
-
-args = parser.parse_args()
-
-
-
-file = args.i
-
-def get_instruction_order():
+def log_parser(file):
     time_step = 0
     with open(file, "r") as log_file:
         for line in log_file:
@@ -36,4 +26,9 @@ def get_instruction_order():
 
             time_step = time_step + 1
 
-get_instruction_order()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser("Extract PC and instruction address from spike log. The output is printed. Use commandline pipe to write to a file")
+    parser.add_argument('-i', type=str, required=True, help="Path to spike log file")
+    args = parser.parse_args()
+    file = args.i
+    log_parser(file)
