@@ -114,6 +114,71 @@ wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : b
         .csb1  (cs_oku_next_r),
         .addr1 (c_oku_adres_w),
         .dout1 ({dummy, c_oku_tag_w, data_out_w})
+      /*
+      // word size: 16, 512 words, simple dp
+wire [7:0] c_oku_tag_w1;
+wire [7:0] c_oku_tag_w2;
+wire [7:0] c_oku_tag_w3;
+wire [7:0] c_oku_tag_w4;
+
+assign c_oku_tag_w = c_oku_tag_w1;
+
+blk_mem_gen_0 blk0(
+    // write port
+    .clka(clk_i),
+    .ena(!cs_yaz_next_r & veri_maske_w[0]),
+    .wea(yaz_en_next_r),
+    .addra(yaz_adres_next_r),
+    .dina({yaz_tag_next_r, data_in_w[7:0]}),
+    // read port
+    .clkb(clk_i),
+    .enb(!cs_oku_next_r),
+    .addrb(c_oku_adres_w),
+    .doutb({c_oku_tag_w1, data_out_w[7:0]})
+  );
+
+blk_mem_gen_0 blk1(
+    // write port
+    .clka(clk_i),
+    .ena(!cs_yaz_next_r & veri_maske_w[1]),
+    .wea(yaz_en_next_r),
+    .addra(yaz_adres_next_r),
+    .dina({yaz_tag_next_r, data_in_w[15:8]}),
+    // read port
+    .clkb(clk_i),
+    .enb(!cs_oku_next_r),
+    .addrb(c_oku_adres_w),
+    .doutb({c_oku_tag_w2, data_out_w[15:8]})
+  );
+
+blk_mem_gen_0 blk2(
+    // write port
+    .clka(clk_i),
+    .ena(!cs_yaz_next_r & veri_maske_w[2]),
+    .wea(yaz_en_next_r),
+    .addra(yaz_adres_next_r),
+    .dina({yaz_tag_next_r, data_in_w[23:16]}),
+    // read port
+    .clkb(clk_i),
+    .enb(!cs_oku_next_r),
+    .addrb(c_oku_adres_w),
+    .doutb({c_oku_tag_w3, data_out_w[23:16]})
+  );
+
+blk_mem_gen_0 blk3(
+    // write port
+    .clka(clk_i),
+    .ena(!cs_yaz_next_r & veri_maske_w[3]),
+    .wea(yaz_en_next_r),
+    .addra(yaz_adres_next_r),
+    .dina({yaz_tag_next_r, data_in_w[31:24]}),
+    // read port
+    .clkb(clk_i),
+    .enb(!cs_oku_next_r),
+    .addrb(c_oku_adres_w),
+    .doutb({c_oku_tag_w4, data_out_w[31:24]})
+  );
+      */
     );
 `endif
 
