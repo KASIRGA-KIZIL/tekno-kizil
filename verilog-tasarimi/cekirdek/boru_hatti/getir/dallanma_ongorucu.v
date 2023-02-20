@@ -32,7 +32,7 @@ module dallanma_ongorucu(
     reg [1:0]  tahmin_et;
     reg [1:0]  buyruk_ctipi;
     reg [18:1] ps [1:0];
-
+    
     // Ongoru tablolari
     reg [18:1] btb      [31:0]; // branch target buffer
     reg [ 1:0] sayaclar [31:0]; // branch target buffer
@@ -62,12 +62,14 @@ module dallanma_ongorucu(
             if(tahmin_et[`YURUT]) begin
                 if(~tahmin_dogru) begin
                     btb[ps[`YURUT][5:1]] <= atlanan_ps_i;
-                    ght[4] <= ght[6];
-                    ght[3] <= ght[5];
-                    ght[2] <= ght[4];
-                    ght[1] <= ght[3];
-                    ght[0] <= ght[2];
+                    ght_ptr <= 2'd0;
                     ght[0] <= atlanan_ps_gecerli_i;
+                    for(loop_counter=1 ;loop_counter<5; loop_counter=loop_counter+1) begin
+                        ght[loop_counter] <= ght[loop_counter+ght_ptr-1]; 
+                    end
+                    for(loop_counter=5 ;loop_counter<7; loop_counter=loop_counter+1) begin
+                        ght[loop_counter] <= 32'd0; 
+                    end
                 end
                 if(~atladi_tahmin_dogru   &&  (sayaclar[sayac_yaz_adr] != 2'b00)) begin
                     if(!buyruk_jtipi_i)
@@ -77,10 +79,10 @@ module dallanma_ongorucu(
                     if(!buyruk_jtipi_i)
                         sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] +  2'b1;
                 end
-                if(tahmin_et_i) begin
-                    ght <= {ght[5:0], sayaclar[sayac_oku_adr][1]};
-                    ght_ptr <= ght_ptr + 2'd1;
-                end
+            end
+            if(tahmin_et_i) begin
+                ght[6:0] <= {ght[5:0], sayaclar[sayac_oku_adr][1]};
+                ght_ptr <= ght_ptr + 2'd1;
             end
         end
     end
