@@ -79,17 +79,17 @@ static void send_string(char* string, int len)
 
 //#include <stdio.h>
 
-//#define TIMER_LOW        (*(volatile uint32_t*)0x30000000)
-//#define TIMER_HIGH       (*(volatile uint32_t*)0x30000004)
+#define TIMER_LOW        (*(volatile uint32_t*)0x30000000)
+#define TIMER_HIGH       (*(volatile uint32_t*)0x30000004)
 
-volatile unsigned int* TIMER_LOW = 0x30000000;
-volatile unsigned int* TIMER_HIGH = 0x30000004;
+//volatile unsigned int* TIMER_LOW = 0x30000000;
+//volatile unsigned int* TIMER_HIGH = 0x30000004;
 
 uint32_t get_timer_low(){
-    return (*TIMER_LOW); //& 0xff;
+    return TIMER_LOW; //& 0xff;
 }
 uint32_t get_timer_high(){
-    return (*TIMER_HIGH); //& 0xff;
+    return TIMER_HIGH; //& 0xff;
 }
 // TODO ust bitlere bakacaksak hem bura hem core_portme.hda degisiklik gerek
 uint32_t /*uint64_t*/ get_timer(){
@@ -98,6 +98,17 @@ uint32_t /*uint64_t*/ get_timer(){
     //return get_timer_low();
 }
 
+static int __strcmp(char* s1, char* s2, int len)
+{
+    for(int i = 0 ; i < len ; i++)
+    {
+        if (s1[i] != s2[i])
+            return 0;
+    }
+    return 1;
+}
+
+char cmd_buf[8];
 
 int main()
 {
@@ -117,8 +128,33 @@ int main()
     //print(str);
     //tekno_printf("%lu\n", get_timer());
     tekno_printf("%lu\n", (get_timer_high() << 32) + get_timer_low());
+    int i = 0;
+    while(i != 100000){
+    //print("a");
+    //tekno_printf("%lu\n", (get_timer_high() << 32) + get_timer_low());
+    //tekno_printf("%lu\n", (get_timer_high() << 32));
+    tekno_printf("%lf\n", get_timer_low() / CPU_CLK);
+    i++;
+    }
+    tekno_printf("%lu\n", (get_timer_high() << 32) + get_timer_low());
     //send_string("KASIRGA", sizeof("KASIRGA"));
+/*
+    while(1)
+    {
+        // butun komutlarin 8 bayta
+        // sigdigini varsayiyoruz
+        for (int i = 0 ; i < 8 ; i++)
+        {
+            while((UART_STATUS & 0x8) == 0x8);
+            cmd_buf[i] = UART_RDATA;
+        }
+        
+        if (__strcmp(cmd_buf,"logo",sizeof("logo")-1))
+        {
+            print(logo);
+        }
 
-     
+    }
+     */
     return 0;
 }
