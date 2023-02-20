@@ -52,12 +52,6 @@ _start:
   la gp, __global_pointer$
 .option pop
 
-addi	x1,x0,0
-lui	x1,0x20001
-slli	x1,x1,0x1
-addi	x2,x1,-4
-addi	x1,x0,0
-
 j main
 
 .align 2
