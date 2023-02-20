@@ -15,6 +15,8 @@ SECTIONS
 
   PROVIDE( __global_pointer$ = . + 0x02000 );
   PROVIDE(__stack_begin$         = (ORIGIN(ram) + LENGTH(ram)) - 4);
+  /*PROVIDE( __global_pointer$ = . + 0x32000 );*/
+  /*PROVIDE( __stack_pointer$ = . + 0x62000 );*/
     /* The program code and other data goes into ROM */
   .text : {
 		. = ALIGN(4);
@@ -43,7 +45,8 @@ SECTIONS
 
         . = ALIGN(4);
     } > ram
-  
+    
+    _end = .;
     /*_end = .; > ram*/
 }
 

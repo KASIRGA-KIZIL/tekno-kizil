@@ -31,7 +31,7 @@ CC = $(RISCVTYPE)-gcc
 # Flag: CFLAGS
 #	Use this flag to define compiler options. Note, you can add compiler options from the command line using XCFLAGS="other flags"
 #PORT_CFLAGS = -O2 -static -std=gnu99
-PORT_CFLAGS = -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -fno-builtin -ffunction-sections -lm -lgcc -T $(PORT_DIR)/link.ld -DITERATIONS=1000
+PORT_CFLAGS = -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -fno-builtin -ffunction-sections -lm -lgcc -T $(PORT_DIR)/link.ld
 # -Xlinker --defsym=__stack_size=0x800 -Xlinker --defsym=__heap_size=0x1000
 #-DPREALLOCATE=1
 #-mcmodel=medlow
