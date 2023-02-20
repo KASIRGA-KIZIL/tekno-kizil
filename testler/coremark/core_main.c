@@ -103,11 +103,11 @@ char *mem_name[3] = { "Static", "Heap", "Stack" };
    the benchmark will run between 10 to 100 secs
 
 */
-
 #if MAIN_HAS_NOARGC
 MAIN_RETURN_TYPE
 main(void)
 {
+    ee_printf("girdi\n");
     int   argc = 0;
     char *argv[1];
 #else

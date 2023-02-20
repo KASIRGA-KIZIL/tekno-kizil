@@ -21,7 +21,7 @@ Original Author: Shay Gal-on
 #include <stdint.h>
 
 #define CPU_CLK CLOCKS_PER_SEC //50000000  // 50 Mhz
-#define BAUD_RATE 9600
+#define BAUD_RATE 115200
 
 typedef union
 {

@@ -31,18 +31,20 @@ CC = $(RISCVTYPE)-gcc
 # Flag: CFLAGS
 #	Use this flag to define compiler options. Note, you can add compiler options from the command line using XCFLAGS="other flags"
 #PORT_CFLAGS = -O2 -static -std=gnu99
-PORT_CFLAGS = -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -fno-builtin -ffunction-sections -lm -lgcc -T $(PORT_DIR)/link.ld
+PORT_CFLAGS = -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -fno-builtin -ffunction-sections -lm -lgcc -T $(PORT_DIR)/link.ld -DITERATIONS=1000
+# -Xlinker --defsym=__stack_size=0x800 -Xlinker --defsym=__heap_size=0x1000
 #-DPREALLOCATE=1
 #-mcmodel=medlow
 FLAGS_STR = "$(PORT_CFLAGS) $(XCFLAGS) $(XLFLAGS) $(LFLAGS_END)"
-CFLAGS = $(PORT_CFLAGS) -march=rv32im -mabi=ilp32 -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\"
+CFLAGS = $(PORT_CFLAGS) -march=rv32im -mabi=ilp32 -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\" #-DCORE_DEBUG
+# -DITERATIONS=1000
 #Flag: LFLAGS_END
 #	Define any libraries needed for linking or other flags that should come at the end of the link line (e.g. linker scripts).
 #	Note: On certain platforms, the default clock_gettime implementation is supported but requires linking of librt.
 LFLAGS_END +=
 # Flag: PORT_SRCS
 # Port specific source files can be added here
-PORT_SRCS = $(PORT_DIR)/core_portme.c $(PORT_DIR)/ee_printf.c $(PORT_DIR)/start.S #$(PORT_DIR)/init.c #$(PORT_DIR)/syscalls.c #$(PORT_DIR)/crt.S
+PORT_SRCS = $(PORT_DIR)/core_portme.c $(PORT_DIR)/ee_printf.c $(PORT_DIR)/start.S $(PORT_DIR)/init.c #$(PORT_DIR)/syscalls.c #$(PORT_DIR)/crt.S
 # Flag: LOAD
 #	Define this flag if you need to load to a target, as in a cross compile environment.
 
@@ -107,7 +109,7 @@ port_prebuild: $(PGO_STAGE)
 
 .PHONY: build_pgo_gcc
 build_pgo_gcc:
-	$(MAKE) PGO=gen XCFLAGS="$(XCFLAGS) -fprofile-generate -DTOTAL_DATA_SIZE=1200" ITERATIONS=10 gen_pgo_data REBUILD=1
+	$(MAKE) PGO=gen XCFLAGS="$(XCFLAGS) -fprofile-generate -DTOTAL_DATA_SIZE=1200" ITERATIONS=1000 gen_pgo_data REBUILD=1
 
 # Target: port_postbuild
 # Generate any files that are needed after actual build end.

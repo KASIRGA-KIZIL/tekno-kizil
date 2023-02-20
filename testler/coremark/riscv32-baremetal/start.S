@@ -51,17 +51,30 @@ _start:
   # initialize global pointer
 .option push
 .option norelax
-  la gp, __global_pointer$
+la gp, __global_pointer$
 .option pop
 
-addi	x1,x0,0
-lui	x1,0x20001
-slli	x1,x1,0x1
-addi	x2,x1,-4
-addi	x1,x0,0
-call    main
-1:
-j 1b
+  #la  tp, _end + 63
+  #and tp, tp, -64
+
+  # get core id
+  #csrr a0, 1
+  #li a0, 0
+  # for now, assume only 1 core
+  #li a1, 1
+#1:bgeu a0, a1, 1b
+
+  # give each core 16KB of stack + TLS
+#define STKSHIFT 14
+  #addi sp, a0, 1
+  #sll sp, sp, STKSHIFT
+  #add sp, sp, tp
+  #sll a2, a0, STKSHIFT
+  #add tp, tp, a2
+la sp, __stack_begin$
+call    _init #main
+2:
+j 2b
 #j _init
 
   .align 2
