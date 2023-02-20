@@ -390,8 +390,7 @@
         /* for boolean and enumeration types in Ada, Pascal */
 
 /* General definitions: */
-
-#include <stdio.h>
+//#include <stdio.h>
                 /* for strcpy, strcmp */
 
 #define Null 0 
