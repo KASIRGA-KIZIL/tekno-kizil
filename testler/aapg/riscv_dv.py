@@ -58,11 +58,13 @@ def main():
             log_parser(path)
 
     for index, path in enumerate(LOG_PATH.rglob('*.sign')):
-        os.system(f"cp  {path}  {BUILD_DIR}/{path.stem}.sign")
+        os.system(f"cp  {path}  {BUILD_DIR}/{str(path.stem).split('.', 1)[0]}.sign")
 
     for index, path in enumerate(DUMP_PATH.rglob('*.objdump')):
         os.system(f"cp  {path}  {BUILD_DIR}/{path.stem}.dump")
 
+    for index, path in enumerate(ASM_PATH.rglob('*.S')):
+        os.system(f"cp  {path}  {BUILD_DIR}/{path.stem}.S")
 
 if __name__ == "__main__":
     main()

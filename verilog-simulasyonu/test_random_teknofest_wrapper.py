@@ -8,92 +8,78 @@ from cocotb.handle import SimHandleBase
 from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
-
+from testler.random_tests import random_tests
 TIMEOUT = 2000000
 tests = {}
 final_logs = []
 
-# <label>:
-random_test = {'random_test':{
-    "TEST_FILE": "../testler/aapg/build/tmp.hex",
-    "DUMP_FILE": "../testler/aapg/build/tmp.dump",
-    "finish_adr": 0x40000060,
-    "buyruklar": []
-}}
+tests.update(random_tests)
 
-label_line = False
-with open(random_test["random_test"]["DUMP_FILE"], 'r') as f:
-    for line in f:
-      if '<label>:' in line:
-            label_line = True
-            print(line)
-            continue
-      if label_line:
-            print(line)
-            label_line = False
-            finish_adr = int(line.split(':')[0].replace(' ', ''), 16)
-            random_test["random_test"]["finish_adr"] = finish_adr
-            print("found ", random_test["random_test"]["finish_adr"])
-
-tests.update(random_test)
-
-@cocotb.coroutine
-async def buyruklari_oku():
-    with open(random_test["random_test"]["TEST_FILE"], 'r') as f:
-        buyruklar = [line.rstrip('\n') for line in f]
-    random_test["random_test"]["buyruklar"] = buyruklar
 
 @cocotb.coroutine
 async def anabellek(dut):
-    f = open("test.log", "w")
     await RisingEdge(dut.clk_i)
-    for test in tests:
-        time_step = 0
-        timout = 0
-        dut.rst_ni.value = 0
-        await RisingEdge(dut.clk_i)
-        for index, buyruk in enumerate(random_test["random_test"]["buyruklar"]):
-            dut.main_memory.ram[index].value = int(buyruk,16)
-        await RisingEdge(dut.clk_i)
-        dut.rst_ni.value = 1
-        prebosalt = 0
-        while(1):
-            try:
-                if(random_test["random_test"]["finish_adr"] == dut.iomem_addr.value.integer):
-                    print("[FINISHED] ")
-                    f.write('\n'.join(final_logs))
-                    break
-            except:
-                print("[WARNING] ADR is XXXXXXXXX")
+    for test_name, test in tests.items():
+        with open(f"{test_name}.log", 'w') as f:
+            time_step = 0
+            timout = 0
+            dut.rst_ni.value = 0
             await RisingEdge(dut.clk_i)
-            if(not dut.soc.cek.coz_yazmacoku_dut.ddb_durdur_i.value):
-                if(not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value):
-                    if((not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value) and (not prebosalt)):
-                        try:
-                            address     = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.debug_ps.value.integer,10)
-                            instruction = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.gtr_buyruk_i.value.integer,10)
-                            final_logs.append(f"{time_step}   {address}   {instruction}")
-                            time_step = time_step + 1
-                        except:
-                            pass
+            for index, buyruk in enumerate(test["buyruklar"]):
+                dut.main_memory.ram[index].value = int(buyruk,16)
+            await RisingEdge(dut.clk_i)
+            dut.rst_ni.value = 1
+            prebosalt = 0
+            while(1):
+                try:
+                    if(test["finish_adr"] == dut.iomem_addr.value.integer):
+                        print("[FINISHED] ")
+                        f.write('\n'.join(final_logs))
+                        with open(f"{test_name}.sign", 'w') as d:
+                            begin_adr = (test["begin_sign_adr"]-0x40000000)//4
+                            end_adr   = (test["end_sign_adr"]  -0x40000000)//4
+                            for index in range(begin_adr,end_adr+1,4):
+                                row = ""
+                                data0 = "{0:#0{1}x}".format(dut.main_memory.ram[index+0].value.integer,10)
+                                data1 = "{0:#0{1}x}".format(dut.main_memory.ram[index+1].value.integer,10)
+                                data2 = "{0:#0{1}x}".format(dut.main_memory.ram[index+2].value.integer,10)
+                                data3 = "{0:#0{1}x}".format(dut.main_memory.ram[index+3].value.integer,10)
+                                row   =  data3[2:] + data2[2:] + data1[2:] + data0[2:]
+                                d.write(f"{row}\n")
+                        break
+                except  Exception as e:
+                    print(e)
 
-            if(not dut.soc.cek.coz_yazmacoku_dut.ddb_durdur_i.value):
-                prebosalt = dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value
+                await RisingEdge(dut.clk_i)
+                if(not dut.soc.cek.coz_yazmacoku_dut.ddb_durdur_i.value):
+                    if(not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value):
+                        if((not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value) and (not prebosalt)):
+                            try:
+                                address     = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.debug_ps.value.integer,10)
+                                instruction = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.gtr_buyruk_i.value.integer,10)
+                                final_logs.append(f"{time_step}   {address}   {instruction}")
+                                time_step = time_step + 1
+                            except:
+                                pass
 
-            timout = timout + 1
-            if(timout > TIMEOUT):
-                print("[TEST] ", test, " FAILED TIMOUT")
-                ps     = "{0:#0{1}x}".format(dut.iomem_addr.value.integer,10)
-                print("current PC: ", ps)
-                f.write('\n'.join(final_logs))
-                assert 0
-                break
-    f.close()
+                if(not dut.soc.cek.coz_yazmacoku_dut.ddb_durdur_i.value):
+                    prebosalt = dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value
+
+                timout = timout + 1
+                if(timout > TIMEOUT):
+                    print("[TEST] ", test, " FAILED TIMOUT")
+                    ps     = "{0:#0{1}x}".format(dut.iomem_addr.value.integer,10)
+                    print("current PC: ", ps)
+                    f.write('\n'.join(final_logs))
+                    f.close()
+                    assert 0
+                    break
+
+
 
 
 @cocotb.test()
 async def test_random_teknofest_wrapper(dut):
-    await buyruklari_oku()
 
     await cocotb.start(Clock(dut.clk_i, 10, 'ns').start(start_high=False))
 
@@ -103,4 +89,3 @@ async def test_random_teknofest_wrapper(dut):
     dut.rst_ni.value = 1
     blk = cocotb.start_soon(anabellek(dut))
     await blk
-    # print("Comparing...")

@@ -155,3 +155,4 @@ clean::
 		-rm -f modelsim.ini
 		-rm -f *.vstf
 		-rm -f *.log
+		-rm -f *.sign

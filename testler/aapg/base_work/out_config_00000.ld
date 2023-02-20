@@ -17,10 +17,15 @@ SECTIONS
 
     /* The program code and other data goes into ROM */
   .text : {
-		. = ALIGN(4);
+        . = ALIGN(4);
         *(.text.init)
         *(.text)           /* .text sections (code) */
         *(.text*)          /* .text* sections (code) */
+        . = ALIGN(4);
+    } > ram
+
+
+    .data : {
         *(.rodata)         /* .rodata sections (constants, strings, etc.) */
         *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
         *(.data)           /* .data sections */
@@ -29,9 +34,14 @@ SECTIONS
         *(.sdata*)         /* .sdata* sections */
         *(.srodata)        /* .rodata sections (constants, strings, etc.) */
         *(.srodata*)       /* .rodata* sections (constants, strings, etc.) */
-		. = ALIGN(4);
-	} > ram
+        *(begin_signature*)
+        . = ALIGN(4);
+    } > ram
 
+    . = ALIGN(0x10000);
+
+    .tohost : { *(.tohost) }
+    .rodata : { *(rodata) }
 
     .bss :                 /* uninitialized data */
     {
