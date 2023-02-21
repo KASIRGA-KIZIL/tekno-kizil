@@ -35,6 +35,7 @@ SECTIONS
         *(.srodata)        /* .rodata sections (constants, strings, etc.) */
         *(.srodata*)       /* .rodata* sections (constants, strings, etc.) */
         *(begin_signature*)
+        *(end_signature*)
         . = ALIGN(4);
     } > ram
 

@@ -28,7 +28,7 @@ for index, path in enumerate(TESTS_FOLDER.rglob('*.dump')):
             elif ('<begin_signature>:' in line):
                 begin_sign = True
                 continue
-            elif ('<tohost>:' in line):
+            elif ('<end_signature>:' in line):
                 end_sign = True
                 continue
 
@@ -44,7 +44,7 @@ for index, path in enumerate(TESTS_FOLDER.rglob('*.dump')):
 
             if end_sign:
                 end_sign = False
-                line     = all_lines[i-5]
+                line     = all_lines[i-3]
                 end_sign_adr = int(line.split(':')[0].replace(' ', ''), 16)
                 random_tests[path.stem]["end_sign_adr"] = end_sign_adr
 

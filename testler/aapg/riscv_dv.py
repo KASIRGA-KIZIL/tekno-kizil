@@ -42,6 +42,10 @@ def main():
     logging.info(f"Removing CSRs.")
     for index, path in enumerate(ASM_PATH.rglob('*.S')):
         os.system(f"grep -v 'csr' {path} > temp; mv temp {path}")
+        if("template" not in str(path)):
+            with open(path, 'a') as sys.stdout:
+                print(".dword              0x0a0a0a0a0a0a0a0a")
+
 
     logging.info(f"Compiling and Simulating Random Tests")
     os.system(f"cd {WORK_PATH}; make")
