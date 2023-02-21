@@ -89,6 +89,12 @@ async def anabellek(dut):
                     assert 0
                     break
 
+            dut.rst_ni.value = 0
+            await RisingEdge(dut.clk_i)
+            dut.rst_ni.value = 1
+            await RisingEdge(dut.clk_i)
+            dut.rst_ni.value = 0
+
 
 
 

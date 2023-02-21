@@ -70,5 +70,23 @@ def main():
     for index, path in enumerate(ASM_PATH.rglob('*.S')):
         os.system(f"cp  {path}  {BUILD_DIR}/{path.stem}.S")
 
+
+    for index, path in enumerate(ASM_PATH.rglob('*.S')):
+        if("template" not in str(path)):
+            with open(path, 'r') as file:
+                lines = file.readlines()
+
+            with open(f"{BUILD_DIR}/{path.stem}.initial.sign", 'w') as sys.stdout:
+                row = ""
+                counter = 0
+                for line in lines:
+                    if(".dword" in line):
+                        row = line.split("0x")[1].strip("\n") + row
+                        counter = counter + 1
+                    if(counter == 2):
+                        print(row)
+                        counter = 0
+                        row = ""
+
 if __name__ == "__main__":
     main()

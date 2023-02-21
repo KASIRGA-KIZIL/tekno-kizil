@@ -29,7 +29,7 @@ priv-mode:
 #
 # ---------------------------------------------------------------------------------
 general:
-  total_instructions: 100
+  total_instructions: 20
   regs_not_use: x1,x2
   custom_trap_handler: true
   code_start_address: 0x40000000
@@ -45,9 +45,9 @@ general:
 isa-instruction-distribution:
   rel_sys: 0
   rel_sys.csr: 0
-  rel_rv32i.ctrl: 0.08
-  rel_rv32i.compute: 0.5
-  rel_rv32i.data: 0.2
+  rel_rv32i.ctrl: 0
+  rel_rv32i.compute: 0.2
+  rel_rv32i.data: 0.6
   rel_rv32i.fence: 0
   rel_rv64i.compute: 0
   rel_rv64i.data: 0
