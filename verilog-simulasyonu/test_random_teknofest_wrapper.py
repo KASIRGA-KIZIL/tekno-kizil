@@ -34,6 +34,8 @@ async def anabellek(dut):
                 try:
                     if(test["finish_adr"] == dut.iomem_addr.value.integer):
                         print("[FINISHED] ")
+                        dut.rst_ni.value = 0
+                        await RisingEdge(dut.clk_i)
                         f.write('\n'.join(final_logs))
                         for idx in range(0,512):
                             if(dut.soc.veri_onbellegi_dut.dirty_r[idx].value.integer):
@@ -44,17 +46,20 @@ async def anabellek(dut):
                                     cadr_int = (int(cadr,2) - 0x40000000)//4
                                     dut.main_memory.ram[cadr_int].value = int(cval,2)
                         await RisingEdge(dut.clk_i)
-                        with open(f"{test_name}.sign", 'w') as d:
+                        with open(f"{test_name}.sign", 'w') as d, open(f"{test_name}.signadr", 'w') as b:
                             begin_adr = (test["begin_sign_adr"]-0x40000000)//4
                             end_adr   = (test["end_sign_adr"]  -0x40000000)//4
                             for index in range(begin_adr,end_adr+1,4):
-                                row = ""
-                                data0 = "{0:#0{1}x}".format(dut.main_memory.ram[index+0].value.integer,10)
-                                data1 = "{0:#0{1}x}".format(dut.main_memory.ram[index+1].value.integer,10)
-                                data2 = "{0:#0{1}x}".format(dut.main_memory.ram[index+2].value.integer,10)
-                                data3 = "{0:#0{1}x}".format(dut.main_memory.ram[index+3].value.integer,10)
-                                row   =  data3[2:] + data2[2:] + data1[2:] + data0[2:]
+                                row     = ""
+                                row_adr = ""
+                                data0   = "{0:#0{1}x}".format(dut.main_memory.ram[index+0].value.integer,10)
+                                data1   = "{0:#0{1}x}".format(dut.main_memory.ram[index+1].value.integer,10)
+                                data2   = "{0:#0{1}x}".format(dut.main_memory.ram[index+2].value.integer,10)
+                                data3   = "{0:#0{1}x}".format(dut.main_memory.ram[index+3].value.integer,10)
+                                row     =  data3[2:] + data2[2:] + data1[2:] + data0[2:]
+                                row_adr =  f"{(index+3):8}" + f"{(index+2):8}" + f"{(index+1):8}" + f"{(index+0):8}"
                                 d.write(f"{row}\n")
+                                b.write(f"{row_adr}\n")
                         break
                 except  Exception as e:
                     print(e)

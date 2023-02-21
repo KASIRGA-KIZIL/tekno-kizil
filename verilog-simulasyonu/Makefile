@@ -156,3 +156,4 @@ clean::
 		-rm -f *.vstf
 		-rm -f *.log
 		-rm -f *.sign
+		-rm -f *.signadr
