@@ -35,6 +35,15 @@ async def anabellek(dut):
                     if(test["finish_adr"] == dut.iomem_addr.value.integer):
                         print("[FINISHED] ")
                         f.write('\n'.join(final_logs))
+                        for idx in range(0,512):
+                            if(dut.soc.veri_onbellegi_dut.dirty_r[idx].value.integer):
+                                if(dut.soc.veri_onbellegi_dut.valid_r[idx].value.integer):
+                                    cval = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr[-32:]
+                                    ctag = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr[-40:-33]
+                                    cadr = "0100000000000" + ctag + f'{idx:010b}' + "00"
+                                    cadr_int = (int(cadr,2) - 0x40000000)//4
+                                    dut.main_memory.ram[cadr_int].value = int(cval,2)
+                        await RisingEdge(dut.clk_i)
                         with open(f"{test_name}.sign", 'w') as d:
                             begin_adr = (test["begin_sign_adr"]-0x40000000)//4
                             end_adr   = (test["end_sign_adr"]  -0x40000000)//4
@@ -89,3 +98,5 @@ async def test_random_teknofest_wrapper(dut):
     dut.rst_ni.value = 1
     blk = cocotb.start_soon(anabellek(dut))
     await blk
+
+# soc.veri_onbellegi_dut.dirty_r.valid_r
