@@ -86,5 +86,40 @@ async def compare_logs(OUTPUT_FOLDER):
     print(f"[PASS] No difference in the logs")
     return 0
 
+
+async def compare_signs(OUTPUT_FOLDER):
+    failed = []
+    for index, path in enumerate(TESTS_FOLDER.rglob('*.sign')):
+        with open(path, 'r') as f:
+            reference = f.readlines()
+
+        with open(str(OUTPUT_FOLDER) + path.stem + '.sign', 'r') as f:
+            target = f.readlines()
+
+        for i, ref_line in enumerate(reference):
+            if (i == len(reference) - 3):
+                failed.append(0)
+                break
+            if (ref_line != target[i]):
+                failed.append({"path":path, "idx":i})
+                break
+
+    for i, fail in enumerate(failed):
+        if(fail != 0):
+            path = fail["path"]
+            idx  = fail["idx"]
+            print(f"[ERROR] Difference in the signature. Line {idx}, Path: {path}")
+            assert 0
+            return -1
+
+    if(0 == len(failed)):
+        print(f"[ERROR] Can not file any sign file in OUTPUT_FOLDER: {OUTPUT_FOLDER}")
+        print(f"[ERROR] Can not file any sign file in TESTS_FOLDER:  {TESTS_FOLDER}")
+        assert 0
+        return -1
+
+    print(f"[PASS] No difference in the signatures")
+    return 0
+
 read_tests()
 

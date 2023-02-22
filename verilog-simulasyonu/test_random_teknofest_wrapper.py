@@ -15,6 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 from testler.random_tests import random_tests
 from testler.random_tests import compare_logs
+from testler.random_tests import compare_signs
 
 TIMEOUT = 2000000
 tests = {}
@@ -123,4 +124,4 @@ async def test_random_teknofest_wrapper(dut):
     blk = cocotb.start_soon(anabellek(dut))
     await blk
     return_code = await compare_logs("./")
-
+    return_code = await compare_signs("./")

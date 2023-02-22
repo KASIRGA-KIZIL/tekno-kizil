@@ -76,7 +76,7 @@ def main():
             with open(path, 'r') as file:
                 lines = file.readlines()
 
-            with open(f"{BUILD_DIR}/{path.stem}.initial.sign", 'w') as sys.stdout:
+            with open(f"{BUILD_DIR}/{path.stem}.sign_initial", 'w') as sys.stdout:
                 row = ""
                 counter = 0
                 for line in lines:
