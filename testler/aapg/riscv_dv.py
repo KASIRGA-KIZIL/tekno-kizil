@@ -57,7 +57,7 @@ def main():
         os.system(f"../../araclar/makehex.py {path} > {BUILD_DIR}/{path.stem}.hex")
 
     for index, path in enumerate(LOG_PATH.rglob('*.log')):
-        os.system(f"cp  {path}  {BUILD_DIR}/{path.stem}_detailed.log")
+        os.system(f"cp  {path}  {BUILD_DIR}/{path.stem}.log_detailed")
         with open(f'{BUILD_DIR}/{path.stem}.log', 'w') as sys.stdout:
             log_parser(path)
 

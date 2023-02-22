@@ -1,5 +1,7 @@
 from random import getrandbits
 from typing import Any, Dict, List
+from pathlib import Path
+import logging
 
 import cocotb
 from cocotb.binary import BinaryValue
@@ -8,10 +10,14 @@ from cocotb.handle import SimHandleBase
 from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, FallingEdge, Edge
 
+
+logging.basicConfig(level=logging.DEBUG)
+
 from testler.random_tests import random_tests
+from testler.random_tests import compare_logs
+
 TIMEOUT = 2000000
 tests = {}
-final_logs = []
 
 tests.update(random_tests)
 
@@ -20,16 +26,18 @@ tests.update(random_tests)
 async def anabellek(dut):
     await RisingEdge(dut.clk_i)
     for test_name, test in tests.items():
+        time_step = 0
+        timout = 0
+        prebosalt = 0
+        final_logs = []
+        first = 1
         with open(f"{test_name}.log", 'w') as f:
-            time_step = 0
-            timout = 0
             dut.rst_ni.value = 0
             await RisingEdge(dut.clk_i)
             for index, buyruk in enumerate(test["buyruklar"]):
                 dut.main_memory.ram[index].value = int(buyruk,16)
             await RisingEdge(dut.clk_i)
             dut.rst_ni.value = 1
-            prebosalt = 0
             while(1):
                 try:
                     if(test["finish_adr"] == dut.iomem_addr.value.integer):
@@ -45,6 +53,9 @@ async def anabellek(dut):
                                     cadr = "0100000000000" + ctag + f'{idx:010b}' + "00"
                                     cadr_int = (int(cadr,2) - 0x40000000)//4
                                     dut.main_memory.ram[cadr_int].value = int(cval,2)
+                                    cadr_hex   = "{0:#0{1}x}".format(int(cadr,2),10)
+                                    cval_hex   = "{0:#0{1}x}".format(int(cval,2),10)
+                                    print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex}")
                         await RisingEdge(dut.clk_i)
                         with open(f"{test_name}.sign", 'w') as d, open(f"{test_name}.signadr", 'w') as b:
                             begin_adr = (test["begin_sign_adr"]-0x40000000)//4
@@ -67,14 +78,16 @@ async def anabellek(dut):
                 await RisingEdge(dut.clk_i)
                 if(not dut.soc.cek.coz_yazmacoku_dut.ddb_durdur_i.value):
                     if(not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value):
-                        if((not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value) and (not prebosalt)):
-                            try:
-                                address     = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.debug_ps.value.integer,10)
-                                instruction = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.gtr_buyruk_i.value.integer,10)
-                                final_logs.append(f"{time_step}   {address}   {instruction}")
-                                time_step = time_step + 1
-                            except:
-                                pass
+                        if(not first):
+                            if((not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value) and (not prebosalt)):
+                                try:
+                                    address     = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.debug_ps.value.integer,10)
+                                    instruction = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.gtr_buyruk_i.value.integer,10)
+                                    final_logs.append(f"{time_step}   {address}   {instruction}")
+                                    time_step = time_step + 1
+                                except:
+                                    pass
+                        first = 0
 
                 if(not dut.soc.cek.coz_yazmacoku_dut.ddb_durdur_i.value):
                     prebosalt = dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value
@@ -109,5 +122,5 @@ async def test_random_teknofest_wrapper(dut):
     dut.rst_ni.value = 1
     blk = cocotb.start_soon(anabellek(dut))
     await blk
+    return_code = await compare_logs("./")
 
-# soc.veri_onbellegi_dut.dirty_r.valid_r
