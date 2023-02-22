@@ -4,124 +4,43 @@
 
 # sim
 TOPLEVEL_LANG = verilog
-SIM           = icarus
+SIM           = modelsim
 
 MODULE              := test_random_teknofest_wrapper
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
-
+VERILOG_SOURCES +=  ../cevreleyici/*.v \
+					$(KAYNAKLAR)/*.v \
+					$(KAYNAKLAR)/cekirdek/*.v \
+					$(KAYNAKLAR)/bellek/*.v \
+					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
+					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
+					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
+					$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
+					$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
+					$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
+					$(KAYNAKLAR)/veriyolu/*.v \
+					$(KAYNAKLAR)/cevre_birimleri/pwm/*.v \
+					$(KAYNAKLAR)/cevre_birimleri/spi/*.v \
+					$(KAYNAKLAR)/cevre_birimleri/uart/*.v
 
 ifeq ($(MODULE), test_cekirdek)
 	TOPLEVEL        := cekirdek
-    VERILOG_SOURCES +=  $(KAYNAKLAR)/cekirdek/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
 else ifeq ($(MODULE),test_amb)
 	TOPLEVEL        := aritmetik_mantik_birimi
-    VERILOG_SOURCES +=  $(KAYNAKLAR)/cekirdek/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
 else ifeq ($(MODULE),test_carpma_birimi)
 	TOPLEVEL        := carpma_birimi
-    VERILOG_SOURCES +=  $(KAYNAKLAR)/cekirdek/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
 else ifeq ($(MODULE),test_bolme_birimi)
 	TOPLEVEL        := bolme_birimi
-    VERILOG_SOURCES +=  $(KAYNAKLAR)/cekirdek/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v
 else ifeq ($(MODULE),test_teknofest_wrapper)
 	TOPLEVEL        := teknofest_wrapper
-    VERILOG_SOURCES +=  ../cevreleyici/*.v \
-						$(KAYNAKLAR)/*.v \
-						$(KAYNAKLAR)/cekirdek/*.v \
-						$(KAYNAKLAR)/bellek/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
-						$(KAYNAKLAR)/veriyolu/*.v \
-						$(KAYNAKLAR)/cevre_birimleri/pwm/*.v \
-						$(KAYNAKLAR)/cevre_birimleri/spi/*.v \
-						$(KAYNAKLAR)/cevre_birimleri/uart/*.v
-
 else ifeq ($(MODULE),test_random_teknofest_wrapper)
 	TOPLEVEL        := teknofest_wrapper
-    VERILOG_SOURCES +=  ../cevreleyici/*.v \
-						$(KAYNAKLAR)/*.v \
-						$(KAYNAKLAR)/cekirdek/*.v \
-						$(KAYNAKLAR)/bellek/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
-						$(KAYNAKLAR)/veriyolu/*.v \
-						$(KAYNAKLAR)/cevre_birimleri/pwm/*.v \
-						$(KAYNAKLAR)/cevre_birimleri/spi/*.v \
-						$(KAYNAKLAR)/cevre_birimleri/uart/*.v
-
 else ifeq ($(MODULE),test_uart_denetleyici)
 	TOPLEVEL        := uart_denetleyici
-    VERILOG_SOURCES +=  ../cevreleyici/*.v \
-						$(KAYNAKLAR)/*.v \
-						$(KAYNAKLAR)/cekirdek/*.v \
-						$(KAYNAKLAR)/bellek/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
-						$(KAYNAKLAR)/cevre_birimleri/uart/*.v
 else ifeq ($(MODULE),test_veriyolu)
 	TOPLEVEL        := veriyolu
-    VERILOG_SOURCES +=  ../cevreleyici/*.v \
-						$(KAYNAKLAR)/*.v \
-						$(KAYNAKLAR)/cekirdek/*.v \
-						$(KAYNAKLAR)/bellek/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
-						$(KAYNAKLAR)/veriyolu/*.v
-else ifeq ($(MODULE),test_wb_uart) # Bu kontrol silinecek test amacli yazildi
-	TOPLEVEL        := wb_uart
-    VERILOG_SOURCES +=  ../cevreleyici/*.v \
-						$(KAYNAKLAR)/*.v \
-						$(KAYNAKLAR)/cekirdek/*.v \
-						$(KAYNAKLAR)/bellek/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-						$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
-						$(KAYNAKLAR)/cevre_birimleri/uart/*.v \
-						$(KAYNAKLAR)/veriyolu/*.v
 else
     $(error A module was not provided)
 endif
