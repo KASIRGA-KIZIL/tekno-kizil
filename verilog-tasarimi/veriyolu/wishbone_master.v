@@ -15,7 +15,6 @@ module wishbone_master(
     input  [31:0] vy_adres_i,
     input  [31:0] vy_veri_i,
     input  [ 3:0] vy_veri_maske_i,
-    input         vy_yaz_gecerli_i,
     input         vy_sec_i,
     output [31:0] vy_veri_o,
     output        vy_durdur_o,
@@ -54,7 +53,7 @@ module wishbone_master(
 
     assign adr_o = vy_adres_i[7:0];
     assign dat_o = vy_veri_i;
-    assign we_o  = vy_yaz_gecerli_i;
+    assign we_o  = |(vy_veri_maske_i);
     assign sel_o = vy_veri_maske_i;
 
     assign pwm_cyc_o  = (vy_adres_i[17:16] == 2'b10) ? cyc : 1'b0;

@@ -14,6 +14,9 @@ from testler.el_yapimi_testler import yaz_oku_1
 from testler.el_yapimi_testler import yaz_oku_0
 from testler.el_yapimi_testler import timer_oku
 from testler.el_yapimi_testler import j_branch
+from testler.el_yapimi_testler import btb_loopy
+from testler.el_yapimi_testler import uart_test
+
 from testler.riscv_tests       import riscv_tests
 # from testler.riscv_arch_tests  import riscv_arch_tests
 
@@ -29,7 +32,7 @@ tests = {}
 
 # tests.update(uart_test)
 # tests.update(riscv_tests)
-tests.update(riscv_tests)
+tests.update(uart_test)
 
 @cocotb.coroutine
 async def buyruklari_oku():

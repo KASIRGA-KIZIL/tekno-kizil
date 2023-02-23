@@ -32,7 +32,6 @@ module user_processor(
     wire [31:0] bib_adr;
     wire [ 3:0] bib_mask;
     wire        bib_durdur;
-    wire        bib_yaz_gecerli;
     wire        bib_sec;
 
     wire        l1b_bekle;
@@ -161,7 +160,6 @@ module user_processor(
         .vy_veri_i        (bib_yaz_veri   ),
         .vy_adres_i       (bib_adr        ),
         .vy_veri_maske_i  (bib_mask       ),
-        .vy_yaz_gecerli_i (bib_yaz_gecerli),
         .vy_sec_i         (vy_sec         ),
         .uart_tx_o (uart_tx_o ),
         .uart_rx_i (uart_rx_i ),
