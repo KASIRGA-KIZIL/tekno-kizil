@@ -307,7 +307,7 @@ always @* begin
             // Yazma
             else begin
                 if(iomem_ready_i)
-                    durum_next_r = CACHE_YAZ;
+                    durum_next_r = &l1v_veri_maske_i ? CACHE_YAZ : BELLEK_OKU;
             end
         end
         BITTI: begin
