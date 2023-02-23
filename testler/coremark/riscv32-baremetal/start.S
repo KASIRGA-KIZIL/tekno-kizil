@@ -54,25 +54,26 @@ _start:
 la gp, __global_pointer$
 .option pop
 
-  la  tp, _end + 63
-  and tp, tp, -64
+  #la  tp, _end + 63
+  #and tp, tp, -64
 
   # get core id
   #csrr a0, 1
-  li a0, 0
+  #li a0, 0
   # for now, assume only 1 core
-  li a1, 1
-1:bgeu a0, a1, 1b
+  #li a1, 1
+#1:bgeu a0, a1, 1b
 
   # give each core 16KB of stack + TLS
 #define STKSHIFT 17
-  addi sp, a0, 1
-  sll sp, sp, STKSHIFT
-  add sp, sp, tp
-  sll a2, a0, STKSHIFT
-  add tp, tp, a2
-#la sp, __stack_begin$
+  #addi sp, a0, 1
+  #sll sp, sp, STKSHIFT
+  #add sp, sp, tp
+  #sll a2, a0, STKSHIFT
+  #add tp, tp, a2
+la sp, __stack_begin$
 #la sp, __stack_pointer$
+#la sp, 0x3bff0
 call    _init #main
 2:
 j 2b

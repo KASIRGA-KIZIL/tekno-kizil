@@ -21,7 +21,7 @@
 RISCVTOOLS=$(RISCV)
 # Flag: RISCVTYPE
 #   Type of toolchain to use
-RISCVTYPE=riscv32-unknown-elf
+RISCVTYPE=/home/shc/projects/riscv32im-toolchain/_install/bin/riscv32-unknown-elf
 # Flag: OUTFLAG
 #	Use this flag to define how to to get an executable (e.g -o)
 OUTFLAG= -o
@@ -31,7 +31,9 @@ CC = $(RISCVTYPE)-gcc
 # Flag: CFLAGS
 #	Use this flag to define compiler options. Note, you can add compiler options from the command line using XCFLAGS="other flags"
 #PORT_CFLAGS = -O2 -static -std=gnu99
-PORT_CFLAGS = -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -fno-builtin -ffunction-sections -lm -lgcc -T $(PORT_DIR)/link.ld
+PORT_CFLAGS = -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -fno-builtin -ffunction-sections -lm -lgcc -T $(PORT_DIR)/linkdene.ld
+# -funroll-all-loops
+# -fno-unroll-loops
 # -Xlinker --defsym=__stack_size=0x800 -Xlinker --defsym=__heap_size=0x1000
 #-DPREALLOCATE=1
 #-mcmodel=medlow
@@ -44,7 +46,8 @@ CFLAGS = $(PORT_CFLAGS) -march=rv32im -mabi=ilp32 -I$(PORT_DIR) -I. -DFLAGS_STR=
 LFLAGS_END +=
 # Flag: PORT_SRCS
 # Port specific source files can be added here
-PORT_SRCS = $(PORT_DIR)/core_portme.c $(PORT_DIR)/ee_printf.c $(PORT_DIR)/start.S $(PORT_DIR)/init.c #$(PORT_DIR)/syscalls.c #$(PORT_DIR)/crt.S
+PORT_SRCS = $(PORT_DIR)/core_portme.c $(PORT_DIR)/ee_printf.c $(PORT_DIR)/startdene.S $(PORT_DIR)/syscalls.c  #$(PORT_DIR)/init.c #$(PORT_DIR)/syscalls.c #$(PORT_DIR)/crt.S
+ITERATIONS = 2000
 # Flag: LOAD
 #	Define this flag if you need to load to a target, as in a cross compile environment.
 
@@ -109,7 +112,7 @@ port_prebuild: $(PGO_STAGE)
 
 .PHONY: build_pgo_gcc
 build_pgo_gcc:
-	$(MAKE) PGO=gen XCFLAGS="$(XCFLAGS) -fprofile-generate -DTOTAL_DATA_SIZE=1200" ITERATIONS=1000 gen_pgo_data REBUILD=1
+	$(MAKE) PGO=gen XCFLAGS="$(XCFLAGS) -fprofile-generate -DTOTAL_DATA_SIZE=1200" ITERATIONS=10 gen_pgo_data REBUILD=1
 
 # Target: port_postbuild
 # Generate any files that are needed after actual build end.

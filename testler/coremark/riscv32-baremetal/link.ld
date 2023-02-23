@@ -13,10 +13,10 @@ SECTIONS
   /* text: test code section */
  . = 0x40000000;   
 
-  PROVIDE( __global_pointer$ = . + 0x02000 );
-  PROVIDE(__stack_begin$         = (ORIGIN(ram) + LENGTH(ram)) - 4);
-  /*PROVIDE( __global_pointer$ = . + 0x32000 );*/
-  /*PROVIDE( __stack_pointer$ = . + 0x62000 );*/
+  /*PROVIDE( __global_pointer$ = . + 0x02000 );*/
+  PROVIDE(__stack_begin$         = (ORIGIN(ram) + LENGTH(ram)) - 16K);
+  /*PROVIDE( __global_pointer$ = . + 0x30000 );*/
+  /*PROVIDE( __stack_pointer$ = . + 0x36000 );*/
     /* The program code and other data goes into ROM */
   .text : {
 		. = ALIGN(4);
@@ -33,6 +33,21 @@ SECTIONS
 		. = ALIGN(4);
 	} > ram
 
+    .data          :
+  {
+    *(.data .data.*)
+    *(.gnu.linkonce.d.*)
+    . = ALIGN(8);
+    PROVIDE( __global_pointer$ = . + 0x800 );
+    *(.sdata .sdata.*)
+    *(.gnu.linkonce.s.*)
+    . = ALIGN(8);
+    *(.srodata.cst16)
+    *(.srodata.cst8)
+    *(.srodata.cst4)
+    *(.srodata.cst2)
+    *(.srodata .srodata.*)
+  } > ram
 
     .bss :                 /* uninitialized data */
     {

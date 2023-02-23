@@ -18,7 +18,7 @@ Original Author: Shay Gal-on
 #include "coremark.h"
 #include "core_portme.h"
 
-#include <stdint.h>
+
 
 #define CPU_CLK CLOCKS_PER_SEC //50000000  // 50 Mhz
 #define BAUD_RATE 115200
@@ -62,7 +62,7 @@ void init_uart(){
 uint32_t get_timer_low(){
     return TIMER_LOW;
 }
-uint32_t get_timer_high(){
+uint64_t get_timer_high(){
     return TIMER_HIGH;
 }
 // TODO ust bitlere bakacaksak hem bura hem core_portme.hda degisiklik gerek
@@ -86,7 +86,7 @@ volatile ee_s32 seed1_volatile = 0x8;
 volatile ee_s32 seed2_volatile = 0x8;
 volatile ee_s32 seed3_volatile = 0x8;
 #endif
-volatile ee_s32 seed4_volatile = 1000; //ITERATIONS;
+volatile ee_s32 seed4_volatile = ITERATIONS;
 volatile ee_s32 seed5_volatile = 0;
 /* Porting : Timing functions
         How to capture time and convert to seconds must be ported to whatever is
@@ -99,7 +99,7 @@ barebones_clock()
 {
 //#error \
     "You must implement a method to measure time in barebones_clock()! This function should return current time.\n"
-    return get_timer();
+    return (get_timer_high() << 32) + get_timer_low();//get_timer();
 }
 /* Define : TIMER_RES_DIVIDER
         Divider to trade off timer resolution and total time that can be
