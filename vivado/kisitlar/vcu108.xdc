@@ -28,6 +28,9 @@ set_property -dict {LOC BC40 IOSTANDARD LVCMOS12} [get_ports {rst_ni}]
 #set_property -dict {LOC BA10 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports {program_rx_i}]
 set_property -dict {LOC BC14 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports {program_rx_i}]
 
+set_property -dict {LOC BA10 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports {pwm0_o}]
+set_property -dict {LOC AW16 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports {pwm1_o}]
+
 set_property -dict {LOC BE24 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports uart_tx_o]
 set_property -dict {LOC BC24 IOSTANDARD LVCMOS18} [get_ports uart_rx_i]
 

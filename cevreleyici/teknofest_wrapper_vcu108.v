@@ -28,6 +28,9 @@ module teknofest_wrapper_vcu108(
   output uart_tx_o,
   input  uart_rx_i,
 
+  output pwm0_o,
+  output pwm1_o,
+
   //output uart_tx_pmod,
   output [7:0] LED
 );
@@ -41,8 +44,8 @@ wire spi_cs_o;
 wire spi_sck_o;
 wire spi_mosi_o;
 wire spi_miso_i;
-wire pwm0_o;
-wire pwm1_o;
+//wire pwm0_o;
+//wire pwm1_o;
 
 wire clk_i;
 wire dummy;
@@ -146,7 +149,7 @@ assign main_mem_rd_en = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE
 
 
 
-teknofest_ram_vcu108 #(
+teknofest_ram #(
   .NB_COL(4),
   .COL_WIDTH(8),
   .RAM_DEPTH(RAM_DEPTH),

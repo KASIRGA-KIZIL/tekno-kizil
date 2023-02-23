@@ -29,6 +29,7 @@ module veriyolu(
 
 );
 
+    // TODO wb_adr bit sayisi azaltilabilir
     wire [ 7:0] wb_adr;
     wire [31:0] wb_dat;
     wire        wb_we ;
@@ -92,5 +93,22 @@ module veriyolu(
         .uart_rx_i  (uart_rx_i ),
         .uart_tx_o  (uart_tx_o )
     );
+    
+    pwm_denetleyici pwm_denetleyici_dut (
+        .clk_i(clk_i),
+        .rst_i(rst_i),
+        .wb_adr_i (wb_adr[5:0]),
+        .wb_dat_i (wb_dat     ),
+        .wb_we_i  (wb_we      ),
+        .wb_stb_i (wb_stb     ),
+        .wb_sel_i (wb_sel     ),
+        .wb_cyc_i (pwm_cyc   ),
+        .wb_ack_o (pwm_ack   ),
+        .wb_dat_o (pwm_dat   ),
+
+        .pwm0_o  (pwm0_o ),
+        .pwm1_o  (pwm1_o )
+    );
 
 endmodule
+
