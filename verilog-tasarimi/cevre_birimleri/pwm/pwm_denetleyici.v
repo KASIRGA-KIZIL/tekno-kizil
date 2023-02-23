@@ -19,44 +19,44 @@ module pwm_denetleyici(
     // adresleri wishboneda secsek ve burada daha fazla giris cikis olsa her bir yazmac icin?
     // hangisi daha iyi?
     // wishbone <-> pwm_denetleyici
-    input  [5:0]  wb_pwm_adres_i, // 32 bit adres gelmesine gerek yok, sadece son 6 bitine bakmak yeterli
-    input  [31:0] wb_veri_i,
-    input         wb_etkin_i,
-    input         wb_yaz_etkin_i,
-    output [31:0] wb_oku_veri_o, // daha az bit sayisi olan yazmaclarin on bitleri 0
-    output        wb_oku_hazir_o,
-    output        wb_mesgul_o,
+    input  [5:0]  wb_adr_i, // 32 bit adres gelmesine gerek yok, sadece son 6 bitine bakmak yeterli
+    input  [31:0] wb_dat_i,
+    input         wb_we_i,
+    input         wb_cyc_i,
+    output [31:0] wb_dat_o, // daha az bit sayisi olan yazmaclarin on bitleri 0
+    output        wb_ack_o,
+    input         wb_stb_i, //
+    input  [ 3:0] wb_sel_i, //
 
     // pwm_denetleyici <-> user_processor
     output pwm0_o, // 0x20020028
     output pwm1_o  // 0x2002002c adresten okunabilmesi lazim
 );
-    assign wb_mesgul_o = 1'b0;
 
-    wire [7:0] wb_yaz_w = {wb_etkin_i, wb_yaz_etkin_i, wb_pwm_adres_i};
-    wire [7:0] wb_oku_w = {wb_etkin_i, ~wb_yaz_etkin_i, wb_pwm_adres_i};
+    wire [7:0] wb_yaz_w = {wb_cyc_i, wb_stb_i & wb_we_i & !wb_ack_o, wb_adr_i};
+    wire [7:0] wb_oku_w = {wb_cyc_i, ~wb_we_i, wb_adr_i};
 
     reg [31:0] wb_oku_veri_r = 0;
     reg [31:0] wb_oku_veri_next_r = 0;
-    assign wb_oku_veri_o = wb_oku_veri_r;
+    assign wb_dat_o = wb_oku_veri_r;
 
-    reg wb_oku_hazir_r = 0;
-    reg wb_oku_hazir_next_r = 0;
-    assign wb_oku_hazir_o = wb_oku_hazir_r;
+    reg wb_ack_r = 0;
+    reg wb_ack_next_r = 0;
+    assign wb_ack_o = wb_ack_r;
 
     // PWM0
-    wire [1:0]  wb_pwm_control_1_w = wb_veri_i[1:0];
-    wire [31:0] wb_pwm_period_1_w = wb_veri_i[31:0];
-    wire [31:0] wb_pwm_threshold_1_1_w = wb_veri_i[31:0];
-    wire [31:0] wb_pwm_threshold_1_2_w = wb_veri_i[31:0];
-    wire [11:0] wb_pwm_step_1_w = wb_veri_i[11:0];
+    wire [1:0]  wb_pwm_control_1_w = wb_dat_i[1:0];
+    wire [31:0] wb_pwm_period_1_w = wb_dat_i[31:0];
+    wire [31:0] wb_pwm_threshold_1_1_w = wb_dat_i[31:0];
+    wire [31:0] wb_pwm_threshold_1_2_w = wb_dat_i[31:0];
+    wire [11:0] wb_pwm_step_1_w = wb_dat_i[11:0];
 
     // PWM1
-    wire [1:0]  wb_pwm_control_2_w = wb_veri_i[1:0];
-    wire [31:0] wb_pwm_period_2_w = wb_veri_i[31:0];
-    wire [31:0] wb_pwm_threshold_2_1_w = wb_veri_i[31:0];
-    wire [31:0] wb_pwm_threshold_2_2_w = wb_veri_i[31:0];
-    wire [11:0] wb_pwm_step_2_w = wb_veri_i[11:0];
+    wire [1:0]  wb_pwm_control_2_w = wb_dat_i[1:0];
+    wire [31:0] wb_pwm_period_2_w = wb_dat_i[31:0];
+    wire [31:0] wb_pwm_threshold_2_1_w = wb_dat_i[31:0];
+    wire [31:0] wb_pwm_threshold_2_2_w = wb_dat_i[31:0];
+    wire [11:0] wb_pwm_step_2_w = wb_dat_i[11:0];
 
     // PWM yazmaclari
     reg [1:0] pwm_control_1_r = 0;
@@ -124,127 +124,139 @@ module pwm_denetleyici(
         pwm_step_2_next_r        = pwm_step_2_r;
 
         wb_oku_veri_next_r = wb_oku_veri_r;
-        wb_oku_hazir_next_r = 0;
+        wb_ack_next_r = 0;
 
         // PWM yazmaclarina yazma islemleri
-        case(wb_yaz_w)
-            // 0x20020000 --> pwm_control_1
-            8'hc0: begin //8'b11_00_0000: begin
-                pwm_control_1_next_r = wb_pwm_control_1_w;
-            end
-            // 0x20020004 --> pwm_control_2
-            8'hc4: begin //8'b11_00_0100: begin
-                pwm_control_2_next_r = wb_pwm_control_2_w;
-            end
-            // 0x20020008 --> pwm_period_1
-            8'hc8: begin //8'b11_00_1000: begin
-                pwm_period_1_next_r = wb_pwm_period_1_w;
-            end
-            // 0x2002000c --> pwm_period_2
-            8'hcc: begin //8'b11_00_1100: begin
-                pwm_period_2_next_r = wb_pwm_period_2_w;
-            end
-            // 0x20020010 --> pwm_threshold_1_1
-            8'hd0: begin //8'b11_01_0000: begin
-                pwm_threshold_1_1_next_r = wb_pwm_threshold_1_1_w;
-            end
-            // 0x20020014 --> pwm_threshold_1_2
-            8'hd4: begin //8'b11_01_0100: begin
-                pwm_threshold_1_2_next_r = wb_pwm_threshold_1_2_w;
-            end
-            // 0x20020018 --> pwm_threshold_2_1
-            8'hd8: begin //8'b11_01_1000: begin
-                pwm_threshold_2_1_next_r = wb_pwm_threshold_2_1_w;
-            end
-            // 0x2002001c --> pwm_threshold_2_2
-            8'hdc: begin //8'b11_01_1100: begin
-                pwm_threshold_2_2_next_r = wb_pwm_threshold_2_2_w;
-            end
-            // 0x20020020 --> pwm_step_1
-            8'he0: begin //8'b11_10_0000: begin
-                pwm_step_1_next_r = wb_pwm_step_1_w;
-            end
-            // 0x20020024 --> pwm_step_2
-            8'he4: begin //8'b11_10_0100: begin
-                pwm_step_2_next_r = wb_pwm_step_2_w;
-            end
-            // Ciktilar sadece okunabilir
-            // Digerleri hem yazilip hem okunabilir
-            /*
-            // 0x20020028 --> pwm_output_1
-            8'he8: begin //8'b11_10_1000: begin
+        if(wb_cyc_i) begin
+            case(wb_yaz_w)
+                // 0x20020000 --> pwm_control_1
+                8'hc0: begin //8'b11_00_0000: begin
+                    pwm_control_1_next_r = wb_pwm_control_1_w;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020004 --> pwm_control_2
+                8'hc4: begin //8'b11_00_0100: begin
+                    pwm_control_2_next_r = wb_pwm_control_2_w;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020008 --> pwm_period_1
+                8'hc8: begin //8'b11_00_1000: begin
+                    pwm_period_1_next_r = wb_pwm_period_1_w;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x2002000c --> pwm_period_2
+                8'hcc: begin //8'b11_00_1100: begin
+                    pwm_period_2_next_r = wb_pwm_period_2_w;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020010 --> pwm_threshold_1_1
+                8'hd0: begin //8'b11_01_0000: begin
+                    pwm_threshold_1_1_next_r = wb_pwm_threshold_1_1_w;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020014 --> pwm_threshold_1_2
+                8'hd4: begin //8'b11_01_0100: begin
+                    pwm_threshold_1_2_next_r = wb_pwm_threshold_1_2_w;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020018 --> pwm_threshold_2_1
+                8'hd8: begin //8'b11_01_1000: begin
+                    pwm_threshold_2_1_next_r = wb_pwm_threshold_2_1_w;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x2002001c --> pwm_threshold_2_2
+                8'hdc: begin //8'b11_01_1100: begin
+                    pwm_threshold_2_2_next_r = wb_pwm_threshold_2_2_w;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020020 --> pwm_step_1
+                8'he0: begin //8'b11_10_0000: begin
+                    pwm_step_1_next_r = wb_pwm_step_1_w;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020024 --> pwm_step_2
+                8'he4: begin //8'b11_10_0100: begin
+                    pwm_step_2_next_r = wb_pwm_step_2_w;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // Ciktilar sadece okunabilir
+                // Digerleri hem yazilip hem okunabilir
+                /*
+                // 0x20020028 --> pwm_output_1
+                8'he8: begin //8'b11_10_1000: begin
 
-            end
-            // 0x2002002c --> pwm_output_2
-            8'hec: begin //8'b11_10_1100: begin
+                end
+                // 0x2002002c --> pwm_output_2
+                8'hec: begin //8'b11_10_1100: begin
 
-            end
-            */
-        endcase
+                end
+                */
+            endcase
 
-        // PWM yazmaclarindan okuma islemleri
-        case(wb_oku_w)
-            // 0x20020000 --> pwm_control_1
-            8'hc0: begin //8'b11_00_0000: begin
-                wb_oku_veri_next_r = {30'd0, pwm_control_1_r};
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x20020004 --> pwm_control_2
-            8'hc4: begin //8'b11_00_0100: begin
-                wb_oku_veri_next_r = {30'd0, pwm_control_2_r};
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x20020008 --> pwm_period_1
-            8'hc8: begin //8'b11_00_1000: begin
-                wb_oku_veri_next_r = pwm_period_1_r;
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x2002000c --> pwm_period_2
-            8'hcc: begin //8'b11_00_1100: begin
-                wb_oku_veri_next_r = pwm_period_2_r;
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x20020010 --> pwm_threshold_1_1
-            8'hd0: begin //8'b11_01_0000: begin
-                wb_oku_veri_next_r = pwm_threshold_1_1_r;
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x20020014 --> pwm_threshold_1_2
-            8'hd4: begin //8'b11_01_0100: begin
-                wb_oku_veri_next_r = pwm_threshold_1_2_r;
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x20020018 --> pwm_threshold_2_1
-            8'hd8: begin //8'b11_01_1000: begin
-                wb_oku_veri_next_r = pwm_threshold_2_1_r;
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x2002001c --> pwm_threshold_2_2
-            8'hdc: begin //8'b11_01_1100: begin
-                wb_oku_veri_next_r = pwm_threshold_2_2_r;
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x20020020 --> pwm_step_1
-            8'he0: begin //8'b11_10_0000: begin
-                wb_oku_veri_next_r = {20'd0, pwm_step_1_r};
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x20020024 --> pwm_step_2
-            8'he4: begin //8'b11_10_0100: begin
-                wb_oku_veri_next_r = {20'd0, pwm_step_2_r};
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x20020028 --> pwm_output_1
-            8'he8: begin //8'b11_10_1000: begin
-                wb_oku_veri_next_r = {31'd0, pwm_output_1_r};
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-            // 0x2002002c --> pwm_output_2
-            8'hec: begin //8'b11_10_1100: begin
-                wb_oku_veri_next_r = {31'd0, pwm_output_2_r};
-                wb_oku_hazir_next_r  = 1'b1;
-            end
-        endcase
+            // PWM yazmaclarindan okuma islemleri
+            case(wb_oku_w)
+                // 0x20020000 --> pwm_control_1
+                8'hc0: begin //8'b11_00_0000: begin
+                    wb_oku_veri_next_r = {30'd0, pwm_control_1_r};
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020004 --> pwm_control_2
+                8'hc4: begin //8'b11_00_0100: begin
+                    wb_oku_veri_next_r = {30'd0, pwm_control_2_r};
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020008 --> pwm_period_1
+                8'hc8: begin //8'b11_00_1000: begin
+                    wb_oku_veri_next_r = pwm_period_1_r;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x2002000c --> pwm_period_2
+                8'hcc: begin //8'b11_00_1100: begin
+                    wb_oku_veri_next_r = pwm_period_2_r;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020010 --> pwm_threshold_1_1
+                8'hd0: begin //8'b11_01_0000: begin
+                    wb_oku_veri_next_r = pwm_threshold_1_1_r;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020014 --> pwm_threshold_1_2
+                8'hd4: begin //8'b11_01_0100: begin
+                    wb_oku_veri_next_r = pwm_threshold_1_2_r;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020018 --> pwm_threshold_2_1
+                8'hd8: begin //8'b11_01_1000: begin
+                    wb_oku_veri_next_r = pwm_threshold_2_1_r;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x2002001c --> pwm_threshold_2_2
+                8'hdc: begin //8'b11_01_1100: begin
+                    wb_oku_veri_next_r = pwm_threshold_2_2_r;
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020020 --> pwm_step_1
+                8'he0: begin //8'b11_10_0000: begin
+                    wb_oku_veri_next_r = {20'd0, pwm_step_1_r};
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020024 --> pwm_step_2
+                8'he4: begin //8'b11_10_0100: begin
+                    wb_oku_veri_next_r = {20'd0, pwm_step_2_r};
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x20020028 --> pwm_output_1
+                8'he8: begin //8'b11_10_1000: begin
+                    wb_oku_veri_next_r = {31'd0, pwm_output_1_r};
+                    wb_ack_next_r  = 1'b1;
+                end
+                // 0x2002002c --> pwm_output_2
+                8'hec: begin //8'b11_10_1100: begin
+                    wb_oku_veri_next_r = {31'd0, pwm_output_2_r};
+                    wb_ack_next_r  = 1'b1;
+                end
+            endcase
+        end
 
         // PWM0 durumlari
         case(pwm_control_1_r)
@@ -298,7 +310,7 @@ module pwm_denetleyici(
             pwm_step_2_r        <= 0;
 
             wb_oku_veri_r       <= 0;
-            wb_oku_hazir_r      <= 0;
+            wb_ack_r      <= 0;
         end
         else begin
             pwm_output_1_r <= pwm_output_1_next_r;
@@ -317,7 +329,7 @@ module pwm_denetleyici(
             pwm_step_2_r        <= pwm_step_2_next_r;
 
             wb_oku_veri_r       <= wb_oku_veri_next_r;
-            wb_oku_hazir_r      <= wb_oku_hazir_next_r;
+            wb_ack_r      <= wb_ack_next_r;
         end
     end
 
