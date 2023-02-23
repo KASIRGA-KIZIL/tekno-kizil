@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 BUILD_DIR = "./build"
 
-XLEN   = 64
+XLEN   = 32
 TARGET = "unknown-elf"
 BASE_NAME = "base_work"
 RISCVPREFIX = f"riscv{XLEN}-{TARGET}"

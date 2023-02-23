@@ -284,12 +284,12 @@ always @* begin
                     durum_next_r = CACHE_YAZ;
                     anabellek_adr_next_r = l1v_adr_i;
                     case(l1v_veri_maske_i)
-                        4'b0001: anabellek_veri_next_r = {iomem_rdata_i[31:8],l1v_veri_i[7:0]};
-                        4'b0010: anabellek_veri_next_r = {iomem_rdata_i[31:16],l1v_veri_i[7:0],iomem_rdata_i[7:0]};
-                        4'b0100: anabellek_veri_next_r = {iomem_rdata_i[31:24],l1v_veri_i[7:0],iomem_rdata_i[15:0]};
-                        4'b1000: anabellek_veri_next_r = {l1v_veri_i[7:0],iomem_rdata_i[23:0]};
-                        4'b0011: anabellek_veri_next_r = {iomem_rdata_i[31:16],l1v_veri_i[15:0]};
-                        4'b1100: anabellek_veri_next_r = {l1v_veri_i[15:0],iomem_rdata_i[15:0]};
+                        4'b0001: anabellek_veri_next_r = {iomem_rdata_i[31:24],iomem_rdata_i[23:16],iomem_rdata_i[15:8],l1v_veri_i   [7:0]};
+                        4'b0010: anabellek_veri_next_r = {iomem_rdata_i[31:24],iomem_rdata_i[23:16],l1v_veri_i   [15:8],iomem_rdata_i[7:0]};
+                        4'b0100: anabellek_veri_next_r = {iomem_rdata_i[31:24],l1v_veri_i   [23:16],iomem_rdata_i[15:8],iomem_rdata_i[7:0]};
+                        4'b1000: anabellek_veri_next_r = {l1v_veri_i   [31:24],iomem_rdata_i[23:16],iomem_rdata_i[15:8],iomem_rdata_i[7:0]};
+                        4'b0011: anabellek_veri_next_r = {iomem_rdata_i[31:24],iomem_rdata_i[23:16],l1v_veri_i   [15:8],l1v_veri_i   [7:0]};
+                        4'b1100: anabellek_veri_next_r = {l1v_veri_i   [31:24],l1v_veri_i   [23:16],iomem_rdata_i[15:8],iomem_rdata_i[7:0]};
                         default: begin
                         end
                     endcase

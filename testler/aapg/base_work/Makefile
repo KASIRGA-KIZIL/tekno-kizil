@@ -1,4 +1,4 @@
-XLEN ?= 64
+XLEN ?= 32
 TARGET ?= unknown-elf
 RISCVPREFIX=riscv${XLEN}-${TARGET}
 ASM_SRC_DIR := asm
