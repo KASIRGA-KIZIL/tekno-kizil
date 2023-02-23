@@ -49,14 +49,15 @@ async def anabellek(dut):
                         for idx in range(0,512):
                             if(dut.soc.veri_onbellegi_dut.dirty_r[idx].value.integer):
                                 if(dut.soc.veri_onbellegi_dut.valid_r[idx].value.integer):
-                                    cval = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr[-32:]
-                                    ctag = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr[-40:-33]
-                                    cadr = "0100000000000" + ctag + f'{idx:010b}' + "00"
+                                    cline = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr
+                                    ctag = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr[1:9]
+                                    cval = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr[9:41]
+                                    cadr = "0100000000000" + ctag + f'{idx:09b}' + "00"
                                     cadr_int = (int(cadr,2) - 0x40000000)//4
                                     dut.main_memory.ram[cadr_int].value = int(cval,2)
                                     cadr_hex   = "{0:#0{1}x}".format(int(cadr,2),10)
                                     cval_hex   = "{0:#0{1}x}".format(int(cval,2),10)
-                                    print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex}")
+                                    # print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval} ")
                         await RisingEdge(dut.clk_i)
                         with open(f"{test_name}.sign", 'w') as d, open(f"{test_name}.signadr", 'w') as b:
                             begin_adr = (test["begin_sign_adr"]-0x40000000)//4

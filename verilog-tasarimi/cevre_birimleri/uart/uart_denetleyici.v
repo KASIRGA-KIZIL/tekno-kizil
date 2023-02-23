@@ -96,7 +96,7 @@ module uart_denetleyici (
                         if(wb_stb_i & wb_we_i & !wb_ack_o) begin
                             if(~tx_full) begin
                                 wb_ack_o <= wb_stb_i & !wb_ack_o;
-                                tx_we <= 1'b1;
+                                tx_en    <=   wb_sel_i[0]    ? tx_we     : 1'b0;
                             end
                         end
                     end
