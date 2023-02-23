@@ -95,7 +95,7 @@ async def anabellek(dut):
 
                 timout = timout + 1
                 if(timout > TIMEOUT):
-                    print("[TEST] ", test, " FAILED TIMOUT")
+                    print("[TEST] ", test_name, " FAILED TIMOUT")
                     ps     = "{0:#0{1}x}".format(dut.iomem_addr.value.integer,10)
                     print("current PC: ", ps)
                     f.write('\n'.join(final_logs))

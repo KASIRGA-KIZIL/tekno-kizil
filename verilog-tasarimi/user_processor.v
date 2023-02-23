@@ -54,13 +54,13 @@ module user_processor(
     wire        l1v_iomem_valid;
     wire        l1v_iomem_ready;
     wire [ 3:0] l1v_iomem_wstrb;
-    wire [31:0] l1v_iomem_addr;
+    wire [18:2] l1v_iomem_addr;
     wire [31:0] l1v_iomem_wdata;
     wire [31:0] l1v_iomem_rdata;
 
     wire        l1b_iomem_valid;
     wire        l1b_iomem_ready;
-    wire [31:0] l1b_iomem_addr;
+    wire [18:2] l1b_iomem_addr;
     wire [31:0] l1b_iomem_rdata;
 
     cekirdek cek (
@@ -76,7 +76,6 @@ module user_processor(
         .bib_veri_o       (bib_yaz_veri     ),
         .bib_adr_o        (bib_adr          ),
         .bib_veri_maske_o (bib_mask         ),
-        .bib_yaz_gecerli_o(bib_yaz_gecerli  ),
         .bib_sec_o        (bib_sec          )
     );
 
@@ -110,20 +109,19 @@ module user_processor(
         .clk_i (clk_i ),
         .rst_i (rst_i ),
 
-        .bib_veri_o        (l1v_oku_veri   ),
-        .bib_durdur_o      (l1v_durdur     ),
-        .bib_veri_i        (bib_yaz_veri   ),
-        .bib_adr_i         (bib_adr        ),
-        .bib_veri_maske_o  (bib_mask       ),
-        .bib_yaz_gecerli_o (bib_yaz_gecerli),
-        .bib_sec_o         (l1v_sec        ),
+        .l1v_veri_o        (l1v_oku_veri   ),
+        .l1v_durdur_o      (l1v_durdur     ),
+        .l1v_veri_i        (bib_yaz_veri   ),
+        .l1v_adr_i         (bib_adr[18:2]  ),
+        .l1v_veri_maske_i  (bib_mask       ),
+        .l1v_sec_i         (l1v_sec        ),
 
-        .ab_ready (l1v_iomem_ready ),
-        .ab_valid (l1v_iomem_valid ),
-        .ab_web   (l1v_iomem_wstrb ),
-        .ab_addr  (l1v_iomem_addr  ),
-        .ab_din   (l1v_iomem_wdata ),
-        .ab_dot   (l1v_iomem_rdata )
+        .iomem_ready_i (l1v_iomem_ready ),
+        .iomem_valid_o (l1v_iomem_valid ),
+        .iomem_wstrb_o (l1v_iomem_wstrb ),
+        .iomem_addr_o  (l1v_iomem_addr  ),
+        .iomem_wdata_o (l1v_iomem_wdata ),
+        .iomem_rdata_i (l1v_iomem_rdata )
     );
 
     anabellek_denetleyici abdd (

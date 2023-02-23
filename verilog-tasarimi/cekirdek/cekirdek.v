@@ -18,7 +18,6 @@ module cekirdek(
     output wire [31:0] bib_veri_o,
     output wire [31:0] bib_adr_o,
     output wire [ 3:0] bib_veri_maske_o,
-    output wire        bib_yaz_gecerli_o,
     output wire        bib_sec_o
 );
 
@@ -106,7 +105,6 @@ module cekirdek(
         .bib_veri_o        (bib_veri_o        ),
         .bib_adr_o         (bib_adr_o         ),
         .bib_veri_maske_o  (bib_veri_maske_o  ),
-        .bib_yaz_gecerli_o (bib_yaz_gecerli_o ),
         .bib_sec_o         (bib_sec_o       )
     );
 

@@ -22,7 +22,6 @@ module bellek_islem_birimi(
     output wire [31:0] bib_veri_o,
     output wire [31:0] bib_adr_o,
     output wire [ 3:0] bib_veri_maske_o,
-    output wire        bib_yaz_gecerli_o,
     output wire        bib_sec_o
 );
     wire [31:0] lh_sonuc = adr_i[1] ? {{16{bib_veri_i[31]}},bib_veri_i[31:16]} :
@@ -57,9 +56,7 @@ module bellek_islem_birimi(
     assign bib_veri_maske_o = (kontrol_i == `BIB_SB)  ? sb_mask :
                               (kontrol_i == `BIB_SH)  ? sh_mask :
                               (kontrol_i == `BIB_SW)  ? 4'b1111 :
-                                                        4'b1111 ;
-
-    assign bib_yaz_gecerli_o = basla_i && ((kontrol_i == `BIB_SB) || (kontrol_i == `BIB_SH) || (kontrol_i == `BIB_SW));
+                                                        4'b0000 ;
 
     // BIB_LW casei silinebilir?
     assign sonuc_o = (kontrol_i == `BIB_LB ) ? lb_sonuc   :

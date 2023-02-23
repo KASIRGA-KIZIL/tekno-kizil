@@ -10,7 +10,7 @@ module buyruk_onbellegi(
 
     output wire        iomem_valid,
     input  wire        iomem_ready,
-    output wire [31:0] iomem_addr,
+    output wire [18:2] iomem_addr,
     input  wire [31:0] iomem_rdata,
 
     output reg         l1b_bekle_o,
@@ -109,7 +109,7 @@ module buyruk_onbellegi(
 
 
 
-    assign iomem_addr  = {8'h40,5'b0,l1b_adres_i,2'b0};
+    assign iomem_addr  = l1b_adres_i;
     assign iomem_valid = l1b_bekle_o;
 
 endmodule
