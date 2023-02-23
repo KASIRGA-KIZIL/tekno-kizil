@@ -149,7 +149,7 @@ assign main_mem_rd_en = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE
 
 
 
-teknofest_ram #(
+teknofest_ram_vcu108 #(
   .NB_COL(4),
   .COL_WIDTH(8),
   .RAM_DEPTH(RAM_DEPTH),
