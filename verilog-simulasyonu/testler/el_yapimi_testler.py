@@ -37,7 +37,12 @@ j_branch = {'j_branch':{
     "buyruklar": []
 }}
 
-
+btb_loopy = {'btb_loopy':{
+    "TEST_FILE": "../testler/el-yapimi-testler/build/btb_loopy.S.hex",
+    "fail_adr": 0x400f00f8,
+    "pass_adr": 0x40000050,
+    "buyruklar": []
+}}
 
 ########################################
 # Sonsuz test. TIMEOUT bekleniyor.
