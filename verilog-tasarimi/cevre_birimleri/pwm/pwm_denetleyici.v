@@ -131,52 +131,72 @@ module pwm_denetleyici(
             case(wb_yaz_w)
                 // 0x20020000 --> pwm_control_1
                 8'hc0: begin //8'b11_00_0000: begin
-                    pwm_control_1_next_r = wb_pwm_control_1_w;
+                    pwm_control_1_next_r = wb_sel_i[0] ? wb_pwm_control_1_w[1:0] : pwm_control_1_r; // todo sh ust
                     wb_ack_next_r  = 1'b1;
                 end
                 // 0x20020004 --> pwm_control_2
                 8'hc4: begin //8'b11_00_0100: begin
-                    pwm_control_2_next_r = wb_pwm_control_2_w;
+                    pwm_control_2_next_r = wb_sel_i[0] ? wb_pwm_control_2_w[1:0] : pwm_control_2_r;
                     wb_ack_next_r  = 1'b1;
                 end
                 // 0x20020008 --> pwm_period_1
                 8'hc8: begin //8'b11_00_1000: begin
-                    pwm_period_1_next_r = wb_pwm_period_1_w;
+                    pwm_period_1_next_r[ 7: 0] = wb_sel_i[0] ? wb_pwm_period_1_w[ 7: 0] : pwm_period_1_r[ 7: 0];
+                    pwm_period_1_next_r[15: 8] = wb_sel_i[1] ? wb_pwm_period_1_w[15: 8] : pwm_period_1_r[15: 8];
+                    pwm_period_1_next_r[23:16] = wb_sel_i[2] ? wb_pwm_period_1_w[23:16] : pwm_period_1_r[23:16];
+                    pwm_period_1_next_r[31:24] = wb_sel_i[3] ? wb_pwm_period_1_w[31:24] : pwm_period_1_r[31:24];
                     wb_ack_next_r  = 1'b1;
                 end
                 // 0x2002000c --> pwm_period_2
                 8'hcc: begin //8'b11_00_1100: begin
-                    pwm_period_2_next_r = wb_pwm_period_2_w;
+                    pwm_period_2_next_r[ 7: 0] = wb_sel_i[0] ? wb_pwm_period_2_w[ 7: 0] : pwm_period_2_r[ 7: 0];
+                    pwm_period_2_next_r[15: 8] = wb_sel_i[1] ? wb_pwm_period_2_w[15: 8] : pwm_period_2_r[15: 8];
+                    pwm_period_2_next_r[23:16] = wb_sel_i[2] ? wb_pwm_period_2_w[23:16] : pwm_period_2_r[23:16];
+                    pwm_period_2_next_r[31:24] = wb_sel_i[3] ? wb_pwm_period_2_w[31:24] : pwm_period_2_r[31:24];
                     wb_ack_next_r  = 1'b1;
                 end
                 // 0x20020010 --> pwm_threshold_1_1
                 8'hd0: begin //8'b11_01_0000: begin
-                    pwm_threshold_1_1_next_r = wb_pwm_threshold_1_1_w;
+                    pwm_threshold_1_1_next_r[ 7: 0] = wb_sel_i[0] ? wb_pwm_threshold_1_1_w[ 7: 0] : pwm_threshold_1_1_r[ 7: 0];
+                    pwm_threshold_1_1_next_r[15: 8] = wb_sel_i[1] ? wb_pwm_threshold_1_1_w[15: 8] : pwm_threshold_1_1_r[15: 8];
+                    pwm_threshold_1_1_next_r[23:16] = wb_sel_i[2] ? wb_pwm_threshold_1_1_w[23:16] : pwm_threshold_1_1_r[23:16];
+                    pwm_threshold_1_1_next_r[31:24] = wb_sel_i[3] ? wb_pwm_threshold_1_1_w[31:24] : pwm_threshold_1_1_r[31:24];
                     wb_ack_next_r  = 1'b1;
                 end
                 // 0x20020014 --> pwm_threshold_1_2
                 8'hd4: begin //8'b11_01_0100: begin
-                    pwm_threshold_1_2_next_r = wb_pwm_threshold_1_2_w;
+                    pwm_threshold_1_2_next_r[ 7: 0] = wb_sel_i[0] ? wb_pwm_threshold_1_2_w[ 7: 0] : pwm_threshold_1_2_r[ 7: 0];
+                    pwm_threshold_1_2_next_r[15: 8] = wb_sel_i[1] ? wb_pwm_threshold_1_2_w[15: 8] : pwm_threshold_1_2_r[15: 8];
+                    pwm_threshold_1_2_next_r[23:16] = wb_sel_i[2] ? wb_pwm_threshold_1_2_w[23:16] : pwm_threshold_1_2_r[23:16];
+                    pwm_threshold_1_2_next_r[31:24] = wb_sel_i[3] ? wb_pwm_threshold_1_2_w[31:24] : pwm_threshold_1_2_r[31:24];
                     wb_ack_next_r  = 1'b1;
                 end
                 // 0x20020018 --> pwm_threshold_2_1
                 8'hd8: begin //8'b11_01_1000: begin
-                    pwm_threshold_2_1_next_r = wb_pwm_threshold_2_1_w;
+                    pwm_threshold_2_1_next_r[ 7: 0] = wb_sel_i[0] ? wb_pwm_threshold_2_1_w[ 7: 0] : pwm_threshold_2_1_r[ 7: 0];
+                    pwm_threshold_2_1_next_r[15: 8] = wb_sel_i[1] ? wb_pwm_threshold_2_1_w[15: 8] : pwm_threshold_2_1_r[15: 8];
+                    pwm_threshold_2_1_next_r[23:16] = wb_sel_i[2] ? wb_pwm_threshold_2_1_w[23:16] : pwm_threshold_2_1_r[23:16];
+                    pwm_threshold_2_1_next_r[31:24] = wb_sel_i[3] ? wb_pwm_threshold_2_1_w[31:24] : pwm_threshold_2_1_r[31:24];
                     wb_ack_next_r  = 1'b1;
                 end
                 // 0x2002001c --> pwm_threshold_2_2
                 8'hdc: begin //8'b11_01_1100: begin
-                    pwm_threshold_2_2_next_r = wb_pwm_threshold_2_2_w;
+                    pwm_threshold_2_2_next_r[ 7: 0] = wb_sel_i[0] ? wb_pwm_threshold_2_2_w[ 7: 0] : pwm_threshold_2_2_r[ 7: 0];
+                    pwm_threshold_2_2_next_r[15: 8] = wb_sel_i[1] ? wb_pwm_threshold_2_2_w[15: 8] : pwm_threshold_2_2_r[15: 8];
+                    pwm_threshold_2_2_next_r[23:16] = wb_sel_i[2] ? wb_pwm_threshold_2_2_w[23:16] : pwm_threshold_2_2_r[23:16];
+                    pwm_threshold_2_2_next_r[31:24] = wb_sel_i[3] ? wb_pwm_threshold_2_2_w[31:24] : pwm_threshold_2_2_r[31:24];
                     wb_ack_next_r  = 1'b1;
                 end
                 // 0x20020020 --> pwm_step_1
                 8'he0: begin //8'b11_10_0000: begin
-                    pwm_step_1_next_r = wb_pwm_step_1_w;
+                    pwm_step_1_next_r[ 7: 0] = wb_sel_i[0] ? wb_pwm_step_1_w[ 7: 0] : pwm_step_1_r[ 7: 0];
+                    pwm_step_1_next_r[11: 8] = wb_sel_i[1] ? wb_pwm_step_1_w[11: 8] : pwm_step_1_r[11: 8];
                     wb_ack_next_r  = 1'b1;
                 end
                 // 0x20020024 --> pwm_step_2
                 8'he4: begin //8'b11_10_0100: begin
-                    pwm_step_2_next_r = wb_pwm_step_2_w;
+                    pwm_step_2_next_r[ 7: 0] = wb_sel_i[0] ? wb_pwm_step_2_w[ 7: 0] : pwm_step_2_r[ 7: 0];
+                    pwm_step_2_next_r[11: 8] = wb_sel_i[1] ? wb_pwm_step_2_w[11: 8] : pwm_step_2_r[11: 8];
                     wb_ack_next_r  = 1'b1;
                 end
                 // Ciktilar sadece okunabilir
