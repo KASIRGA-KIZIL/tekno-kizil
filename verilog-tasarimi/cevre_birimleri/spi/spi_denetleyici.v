@@ -1,26 +1,27 @@
+// spi_denetleyici.v
 `timescale 1ns / 1ps
 
-`define FIFO_DEPTH 32
+`include "tanimlamalar.vh"
 
-// cevrim bir gec geliyor
 module spi_denetleyici (
-    input clk_i,
-    input rst_i,
+   input clk_i,
+   input rst_i,
 
-    input  [31:0] wb_adres_i,
-    output [31:0] wb_oku_veri_o,
-    output        wb_oku_hazir_o, // =valid.
-    input  [31:0] wb_yaz_veri_i,
-    input         wb_yaz_etkin_i,
-    input         wb_etkin_i,
-    output        wb_mesgul_o,
+   input  [31:0] wb_adr_i,
+   input  [31:0] wb_dat_i,
+   input         wb_we_i,
+   input         wb_stb_i,
+   input  [ 3:0] wb_sel_i,
+   input         wb_cyc_i,
+   output        wb_ack_o,
+   output        wb_dat_o,
 
-    // spi i/o
-    input  spi_miso_i,
-    output spi_mosi_o,
-    output spi_cs_o,
-    output spi_sck_o
-    );
+   // spi i/o
+   input  spi_miso_i,
+   output spi_mosi_o,
+   output spi_cs_o,
+   output spi_sck_o
+   );
 
     wire rst_g = ~rst_i;
 
@@ -81,7 +82,7 @@ module spi_denetleyici (
     assign mosi_empty = (mosi_tail == 4'd0); // spi_status[2];
 
     wire miso_empty;
-    assign miso_empty = (miso_tail == 4'd0); // spi_status[3]; //(wb_adres_i[4:0] == STATUS) ? 1'b0 :
+    assign miso_empty = (miso_tail == 4'd0); // spi_status[3]; //(wb_adr_i[4:0] == STATUS) ? 1'b0 :
 
 
 
@@ -108,13 +109,12 @@ module spi_denetleyici (
     reg [8:0] flow_ctr, flow_ctr_next;
     reg valid, valid_next;
     reg busy, busy_next;
+    wire wb_ack_next = wb_stb_i & !wb_ack_o;
 
     assign spi_cs_o = r_cs;
     assign spi_sck_o = r_spi_sr;
     assign spi_mosi_o = spi_wdata[32];
-    assign wb_oku_veri_o = spi_rdata;
-    assign wb_mesgul_o = busy;
-    assign wb_oku_hazir_o = valid;
+    assign wb_dat_o = spi_rdata;
 
 
     integer loop_counter;
@@ -258,11 +258,11 @@ module spi_denetleyici (
 
 
 
-            case(wb_adres_i[4:0])
+            case(wb_adr_i[4:0])
 
             STATUS: // Sadece okuma yazmaci
             begin
-                if(wb_etkin_i) begin
+                if(wb_cyc_i) begin
                     spi_rdata_next = {miso_empty, mosi_empty, miso_full, mosi_full};
                     valid_next = 1'b1;
                 end
@@ -270,11 +270,11 @@ module spi_denetleyici (
 
             CTRL:
             begin
-                if(wb_yaz_etkin_i && wb_etkin_i) begin
-                    spi_ctrl_next = wb_yaz_veri_i;// && 32'hFFFF000F;
+                if(wb_we_i && wb_cyc_i) begin
+                    spi_ctrl_next = wb_dat_i;// && 32'hFFFF000F;
                     valid_next = 1'b1;
                 end
-                else if(wb_etkin_i) begin
+                else if(wb_cyc_i) begin
                     spi_rdata_next = spi_ctrl;
                     valid_next = 1'b1;
                 end
@@ -282,11 +282,11 @@ module spi_denetleyici (
 
             CMD:
             begin
-                if(wb_yaz_etkin_i && wb_etkin_i) begin
-                    spi_cmd_next = wb_yaz_veri_i;//&& 32'h000031FF; // 0011_0011_1111_1111 *********************************** mask yanli
+                if(wb_we_i && wb_cyc_i) begin
+                    spi_cmd_next = wb_dat_i;//&& 32'h000031FF; // 0011_0011_1111_1111 *********************************** mask yanli
                     valid_next = 1'b1;
                 end
-                else if(wb_etkin_i) begin
+                else if(wb_cyc_i) begin
                     spi_rdata_next = spi_cmd;
                     valid_next = 1'b1;
                 end
@@ -294,7 +294,7 @@ module spi_denetleyici (
 
             RDATA:
             begin
-                if(!miso_empty && wb_etkin_i) begin
+                if(!miso_empty && wb_cyc_i) begin
                     spi_rdata_next = miso_buffer[0];
                     valid_next = 1'b1;
 
@@ -317,8 +317,8 @@ module spi_denetleyici (
 
             WDATA:
             begin
-                if(!mosi_full && wb_yaz_etkin_i && wb_etkin_i) begin
-                    mosi_buffer_next[(mosi_empty?mosi_tail:(mosi_tail-1))] = wb_yaz_veri_i;
+                if(!mosi_full && wb_we_i && wb_cyc_i) begin
+                    mosi_buffer_next[(mosi_empty?mosi_tail:(mosi_tail-1))] = wb_dat_i;
                     mosi_tail_next = mosi_tail + 4'b1;
 
                     valid_next = 1'b1;
@@ -358,6 +358,7 @@ module spi_denetleyici (
             flow_ctr <= 9'd0;
             valid <= 1'b0;
             busy <= 1'b0;
+            wb_ack_o <= 1'b0;
         end
         else begin
             for(loop_counter=0; loop_counter<8; loop_counter=loop_counter+1) begin
@@ -382,6 +383,7 @@ module spi_denetleyici (
             flow_ctr <= flow_ctr_next;
             valid <= valid_next;
             busy <= busy_next;
+            wb_ack_o <= wb_ack_next;
         end
 
     end
