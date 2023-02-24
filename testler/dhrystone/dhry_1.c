@@ -17,11 +17,47 @@
 
 #include "dhry.h"
 #include "ee_printf.h"
-//#include "ee_printf.h"
 
 #ifndef DHRY_ITERS
-#define DHRY_ITERS 2000
+#define DHRY_ITERS 2000000
 #endif
+
+#define CORETIMETYPE unsigned long int
+typedef unsigned long int CORE_TICKS;
+typedef double secs_ret;
+#define GETMYTIME(_t)              (*_t = mytime())
+#define MYTIMEDIFF(fin, ini)       ((fin) - (ini))
+static CORETIMETYPE start_time_val, stop_time_val;
+
+#define EE_TICKS_PER_SEC 100000000
+#define HZ 100000000
+
+void
+start_time(void)
+{
+    GETMYTIME(&start_time_val);
+}
+
+void
+stop_time(void)
+{
+    GETMYTIME(&stop_time_val);
+}
+
+CORE_TICKS
+get_time(void)
+{
+    CORE_TICKS elapsed
+        = (CORE_TICKS)(MYTIMEDIFF(stop_time_val, start_time_val));
+    return elapsed;
+}
+
+secs_ret
+time_in_secs(CORE_TICKS ticks)
+{
+    secs_ret retval = ((secs_ret)ticks) / (secs_ret)EE_TICKS_PER_SEC;
+    return retval;
+}
 
 /* Global Variables: */
 
@@ -57,13 +93,13 @@ extern  int     times ();
                 /* Measurements should last at least about 2 seconds */
 #endif
 #ifdef TIME
-extern long     time();
+//extern long     time();
                 /* see library function "time"  */
 #define Too_Small_Time 2
                 /* Measurements should last at least 2 seconds */
 #endif
 #ifdef MSC_CLOCK
-extern clock_t	clock();
+//extern clock_t	clock();
 #define Too_Small_Time (2*HZ)
 #endif
 
@@ -149,10 +185,12 @@ main ()
   Begin_Time = (long) time_info.tms_utime;
 #endif
 #ifdef TIME
-  Begin_Time = time ( (long *) 0);
+  //Begin_Time = time ( (long *) 0);
 #endif
 #ifdef MSC_CLOCK
-  Begin_Time = clock();
+  //Begin_Time = clock();
+  start_time();
+  Begin_Time = get_time(); //time_in_secs(get_time());
 #endif
 
   for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
@@ -204,16 +242,20 @@ main ()
   /**************/
   /* Stop timer */
   /**************/
+
+#define MSC_CLOCK 1
   
 #ifdef TIMES
   times (&time_info);
   End_Time = (long) time_info.tms_utime;
 #endif
 #ifdef TIME
-  End_Time = time ( (long *) 0);
+  //End_Time = time ( (long *) 0);
 #endif
 #ifdef MSC_CLOCK
-  End_Time = clock();
+  //End_Time = clock();
+  stop_time();
+  End_Time = get_time(); //time_in_secs(get_time());
 #endif
 
   ee_printf ("Execution ends\n");
@@ -269,7 +311,7 @@ main ()
   ee_printf ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
   ee_printf ("\n");
 
-  User_Time = End_Time - Begin_Time;
+  User_Time = get_time(); //End_Time - Begin_Time;
 
   if (User_Time < Too_Small_Time)
   {
@@ -279,16 +321,16 @@ main ()
   }
   else
   {
-#ifdef TIME
-    Microseconds = (float) User_Time * Mic_secs_Per_Second 
-                        / (float) Number_Of_Runs;
-    Dhrystones_Per_Second = (float) Number_Of_Runs / (float) User_Time;
-#else
+//#ifdef TIME
+    //Microseconds = (float) User_Time * Mic_secs_Per_Second 
+    //                    / (float) Number_Of_Runs;
+    //Dhrystones_Per_Second = (float) Number_Of_Runs / (float) User_Time;
+//#else
     Microseconds = (float) User_Time * Mic_secs_Per_Second 
                         / ((float) HZ * ((float) Number_Of_Runs));
     Dhrystones_Per_Second = ((float) HZ * (float) Number_Of_Runs)
                         / (float) User_Time;
-#endif
+//#endif
     ee_printf ("Microseconds for one run through Dhrystone: ");
     //ee_printf ("%6.1f \n", Microseconds);
     ee_printf ("%d \n", (int)Microseconds);

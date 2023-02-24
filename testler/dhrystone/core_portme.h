@@ -90,7 +90,7 @@ Original Author: Shay Gal-on
 //#include "tekno.h"
 
 #define size_t long
-#define CLOCKS_PER_SEC 50000000
+#define CLOCKS_PER_SEC 100000000
 
 typedef signed short   ee_s16;
 typedef unsigned short ee_u16;

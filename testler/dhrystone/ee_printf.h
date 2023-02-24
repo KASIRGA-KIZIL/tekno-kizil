@@ -77,13 +77,13 @@ char *strcpy(char* dst, const char* src)
 	}
 }
 
-extern long time();
+//extern long time();
 
 
 #define TIMER_LOW        (*(volatile uint32_t*)0x30000000)
 #define TIMER_HIGH       (*(volatile uint32_t*)0x30000004)
 
-long time()
+unsigned long int mytime()
 {
 	return TIMER_LOW;
 }
@@ -93,7 +93,7 @@ long time()
 #define UART_RDATA       (*(volatile uint32_t*)0x20000008)
 #define UART_WDATA       (*(volatile uint32_t*)0x2000000c)
 
-#define CPU_CLK 50000000  // 50 Mhz 
+#define CPU_CLK 100000000
 #define BAUD_RATE 115200
 
 typedef union
