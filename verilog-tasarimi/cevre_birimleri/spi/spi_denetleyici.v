@@ -22,7 +22,13 @@ module spi_denetleyici (
    output spi_cs_o,
    output spi_sck_o
    );
-
+`ifdef COCOTB_SIM
+initial begin
+  $dumpfile ("spi_denetleyici.vcd");
+  $dumpvars (0, spi_denetleyici);
+  #1;
+end
+`endif
     // Yazmac adresleri
     localparam [4:0]
     SPI_CTRL = 5'h00,
@@ -43,12 +49,13 @@ module spi_denetleyici (
     reg [ 3:0] mosi_tail, mosi_tail_next, miso_tail, miso_tail_next;
     reg [31:0] wb_dat_o_r, wb_dat_o_r_next;
     assign wb_dat_o = wb_dat_o_r;
-    reg [`FIFO_DEPTH-1:0]  spi_rdata, spi_rdata_next; // fifo in
-    reg [`FIFO_DEPTH:0]    spi_wdata, spi_wdata_next; // fifo out
+    reg [31:0]  spi_rdata, spi_rdata_next; // fifo in
+    reg [32:0]    spi_wdata, spi_wdata_next; // fifo out
     reg spi_cs_o_r, spi_cs_o_r_next;
     assign spi_cs_o = spi_cs_o_r;
     reg spi_sck_o_r, spi_sck_o_r_next;
-    assign spi_cs_o = spi_cs_o_r;
+    assign spi_sck_o = spi_sck_o_r;
+    assign spi_mosi_o = spi_wdata[32];
 
     // Sayaclar
     reg [15:0] clock_ctr, clock_ctr_next;
@@ -59,8 +66,8 @@ module spi_denetleyici (
     reg  [31:0] spi_ctrl, spi_ctrl_next; // 20 bit yeterli?
     wire        spi_en  = spi_ctrl[0];
     wire        spi_rst = spi_ctrl[1];
-    wire        cpha    = spi_ctrl[2]; // Flip: 0->negedge 1->posedge
-    wire        cpol    = spi_ctrl[3]; // Sample: 0->posedge 1->negedge
+    wire        cpha    = spi_ctrl[2];
+    wire        cpol    = spi_ctrl[3];
     wire [15:0] sck_div = spi_ctrl[31:16];
 
 
@@ -75,7 +82,7 @@ module spi_denetleyici (
 
     // CMD yazmaci
     reg [31:0]  spi_cmd, spi_cmd_next;
-    wire [8:0]  length      = spi_cmd[8:0];
+    wire[ 8:0]  length      = spi_cmd[8:0];
     wire        cs_active   = spi_cmd[9];
     wire        miso_en     = spi_cmd[12];
     wire        mosi_en     = spi_cmd[13];
@@ -154,9 +161,9 @@ module spi_denetleyici (
                         end else begin
                             spi_sck_o_r_next  = ~spi_sck_o_r_next;
                             state_next = WRITE;
-                            if(spi_sck_o_r == ~cpha) begin
+                            if(spi_sck_o_r == ~(cpol^cpha)) begin
                                 bit_ctr_next = bit_ctr - 16'd1;
-                                spi_wdata_next = {spi_wdata[`FIFO_DEPTH-1:0], 1'b0};
+                                spi_wdata_next = {spi_wdata[31:0], 1'b0};
                             end
                         end
                     end
@@ -181,15 +188,15 @@ module spi_denetleyici (
                         end else begin
                             spi_sck_o_r_next  = ~spi_sck_o_r_next;
                             state_next = READ;
-                            if(spi_sck_o_r == cpol) begin
+                            if(spi_sck_o_r == (cpol^cpha)) begin
                                 bit_ctr_next    = bit_ctr - 16'd1;
-                                spi_rdata_next  = {spi_rdata[`FIFO_DEPTH-2:0], spi_miso_i};
+                                spi_rdata_next  = {spi_rdata[30:0], spi_miso_i};
                             end
                         end
                     end
                 endcase
             end else begin
-                clock_ctr_next = clock_ctr - 15'b1;
+                clock_ctr_next = clock_ctr - 16'b1;
             end
         end
 
@@ -239,21 +246,21 @@ module spi_denetleyici (
     always@(posedge clk_i)begin
         if(rst_i | spi_rst)begin
             for(loop_counter=0; loop_counter<8; loop_counter=loop_counter+1) begin
-                miso_buffer_next[loop_counter] = 0;
-                mosi_buffer_next[loop_counter] = 0;
+                miso_buffer[loop_counter] = 0;
+                mosi_buffer[loop_counter] = 0;
             end
-            miso_tail_next = 0;
-            mosi_tail_next = 0;
-            spi_ctrl_next = 0;
-            spi_rdata_next = 0;
-            spi_wdata_next = 0;
-            spi_cmd_next = 0;
-            spi_cs_o_r_next = 0;
-            spi_sck_o_r_next = 0;
-            state_next = IDLE;
-            clock_ctr_next = 0;
-            bit_ctr_next = 0;
-            flow_ctr_next = 0;
+            miso_tail = 0;
+            mosi_tail = 0;
+            spi_ctrl = 0;
+            spi_rdata = 0;
+            spi_wdata = 0;
+            spi_cmd = 0;
+            spi_cs_o_r = 1;
+            spi_sck_o_r = 0;
+            state = IDLE;
+            clock_ctr = 0;
+            bit_ctr = 0;
+            flow_ctr = 0;
         end else begin
             for(loop_counter=0; loop_counter<8; loop_counter=loop_counter+1) begin
                 miso_buffer[loop_counter] = miso_buffer_next[loop_counter];
