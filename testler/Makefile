@@ -16,5 +16,6 @@ clean:
 		+@$(SUBMAKE) riscv-arch-test/ clean
 		+@$(SUBMAKE) riscv-tests/ clean
 		+@$(SUBMAKE) uart-demo/ clean
+		+@$(SUBMAKE) pwm-demo/ clean
 		+@$(SUBMAKE) uart-demo-pikachu/ clean
 		+@$(SUBMAKE) uart-timer-demo/ clean

@@ -38,6 +38,7 @@ btb_loopy = {'btb_loopy':{
     "buyruklar": []
 }}
 
+
 ########################################
 # Sonsuz test. TIMEOUT bekleniyor.
 
@@ -48,6 +49,12 @@ uart_test = {'uart_test':{
     "buyruklar": []
 }}
 
+pwm_demo = {'pwm_demo':{
+    "TEST_FILE": "../testler/pwm-demo/pwm_demo_static.hex",
+    "fail_adr": 0x40f00060,
+    "pass_adr": 0x40f00078,
+    "buyruklar": []
+}}
 ########################################
 
 ########################################
