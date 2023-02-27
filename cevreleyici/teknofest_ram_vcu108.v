@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module teknofest_ram #(
+module teknofest_ram_vcu108 #(
   parameter NB_COL = 4,
   parameter COL_WIDTH = 8,
   parameter RAM_DEPTH = 131072,

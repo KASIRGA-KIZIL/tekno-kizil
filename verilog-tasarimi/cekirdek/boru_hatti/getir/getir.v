@@ -45,10 +45,11 @@ module getir (
     wire buyruk_hizali = ~ps[1]; // ps 4un kat mi
     wire buyruk_ctipi = ~(l1b_deger_i [ 1: 0] == 2'b11);
 
+    wire [6:2] btipi = buyruk_ctipi ? buyruk_genis[6:2] : l1b_deger_i[6:2];
     always @(*) begin
         buyruk_jtipi = 1'b0;
         tahmin_et    = 1'b0;
-        case(l1b_deger_i[6:2])
+        case(btipi)
             5'b11000: begin tahmin_et = 1'b1; end // B-tipi
             5'b11001,
             5'b11011: begin tahmin_et = 1'b1;
@@ -144,7 +145,7 @@ module getir (
             //`C_NOP,      // c.nop      -> addi, 0, 0, 0
             `C_ADDI     : begin buyruk_genis = {{6 {l1b_deger_i[12]}}, l1b_deger_i[12], l1b_deger_i[6:2], l1b_deger_i[11:7], 3'b0, l1b_deger_i[11:7], 7'h13};                                                                  end // c.addi     -> addi rd,     rd, nzimm
             //`C_ADDI16SP, // c.addi16sp -> addi x2, x2, nzimm
-            `C_LUI      : begin buyruk_genis = (l1b_deger_i[11:7] == 5'b0 ) ? {{3 {l1b_deger_i[12]}}, l1b_deger_i[4:3], l1b_deger_i[5], l1b_deger_i[2], l1b_deger_i[6], 4'b0, 5'h02, 3'b000, 5'h02, 7'h13} : {{15 {l1b_deger_i[12]}}, l1b_deger_i[6:2], l1b_deger_i[11:7], 7'h37}; end // c.lui      -> lui   rd ,  nzimm
+            `C_LUI      : begin buyruk_genis = (l1b_deger_i[11:7] == 5'b00010 ) ? {{3 {l1b_deger_i[12]}}, l1b_deger_i[4:3], l1b_deger_i[5], l1b_deger_i[2], l1b_deger_i[6], 4'b0, 5'h02, 3'b000, 5'h02, 7'h13} : {{15 {l1b_deger_i[12]}}, l1b_deger_i[6:2], l1b_deger_i[11:7], 7'h37}; end // c.lui      -> lui   rd ,  nzimm
             `C_AND      : begin buyruk_genis = {7'b0, 2'b01, l1b_deger_i[4:2], 2'b01, l1b_deger_i[9:7], 3'b111, 2'b01, l1b_deger_i[9:7], 7'h33};                                                                                 end // c.and      -> and rd', rd', rs2'
             `C_SUB      : begin buyruk_genis = {2'b01, 5'b0, 2'b01, l1b_deger_i[4:2], 2'b01, l1b_deger_i[9:7], 3'b000, 2'b01, l1b_deger_i[9:7], 7'h33};                                                                          end  // c.sub     -> sub rd', rd', rs2'
             `C_OR       : begin buyruk_genis = {7'b0, 2'b01, l1b_deger_i[4:2], 2'b01, l1b_deger_i[9:7], 3'b110, 2'b01, l1b_deger_i[9:7], 7'h33};                                                                                 end // c.or       -> or  rd', rd', rs2'
@@ -172,8 +173,8 @@ module getir (
     `ifdef COCOTB_SIM
         reg [88*13:1] ctipi_coz_str;
         wire [31:0] debug_ps = {8'h40,5'b0,ps[18:1],1'b0};
-        always @(l1b_deger_i,buyruk_ctipi) begin
-            casez(l1b_deger_i)
+        always @(l1b_deger_i[15:0],buyruk_ctipi) begin
+            casez(l1b_deger_i[15:0])
                 //`C_EBREAK,
                 //`C_JALR,
                 `C_ADD      : begin ctipi_coz_str = "C_JALR C_EBREAK C_ADD";  end

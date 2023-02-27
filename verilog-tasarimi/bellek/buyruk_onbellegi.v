@@ -18,6 +18,12 @@ module buyruk_onbellegi(
     input  wire [18:1] l1b_adres_i
 );
 
+    wire [15:0] data0;
+    wire [15:0] data1;
+
+    assign l1b_deger_o = l1b_adres_i[1] ? {data0,data1} : {data1,data0};
+
+
     localparam  RESET      = 3'd0,
                 RESETONE   = 3'd1,
                 RESETTWO   = 3'd2,
@@ -117,8 +123,8 @@ module buyruk_onbellegi(
         .data_i (din0[15:0]),
         .wadr_i (iomem_addr[`ADR]),
 
-        .data_o (l1b_deger_o[15:0]),
-        .radr_i (l1b_adres_i[`ADR])
+        .data_o (data0),
+        .radr_i (addr0)
     );
 
     buyruk_ffram #(
@@ -131,8 +137,8 @@ module buyruk_onbellegi(
         .data_i (din0[31:16]),
         .wadr_i (iomem_addr[`ADR]),
 
-        .data_o (l1b_deger_o[31:16]),
-        .radr_i (l1b_adres_i[`ADR] )
+        .data_o (data1),
+        .radr_i (addr1)
     );
 
     buyruk_tagvram #(
