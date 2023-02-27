@@ -17,6 +17,7 @@ from testler.el_yapimi_testler import j_branch
 from testler.el_yapimi_testler import btb_loopy
 from testler.el_yapimi_testler import uart_test
 from testler.el_yapimi_testler import pwm_demo
+from testler.el_yapimi_testler import compres_0
 
 from testler.riscv_tests       import riscv_tests
 # from testler.riscv_arch_tests  import riscv_arch_tests
@@ -33,7 +34,7 @@ tests = {}
 
 # tests.update(uart_test)
 # tests.update(riscv_tests)
-tests.update(pwm_demo)
+tests.update(riscv_tests)
 
 @cocotb.coroutine
 async def buyruklari_oku():
@@ -55,10 +56,10 @@ async def anabellek(dut):
         dut.rst_ni.value = 1
         while(1):
             try:
-                if(tests[test]["pass_adr"] == dut.iomem_addr.value.integer):
+                if(tests[test]["pass_adr"] == dut.soc.cek.getir_dut.debug_ps.value.integer):
                     print("[TEST] ", test, " passed")
                     break
-                if(tests[test]["fail_adr"] == dut.iomem_addr.value.integer):
+                if(tests[test]["fail_adr"] == dut.soc.cek.getir_dut.debug_ps.value.integer):
                     print("[TEST] ", test, " FAILED")
                     assert 0
                     break
@@ -68,7 +69,7 @@ async def anabellek(dut):
             timout = timout + 1
             if(timout > TIMEOUT):
                 print("[TEST] ", test, " FAILED TIMOUT")
-                print("current PC: ", dut.iomem_addr.value.integer)
+                print("current PC: ", dut.soc.cek.getir_dut.debug_ps.value.integer)
                 assert 0
                 break
 

@@ -38,6 +38,12 @@ btb_loopy = {'btb_loopy':{
     "buyruklar": []
 }}
 
+compres_0 = {'compres_0':{
+    "TEST_FILE": "../testler/el-yapimi-testler/build/compres_0.S.hex",
+    "fail_adr": 0x400f00f8,
+    "pass_adr": 0x40000090,
+    "buyruklar": []
+}}
 
 ########################################
 # Sonsuz test. TIMEOUT bekleniyor.

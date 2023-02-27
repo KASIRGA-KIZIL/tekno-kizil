@@ -18,7 +18,7 @@ module getir (
     //  L1 Buyruk Onbellegi
     input  wire        l1b_bekle_i,
     input  wire [31:0] l1b_deger_i,
-    output wire [18:2] l1b_adr_o,
+    output wire [18:1] l1b_adr_o,
 
     // Yurut
     input wire        yrt_atlanan_ps_gecerli_i,
@@ -30,11 +30,6 @@ module getir (
     output reg [18:1] cyo_ps_o
 );
 
-
-    reg  [31:0] buyruk_tamponu_durdur;
-    wire [31:0] suanki_buyruk = l1b_deger_i;
-
-    reg  [15:0] buyruk_tamponu;
     reg  [18:1] ps;
     reg  [18:1] ps_next;
     reg  [18:1] ps_artmis;
@@ -46,17 +41,14 @@ module getir (
     wire        ongorulen_ps_gecerli;
     reg         tahmin_et;
     reg         buyruk_jtipi;
-    reg         parcaparca;
-    reg         parcaparca_next;
 
     wire buyruk_hizali = ~ps[1]; // ps 4un kat mi
+    wire buyruk_ctipi = ~(l1b_deger_i [ 1: 0] == 2'b11);
 
-    wire buyruk_ctipi = buyruk_hizali ? ~(suanki_buyruk [ 1: 0] == 2'b11) :
-                                        ~(buyruk_tamponu[ 1: 0] == 2'b11) ;
     always @(*) begin
         buyruk_jtipi = 1'b0;
         tahmin_et    = 1'b0;
-        case(suanki_buyruk[6:2])
+        case(l1b_deger_i[6:2])
             5'b11000: begin tahmin_et = 1'b1; end // B-tipi
             5'b11001,
             5'b11011: begin tahmin_et = 1'b1;
@@ -86,8 +78,6 @@ module getir (
         .yrt_buyruk_ctipi_o    (yrt_buyruk_ctipi)
     );
 
-    reg bufferdan_okuyor_next;
-    reg bufferdan_okuyor;
     always @(*) begin
         ddb_yanlis_tahmin_o = 1'b0;
         if(buyruk_ctipi) begin
@@ -116,131 +106,74 @@ module getir (
                 if(tahmin_et && ongorulen_ps_gecerli) begin
                     ps_next = ongorulen_ps;
                 end else begin
-                    if(~bufferdan_okuyor)begin
-                        ps_next = ps_artmis;
-                    end else begin
-                        ps_next = ps;
-                    end
+                    ps_next = ps_artmis;
                 end
             end
         endcase
-        // ps_next = ddb_durdur_i ? ps : ps_next;
     end
 
+    wire [31:0] cyo_buyruk_next = buyruk_ctipi ? buyruk_genis : l1b_deger_i;
 
-    `ifdef COCOTB_SIM
-        reg [88*13:1] hizali_durum_str;
-        reg [88*13:1] ctipi_coz_str;
-    `endif
+    assign ddb_hazir_o = (~l1b_bekle_i);
 
-    reg getir_hazir_next;
-    reg getir_hazir;
-    reg [31:0] cyo_buyruk_next;
-    always @(*) begin
-        getir_hazir_next     = 1'b1;
-        bufferdan_okuyor_next = 1'b0;
-        parcaparca_next = 1'b0;
-        casez({parcaparca,buyruk_hizali,buyruk_ctipi})
-            3'b001: begin
-                cyo_buyruk_next = buyruk_genis;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[16][??]"; `endif
-            end
-            3'b010: begin
-                cyo_buyruk_next = suanki_buyruk;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[32_1][32_0]"; `endif
-            end
-            3'b011: begin
-                cyo_buyruk_next = buyruk_genis;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[??][16]"; `endif
-            end
-            3'b000: begin
-                cyo_buyruk_next = 32'hxxxx_xxxx;
-                getir_hazir_next     = 1'b0;
-                parcaparca_next = 1'b1;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[32_0][????]"; `endif
-            end
-            3'b1?0: begin
-                cyo_buyruk_next = {suanki_buyruk[15:0], buyruk_tamponu};
-                parcaparca_next = 1'b1;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[32_0][32_1]"; `endif
-            end
-            3'b1?1: begin
-                cyo_buyruk_next = buyruk_genis;
-                bufferdan_okuyor_next = 1'b1;
-                `ifdef COCOTB_SIM  hizali_durum_str = "[16][32_1]"; `endif
-            end
-        endcase
+
+    assign l1b_adr_o = ps[18:1];
+    always @(posedge clk_i) begin
+        if (rst_i) begin
+            ps               <= 18'b0;
+            cyo_buyruk_o     <= `EBREAK; // NOP ile ayni. 0-> LB buyruguyla cakisiyor.
+        end else if(~ddb_durdur_i) begin
+            ps               <= ps_next;
+            cyo_buyruk_o     <= ddb_bosalt_i ? `EBREAK : cyo_buyruk_next;
+            cyo_ps_artmis_o  <= ps_artmis;
+            cyo_ps_o         <= ps;
+        end
     end
 
-    assign ddb_hazir_o = (~l1b_bekle_i) && getir_hazir;
-
-    wire [15:0] buyruk_16com = buyruk_hizali ? suanki_buyruk[15:0] : buyruk_tamponu;
 
     // compressed buyruklari genislet
-    always @(buyruk_16com) begin
-        casez(buyruk_16com)
+    always @(l1b_deger_i[15:0]) begin
+        casez(l1b_deger_i[15:0])
             //`C_EBREAK,
             //`C_JALR, // c.jalr     -> jalr x1, rs1, 0
-            `C_ADD     : begin buyruk_genis = (buyruk_16com[11:2] == 10'b0 ) ? {32'h00_10_00_73}                                   :
-                                              (buyruk_16com[ 6:2] ==  5'b0 ) ? {12'b0, buyruk_16com[11:7], 3'b000, 5'b00001, 7'h67}:
-                                                                               {7'b0, buyruk_16com[6:2], buyruk_16com[11:7], 3'b0, buyruk_16com[11:7], 7'h33};                                                                      end // c.add      -> add  rd,     rd, rs2
+            `C_ADD     : begin buyruk_genis = (l1b_deger_i[11:2] == 10'b0 ) ? {32'h00_10_00_73}                                   :
+                                              (l1b_deger_i[ 6:2] ==  5'b0 ) ? {12'b0, l1b_deger_i[11:7], 3'b000, 5'b00001, 7'h67}:
+                                                                               {7'b0, l1b_deger_i[6:2], l1b_deger_i[11:7], 3'b0, l1b_deger_i[11:7], 7'h33};                                                                      end // c.add      -> add  rd,     rd, rs2
             //`C_JR,       // c.mv       -> add  rd/rs1, x0, rs2
-            `C_MV       : begin buyruk_genis = (buyruk_16com[ 6:2] == 5'b0 ) ? {12'b0, buyruk_16com[11:7], 3'b0, 5'b0, 7'h67} : {7'b0, buyruk_16com[6:2], 5'b0, 3'b0, buyruk_16com[11:7], 7'h33};                                   end // c.jr       -> jalr x0, rd/rs1, 0
+            `C_MV       : begin buyruk_genis = (l1b_deger_i[ 6:2] == 5'b0 ) ? {12'b0, l1b_deger_i[11:7], 3'b0, 5'b0, 7'h67} : {7'b0, l1b_deger_i[6:2], 5'b0, 3'b0, l1b_deger_i[11:7], 7'h33};                                   end // c.jr       -> jalr x0, rd/rs1, 0
             //`C_NOP,      // c.nop      -> addi, 0, 0, 0
-            `C_ADDI     : begin buyruk_genis = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], buyruk_16com[11:7], 3'b0, buyruk_16com[11:7], 7'h13};                                                                  end // c.addi     -> addi rd,     rd, nzimm
+            `C_ADDI     : begin buyruk_genis = {{6 {l1b_deger_i[12]}}, l1b_deger_i[12], l1b_deger_i[6:2], l1b_deger_i[11:7], 3'b0, l1b_deger_i[11:7], 7'h13};                                                                  end // c.addi     -> addi rd,     rd, nzimm
             //`C_ADDI16SP, // c.addi16sp -> addi x2, x2, nzimm
-            `C_LUI      : begin buyruk_genis = (buyruk_16com[11:7] == 5'b0 ) ? {{3 {buyruk_16com[12]}}, buyruk_16com[4:3], buyruk_16com[5], buyruk_16com[2], buyruk_16com[6], 4'b0, 5'h02, 3'b000, 5'h02, 7'h13} : {{15 {buyruk_16com[12]}}, buyruk_16com[6:2], buyruk_16com[11:7], 7'h37}; end // c.lui      -> lui   rd ,  nzimm
-            `C_AND      : begin buyruk_genis = {7'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b111, 2'b01, buyruk_16com[9:7], 7'h33};                                                                                 end // c.and      -> and rd', rd', rs2'
-            `C_SUB      : begin buyruk_genis = {2'b01, 5'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b000, 2'b01, buyruk_16com[9:7], 7'h33};                                                                          end  // c.sub     -> sub rd', rd', rs2'
-            `C_OR       : begin buyruk_genis = {7'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b110, 2'b01, buyruk_16com[9:7], 7'h33};                                                                                 end // c.or       -> or  rd', rd', rs2'
-            `C_XOR      : begin buyruk_genis = {7'b0, 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b100, 2'b01, buyruk_16com[9:7], 7'h33};                                                                                 end // c.xor      -> xor rd', rd', rs2'
+            `C_LUI      : begin buyruk_genis = (l1b_deger_i[11:7] == 5'b0 ) ? {{3 {l1b_deger_i[12]}}, l1b_deger_i[4:3], l1b_deger_i[5], l1b_deger_i[2], l1b_deger_i[6], 4'b0, 5'h02, 3'b000, 5'h02, 7'h13} : {{15 {l1b_deger_i[12]}}, l1b_deger_i[6:2], l1b_deger_i[11:7], 7'h37}; end // c.lui      -> lui   rd ,  nzimm
+            `C_AND      : begin buyruk_genis = {7'b0, 2'b01, l1b_deger_i[4:2], 2'b01, l1b_deger_i[9:7], 3'b111, 2'b01, l1b_deger_i[9:7], 7'h33};                                                                                 end // c.and      -> and rd', rd', rs2'
+            `C_SUB      : begin buyruk_genis = {2'b01, 5'b0, 2'b01, l1b_deger_i[4:2], 2'b01, l1b_deger_i[9:7], 3'b000, 2'b01, l1b_deger_i[9:7], 7'h33};                                                                          end  // c.sub     -> sub rd', rd', rs2'
+            `C_OR       : begin buyruk_genis = {7'b0, 2'b01, l1b_deger_i[4:2], 2'b01, l1b_deger_i[9:7], 3'b110, 2'b01, l1b_deger_i[9:7], 7'h33};                                                                                 end // c.or       -> or  rd', rd', rs2'
+            `C_XOR      : begin buyruk_genis = {7'b0, 2'b01, l1b_deger_i[4:2], 2'b01, l1b_deger_i[9:7], 3'b100, 2'b01, l1b_deger_i[9:7], 7'h33};                                                                                 end // c.xor      -> xor rd', rd', rs2'
             `C_SRAI     , // c.srli -> srli rd, rd, shamt // c.srai -> srai rd, rd, shamt
-            `C_SRLI     : begin buyruk_genis = {1'b0, buyruk_16com[10], 5'b0, buyruk_16com[6:2], 2'b01, buyruk_16com[9:7], 3'b101, 2'b01, buyruk_16com[9:7], 7'h13};                                                                end
-            `C_ANDI     : begin buyruk_genis = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], 2'b01, buyruk_16com[9:7], 3'b111, 2'b01, buyruk_16com[9:7], 7'h13};                                                    end // c.andi     -> andi rd,     rd, imm
-            `C_SLLI     : begin buyruk_genis = {7'b0, buyruk_16com[6:2], buyruk_16com[11:7], 3'b001, buyruk_16com[11:7], 7'h13};                                                                                                    end // c.slli     -> slli rd,     rd, shamt
-            `C_ADDI4SPN : begin buyruk_genis = {2'b0, buyruk_16com[10:7], buyruk_16com[12:11], buyruk_16com[5], buyruk_16com[6], 2'b00, 5'h02, 3'b000, 2'b01, buyruk_16com[4:2], 7'h13};                                            end // c.addi4spn -> addi rd',    x2, nzuimm
+            `C_SRLI     : begin buyruk_genis = {1'b0, l1b_deger_i[10], 5'b0, l1b_deger_i[6:2], 2'b01, l1b_deger_i[9:7], 3'b101, 2'b01, l1b_deger_i[9:7], 7'h13};                                                                end
+            `C_ANDI     : begin buyruk_genis = {{6 {l1b_deger_i[12]}}, l1b_deger_i[12], l1b_deger_i[6:2], 2'b01, l1b_deger_i[9:7], 3'b111, 2'b01, l1b_deger_i[9:7], 7'h13};                                                    end // c.andi     -> andi rd,     rd, imm
+            `C_SLLI     : begin buyruk_genis = {7'b0, l1b_deger_i[6:2], l1b_deger_i[11:7], 3'b001, l1b_deger_i[11:7], 7'h13};                                                                                                    end // c.slli     -> slli rd,     rd, shamt
+            `C_ADDI4SPN : begin buyruk_genis = {2'b0, l1b_deger_i[10:7], l1b_deger_i[12:11], l1b_deger_i[5], l1b_deger_i[6], 2'b00, 5'h02, 3'b000, 2'b01, l1b_deger_i[4:2], 7'h13};                                            end // c.addi4spn -> addi rd',    x2, nzuimm
             `C_BEQZ     , // c.beqz -> beq rs1', x0, imm // c.bnez -> bne rs1', x0, imm
-            `C_BNEZ     : begin buyruk_genis = {{4 {buyruk_16com[12]}}, buyruk_16com[6:5], buyruk_16com[2], 5'b0, 2'b01, buyruk_16com[9:7], 2'b00, buyruk_16com[13], buyruk_16com[11:10], buyruk_16com[4:3], buyruk_16com[12], 7'h63};         end
+            `C_BNEZ     : begin buyruk_genis = {{4 {l1b_deger_i[12]}}, l1b_deger_i[6:5], l1b_deger_i[2], 5'b0, 2'b01, l1b_deger_i[9:7], 2'b00, l1b_deger_i[13], l1b_deger_i[11:10], l1b_deger_i[4:3], l1b_deger_i[12], 7'h63};         end
             `C_J        , // c.jal -> jal x1, imm // c.j   -> jal x0, imm
-            `C_JAL      : begin buyruk_genis = {buyruk_16com[12], buyruk_16com[8], buyruk_16com[10:9], buyruk_16com[6], buyruk_16com[7], buyruk_16com[2], buyruk_16com[11], buyruk_16com[5:3], {9 {buyruk_16com[12]}}, 4'b0, ~buyruk_16com[15], 7'h6f};end
-            `C_LI       : begin buyruk_genis = {{6 {buyruk_16com[12]}}, buyruk_16com[12], buyruk_16com[6:2], 5'b0, 3'b0, buyruk_16com[11:7], 7'h13};                                                                                                   end // c.li   -> addi  rd ,   x0, imm
-            `C_LW       : begin buyruk_genis = {5'b0, buyruk_16com[5], buyruk_16com[12:10], buyruk_16com[6], 2'b00, 2'b01, buyruk_16com[9:7], 3'b010, 2'b01, buyruk_16com[4:2], 7'h03};                                                                end // c.lw   -> lw    rd',   uimm(rs1')
-            `C_LWSP     : begin buyruk_genis = {4'b0, buyruk_16com[3:2], buyruk_16com[12], buyruk_16com[6:4], 2'b00, 5'h02, 3'b010, buyruk_16com[11:7], 7'h03};                                                                                        end // c.lwsp -> lw    rd ,   uimm(x2)
-            `C_SW       : begin buyruk_genis = {5'b0, buyruk_16com[5], buyruk_16com[12], 2'b01, buyruk_16com[4:2], 2'b01, buyruk_16com[9:7], 3'b010, buyruk_16com[11:10], buyruk_16com[6], 2'b00, 7'h23};                                              end // c.sw   -> sw   rs2',   uimm(rs1')
-            `C_SWSP     : begin buyruk_genis = {4'b0, buyruk_16com[8:7], buyruk_16com[12], buyruk_16com[6:2], 5'h02, 3'b010, buyruk_16com[11:9], 2'b00, 7'h23};                                                                                        end // c.swsp -> sw   rs2 ,   uimm(x2)
+            `C_JAL      : begin buyruk_genis = {l1b_deger_i[12], l1b_deger_i[8], l1b_deger_i[10:9], l1b_deger_i[6], l1b_deger_i[7], l1b_deger_i[2], l1b_deger_i[11], l1b_deger_i[5:3], {9 {l1b_deger_i[12]}}, 4'b0, ~l1b_deger_i[15], 7'h6f};end
+            `C_LI       : begin buyruk_genis = {{6 {l1b_deger_i[12]}}, l1b_deger_i[12], l1b_deger_i[6:2], 5'b0, 3'b0, l1b_deger_i[11:7], 7'h13};                                                                                                   end // c.li   -> addi  rd ,   x0, imm
+            `C_LW       : begin buyruk_genis = {5'b0, l1b_deger_i[5], l1b_deger_i[12:10], l1b_deger_i[6], 2'b00, 2'b01, l1b_deger_i[9:7], 3'b010, 2'b01, l1b_deger_i[4:2], 7'h03};                                                                end // c.lw   -> lw    rd',   uimm(rs1')
+            `C_LWSP     : begin buyruk_genis = {4'b0, l1b_deger_i[3:2], l1b_deger_i[12], l1b_deger_i[6:4], 2'b00, 5'h02, 3'b010, l1b_deger_i[11:7], 7'h03};                                                                                        end // c.lwsp -> lw    rd ,   uimm(x2)
+            `C_SW       : begin buyruk_genis = {5'b0, l1b_deger_i[5], l1b_deger_i[12], 2'b01, l1b_deger_i[4:2], 2'b01, l1b_deger_i[9:7], 3'b010, l1b_deger_i[11:10], l1b_deger_i[6], 2'b00, 7'h23};                                              end // c.sw   -> sw   rs2',   uimm(rs1')
+            `C_SWSP     : begin buyruk_genis = {4'b0, l1b_deger_i[8:7], l1b_deger_i[12], l1b_deger_i[6:2], 5'h02, 3'b010, l1b_deger_i[11:9], 2'b00, 7'h23};                                                                                        end // c.swsp -> sw   rs2 ,   uimm(x2)
             default     : begin
                 buyruk_genis = 32'hxxxx_xxxx;
             end
         endcase
     end
 
-    assign l1b_adr_o = ps[18:2];
-    always @(posedge clk_i) begin
-        if (rst_i) begin
-            ps               <= 18'b0;
-            cyo_buyruk_o     <= `EBREAK; // NOP ile ayni. 0-> LB buyruguyla cakisiyor.
-            parcaparca       <= 0;
-            buyruk_tamponu   <= 0;
-            bufferdan_okuyor <= 0;
-            getir_hazir      <= 1;
-        end else if(~ddb_durdur_i) begin
-                getir_hazir      <= getir_hazir_next;
-                bufferdan_okuyor <= bufferdan_okuyor_next;
-                ps               <= ps_next;
-                cyo_buyruk_o     <= ddb_bosalt_i ? `EBREAK : cyo_buyruk_next;
-                parcaparca       <= parcaparca_next;
-                buyruk_tamponu   <= suanki_buyruk[31:16];
-                cyo_ps_artmis_o  <= ps_artmis;
-                cyo_ps_o         <= ps;
-        end
-    end
-
-    // [TODO] Yanlis tahminde: buferdan_okuyor, ps, parcaparca'nin restore edilmesi gerek.
-
     `ifdef COCOTB_SIM
-        wire [31:0] debug_ps = {8'h40,5'b0,ps,1'b0};
-        always @(buyruk_16com,buyruk_ctipi) begin
-            casez(buyruk_16com)
+        reg [88*13:1] ctipi_coz_str;
+        wire [31:0] debug_ps = {8'h40,5'b0,ps[18:1],1'b0};
+        always @(l1b_deger_i,buyruk_ctipi) begin
+            casez(l1b_deger_i)
                 //`C_EBREAK,
                 //`C_JALR,
                 `C_ADD      : begin ctipi_coz_str = "C_JALR C_EBREAK C_ADD";  end
@@ -275,9 +208,7 @@ module getir (
 
             // $monitor("%s",ctipi_coz_str);
         end
-    `endif
 
-    `ifdef COCOTB_SIM
         reg [88*13:1]  coz_str_debug;
         wire [`BUYRUK_COZ_BIT-1:0] buyruk_coz_debug = {cyo_buyruk_next[30:29], cyo_buyruk_next[27], cyo_buyruk_next[25], cyo_buyruk_next[21:20], cyo_buyruk_next[14:12], cyo_buyruk_next[6:2]};
 

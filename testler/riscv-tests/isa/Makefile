@@ -20,7 +20,7 @@ ifeq ($(XLEN),64)
 #include $(src_dir)/rv64mzicbo/Makefrag
 endif
 include $(src_dir)/rv32ui/Makefrag
-#include $(src_dir)/rv32uc/Makefrag
+include $(src_dir)/rv32uc/Makefrag
 include $(src_dir)/rv32um/Makefrag
 include $(src_dir)/rv32ux/Makefrag
 #include $(src_dir)/rv32ua/Makefrag
@@ -38,7 +38,7 @@ default: all
 
 RISCV_PREFIX ?= riscv32-unknown-elf-
 RISCV_GCC ?= $(RISCV_PREFIX)gcc
-RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles $(DCSRLI) -march=rv32im -mabi=ilp32
+RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles $(DCSRLI) -march=rv32imc -mabi=ilp32
 RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.text.init --section=.data -M numeric,no-aliases
 RISCV_SIM ?= spike
 

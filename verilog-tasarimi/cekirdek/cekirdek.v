@@ -10,7 +10,7 @@ module cekirdek(
     // l1 buyruk bellegi
     input  wire        l1b_bekle_i,
     input  wire [31:0] l1b_deger_i,
-    output wire [18:2] l1b_adres_o,
+    output wire [18:1] l1b_adres_o,
 
     // Bellek Islem Birimi
     input  wire [31:0] bib_veri_i,
@@ -21,7 +21,7 @@ module cekirdek(
     output wire        bib_sec_o
 );
 
-    wire [18:2] l1b_adr_w;
+    wire [18:1] l1b_adr_w;
     wire yrt_durdur_w;
 
     wire [`MI_BIT-1:0] yrt_mikroislem_w;
