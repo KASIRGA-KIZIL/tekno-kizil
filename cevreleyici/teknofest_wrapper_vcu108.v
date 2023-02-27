@@ -32,11 +32,12 @@ module teknofest_wrapper_vcu108(
   output pwm1_o,
 
   //output uart_tx_pmod,
-  output [7:0] LED
+  //output [7:0] LED
+  output prog_mode_led_o
 );
-wire    prog_mode_led_o;
-assign  LED[0] = rst_ni;
-assign  LED[1] = prog_mode_led_o;
+//wire    prog_mode_led_o;
+//assign  LED[0] = rst_ni;
+//assign  LED[1] = prog_mode_led_o;
 
 //assign uart_tx_pmod = uart_tx_o;
 
@@ -112,7 +113,7 @@ user_processor soc (
   .pwm1_o        (pwm1_o       )
 );
 
-assign  LED[7:2] = soc.cek.coz_yazmacoku_dut.yo.yazmaclar[1][25:20];
+//assign  LED[7:2] = soc.cek.coz_yazmacoku_dut.yo.yazmaclar[1][25:20];
 
 reg [RAM_DELAY-1:0] ram_shift_q;
 wire ram_ready_check;
@@ -136,7 +137,7 @@ always @(posedge clk_i) begin
   end
 end
 
-assign iomem_ready = ram_shift_q[RAM_DELAY-1] | (iomem_valid & (iomem_addr == 32'h3000_0000 || iomem_addr == 32'h3000_0004));
+assign iomem_ready = ram_shift_q[RAM_DELAY-1] | (iomem_valid & (iomem_addr == 32'h3000_0000));
 
 assign iomem_rdata = (iomem_valid & (iomem_addr == 32'h3000_0000)) ? timer[31:0]  :
                      (iomem_valid & (iomem_addr == 32'h3000_0004)) ? timer[63:32] : main_mem_rdata;
@@ -149,7 +150,7 @@ assign main_mem_rd_en = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE
 
 
 
-teknofest_ram_vcu108 #(
+teknofest_ram #(
   .NB_COL(4),
   .COL_WIDTH(8),
   .RAM_DEPTH(RAM_DEPTH),
