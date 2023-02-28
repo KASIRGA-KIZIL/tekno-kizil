@@ -16,11 +16,11 @@ module dallanma_ongorucu(
     input  wire [18:1] ps_i,
     input  wire        buyruk_ctipi_i,
     input  wire        buyruk_jal_tipi_i,
-    input  wire        buyruk_jalr_tipi_i 
+    input  wire        buyruk_jalr_tipi_i,
     input  wire        tahmin_et_i,
     input  wire        ras_pop,
     input  wire        ras_push,
-    input  wire        imm_i,
+    input  wire [18:1] imm_i,
     output wire [18:1] ongorulen_ps_o,
     output wire        ongorulen_ps_gecerli_o,
     // Kalibrasyon sinyalleri
@@ -38,8 +38,7 @@ module dallanma_ongorucu(
     reg [18:1] ps [1:0];
 
     // ras
-    reg [31:0] ras       [3:0];
-    reg [31:0] ras_next  [3:0];
+    reg [18:1] ras       [3:0];
 
     // Ongoru tablolari
     reg [18:1] btb      [31:0]; // branch target buffer
@@ -90,23 +89,23 @@ module dallanma_ongorucu(
                         sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] +  2'b1;
                 end
             end
-            if(tahmin_et_i) begin
+            if(tahmin_et_i && ~ddb_durdur_i) begin
                 if(ras_push && !ras_pop) begin
                     ras[3] <= ras[2];
                     ras[2] <= ras[1];
                     ras[1] <= ras[0];
-                    ras[0] <= ps_i + (buyruk_ctipi_i ? 18'd1 : 18'd2); 
+                    ras[0] <= ps_i + (buyruk_ctipi_i ? 18'd1 : 18'd2);
                 end
-                
+
                 if(ras_pop && !ras_push) begin
-                    ras_next[3] = 32'd0;
-                    ras_next[2] = ras[3];
-                    ras_next[1] = ras[2];
-                    ras_next[0] = ras[1];
+                    ras[3] <= 18'd0;
+                    ras[2] <= ras[3];
+                    ras[1] <= ras[2];
+                    ras[0] <= ras[1];
                 end
-                
+
                 if(ras_push && ras_pop) begin
-                    ras_next[0] = ps_i + (buyruk_ctipi_i ? 32'd1 : 32'd2);
+                    ras[0] <= ps_i + (buyruk_ctipi_i ? 18'd1 : 18'd2);
                 end
                 if(!(buyruk_jal_tipi_i || buyruk_jalr_tipi_i)) begin
                     ght[6:0] <= {ght[5:0], sayaclar[sayac_oku_adr][1]};

@@ -48,33 +48,53 @@ module getir (
 
     wire [31:0] cyo_buyruk_next = buyruk_ctipi ? buyruk_genis : l1b_deger_i;
 
-    wire [18:1] imm_r;
+    reg [18:1] imm_r;
 
     wire [6:2] btipi = buyruk_ctipi ? buyruk_genis[6:2] : l1b_deger_i[6:2];
+    reg [2:0] buyruk_tipi_r;
     always @(*) begin
         buyruk_jal_tipi        = 1'b0;
         tahmin_et           = 1'b0;
         buyruk_jalr_tipi    = 1'b0;
         case(btipi)
-            5'b11000: begin 
+            5'b11000: begin
                 tahmin_et = 1'b1; end // B-tipi
-            5'b11001: begin 
+            5'b11001: begin
                 tahmin_et = 1'b1;
                 buyruk_jalr_tipi = 1'b1;
             end
-            5'b11011: begin 
+            5'b11011: begin
                 tahmin_et = 1'b1;
                 buyruk_jal_tipi = 1'b1;
-            end 
+            end
             default:  begin tahmin_et = 1'b0; end
         endcase
         // Buyruk tipine gore anlik sec
+        case(cyo_buyruk_next[6:2])
+            5'b11011: begin buyruk_tipi_r = `J_Tipi;   end // jal
+            5'b11001: begin buyruk_tipi_r = `I_Tipi;   end // jalr I tipinde
+            default:  begin buyruk_tipi_r = `I_Tipi; end
+        endcase
         case(buyruk_tipi_r)
-            `I_Tipi:   begin imm_r = {{6{cyo_buyruk_next[   31]}}, cyo_buyruk_next[31:20]};                                                        end
+            `I_Tipi:   begin imm_r = {{6{cyo_buyruk_next[   31]}}, cyo_buyruk_next[31:20]};                           end
             `J_Tipi:   begin imm_r = {cyo_buyruk_next[17:12], cyo_buyruk_next[   20], cyo_buyruk_next[30:21], 1'b0};  end
-            default:   begin imm_r = 32'hxxxxxxxx;                                                                                                  end
+            default:   begin imm_r = 18'hxxxx;                                                                        end
         endcase
     end
+
+    // ras kontrol sinyalleri
+    wire rd_link;
+    wire rs1_link;
+    wire rd_esitdegil_rs1;
+    wire ras_push;
+    wire ras_pop;
+
+    assign rd_link = (!buyruk_ctipi && ((cyo_buyruk_next[11:7] == 5'd1) || (cyo_buyruk_next[11:7] == 5'd5)));
+    assign rs1_link = (!buyruk_ctipi && ((cyo_buyruk_next[19:15] == 5'd1) || (cyo_buyruk_next[19:15] == 5'd5)));
+    assign rd_esitdegil_rs1 = (!buyruk_ctipi && buyruk_jalr_tipi && (cyo_buyruk_next[11:7] != cyo_buyruk_next[19:15]));
+    assign ras_push = (((buyruk_jal_tipi) || (buyruk_jalr_tipi)) && (rd_link));
+    assign ras_pop = (buyruk_jalr_tipi) && ((rs1_link && ((rd_link && rd_esitdegil_rs1) || !rd_link))) ;
+
 
     dallanma_ongorucu dal_on(
         .clk_i(clk_i),
@@ -136,18 +156,6 @@ module getir (
 
     assign ddb_hazir_o = (~l1b_bekle_i);
 
-    // ras kontrol sinyalleri
-    wire rd_link;
-    wire rs1_link; 
-    wire rd_esitdegil_rs1;
-    wire ras_push;
-    wire ras_pop;
-
-    assign rd_link = (!buyruk_ctipi && ((cyo_buyruk_next[11:7] == 5'd1) || (cyo_buyruk_next[11:7] == 5'd5)));  
-    assign rs1_link = (!buyruk_ctipi && ((cyo_buyruk_next[19:15] == 5'd1) || (cyo_buyruk_next[19:15] == 5'd5)));
-    assign rd_esitdegil_rs1 = (!buyruk_ctipi && buyruk_jalr_tipi && (cyo_buyruk_next[11:7] != cyo_buyruk_next[19:15]));
-    assign ras_push = (((is_jal_i) || (buyruk_jalr_tipi)) && (rd_link)); 
-    assign ras_pop = (buyruk_jalr_tipi) && ((rs1_link && ((rd_link && rd_esitdegil_rs1) || !rd_link))) ;
 
     assign l1b_adr_o = ps[18:1];
     always @(posedge clk_i) begin
