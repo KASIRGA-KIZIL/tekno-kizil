@@ -50,17 +50,18 @@ end
     reg [31:0] wb_dat_o_r, wb_dat_o_r_next;
     assign wb_dat_o = wb_dat_o_r;
     reg [31:0]  spi_rdata, spi_rdata_next; // fifo in
-    reg [32:0]    spi_wdata, spi_wdata_next; // fifo out
+    reg [31:0]  spi_wdata, spi_wdata_next; // fifo out
     reg spi_cs_o_r, spi_cs_o_r_next;
     assign spi_cs_o = spi_cs_o_r;
     reg spi_sck_o_r, spi_sck_o_r_next;
     assign spi_sck_o = spi_sck_o_r;
-    assign spi_mosi_o = spi_wdata[32];
+    assign spi_mosi_o = spi_wdata[0];
 
     // Sayaclar
     reg [15:0] clock_ctr, clock_ctr_next;
-    reg [ 8:0] bit_ctr, bit_ctr_next;
+    reg [ 3:0] bit_ctr, bit_ctr_next;
     reg [ 8:0] flow_ctr, flow_ctr_next;
+    reg [ 4:0] byte_ctr, byte_ctr_next;
 
     // CTRL yazmaci
     reg  [31:0] spi_ctrl, spi_ctrl_next; // 20 bit yeterli?
@@ -114,21 +115,23 @@ end
                     IDLE :begin
                             if(mosi_en & ~miso_en & ~mosi_empty)begin
                                 clock_ctr_next = sck_div;
-                                bit_ctr_next = 9'd32;
+                                bit_ctr_next = 4'd8;
+                                byte_ctr_next = (length>3)? 3'd3 : length[1:0];
                                 flow_ctr_next = length;
                                 spi_sck_o_r_next = cpol;
                                 spi_cs_o_r_next = 1'b0;
                                 state_next = WRITE;
-                                spi_wdata_next = {1'b0, mosi_buffer[0]};
+                                spi_wdata_next = mosi_buffer[0];
                             end else if(miso_en & ~mosi_en)begin
                                 clock_ctr_next = sck_div;
-                                bit_ctr_next = 9'd32;
+                                bit_ctr_next = 4'd8;
+                                byte_ctr_next = (length>3)? 3'd3 : length[1:0];
                                 flow_ctr_next = length;
                                 spi_sck_o_r_next = cpol;
                                 spi_cs_o_r_next = 1'b0;
                                 state_next = READ;
                             end else begin
-                                clock_ctr_next = 16'd0;
+                                clock_ctr_next = 16'b0;
                                 state_next = IDLE;
                                 spi_cs_o_r_next = 1'b1;
                                 spi_sck_o_r_next = cpol;
@@ -136,27 +139,40 @@ end
                     end
                     WRITE:begin
                         clock_ctr_next  = sck_div;
-                        if(bit_ctr == 16'd0) begin // Byte tamamlandi
-                            mosi_buffer_next[0] = mosi_buffer[1];
-                            mosi_buffer_next[1] = mosi_buffer[2];
-                            mosi_buffer_next[2] = mosi_buffer[3];
-                            mosi_buffer_next[3] = mosi_buffer[4];
-                            mosi_buffer_next[4] = mosi_buffer[5];
-                            mosi_buffer_next[5] = mosi_buffer[6];
-                            mosi_buffer_next[6] = mosi_buffer[7];
-                            mosi_buffer_next[7] = 32'd0;
-                            mosi_tail_next = mosi_tail - 4'd1;
-                            if(flow_ctr > 9'd0) begin // Sonraki byte
+                        if(bit_ctr == 4'b0) begin // Byte tamamlandi
+                            byte_ctr_next = byte_ctr - 3'b1;
+                            if(byte_ctr == 3'b0)begin
+                                mosi_buffer_next[0] = mosi_buffer[1];
+                                mosi_buffer_next[1] = mosi_buffer[2];
+                                mosi_buffer_next[2] = mosi_buffer[3];
+                                mosi_buffer_next[3] = mosi_buffer[4];
+                                mosi_buffer_next[4] = mosi_buffer[5];
+                                mosi_buffer_next[5] = mosi_buffer[6];
+                                mosi_buffer_next[6] = mosi_buffer[7];
+                                mosi_buffer_next[7] = 32'd0;
+                                mosi_tail_next = mosi_tail - 4'd1;
+                                spi_wdata_next = mosi_buffer[1];
+                                byte_ctr_next = (flow_ctr>3)? 3'd3 : flow_ctr[1:0];
+                            end
+                            if(flow_ctr > 4'd0) begin // Sonraki byte
                                 clock_ctr_next = sck_div;
-                                bit_ctr_next = 9'd8;
-                                flow_ctr_next = flow_ctr - 9'd1;
+                                bit_ctr_next = 4'd8;
+                                flow_ctr_next = flow_ctr - 4'd1;
                                 state_next = WRITE;
-                                spi_wdata_next = {1'b0, mosi_buffer[0]};
                             end else begin // Tum veri aktarildi
                                 state_next       = IDLE;
-                                clock_ctr_next   = 16'd0;
-                                //spi_ctrl_next[0] = 1'b0;
-                                // islem tamamlandi cmd buffer kaydir
+                                clock_ctr_next   = 16'b0;
+                                // flow bitince de tail azalmali mi?
+                                mosi_buffer_next[0] = mosi_buffer[1];
+                                mosi_buffer_next[1] = mosi_buffer[2];
+                                mosi_buffer_next[2] = mosi_buffer[3];
+                                mosi_buffer_next[3] = mosi_buffer[4];
+                                mosi_buffer_next[4] = mosi_buffer[5];
+                                mosi_buffer_next[5] = mosi_buffer[6];
+                                mosi_buffer_next[6] = mosi_buffer[7];
+                                mosi_buffer_next[7] = 32'd0;
+                                mosi_tail_next = mosi_tail - 4'd1;
+                                // istenen command tamamlandi cmd buffer kaydir
                                 cmd_buffer_next [0] = cmd_buffer[1];
                                 cmd_buffer_next [1] = cmd_buffer[2];
                                 cmd_buffer_next [2] = cmd_buffer[3];
@@ -166,32 +182,32 @@ end
                                 cmd_buffer_next [6] = cmd_buffer[7];
                                 cmd_buffer_next [7] = 32'b0;
                                 cmd_tail_next = cmd_tail - 4'b1;
+
                                 spi_cs_o_r_next  = ~cs_active;
-                                spi_sck_o_r_next = cpol;
+                                spi_sck_o_r_next = spi_sck_o_r;
                             end
                         end else begin
                             spi_sck_o_r_next  = ~spi_sck_o_r_next;
                             state_next = WRITE;
-                            if(spi_sck_o_r == ~(cpol^cpha)) begin
-                                bit_ctr_next = bit_ctr - 16'd1;
-                                spi_wdata_next = {spi_wdata[31:0], 1'b0};
+                            if(spi_sck_o_r == ~(cpol^cpha))begin
+                                bit_ctr_next = bit_ctr - 4'b1;
+                                spi_wdata_next = {1'b0,spi_wdata[31:1]};
                             end
                         end
                     end
                     READ :begin
                         clock_ctr_next  = sck_div;
-                        if(bit_ctr == 16'd0) begin
+                        if(bit_ctr == 4'b0) begin
                             miso_buffer_next[miso_tail-1] = spi_rdata;
                             miso_tail_next = miso_tail + 4'd1;
-                            if(flow_ctr > 9'd0) begin // Sonraki byte
+                            if(flow_ctr > 4'd0) begin // Sonraki byte
                                 clock_ctr_next = sck_div;
-                                bit_ctr_next = 9'd8;
-                                flow_ctr_next = flow_ctr - 9'd1;
+                                bit_ctr_next = 4'd8;
+                                flow_ctr_next = flow_ctr - 4'd1;
                                 state_next = READ;
                             end else begin // Tum bytelar okundu
                                 state_next       = IDLE;
-                                clock_ctr_next   = 16'd0;
-                                //spi_ctrl_next[0] = 1'b0;
+                                clock_ctr_next   = 16'b0;
                                 // islem tamamlandi cmd buffer kaydir
                                 cmd_buffer_next [0] = cmd_buffer[1];
                                 cmd_buffer_next [1] = cmd_buffer[2];
@@ -209,7 +225,7 @@ end
                             spi_sck_o_r_next  = ~spi_sck_o_r_next;
                             state_next = READ;
                             if(spi_sck_o_r == (cpol^cpha)) begin
-                                bit_ctr_next    = bit_ctr - 16'd1;
+                                bit_ctr_next    = bit_ctr - 4'b1;
                                 spi_rdata_next  = {spi_rdata[30:0], spi_miso_i};
                             end
                         end
@@ -223,7 +239,7 @@ end
         case(wb_adr_i[4:0])
             SPI_CTRL:begin
                 if(wb_we_i)begin
-                    spi_ctrl_next = wb_dat_i;//{wb_dat_i[31:16],wb_dat_i[3:0]};
+                    spi_ctrl_next = wb_dat_i;
                 end else begin
                     wb_dat_o_r_next = spi_ctrl;
                 end
@@ -249,7 +265,10 @@ end
             end
             SPI_WDAT:begin
                 if(wb_we_i & ~mosi_full)begin
-                    mosi_buffer_next[mosi_tail] = wb_dat_i;
+                    mosi_buffer_next[mosi_tail][7:0]   = wb_sel_i[0] ? wb_dat_i[7:0]   : mosi_buffer[mosi_tail];
+                    mosi_buffer_next[mosi_tail][15:8]  = wb_sel_i[1] ? wb_dat_i[15:8]  : mosi_buffer[mosi_tail+1];
+                    mosi_buffer_next[mosi_tail][23:16] = wb_sel_i[2] ? wb_dat_i[23:16] : mosi_buffer[mosi_tail+2];
+                    mosi_buffer_next[mosi_tail][31:24] = wb_sel_i[3] ? wb_dat_i[32:24] : mosi_buffer[mosi_tail+3];
                     mosi_tail_next = mosi_tail + 4'b1;
                 end
             end
@@ -282,6 +301,7 @@ end
             state           = IDLE;
             clock_ctr       = 0;
             bit_ctr         = 0;
+            byte_ctr        = 0;
             flow_ctr        = 0;
         end else begin
             for(loop_counter=0; loop_counter<8; loop_counter=loop_counter+1) begin
@@ -300,6 +320,7 @@ end
             state           = state_next;
             clock_ctr       = clock_ctr_next;
             bit_ctr         = bit_ctr_next;
+            byte_ctr        = byte_ctr_next;
             flow_ctr        = flow_ctr_next;
         end
     end
