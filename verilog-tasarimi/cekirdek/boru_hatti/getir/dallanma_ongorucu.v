@@ -48,9 +48,9 @@ module dallanma_ongorucu(
     wire atlamadi_tahmin_dogru = (~ongorulen_ps_gecerli[`YURUT] && ~atlanan_ps_gecerli_i);
     wire tahmin_dogru          = atladi_tahmin_dogru || atlamadi_tahmin_dogru;
 
-    wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ {ght[4:1], ongorulen_ps_gecerli_o};
-    integer loop_counter;
     reg [2:0] ght_counter;
+    wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ ght[ght_ptr+:5];
+    integer loop_counter;
     always@(posedge clk_i) begin
         if(rst_i) begin
             for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin
@@ -61,6 +61,7 @@ module dallanma_ongorucu(
             ght_ptr <= 0;
         end else begin
             if(tahmin_et[`YURUT]) begin
+                ght_ptr <= ght_ptr - 2'd1;
                 if(~tahmin_dogru) begin
                     btb[ps[`YURUT][5:1]] <= atlanan_ps_i;
                     ght_ptr <= 2'd0;
