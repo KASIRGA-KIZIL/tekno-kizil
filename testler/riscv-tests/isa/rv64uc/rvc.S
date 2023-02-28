@@ -11,7 +11,6 @@
 #include "test_macros.h"
 
 RVTEST_RV64U
-RVTEST_CODE_BEGIN
 
   .align 2
   .option push
@@ -23,6 +22,9 @@ RVTEST_CODE_BEGIN
   // Make sure fetching a 4-byte instruction across a page boundary works.
   li TESTNUM, 2
   li a1, 666
+  
+  RVTEST_CODE_BEGIN
+  
   TEST_CASE (2, a1, 667, \
         j 1f; \
         .align 3; \
