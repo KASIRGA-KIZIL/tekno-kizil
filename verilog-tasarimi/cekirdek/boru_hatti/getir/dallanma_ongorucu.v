@@ -49,7 +49,7 @@ module dallanma_ongorucu(
 
     wire [ 4:0] sayac_oku_adr     = ps_i[5:1] ^ ght[4:0];
     assign ongorulen_ps_gecerli_o = (buyruk_jal_tipi_i || buyruk_jalr_tipi_i) ? 1'b1 : sayaclar[sayac_oku_adr][1];
-    assign ongorulen_ps_o         = buyruk_jal_tipi_i ? (ps_i+imm_i) : btb[ps_i[5:1]];
+    assign ongorulen_ps_o         = ras_pop ? ras[0] : (buyruk_jal_tipi_i ? (ps_i+imm_i) : btb[ps_i[5:1]]);
 
     // (atlar_dedi ve atladi ve ps_dogru) veya (atlamaz_dedi ve atlamadi)
     wire atladi_tahmin_dogru   = ( ongorulen_ps_gecerli[`YURUT] &&  atlanan_ps_gecerli_i && (ps[`CYO] == atlanan_ps_i));
@@ -91,8 +91,27 @@ module dallanma_ongorucu(
                 end
             end
             if(tahmin_et_i) begin
-                ght[6:0] <= {ght[5:0], sayaclar[sayac_oku_adr][1]};
-                ght_ptr <= ght_ptr + 2'd1;
+                if(ras_push && !ras_pop) begin
+                    ras[3] <= ras[2];
+                    ras[2] <= ras[1];
+                    ras[1] <= ras[0];
+                    ras[0] <= ps_i + (buyruk_ctipi_i ? 18'd1 : 18'd2); 
+                end
+                
+                if(ras_pop && !ras_push) begin
+                    ras_next[3] = 32'd0;
+                    ras_next[2] = ras[3];
+                    ras_next[1] = ras[2];
+                    ras_next[0] = ras[1];
+                end
+                
+                if(ras_push && ras_pop) begin
+                    ras_next[0] = ps_i + (buyruk_ctipi_i ? 32'd1 : 32'd2);
+                end
+                if(!(buyruk_jal_tipi_i || buyruk_jalr_tipi_i)) begin
+                    ght[6:0] <= {ght[5:0], sayaclar[sayac_oku_adr][1]};
+                    ght_ptr <= ght_ptr + 2'd1;
+                end
             end
         end
     end
