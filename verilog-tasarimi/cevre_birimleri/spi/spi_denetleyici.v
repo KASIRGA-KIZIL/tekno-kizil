@@ -132,8 +132,11 @@ end
                                 state_next = READ;
                             end else begin
                                 clock_ctr_next = 16'b0;
+                                bit_ctr_next = 4'd0;
+                                byte_ctr_next = 3'd0;
+                                flow_ctr_next = 9'd0;
                                 state_next = IDLE;
-                                spi_cs_o_r_next = 1'b1;
+                                spi_cs_o_r_next = spi_cs_o_r;
                                 spi_sck_o_r_next = cpol;
                             end
                     end
