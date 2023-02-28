@@ -15,8 +15,12 @@ module dallanma_ongorucu(
     // Tahmin okuma.
     input  wire [18:1] ps_i,
     input  wire        buyruk_ctipi_i,
-    input  wire        buyruk_jtipi_i,
+    input  wire        buyruk_jal_tipi_i,
+    input  wire        buyruk_jalr_tipi_i 
     input  wire        tahmin_et_i,
+    input  wire        ras_pop,
+    input  wire        ras_push,
+    input  wire        imm_i,
     output wire [18:1] ongorulen_ps_o,
     output wire        ongorulen_ps_gecerli_o,
     // Kalibrasyon sinyalleri
@@ -33,6 +37,10 @@ module dallanma_ongorucu(
     reg [1:0]  buyruk_ctipi;
     reg [18:1] ps [1:0];
 
+    // ras
+    reg [31:0] ras       [3:0];
+    reg [31:0] ras_next  [3:0];
+
     // Ongoru tablolari
     reg [18:1] btb      [31:0]; // branch target buffer
     reg [ 1:0] sayaclar [31:0]; // branch target buffer
@@ -40,8 +48,8 @@ module dallanma_ongorucu(
     reg [1:0]  ght_ptr        ; // global history table pointer
 
     wire [ 4:0] sayac_oku_adr     = ps_i[5:1] ^ ght[4:0];
-    assign ongorulen_ps_gecerli_o = sayaclar[sayac_oku_adr][1];
-    assign ongorulen_ps_o         = btb[ps_i[5:1]];
+    assign ongorulen_ps_gecerli_o = (buyruk_jal_tipi_i || buyruk_jalr_tipi_i) ? 1'b1 : sayaclar[sayac_oku_adr][1];
+    assign ongorulen_ps_o         = buyruk_jal_tipi_i ? (ps_i+imm_i) : btb[ps_i[5:1]];
 
     // (atlar_dedi ve atladi ve ps_dogru) veya (atlamaz_dedi ve atlamadi)
     wire atladi_tahmin_dogru   = ( ongorulen_ps_gecerli[`YURUT] &&  atlanan_ps_gecerli_i && (ps[`CYO] == atlanan_ps_i));
@@ -74,11 +82,11 @@ module dallanma_ongorucu(
                     end
                 end
                 if(~atladi_tahmin_dogru   &&  (sayaclar[sayac_yaz_adr] != 2'b00)) begin
-                    if(!buyruk_jtipi_i)
+                    if(!buyruk_jalr_tipi_i || !buyruk_jal_tipi_i)
                         sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] -  2'b1;
                 end
                 if(~atlamadi_tahmin_dogru &&  (sayaclar[sayac_yaz_adr] != 2'b11)) begin
-                    if(!buyruk_jtipi_i)
+                    if(!buyruk_jalr_tipi_i || !buyruk_jal_tipi_i)
                         sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] +  2'b1;
                 end
             end
