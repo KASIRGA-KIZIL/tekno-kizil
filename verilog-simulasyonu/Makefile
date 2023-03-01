@@ -4,9 +4,9 @@
 
 # sim
 TOPLEVEL_LANG = verilog
-SIM           = modelsim
+SIM           = icarus
 
-MODULE              := test_teknofest_wrapper
+MODULE              := test_spi_denetleyici
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
@@ -41,6 +41,8 @@ else ifeq ($(MODULE),test_uart_denetleyici)
 	TOPLEVEL        := uart_denetleyici
 else ifeq ($(MODULE),test_veriyolu)
 	TOPLEVEL        := veriyolu
+else ifeq ($(MODULE),test_spi_denetleyici)
+	TOPLEVEL        := spi_denetleyici
 else
     $(error A module was not provided)
 endif
