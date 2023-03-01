@@ -155,7 +155,7 @@ end
                                 mosi_buffer_next[7] = 32'd0;
                                 mosi_tail_next = mosi_tail - 4'd1;
                                 spi_wdata_next = mosi_buffer[1];
-                                byte_ctr_next = (flow_ctr>3)? 3'd3 : flow_ctr[1:0];
+                                byte_ctr_next = (flow_ctr>3)? 3'd3 : flow_ctr[1:0] - 1;
                             end
                             if(flow_ctr > 4'd0) begin // Sonraki byte
                                 clock_ctr_next = sck_div;
@@ -200,9 +200,14 @@ end
                     end
                     READ :begin
                         clock_ctr_next  = sck_div;
-                        if(bit_ctr == 4'b0) begin
-                            miso_buffer_next[miso_tail-1] = spi_rdata;
-                            miso_tail_next = miso_tail + 4'd1;
+                        if(bit_ctr == 4'b0) begin // Byte tamamlandi
+                            byte_ctr_next = byte_ctr - 3'b1;
+                            if(byte_ctr == 3'b0)begin // Buffer indexi doldu
+                                miso_buffer_next[miso_tail] = spi_rdata;
+                                miso_tail_next = miso_tail + 4'd1;
+                                byte_ctr_next = 3'd3;
+                                spi_rdata_next = 32'b0;
+                            end
                             if(flow_ctr > 4'd0) begin // Sonraki byte
                                 clock_ctr_next = sck_div;
                                 bit_ctr_next = 4'd8;
@@ -211,6 +216,9 @@ end
                             end else begin // Tum bytelar okundu
                                 state_next       = IDLE;
                                 clock_ctr_next   = 16'b0;
+                                // flow bitti ne olursa olsun buffer kaydir
+                                miso_buffer_next[miso_tail] = spi_rdata>>((3-length[1:0])<<3);
+                                miso_tail_next = miso_tail + 4'd1;
                                 // islem tamamlandi cmd buffer kaydir
                                 cmd_buffer_next [0] = cmd_buffer[1];
                                 cmd_buffer_next [1] = cmd_buffer[2];
@@ -221,15 +229,16 @@ end
                                 cmd_buffer_next [6] = cmd_buffer[7];
                                 cmd_buffer_next [7] = 32'b0;
                                 cmd_tail_next = cmd_tail - 4'b1;
+                                spi_rdata_next = 32'b0;
                                 spi_cs_o_r_next  = ~cs_active;
                                 spi_sck_o_r_next = cpol;
                             end
                         end else begin
-                            spi_sck_o_r_next  = ~spi_sck_o_r_next;
+                            spi_sck_o_r_next  = ~spi_sck_o_r;
                             state_next = READ;
                             if(spi_sck_o_r == (cpol^cpha)) begin
                                 bit_ctr_next    = bit_ctr - 4'b1;
-                                spi_rdata_next  = {spi_rdata[30:0], spi_miso_i};
+                                spi_rdata_next  = {spi_miso_i,spi_rdata[31:1]};
                             end
                         end
                     end
@@ -306,6 +315,7 @@ end
             bit_ctr         = 0;
             byte_ctr        = 0;
             flow_ctr        = 0;
+            wb_dat_o_r      = 0;
         end else begin
             for(loop_counter=0; loop_counter<8; loop_counter=loop_counter+1) begin
                 miso_buffer[loop_counter] = miso_buffer_next[loop_counter];
@@ -325,6 +335,7 @@ end
             bit_ctr         = bit_ctr_next;
             byte_ctr        = byte_ctr_next;
             flow_ctr        = flow_ctr_next;
+            wb_dat_o_r      = wb_dat_o_r_next;
         end
     end
 endmodule
