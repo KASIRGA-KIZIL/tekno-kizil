@@ -7,7 +7,7 @@ module spi_denetleyici (
    input clk_i,
    input rst_i,
 
-   input  [31:0] wb_adr_i,
+   input  [ 4:0] wb_adr_i,
    input  [31:0] wb_dat_i,
    input         wb_we_i,
    input         wb_stb_i,
@@ -22,13 +22,13 @@ module spi_denetleyici (
    output spi_cs_o,
    output spi_sck_o
    );
-`ifdef COCOTB_SIM
-initial begin
-  $dumpfile ("spi_denetleyici.vcd");
-  $dumpvars (0, spi_denetleyici);
-  #1;
-end
-`endif
+// `ifdef COCOTB_SIM
+// initial begin
+//   $dumpfile ("spi_denetleyici.vcd");
+//   $dumpvars (0, spi_denetleyici);
+//   #1;
+// end
+// `endif
     // Yazmac adresleri
     localparam [4:0]
     SPI_CTRL = 5'h00,
@@ -222,8 +222,8 @@ end
                             end else begin // Tum bytelar okundu
                                 state_next       = IDLE;
                                 clock_ctr_next   = 16'b0;
-                                // flow bitti ne olursa olsun buffer kaydir
-                                miso_buffer_next[miso_tail] = spi_rdata>>((3-length[1:0])<<3);
+                                // flow bitti ne olursa olsun tail kaydir
+                                miso_buffer_next[miso_tail] = spi_rdata>>((3-length[1:0])<<3);// Buraya daha iyi bi cozum?
                                 miso_tail_next = miso_tail + 4'd1;
                                 // islem tamamlandi cmd buffer kaydir
                                 cmd_buffer_next [0] = cmd_buffer[1];

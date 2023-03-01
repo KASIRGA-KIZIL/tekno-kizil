@@ -110,5 +110,23 @@ module veriyolu(
         .pwm1_o  (pwm1_o )
     );
 
+    spi_denetleyici spi_denetleyici_dut (
+        .clk_i(clk_i),
+        .rst_i(rst_i),
+        .wb_adr_i (wb_adr[4:0]),
+        .wb_dat_i (wb_dat     ),
+        .wb_we_i  (wb_we      ),
+        .wb_stb_i (wb_stb     ),
+        .wb_sel_i (wb_sel     ),
+        .wb_cyc_i (spi_cyc   ),
+        .wb_ack_o (spi_ack   ),
+        .wb_dat_o (spi_dat   ),
+
+        .spi_miso_i(spi_miso_i),
+        .spi_mosi_o(spi_mosi_o),
+        .spi_cs_o(spi_cs_o),
+        .spi_sck_o(spi_sck_o)
+    );
+
 endmodule
 

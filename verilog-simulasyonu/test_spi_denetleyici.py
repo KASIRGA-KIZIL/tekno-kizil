@@ -21,7 +21,7 @@ async def test_spi_mosi(dut):
     # SPI_WDAT
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_000C
+    dut.wb_adr_i.value = 0x000C
     dut.wb_dat_i.value = 0xFFFF_FFFF
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 1
@@ -37,7 +37,7 @@ async def test_spi_mosi(dut):
     # SPI_WDAT
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_000C
+    dut.wb_adr_i.value = 0x000C
     dut.wb_dat_i.value = 0xEEEE_EEEE
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 1
@@ -53,7 +53,7 @@ async def test_spi_mosi(dut):
     # SPI_WDAT
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_000C
+    dut.wb_adr_i.value = 0x000C
     dut.wb_dat_i.value = 0xDDDD_DDDD
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 1
@@ -69,7 +69,7 @@ async def test_spi_mosi(dut):
     # SPI_WDAT
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_000C
+    dut.wb_adr_i.value = 0x000C
     dut.wb_dat_i.value = 0xCCCC_CCCC
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 1
@@ -85,7 +85,7 @@ async def test_spi_mosi(dut):
     # SPI_WDAT
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_000C
+    dut.wb_adr_i.value = 0x000C
     dut.wb_dat_i.value = 0xBBBB_BBBB
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 1
@@ -101,7 +101,7 @@ async def test_spi_mosi(dut):
     # SPI_CTRL sck = 1, spi_en = 1
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_0000
+    dut.wb_adr_i.value = 0x0000
     dut.wb_dat_i.value = 0x0001_0001
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 1
@@ -117,7 +117,7 @@ async def test_spi_mosi(dut):
     # SPI_CMD mosi_en = 1
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_0010
+    dut.wb_adr_i.value = 0x0010
     dut.wb_dat_i.value = 0x0000_2008
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 1
@@ -133,7 +133,7 @@ async def test_spi_mosi(dut):
     # SPI_CMD mosi_en = 1
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_0010
+    dut.wb_adr_i.value = 0x0010
     dut.wb_dat_i.value = 0x0000_2001
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 1
@@ -164,7 +164,7 @@ async def test_spi_m(dut):
     # SPI_CTRL sck = 1, spi_en = 1
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_0000
+    dut.wb_adr_i.value = 0x0000
     dut.wb_dat_i.value = 0x0001_0001
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 1
@@ -180,7 +180,7 @@ async def test_spi_m(dut):
     # SPI_CMD miso_en = 1, length = 3
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_0010
+    dut.wb_adr_i.value = 0x0010
     dut.wb_dat_i.value = 0x0000_100E
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 1
@@ -309,7 +309,7 @@ async def test_spi_m(dut):
     # SPI_RDAT
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_0008
+    dut.wb_adr_i.value = 0x0008
     dut.wb_dat_i.value = 0
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 0
@@ -325,7 +325,7 @@ async def test_spi_m(dut):
     # SPI_RDAT
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_0008
+    dut.wb_adr_i.value = 0x0008
     dut.wb_dat_i.value = 0
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 0
@@ -341,7 +341,7 @@ async def test_spi_m(dut):
     # SPI_RDAT
     dut.wb_cyc_i.value = 1
     dut.wb_stb_i.value = 1
-    dut.wb_adr_i.value = 0x2001_0008
+    dut.wb_adr_i.value = 0x0008
     dut.wb_dat_i.value = 0
     dut.wb_sel_i.value = 0xF
     dut.wb_we_i.value  = 0
