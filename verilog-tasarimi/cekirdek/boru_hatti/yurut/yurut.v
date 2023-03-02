@@ -32,7 +32,7 @@ module yurut(
     output reg  [18:1] gy_ps_artmis_o,             // Rd=PC+4/2 islemi icin gerekli
     output reg  [31:0] gy_rd_deger_o,              // islem birimlerinden cikan sonuc
     output reg  [ 2:0] gy_mikroislem_o,            // Rd secimi ve write enable sinyalleri
-    output reg  [31:0] gy_carp_deger_o,              // islem birimlerinden cikan sonuc
+    output wire  [31:0] gy_carp_deger_o,              // islem birimlerinden cikan sonuc
 
     // Yonlendirme icin
     output wire [31:0] cyo_yonlendir_deger_o,
