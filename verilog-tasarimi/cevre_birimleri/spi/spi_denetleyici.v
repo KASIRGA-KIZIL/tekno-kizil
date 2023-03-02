@@ -161,7 +161,7 @@ module spi_denetleyici (
                                 mosi_buffer_next[7] = 32'd0;
                                 mosi_tail_next = mosi_tail - 4'd1;
                                 spi_wdata_next = mosi_buffer[1];
-                                byte_ctr_next = (flow_ctr>9'd3)? 3'd3 : {1'b0,(flow_ctr[1:0] - 1)};
+                                byte_ctr_next = (flow_ctr>9'd3)? 3'd3 : {1'b0,(flow_ctr[1:0] - 2'd1)};
                             end
                             if(flow_ctr > 9'd0) begin // Sonraki byte
                                 clock_ctr_next = sck_div;
@@ -223,7 +223,7 @@ module spi_denetleyici (
                                 state_next       = IDLE;
                                 clock_ctr_next   = 16'b0;
                                 // flow bitti ne olursa olsun tail kaydir
-                                miso_buffer_next[miso_tail] = spi_rdata>>({(3-length[1:0]),3'b0});// Buraya daha iyi bi cozum?
+                                miso_buffer_next[miso_tail] = spi_rdata>>({(2'd3-length[1:0]),3'b0});// Buraya daha iyi bi cozum?
                                 miso_tail_next = miso_tail + 4'd1;
                                 // islem tamamlandi cmd buffer kaydir
                                 cmd_buffer_next [0] = cmd_buffer[1];
