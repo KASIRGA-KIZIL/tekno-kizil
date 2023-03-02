@@ -24,9 +24,7 @@ module teknofest_ram_basys3 #(
   parameter NB_COL = 4,
   parameter COL_WIDTH = 8,
   parameter RAM_DEPTH = 131072,
-  parameter INIT_FILE = "C:/Users/TUTEL/Desktop/TEKNOFEST/tekno_sw/outputs/hex/uart_test.hex",
-  parameter CPU_CLK   = 25_000_000,
-  parameter BAUD_RATE = 9600
+  parameter INIT_FILE = "C:/Users/TUTEL/Desktop/TEKNOFEST/tekno_sw/outputs/hex/uart_test.hex"
 )
 (
   input clk_i,
@@ -43,6 +41,9 @@ module teknofest_ram_basys3 #(
   output system_reset_o,
   output prog_mode_led_o
     );
+
+localparam CPU_CLK   = 100_000_000;   //Default CPU frequency on FPGA
+localparam BAUD_RATE = 115200;          //Default Baud rate for programming on the run via UART
 
 reg [(NB_COL*COL_WIDTH)-1:0] ram [RAM_DEPTH-1:0];
 reg [(NB_COL*COL_WIDTH)-1:0] ram_data;
@@ -193,6 +194,8 @@ always @(*) begin
     SequenceFinish: begin
       state_prog_next = SequenceWait;
     end
+    default:begin
+    end
   endcase
 end
 
@@ -273,6 +276,8 @@ always @(posedge clk_i) begin
       SequenceFinish: begin
         prog_sys_rst_n <= 1'b0;
       end
+      default: begin
+      end
     endcase
   end
 end
@@ -288,14 +293,13 @@ simpleuart #(
 		.ser_rx      (ram_prog_rx_i),
 
 		.reg_div_we  (4'h0),
-		.reg_div_di  (4'h0),
+		.reg_div_di  (32'h0),
 		.reg_div_do  (),
 
 		.reg_dat_we  (1'b0),
 		.reg_dat_re  (ram_prog_rd_en),
 		.reg_dat_di  (32'h0),
-		.reg_dat_do  (prog_uart_do),
-		.reg_dat_wait()
+		.reg_dat_do  (prog_uart_do)
 	);
 
 endmodule
