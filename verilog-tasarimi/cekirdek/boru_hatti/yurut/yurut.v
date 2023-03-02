@@ -11,6 +11,7 @@ module yurut(
     // DDB sinyalleri
     input  wire ddb_durdur_i,
     output wire ddb_hazir_o,
+    output wire ddb_yonlendir_gecersiz_o,
 
     // Coz-Yazmacoku bolumu sinyallleri
     input  wire [`MI_BIT-1:0] cyo_mikroislem_i,
@@ -31,6 +32,7 @@ module yurut(
     output reg  [18:1] gy_ps_artmis_o,             // Rd=PC+4/2 islemi icin gerekli
     output reg  [31:0] gy_rd_deger_o,              // islem birimlerinden cikan sonuc
     output reg  [ 2:0] gy_mikroislem_o,            // Rd secimi ve write enable sinyalleri
+    output reg  [31:0] gy_carp_deger_o,              // islem birimlerinden cikan sonuc
 
     // Yonlendirme icin
     output wire [31:0] cyo_yonlendir_deger_o,
@@ -48,7 +50,6 @@ module yurut(
     wire [31:0] bol_sonuc_w      ;
     wire [31:0] sifreleme_sonuc_w;
     wire [31:0] bib_sonuc_w;
-    wire [31:0] cb_sonuc_w;
 
     aritmetik_mantik_birimi amb (
         .kontrol_i(cyo_mikroislem_i[`AMB]),
@@ -81,10 +82,11 @@ module yurut(
     carpma_birimi cb(
         .clk_i (clk_i ),
         .rst_i (cb_rst),
+        .durdur_i(ddb_durdur_i),
         .kontrol_i(cyo_mikroislem_i[`CARPMA]),
         .deger1_i (carp_deger1),
         .deger2_i (carp_deger2),
-        .sonuc_o  (cb_sonuc_w)
+        .sonuc_o  (gy_carp_deger_o)
     );
 
     wire bib_bitti;
@@ -152,13 +154,13 @@ module yurut(
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ? bol_sonuc_w      :
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_SIFRELEME) ? sifreleme_sonuc_w:
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_BIB      ) ? bib_sonuc_w      :
-                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ? cb_sonuc_w       :
-                                     (cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ? cb_sonuc_w       :
                                                                                       32'hxxxx_xxxx;
 
     assign gtr_atlanan_ps_o = amb_sonuc_w[18:1];
 
     assign cyo_yonlendir_deger_o = rd_deger_sonraki_w;
+
+    assign ddb_yonlendir_gecersiz_o = (cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA);
 
     always @(posedge clk_i) begin
         if(rst_i) begin

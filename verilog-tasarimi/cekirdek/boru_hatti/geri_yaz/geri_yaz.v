@@ -10,6 +10,7 @@ module geri_yaz(
     input [31:0] yrt_rd_deger_i,
     input [ 2:0] yrt_mikroislem_i,
     input [18:1] yrt_ps_artmis_i,
+    input [31:0] yrt_carp_deger_i,
 
     // COZ'e gidenler
     output [ 4:0] cyo_yaz_adres_o,
@@ -19,6 +20,7 @@ module geri_yaz(
 
     assign cyo_yaz_deger_o = (yrt_mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_YURUT ) ? yrt_rd_deger_i                   :
                              (yrt_mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_PC    ) ? {8'h40,5'b0,yrt_ps_artmis_i,1'b0}:
+                             (yrt_mikroislem_i[`GERIYAZ] == `GERIYAZ_KAYNAK_CARP  ) ? yrt_carp_deger_i                 :
                                                                                      32'hxxxx_xxxx;
 
     assign cyo_yaz_adres_o  = yrt_rd_adres_i;

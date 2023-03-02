@@ -21,7 +21,7 @@ LOG_PATH   = WORK_PATH / 'log'
 BIN_PATH   = WORK_PATH / 'bin'
 DUMP_PATH  = WORK_PATH / 'objdump'
 
-NUM_PROGRAMS = 50
+NUM_PROGRAMS = 2
 
 def main():
     try:

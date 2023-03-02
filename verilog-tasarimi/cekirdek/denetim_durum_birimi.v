@@ -28,6 +28,7 @@ module denetim_durum_birimi(
 
     // YURUT sinyalleri
     output wire      yrt_durdur_o,
+    input wire       yrt_yonlendir_gecersiz_i,
     input wire       yrt_yaz_yazmac_i,         // Rd geri yaziliyor ise 1
     input wire       yrt_hazir_i,              // Birden fazla cevrim suren bolme vs. icin
     input wire [4:0] yrt_rd_adres_i,           // Rd nin adresi
@@ -38,31 +39,43 @@ module denetim_durum_birimi(
 );
 
     reg bos_basla;
+    reg gecersiz;
+    reg durmus;
+
+    wire tmp = (gecersiz | yrt_yonlendir_gecersiz_i);
 
     wire yurut_yonlendir1   = (((cyo_rs1_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs1_adres_i != 0));
     wire geriyaz_yonlendir1 = (((cyo_rs1_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs1_adres_i != 0));
-    assign  cyo_yonlendir_kontrol1_o = yurut_yonlendir1   ? `YON_YURUT :
-                                       geriyaz_yonlendir1 ? `YON_GERIYAZ :
-                                                            `YON_HICBISEY;
+    assign cyo_yonlendir_kontrol1_o = (~yrt_yonlendir_gecersiz_i && yurut_yonlendir1) ? `YON_YURUT :
+                                      (geriyaz_yonlendir1)                            ? `YON_GERIYAZ :
+                                                                                        `YON_HICBISEY;
 
     wire yurut_yonlendir2   = (((cyo_rs2_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs2_adres_i != 0));
     wire geriyaz_yonlendir2 = (((cyo_rs2_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs2_adres_i != 0));
-    assign  cyo_yonlendir_kontrol2_o =  yurut_yonlendir2   ? `YON_YURUT :
-                                        geriyaz_yonlendir2 ? `YON_GERIYAZ :
-                                                             `YON_HICBISEY;
+    assign cyo_yonlendir_kontrol2_o = (~yrt_yonlendir_gecersiz_i && yurut_yonlendir2) ? `YON_YURUT :
+                                      (geriyaz_yonlendir2)                            ? `YON_GERIYAZ :
+                                                                                        `YON_HICBISEY;
 
-    assign gtr_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i;
-    assign cyo_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i;
+
+    wire durmali = (yrt_yonlendir_gecersiz_i && (yurut_yonlendir1 || yurut_yonlendir2));
+
+    assign gtr_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~durmus && durmali);
+    assign cyo_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~durmus && durmali);
     assign yrt_durdur_o = ~gtr_hazir_i;
 
     assign gtr_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
     assign cyo_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
 
+
     always @(posedge clk_i) begin
         if(rst_i)begin
-            bos_basla  <= 1'b1;
+            bos_basla <= 1'b1;
+            gecersiz  <= 1'b0;
+            durmus    <= 1'b0;
         end else begin
-            bos_basla  <= 1'b0;
+            bos_basla <= 1'b0;
+            gecersiz  <= yrt_yonlendir_gecersiz_i ? 1'b1 : 1'b0;
+            durmus    <= durmus ? 1'b0 : durmali;
         end
     end
 endmodule

@@ -6,6 +6,7 @@
 module carpma_birimi (
     input  wire        clk_i,
     input  wire        rst_i,
+    input  wire        durdur_i,
     input  wire [ 1:0] kontrol_i,
     input  wire [31:0] deger1_i,
     input  wire [31:0] deger2_i,
@@ -15,6 +16,8 @@ module carpma_birimi (
 
     reg [32:0] deger1;
     reg [32:0] deger2;
+
+    reg [1:0] kontrol;
 
     always @(*) begin
         case(kontrol_i)
@@ -40,10 +43,14 @@ module carpma_birimi (
     carp_biriktir cbd (
       .clk_i (clk_i ),
       .rst_i (rst_i ),
+      .durdur_i(durdur_i),
       .IN1 (deger1 ),
       .IN2 (deger2 ),
       .result  ( sonuc)
     );
-
-    assign sonuc_o = (kontrol_i == `CARPMA_MUL ) ? sonuc[31: 0] : sonuc[63:32] ;
+    always @(posedge clk_i) begin
+        if(~durdur_i)
+            kontrol <= kontrol_i;
+    end
+    assign sonuc_o = (kontrol == `CARPMA_MUL ) ? sonuc[31: 0] : sonuc[63:32] ;
 endmodule

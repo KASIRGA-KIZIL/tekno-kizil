@@ -69,7 +69,7 @@ module coz_yazmacoku(
 
     wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_tmp_w));
     wire ltu_w = (deger1_tmp_w  < deger2_tmp_w);
-    wire eq_w  = (deger1_tmp_w == deger2_tmp_w);
+    wire eq_w  = (deger1_tmp_w === deger2_tmp_w);
 
     always @* begin
         // Cozulmesi gereken bitler 14 bit 30:29, 27, 25, 21:20, 14:12, 6:2
