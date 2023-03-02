@@ -64,7 +64,7 @@ module spi_denetleyici (
     reg [15:0] clock_ctr, clock_ctr_next;
     reg [ 3:0] bit_ctr, bit_ctr_next;
     reg [ 8:0] flow_ctr, flow_ctr_next;
-    reg [ 4:0] byte_ctr, byte_ctr_next;
+    reg [ 2:0] byte_ctr, byte_ctr_next;
 
     // CTRL yazmaci
     reg  [31:0] spi_ctrl, spi_ctrl_next; // 20 bit yeterli?
@@ -74,6 +74,14 @@ module spi_denetleyici (
     wire        cpol    = spi_ctrl[3];
     wire [15:0] sck_div = spi_ctrl[31:16];
 
+    // CMD yazmaci
+    reg  [31:0]  cmd_buffer[7:0], cmd_buffer_next[7:0];
+    reg  [ 3:0]  cmd_tail,cmd_tail_next;
+    wire [31:0]  cmd = cmd_buffer[0];
+    wire [ 8:0]  length      = cmd[8:0];
+    wire         cs_active   = cmd[9];
+    wire         miso_en     = cmd[12];
+    wire         mosi_en     = cmd[13];
 
     // STAT yazmaci
     wire mosi_full  = (mosi_tail == 4'd8);
@@ -83,14 +91,6 @@ module spi_denetleyici (
     wire cmd_full   = (cmd_tail == 4'd8);
     wire cmd_empty  = (cmd_tail == 4'd0);
 
-    // CMD yazmaci
-    reg  [31:0]  cmd_buffer[7:0], cmd_buffer_next[7:0];
-    reg  [ 3:0]  cmd_tail,cmd_tail_next;
-    wire [31:0]  cmd = cmd_buffer[0];
-    wire [ 8:0]  length      = cmd[8:0];
-    wire         cs_active   = cmd[9];
-    wire         miso_en     = cmd[12];
-    wire         mosi_en     = cmd[13];
 
     integer loop_counter;
     always@*begin
@@ -122,16 +122,16 @@ module spi_denetleyici (
                             if(mosi_en & ~miso_en & ~mosi_empty)begin
                                 clock_ctr_next = sck_div;
                                 bit_ctr_next = 4'd8;
-                                byte_ctr_next = (length>3)? 3'd3 : length[1:0];
+                                byte_ctr_next = (length>9'd3)? 3'd3 : {1'b0,length[1:0]};
                                 flow_ctr_next = length;
                                 spi_sck_o_r_next = cpol;
                                 spi_cs_o_r_next = 1'b0;
                                 state_next = WRITE;
                                 spi_wdata_next = mosi_buffer[0];
-                            end else if(miso_en & ~mosi_en)begin
+                            end else if(miso_en & ~mosi_en & ~miso_full)begin
                                 clock_ctr_next = sck_div;
                                 bit_ctr_next = 4'd8;
-                                byte_ctr_next = (length>3)? 3'd3 : length[1:0];
+                                byte_ctr_next = (length>9'd3)? 3'd3 : {1'b0,length[1:0]};
                                 flow_ctr_next = length;
                                 spi_sck_o_r_next = cpol;
                                 spi_cs_o_r_next = 1'b0;
@@ -161,12 +161,12 @@ module spi_denetleyici (
                                 mosi_buffer_next[7] = 32'd0;
                                 mosi_tail_next = mosi_tail - 4'd1;
                                 spi_wdata_next = mosi_buffer[1];
-                                byte_ctr_next = (flow_ctr>3)? 3'd3 : flow_ctr[1:0] - 1;
+                                byte_ctr_next = (flow_ctr>9'd3)? 3'd3 : {1'b0,(flow_ctr[1:0] - 1)};
                             end
-                            if(flow_ctr > 4'd0) begin // Sonraki byte
+                            if(flow_ctr > 9'd0) begin // Sonraki byte
                                 clock_ctr_next = sck_div;
                                 bit_ctr_next = 4'd8;
-                                flow_ctr_next = flow_ctr - 4'd1;
+                                flow_ctr_next = flow_ctr - 9'd1;
                                 state_next = WRITE;
                             end else begin // Tum veri aktarildi
                                 state_next       = IDLE;
@@ -214,16 +214,16 @@ module spi_denetleyici (
                                 byte_ctr_next = 3'd3;
                                 spi_rdata_next = 32'd0;
                             end
-                            if(flow_ctr > 4'd0) begin // Sonraki byte
+                            if(flow_ctr > 9'd0) begin // Sonraki byte
                                 clock_ctr_next = sck_div;
                                 bit_ctr_next = 4'd8;
-                                flow_ctr_next = flow_ctr - 4'd1;
+                                flow_ctr_next = flow_ctr - 9'd1;
                                 state_next = READ;
                             end else begin // Tum bytelar okundu
                                 state_next       = IDLE;
                                 clock_ctr_next   = 16'b0;
                                 // flow bitti ne olursa olsun tail kaydir
-                                miso_buffer_next[miso_tail] = spi_rdata>>((3-length[1:0])<<3);// Buraya daha iyi bi cozum?
+                                miso_buffer_next[miso_tail] = spi_rdata>>({(3-length[1:0]),3'b0});// Buraya daha iyi bi cozum?
                                 miso_tail_next = miso_tail + 4'd1;
                                 // islem tamamlandi cmd buffer kaydir
                                 cmd_buffer_next [0] = cmd_buffer[1];
@@ -247,6 +247,9 @@ module spi_denetleyici (
                                 spi_rdata_next  = {spi_miso_i,spi_rdata[31:1]};
                             end
                         end
+                    end
+                    default:begin
+                        wb_dat_o_r_next = wb_dat_o_r; //nop
                     end
                 endcase
             end else begin
@@ -289,23 +292,26 @@ module spi_denetleyici (
                 SPI_WDAT:begin
                     if(wb_we_i & ~mosi_full)begin
                         //                                                                  TODO: 0 mı verilmeli yoksa aynı kalmalı? farketmemesi lazım?
-                        mosi_buffer_next[mosi_tail][ 7: 0] = wb_sel_i[0] ? wb_dat_i[ 7: 0] : mosi_buffer[mosi_tail];
-                        mosi_buffer_next[mosi_tail][15: 8] = wb_sel_i[1] ? wb_dat_i[15: 8] : mosi_buffer[mosi_tail];
-                        mosi_buffer_next[mosi_tail][23:16] = wb_sel_i[2] ? wb_dat_i[23:16] : mosi_buffer[mosi_tail];
-                        mosi_buffer_next[mosi_tail][31:24] = wb_sel_i[3] ? wb_dat_i[31:24] : mosi_buffer[mosi_tail];
+                        mosi_buffer_next[mosi_tail[2:0]][ 7: 0] = wb_sel_i[0] ? wb_dat_i[ 7: 0] : mosi_buffer[mosi_tail[2:0]];
+                        mosi_buffer_next[mosi_tail[2:0]][15: 8] = wb_sel_i[1] ? wb_dat_i[15: 8] : mosi_buffer[mosi_tail[2:0]];
+                        mosi_buffer_next[mosi_tail[2:0]][23:16] = wb_sel_i[2] ? wb_dat_i[23:16] : mosi_buffer[mosi_tail[2:0]];
+                        mosi_buffer_next[mosi_tail[2:0]][31:24] = wb_sel_i[3] ? wb_dat_i[31:24] : mosi_buffer[mosi_tail[2:0]];
                         mosi_tail_next = mosi_tail + 4'b1;
                     end
                 end
                 SPI_CMD :begin
                     if(wb_we_i & ~cmd_full)begin
-                        cmd_buffer_next[cmd_tail][ 7: 0] = wb_sel_i[0] ? wb_dat_i[ 7: 0] : 8'b0;
-                        cmd_buffer_next[cmd_tail][15: 8] = wb_sel_i[1] ? wb_dat_i[15: 8] : 8'b0;
-                        cmd_buffer_next[cmd_tail][23:16] = wb_sel_i[2] ? wb_dat_i[23:16] : 8'b0;
-                        cmd_buffer_next[cmd_tail][31:24] = wb_sel_i[3] ? wb_dat_i[31:24] : 8'b0;
+                        cmd_buffer_next[cmd_tail[2:0]][ 7: 0] = wb_sel_i[0] ? wb_dat_i[ 7: 0] : 8'b0;
+                        cmd_buffer_next[cmd_tail[2:0]][15: 8] = wb_sel_i[1] ? wb_dat_i[15: 8] : 8'b0;
+                        cmd_buffer_next[cmd_tail[2:0]][23:16] = wb_sel_i[2] ? wb_dat_i[23:16] : 8'b0;
+                        cmd_buffer_next[cmd_tail[2:0]][31:24] = wb_sel_i[3] ? wb_dat_i[31:24] : 8'b0;
                         cmd_tail_next = cmd_tail + 4'b1;
                     end else begin
                         wb_dat_o_r_next = cmd;
                     end
+                end
+                default:begin
+                    wb_dat_o_r_next = wb_dat_o_r; //nop
                 end
             endcase
         end
