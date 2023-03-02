@@ -55,7 +55,7 @@ clk_wiz_0 dutclk (
       .clk_out1(clk_i),
       .clk_in1_p(clk_p),
       .clk_in1_n(clk_n),
-      .reset(0),
+      .reset(~rst_ni),
       .locked(dummy)
 );
 
