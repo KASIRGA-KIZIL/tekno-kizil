@@ -189,7 +189,7 @@ module spi_denetleyici (
                                 cmd_buffer_next [4] = cmd_buffer[5];
                                 cmd_buffer_next [5] = cmd_buffer[6];
                                 cmd_buffer_next [6] = cmd_buffer[7];
-                                cmd_buffer_next [7] = 32'b0;
+                                cmd_buffer_next [7] = 32'd0;
                                 cmd_tail_next = cmd_tail - 4'b1;
 
                                 spi_cs_o_r_next  = ~cs_active;
@@ -212,7 +212,7 @@ module spi_denetleyici (
                                 miso_buffer_next[miso_tail] = spi_rdata;
                                 miso_tail_next = miso_tail + 4'd1;
                                 byte_ctr_next = 3'd3;
-                                spi_rdata_next = 32'b0;
+                                spi_rdata_next = 32'd0;
                             end
                             if(flow_ctr > 4'd0) begin // Sonraki byte
                                 clock_ctr_next = sck_div;
@@ -233,9 +233,9 @@ module spi_denetleyici (
                                 cmd_buffer_next [4] = cmd_buffer[5];
                                 cmd_buffer_next [5] = cmd_buffer[6];
                                 cmd_buffer_next [6] = cmd_buffer[7];
-                                cmd_buffer_next [7] = 32'b0;
+                                cmd_buffer_next [7] = 32'd0;
                                 cmd_tail_next = cmd_tail - 4'b1;
-                                spi_rdata_next = 32'b0;
+                                spi_rdata_next = 32'd0;
                                 spi_cs_o_r_next  = ~cs_active;
                                 spi_sck_o_r_next = cpol;
                             end
@@ -262,7 +262,7 @@ module spi_denetleyici (
                         spi_ctrl_next[ 7: 0] = wb_sel_i[0] ? wb_dat_i[ 7: 0] : 8'b0;
                         spi_ctrl_next[15: 8] = wb_sel_i[1] ? wb_dat_i[15: 8] : 8'b0;
                         spi_ctrl_next[23:16] = wb_sel_i[2] ? wb_dat_i[23:16] : 8'b0;
-                        spi_ctrl_next[32:24] = wb_sel_i[3] ? wb_dat_i[32:24] : 8'b0;
+                        spi_ctrl_next[31:24] = wb_sel_i[3] ? wb_dat_i[31:24] : 8'b0;
                     end else begin
                         wb_dat_o_r_next = spi_ctrl;
                     end
@@ -292,7 +292,7 @@ module spi_denetleyici (
                         mosi_buffer_next[mosi_tail][ 7: 0] = wb_sel_i[0] ? wb_dat_i[ 7: 0] : mosi_buffer[mosi_tail];
                         mosi_buffer_next[mosi_tail][15: 8] = wb_sel_i[1] ? wb_dat_i[15: 8] : mosi_buffer[mosi_tail];
                         mosi_buffer_next[mosi_tail][23:16] = wb_sel_i[2] ? wb_dat_i[23:16] : mosi_buffer[mosi_tail];
-                        mosi_buffer_next[mosi_tail][31:24] = wb_sel_i[3] ? wb_dat_i[32:24] : mosi_buffer[mosi_tail];
+                        mosi_buffer_next[mosi_tail][31:24] = wb_sel_i[3] ? wb_dat_i[31:24] : mosi_buffer[mosi_tail];
                         mosi_tail_next = mosi_tail + 4'b1;
                     end
                 end
