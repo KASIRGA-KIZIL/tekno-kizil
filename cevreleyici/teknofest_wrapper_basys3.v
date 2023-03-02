@@ -21,41 +21,32 @@
 
 module teknofest_wrapper_basys3(
   input  clk,
-
+  input  rst_ni,
   input  program_rx_i,
 
-  output uart_tx_header_o,
   output uart_tx_o,
   input  uart_rx_i,
-  output clk_header_o,
 
-  output [15:0] LED,
-  input  [15:0] sw
+  output pwm0_o,
+  output pwm1_o,
+
+  output prog_mode_led_o
 );
-wire prog_mode_led_o;
-wire rst_ni  = sw[0];
-wire clk_i;
-wire dummy;
-
-assign  LED[0]  = rst_ni;
-assign  LED[14:1] = sw[14:1];
-assign  LED[15] = prog_mode_led_o;
-assign  uart_tx_header_o = uart_tx_o;
-assign  clk_header_o = clk_i;
 
 wire spi_cs_o;
 wire spi_sck_o;
 wire spi_mosi_o;
 wire spi_miso_i;
-wire pwm0_o;
-wire pwm1_o;
+
+wire clk_i;
+wire dummy;
 
 clk_wiz_0 dutclk (
       .clk_out1(clk_i),
       .clk_in1(clk),
       .reset(~rst_ni),
       .locked(dummy)
-  );
+);
 
 localparam RAM_DELAY = 16;
 
@@ -71,10 +62,7 @@ parameter [31:0] RAM_BASE_ADDR = 32'h4000_0000;
 parameter [31:0] RAM_MASK_ADDR = 32'h000f_ffff;
 parameter [31:0] CHIP_IO_BASE_ADDR = SPI_BASE_ADDR + SPI_MASK_ADDR;
 parameter [31:0] CHIP_IO_MASK_ADDR = RAM_BASE_ADDR + RAM_MASK_ADDR;
-parameter RAM_DEPTH = 10000;
-parameter INIT_FILE = "/mnt/second/rep/teknofest/tekno-kizil/testler/uart-demo/uart_demo_static.hex";
-parameter CPU_CLK   = 25_000_000;
-parameter BAUD_RATE = 9600;
+parameter RAM_DEPTH = 'h2000;
 
 (* mark_debug = "yes" *) wire        iomem_valid;
 (* mark_debug = "yes" *) wire        iomem_ready;
@@ -93,6 +81,7 @@ reg [63:0] timer;
 wire   prog_system_reset;
 wire   rst_n;
 assign rst_n = prog_system_reset & rst_ni;
+
 
 user_processor soc (
   .clk           (clk_i        ),
@@ -145,16 +134,11 @@ assign main_mem_wstrb = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE
 
 assign main_mem_rd_en = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE_ADDR) & ~(|iomem_wstrb);
 
-
-
-
 teknofest_ram_basys3 #(
   .NB_COL(4),
   .COL_WIDTH(8),
   .RAM_DEPTH(RAM_DEPTH),
-  .INIT_FILE(INIT_FILE),
-  .CPU_CLK(CPU_CLK),
-  .BAUD_RATE(BAUD_RATE)
+  .INIT_FILE("")
 ) main_memory
 (
   .clk_i           (clk_i ),
