@@ -42,7 +42,7 @@ module teknofest_ram_basys3 #(
   output prog_mode_led_o
     );
 
-localparam CPU_CLK   = 100_000_000;   //Default CPU frequency on FPGA
+localparam CPU_CLK   = 25_000_000;   //Default CPU frequency on FPGA
 localparam BAUD_RATE = 115200;          //Default Baud rate for programming on the run via UART
 
 reg [(NB_COL*COL_WIDTH)-1:0] ram [RAM_DEPTH-1:0];
