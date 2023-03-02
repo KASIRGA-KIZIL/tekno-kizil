@@ -57,7 +57,7 @@ clk_wiz_0 dutclk (
       .clk_in1_n(clk_n),
       .reset(0),
       .locked(dummy)
-  );
+);
 
 localparam RAM_DELAY = 16;
 
@@ -137,7 +137,7 @@ always @(posedge clk_i) begin
   end
 end
 
-assign iomem_ready = ram_shift_q[RAM_DELAY-1] | (iomem_valid & (iomem_addr == 32'h3000_0000));
+assign iomem_ready = ram_shift_q[RAM_DELAY-1] | (iomem_valid & (iomem_addr == 32'h3000_0000 || iomem_addr == 32'h3000_0004));
 
 assign iomem_rdata = (iomem_valid & (iomem_addr == 32'h3000_0000)) ? timer[31:0]  :
                      (iomem_valid & (iomem_addr == 32'h3000_0004)) ? timer[63:32] : main_mem_rdata;
@@ -150,7 +150,7 @@ assign main_mem_rd_en = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE
 
 
 
-teknofest_ram #(
+teknofest_ram_vcu108 #(
   .NB_COL(4),
   .COL_WIDTH(8),
   .RAM_DEPTH(RAM_DEPTH),
