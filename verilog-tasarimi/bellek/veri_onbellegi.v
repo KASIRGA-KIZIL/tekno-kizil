@@ -183,7 +183,8 @@ blk_mem_gen_0 blk3(
 
 // okumada hit varsa bile 1 cycle durmali -> CACHE_OKU
 // not: fazladan durdur silinebilir
-assign l1v_durdur_o =  (durum_next_r != BEKLE) ;
+reg basladi;
+assign l1v_durdur_o = (~basladi && l1v_sec_i) || ~(durum_r == BEKLE);
 
 
 assign cache_valid_w = valid_r[l1v_adr_i[`ADR]];
@@ -327,6 +328,7 @@ always @(posedge clk_i) begin
         anabellek_adr_r <= 0;
         anabellek_veri_r <= 0;
         anabellek_veri_kullan_r <= 0;
+        basladi <= 1'b0;
     end
     else begin
         dirty_r <= dirty_next_r;
@@ -335,6 +337,7 @@ always @(posedge clk_i) begin
         anabellek_adr_r <= anabellek_adr_next_r;
         anabellek_veri_r <= anabellek_veri_next_r;
         anabellek_veri_kullan_r <= anabellek_veri_kullan_next_r;
+        basladi <= ~(durum_r == BEKLE);
     end
 end
 
