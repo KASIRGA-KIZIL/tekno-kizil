@@ -41,7 +41,7 @@ async def anabellek(dut):
             dut.rst_ni.value = 1
             while(1):
                 try:
-                    if(test["finish_adr"] == dut.iomem_addr.value.integer):
+                    if(test["finish_adr"] == dut.soc.cek.getir_dut.debug_ps.value.integer):
                         print("[FINISHED] ")
                         dut.rst_ni.value = 0
                         await RisingEdge(dut.clk_i)
@@ -79,9 +79,13 @@ async def anabellek(dut):
 
                 await RisingEdge(dut.clk_i)
                 if(not dut.soc.cek.coz_yazmacoku_dut.ddb_durdur_i.value):
+                    print("a")
                     if(not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value):
+                        print("b")
                         if(not first):
+                            print("c")
                             if((not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value) and (not prebosalt)):
+                                print("d")
                                 try:
                                     address     = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.debug_ps.value.integer,10)
                                     instruction = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.gtr_buyruk_i.value.integer,10)
@@ -97,7 +101,7 @@ async def anabellek(dut):
                 timout = timout + 1
                 if(timout > TIMEOUT):
                     print("[TEST] ", test_name, " FAILED TIMOUT")
-                    ps     = "{0:#0{1}x}".format(dut.iomem_addr.value.integer,10)
+                    ps     = "{0:#0{1}x}".format(dut.soc.cek.getir_dut.debug_ps.value.integer,10)
                     print("current PC: ", ps)
                     f.write('\n'.join(final_logs))
                     f.close()

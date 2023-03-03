@@ -184,7 +184,7 @@ blk_mem_gen_0 blk3(
 // okumada hit varsa bile 1 cycle durmali -> CACHE_OKU
 // not: fazladan durdur silinebilir
 reg basladi;
-assign l1v_durdur_o = (~basladi && l1v_sec_i) || ~(durum_r == BEKLE);
+assign l1v_durdur_o = (~basladi && l1v_sec_i) || ~(durum_r == BITTI);
 
 
 assign cache_valid_w = valid_r[l1v_adr_i[`ADR]];
