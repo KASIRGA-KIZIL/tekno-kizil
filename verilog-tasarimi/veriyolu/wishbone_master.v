@@ -37,6 +37,11 @@ module wishbone_master(
     output     [0:0]  pwm_cyc_o ,
     input      [0:0]  pwm_ack_i ,
     input      [31:0] pwm_dat_i
+    
+    // VGA
+    ,output     [0:0]  vga_cyc_o ,
+    input      [0:0]  vga_ack_i ,
+    input      [31:0] vga_dat_i
 );
 
     reg  cyc;
@@ -44,17 +49,23 @@ module wishbone_master(
     wire ack = (vy_adres_i[17:16] == 2'b00) ? uart_ack_i :
                (vy_adres_i[17:16] == 2'b01) ? spi_ack_i  :
                (vy_adres_i[17:16] == 2'b10) ? pwm_ack_i  :
+               
+               (vy_adres_i[17:16] == 2'b11) ? vga_ack_i  :
                                               1'b0;
 
     assign vy_veri_o = (vy_adres_i[17:16] == 2'b00) ? uart_dat_i :
                        (vy_adres_i[17:16] == 2'b01) ? spi_dat_i  :
                        (vy_adres_i[17:16] == 2'b10) ? pwm_dat_i  :
+                       
+                       (vy_adres_i[17:16] == 2'b11) ? vga_dat_i  :
                                                       32'b0;
 
     assign adr_o = vy_adres_i[7:0];
     assign dat_o = vy_veri_i;
     assign we_o  = |(vy_veri_maske_i);
     assign sel_o = vy_veri_maske_i;
+
+    assign vga_cyc_o  = (vy_adres_i[17:16] == 2'b11) ? cyc : 1'b0;
 
     assign pwm_cyc_o  = (vy_adres_i[17:16] == 2'b10) ? cyc : 1'b0;
     assign spi_cyc_o  = (vy_adres_i[17:16] == 2'b01) ? cyc : 1'b0;
@@ -102,3 +113,4 @@ module wishbone_master(
         endcase
     end
 endmodule
+

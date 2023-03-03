@@ -26,7 +26,17 @@ module veriyolu(
 
     output pwm0_o,
     output pwm1_o
-
+    
+    ,input clk_27mhz
+    
+    ,output [9:0] o_VGA_R,
+    output [9:0] o_VGA_G,
+    output [9:0] o_VGA_B,
+    output o_VGA_H_SYNC,
+    output o_VGA_V_SYNC,
+    output o_VGA_SYNC,
+    output o_VGA_BLANK,
+    output o_VGA_CLOCK
 );
 
     // TODO wb_adr bit sayisi azaltilabilir
@@ -47,6 +57,10 @@ module veriyolu(
     wire        pwm_cyc;
     wire        pwm_ack;
     wire [31:0] pwm_dat;
+    
+    wire        vga_cyc;
+    wire        vga_ack;
+    wire [31:0] vga_dat;
 
     wishbone_master wm(
         .clk_i(clk_i),
@@ -76,6 +90,10 @@ module veriyolu(
         .pwm_cyc_o (pwm_cyc),
         .pwm_ack_i (pwm_ack),
         .pwm_dat_i (pwm_dat)
+        
+        ,.vga_cyc_o (vga_cyc),
+        .vga_ack_i (vga_ack),
+        .vga_dat_i (vga_dat)
     );
 
     uart_denetleyici uart_denetleyici_dut (
@@ -126,6 +144,30 @@ module veriyolu(
         .spi_mosi_o(spi_mosi_o),
         .spi_cs_o(spi_cs_o),
         .spi_sck_o(spi_sck_o)
+    );
+    
+    vga_denetleyici vga_denetleyici_dut (
+        .clk_i(clk_i),
+        .rst_i(rst_i),
+        .wb_adr_i (wb_adr[5:0]),
+        .wb_dat_i (wb_dat     ),
+        .wb_we_i  (wb_we      ),
+        .wb_stb_i (wb_stb     ),
+        .wb_sel_i (wb_sel     ),
+        .wb_cyc_i (vga_cyc   ),
+        .wb_ack_o (vga_ack   ),
+        .wb_dat_o (vga_dat   ),
+
+        .clk_27mhz(clk_27mhz),
+        
+        .o_VGA_R(o_VGA_R),
+        .o_VGA_G(o_VGA_G),
+        .o_VGA_B(o_VGA_B),
+        .o_VGA_H_SYNC(o_VGA_H_SYNC),
+        .o_VGA_V_SYNC(o_VGA_V_SYNC),
+        .o_VGA_SYNC(o_VGA_SYNC),
+        .o_VGA_BLANK(o_VGA_BLANK),
+        .o_VGA_CLOCK(o_VGA_CLOCK)
     );
 
 endmodule

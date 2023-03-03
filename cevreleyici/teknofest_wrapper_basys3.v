@@ -31,7 +31,31 @@ module teknofest_wrapper_basys3(
   output pwm1_o,
 
   output prog_mode_led_o
+  
+  ,output [3:0] o_VGA_R,
+  output [3:0] o_VGA_G,
+  output [3:0] o_VGA_B,
+  //,output [9:0] o_VGA_R,
+  //output [9:0] o_VGA_G,
+  //output [9:0] o_VGA_B,
+  output o_VGA_H_SYNC,
+  output o_VGA_V_SYNC
+  //,output o_VGA_SYNC,
+  //output o_VGA_BLANK,
+  //output o_VGA_CLOCK
 );
+
+wire o_VGA_SYNC;
+wire o_VGA_BLANK;
+wire o_VGA_CLOCK;
+
+wire [5:0] o_VGA_R_w;
+wire [5:0] o_VGA_G_w;
+wire [5:0] o_VGA_B_w;
+
+wire [9:0] o_VGA_R_o = {o_VGA_R_w, o_VGA_R};
+wire [9:0] o_VGA_G_o = {o_VGA_G_w, o_VGA_G};
+wire [9:0] o_VGA_B_o = {o_VGA_B_w, o_VGA_B};
 
 wire spi_cs_o;
 wire spi_sck_o;
@@ -41,11 +65,14 @@ wire spi_miso_i;
 wire clk_i;
 wire dummy;
 
+wire clk_27mhz;
+
 clk_wiz_0 dutclk (
-      .clk_out1(clk_i),
-      .clk_in1(clk),
-      .reset(~rst_ni),
-      .locked(dummy)
+    .clk_out2(clk_27mhz),
+    .clk_out1(clk_i),
+    .clk_in1(clk),
+    .reset(~rst_ni),
+    .locked(dummy)
 );
 
 localparam RAM_DELAY = 16;
@@ -62,7 +89,7 @@ parameter [31:0] RAM_BASE_ADDR = 32'h4000_0000;
 parameter [31:0] RAM_MASK_ADDR = 32'h000f_ffff;
 parameter [31:0] CHIP_IO_BASE_ADDR = SPI_BASE_ADDR + SPI_MASK_ADDR;
 parameter [31:0] CHIP_IO_MASK_ADDR = RAM_BASE_ADDR + RAM_MASK_ADDR;
-parameter RAM_DEPTH = 'h2000;
+parameter RAM_DEPTH = 'h5000; //'h2000;
 
 (* mark_debug = "yes" *) wire        iomem_valid;
 (* mark_debug = "yes" *) wire        iomem_ready;
@@ -100,6 +127,17 @@ user_processor soc (
   .uart_rx_i     (uart_rx_i    ),
   .pwm0_o        (pwm0_o       ),
   .pwm1_o        (pwm1_o       )
+  
+  ,.clk_27mhz(clk_27mhz)
+  
+  ,.o_VGA_R(o_VGA_R_o),
+  .o_VGA_G(o_VGA_G_o),
+  .o_VGA_B(o_VGA_B_o),
+  .o_VGA_H_SYNC(o_VGA_H_SYNC),
+  .o_VGA_V_SYNC(o_VGA_V_SYNC),
+  .o_VGA_SYNC(o_VGA_SYNC),
+  .o_VGA_BLANK(o_VGA_BLANK),
+  .o_VGA_CLOCK(o_VGA_CLOCK)
 );
 
 reg [RAM_DELAY-1:0] ram_shift_q;
@@ -133,6 +171,9 @@ assign main_mem_wstrb = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE
                         iomem_wstrb : 4'b0;
 
 assign main_mem_rd_en = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE_ADDR) & ~(|iomem_wstrb);
+
+
+
 
 teknofest_ram_basys3 #(
   .NB_COL(4),
@@ -170,3 +211,4 @@ function integer clogb2;
 endfunction
 
 endmodule
+

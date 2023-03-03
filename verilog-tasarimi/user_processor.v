@@ -23,6 +23,17 @@ module user_processor(
 
     output pwm0_o,
     output pwm1_o
+    
+    ,input clk_27mhz
+    
+    ,output [9:0] o_VGA_R,
+    output [9:0] o_VGA_G,
+    output [9:0] o_VGA_B,
+    output o_VGA_H_SYNC,
+    output o_VGA_V_SYNC,
+    output o_VGA_SYNC,
+    output o_VGA_BLANK,
+    output o_VGA_CLOCK
 );
     wire clk_i = clk;
     wire rst_i = ~resetn;
@@ -169,7 +180,19 @@ module user_processor(
         .spi_miso_i (spi_miso_i ),
         .pwm0_o (pwm0_o ),
         .pwm1_o (pwm1_o )
+        
+        ,.clk_27mhz(clk_27mhz)
+        
+        ,.o_VGA_R(o_VGA_R),
+        .o_VGA_G(o_VGA_G),
+        .o_VGA_B(o_VGA_B),
+        .o_VGA_H_SYNC(o_VGA_H_SYNC),
+        .o_VGA_V_SYNC(o_VGA_V_SYNC),
+        .o_VGA_SYNC(o_VGA_SYNC),
+        .o_VGA_BLANK(o_VGA_BLANK),
+        .o_VGA_CLOCK(o_VGA_CLOCK)
     );
 
 
 endmodule
+
