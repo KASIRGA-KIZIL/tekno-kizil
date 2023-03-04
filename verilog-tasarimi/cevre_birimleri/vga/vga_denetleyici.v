@@ -25,23 +25,23 @@ module vga_denetleyici (
     output wire        o_VGA_SYNC,
     output wire        o_VGA_BLANK,
     output wire        o_VGA_CLOCK
-    
+
     ,input clk_27mhz
 );
 
-    reg [479:0] mem [639:0];
+    reg [479:0] mem [399:0];
 
-    integer i = 0;
-    initial begin
-        for(i=0; i<640; i=i+1)
-            mem[i] = {480{1'b1}};
-    end
+    //integer i = 0;
+    //initial begin
+    //    for(i=0; i<640; i=i+1)
+    //        mem[i] = {480{1'b1}};
+    //end
 
     wire [ 9:0] o_Hori;
     wire [ 9:0] o_Verti;
-    wire [ 9:0] i_Red = {9{mem[o_Hori][o_Verti]}};
-    wire [ 9:0] i_Green = {9{mem[o_Hori][o_Verti]}};
-    wire [ 9:0] i_Blue = {9{mem[o_Hori][o_Verti]}};
+    wire [ 9:0] i_Red = {10{mem[o_Hori][o_Verti]}};
+    wire [ 9:0] i_Green = {10{mem[o_Hori][o_Verti]}};
+    wire [ 9:0] i_Blue = {10{mem[o_Hori][o_Verti]}};
 
     vga vga_dut(
     //    Host Side
@@ -68,16 +68,15 @@ module vga_denetleyici (
     always @(posedge clk_i) begin
         if (rst_i) begin
             wb_ack_o <= 1'b0;
-            
-        end 
+        end
         else begin
             if(wb_cyc_i) begin
                 wb_ack_o <= wb_stb_i & !wb_ack_o;
-                
+
                 if(wb_stb_i & wb_we_i & !wb_ack_o & wb_sel_i[0]) begin
-                    mem[wb_adr_i[18:9]][wb_adr_i[8:0]] <= wb_dat_i[0];
+                    mem[wb_dat_i[18:10]][wb_dat_i[9:1]] <= wb_dat_i[0];
                 end
-       
+
             end
         end
     end
