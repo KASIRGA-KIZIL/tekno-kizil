@@ -28,3 +28,13 @@ set_property PACKAGE_PIN M18 [get_ports pwm0_o]
 	set_property IOSTANDARD LVCMOS33 [get_ports pwm0_o]
 set_property PACKAGE_PIN N17 [get_ports pwm1_o]
 	set_property IOSTANDARD LVCMOS33 [get_ports pwm1_o]
+
+# SPI
+set_property PACKAGE_PIN L17 [get_ports spi_cs_o]
+	set_property IOSTANDARD LVCMOS33 [get_ports spi_cs_o]
+set_property PACKAGE_PIN M19 [get_ports spi_sck_o]
+	set_property IOSTANDARD LVCMOS33 [get_ports spi_sck_o]
+set_property PACKAGE_PIN P17 [get_ports spi_mosi_o]
+	set_property IOSTANDARD LVCMOS33 [get_ports spi_mosi_o]
+set_property PACKAGE_PIN R18 [get_ports spi_miso_i]
+	set_property IOSTANDARD LVCMOS33 [get_ports spi_miso_i]

@@ -30,13 +30,14 @@ module teknofest_wrapper_basys3(
   output pwm0_o,
   output pwm1_o,
 
+  output spi_cs_o,
+  output spi_sck_o,
+  output spi_mosi_o,
+  output spi_miso_i,
+
   output prog_mode_led_o
 );
 
-wire spi_cs_o;
-wire spi_sck_o;
-wire spi_mosi_o;
-wire spi_miso_i;
 
 wire clk_i;
 wire dummy;

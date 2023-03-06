@@ -1,4 +1,4 @@
-### vcu.xdc
+## vcu.xdc
 
 set_property CFGBVS GND                                [current_design]
 set_property CONFIG_VOLTAGE 1.8                        [current_design]
@@ -34,3 +34,9 @@ set_property -dict {LOC AW16 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports {
 set_property -dict {LOC BE24 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports uart_tx_o]
 set_property -dict {LOC BC24 IOSTANDARD LVCMOS18} [get_ports uart_rx_i]
 
+
+# SPI
+set_property -dict {LOC BC13 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports {spi_cs_o}]
+set_property -dict {LOC BF7 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports {spi_sck_o}]
+set_property -dict {LOC AW12 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports {spi_mosi_o}]
+set_property -dict {LOC BC16 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports {spi_miso_i}]

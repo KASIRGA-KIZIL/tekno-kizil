@@ -31,6 +31,11 @@ module teknofest_wrapper_vcu108(
   output pwm0_o,
   output pwm1_o,
 
+  output spi_cs_o,
+  output spi_sck_o,
+  output spi_mosi_o,
+  output spi_miso_i,
+
   //output uart_tx_pmod,
   //output [7:0] LED
   output prog_mode_led_o
@@ -41,10 +46,6 @@ module teknofest_wrapper_vcu108(
 
 //assign uart_tx_pmod = uart_tx_o;
 
-wire spi_cs_o;
-wire spi_sck_o;
-wire spi_mosi_o;
-wire spi_miso_i;
 //wire pwm0_o;
 //wire pwm1_o;
 
