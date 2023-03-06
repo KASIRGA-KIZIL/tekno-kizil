@@ -1,4 +1,4 @@
-#test_bolme_birimi.py
+#test_carpma_birimi.py
 
 import cocotb
 from cocotb.clock import Clock
@@ -16,9 +16,9 @@ async def test_mul(dut):
     # Sabit giris atamalari
     kontrol = 0
     biriktir = 0
+    dut.durdur_i.value = 0
     dut.kontrol_i.value = kontrol
-    dut.biriktir_i.value = biriktir
-    dut.rst_i.value = 0
+    dut.rst_i.value = not biriktir
     
     dut.deger1_i.value = 0
     dut.deger2_i.value = 0
@@ -48,9 +48,9 @@ async def test_mulh(dut):
     # Sabit giris atamalari
     kontrol = 1
     biriktir = 0
+    dut.durdur_i.value = 0
     dut.kontrol_i.value = kontrol
-    dut.biriktir_i.value = biriktir
-    dut.rst_i.value = 0
+    dut.rst_i.value = not biriktir
     
     dut.deger1_i.value = 0
     dut.deger2_i.value = 0
@@ -80,9 +80,9 @@ async def test_conv(dut):
     # Sabit giris atamalari
     kontrol = 0
     biriktir = 1
+    dut.durdur_i.value = 0
     dut.kontrol_i.value = kontrol
-    dut.biriktir_i.value = biriktir
-    dut.rst_i.value = 0
+    dut.rst_i.value = not biriktir
     
     dut.deger1_i.value = 0
     dut.deger2_i.value = 0
