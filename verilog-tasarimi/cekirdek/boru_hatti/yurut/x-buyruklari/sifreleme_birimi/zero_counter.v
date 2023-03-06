@@ -2,81 +2,87 @@
 
 
 `timescale 1ns / 1ps
-
-
 module zero_counter(
-    input [31:0] deger_i,
-    output reg [4:0] sifir_sayisi,
-    output [0:0] hepsi_sifir
+  input wire [31:0] deger_i,
+  output wire [5:0] sifir_sayisi
 );
-    assign hepsi_sifir = !(|deger_i);
-    always@*begin
-        sifir_sayisi = 5'd0;
-        casez(deger_i)
-            32'b10000000_00000000_00000000_00000000:
-                sifir_sayisi = 5'd31;
-            32'b?1000000_00000000_00000000_00000000:
-                sifir_sayisi = 5'd30;
-            32'b??100000_00000000_00000000_00000000:
-                sifir_sayisi = 5'd29;
-            32'b???10000_00000000_00000000_00000000:
-                sifir_sayisi = 5'd28;
-            32'b????1000_00000000_00000000_00000000:
-                sifir_sayisi = 5'd27;
-            32'b?????100_00000000_00000000_00000000:
-                sifir_sayisi = 5'd26;
-            32'b??????10_00000000_00000000_00000000:
-                sifir_sayisi = 5'd25;
-            32'b???????1_00000000_00000000_00000000:
-                sifir_sayisi = 5'd24;
-            32'b????????_10000000_00000000_00000000:
-                sifir_sayisi = 5'd23;
-            32'b????????_?1000000_00000000_00000000:
-                sifir_sayisi = 5'd22;
-            32'b????????_??100000_00000000_00000000:
-                sifir_sayisi = 5'd21;
-            32'b????????_???10000_00000000_00000000:
-                sifir_sayisi = 5'd20;
-            32'b????????_????1000_00000000_00000000:
-                sifir_sayisi = 5'd19;
-            32'b????????_?????100_00000000_00000000:
-                sifir_sayisi = 5'd18;
-            32'b????????_??????10_00000000_00000000:
-                sifir_sayisi = 5'd17;
-            32'b????????_???????1_00000000_00000000:
-                sifir_sayisi = 5'd16;
-            32'b????????_????????_10000000_00000000:
-                sifir_sayisi = 5'd15;
-            32'b????????_????????_?1000000_00000000:
-                sifir_sayisi = 5'd14;
-            32'b????????_????????_??100000_00000000:
-                sifir_sayisi = 5'd13;
-            32'b????????_????????_???10000_00000000:
-                sifir_sayisi = 5'd12;
-            32'b????????_????????_????1000_00000000:
-                sifir_sayisi = 5'd11;
-            32'b????????_????????_?????100_00000000:
-                sifir_sayisi = 5'd10;
-            32'b????????_????????_??????10_00000000:
-                sifir_sayisi = 5'd9;
-            32'b????????_????????_???????1_00000000:
-                sifir_sayisi = 5'd8;
-            32'b????????_????????_????????_10000000:
-                sifir_sayisi = 5'd7;
-            32'b00000000_????????_????????_?1000000:
-                sifir_sayisi = 5'd6;
-            32'b????????_????????_????????_??100000:
-                sifir_sayisi = 5'd5;
-            32'b????????_????????_????????_???10000:
-                sifir_sayisi = 5'd4;
-            32'b????????_????????_????????_????1000:
-                sifir_sayisi = 5'd3;
-            32'b????????_????????_????????_?????100:
-                sifir_sayisi = 5'd2;
-            32'b????????_????????_????????_??????10:
-                sifir_sayisi = 5'd1;
-            32'b????????_????????_????????_???????1:
-                sifir_sayisi = 5'd0;
-        endcase
-    end
+
+reg [31:0] ters_deger;
+
+integer i;
+always @(*) begin
+    for(i = 0; i< 32; i=i+1)
+        ters_deger[i] = deger_i[31-i];
+end
+
+wire [3:0] alt_sifir_sayisi;
+wire [3:0] ust_sifir_sayisi;
+wire alt_hepsi_sifir;
+wire ust_hepsi_sifir;
+
+zero_counter_16 zc16_ust_dut (
+  .A (ters_deger[31:16]),
+  .Z (ust_sifir_sayisi),
+  .V (ust_hepsi_sifir)
+);
+
+zero_counter_16 zc16_alt_dut (
+  .A (ters_deger[15:0]),
+  .Z (alt_sifir_sayisi),
+  .V (alt_hepsi_sifir)
+);
+
+assign sifir_sayisi = ust_hepsi_sifir &  alt_hepsi_sifir ? 6'd32                          :
+                      ust_hepsi_sifir & ~alt_hepsi_sifir ? 5'd16 + {1'b0,alt_sifir_sayisi}:
+                                                          ({2'b0,ust_sifir_sayisi})       ;
+
 endmodule
+
+module zero_counter_16(
+    input  wire [15:0] A,
+    output reg [ 3:0] Z,
+    output reg V
+);
+
+    integer i;
+    reg [7:0] C0;
+    reg [3:0] C1;
+    reg [3:0] D0;
+    reg t0;
+    reg t1;
+    reg t2;
+    reg t3;
+    reg e0;
+    reg e1;
+    always @(*) begin
+        for(i=0;i<8;i=i+1)begin
+            C0[i] = (A[(i*2)+1]|A[(i*2)]);
+        end
+        for(i=0;i<4;i=i+1)begin
+            C1[i] = (C0[(i*2)+1]|C0[(i*2)]);
+        end
+        for(i=0;i<4;i=i+1)begin
+            D0[i] = ((A[(i*4)+1]&~C0[(2*i)+1])|A[(i*4)+3]);
+        end
+
+        t0 = ((C0[1]&~C1[1])|C0[3]);
+        t1 = ((D0[0]&~C1[1])|D0[1]);
+
+        t2 = ((C0[5]&~C1[3])|C0[7]);
+        t3 = ((D0[2]&~C1[3])|D0[3]);
+
+        e0 = C1[1]|C1[0];
+        e1 = C1[3]|C1[2];
+
+        V = ~(e0|e1);
+
+        Z[3] = ~e1;
+        Z[2] = ~((C1[1]&~e1)|C1[3]);
+        Z[1] = ~((t0   &~e1)|t2   );
+        Z[0] = ~((t1   &~e1)|t3   );
+
+    end
+
+
+endmodule
+

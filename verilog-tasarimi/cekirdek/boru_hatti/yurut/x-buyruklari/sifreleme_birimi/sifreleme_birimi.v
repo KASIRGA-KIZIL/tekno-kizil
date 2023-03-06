@@ -37,12 +37,10 @@ module sifreleme_birimi(
         .sladd_sonuc(sladd_sonuc)
     );
 
-    wire [4:0] sifir_sayisi;
-    wire [0:0] hepsi_sifir;
+    wire [5:0] sifir_sayisi;
     zero_counter zc_inst(
         .deger_i(deger1_i),
-        .sifir_sayisi(sifir_sayisi),
-        .hepsi_sifir(hepsi_sifir)
+        .sifir_sayisi(sifir_sayisi)
     );
 
     wire [5:0] bir_sayisi;
@@ -62,7 +60,7 @@ module sifreleme_birimi(
             `SIFRELEME_SLADD:
                 sonuc_o = sladd_sonuc;
             `SIFRELEME_CNTZ:
-                sonuc_o = {27'b0,sifir_sayisi};
+                sonuc_o = {26'b0,sifir_sayisi};
             `SIFRELEME_CNTP:
                 sonuc_o = {26'b0,bir_sayisi};
             default:
