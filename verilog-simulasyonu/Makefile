@@ -6,7 +6,7 @@
 TOPLEVEL_LANG = verilog
 SIM           = icarus
 
-MODULE              := test_random_teknofest_wrapper
+MODULE              := test_bolme_birimi
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
@@ -19,7 +19,6 @@ VERILOG_SOURCES +=  ../cevreleyici/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-					$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
 					$(KAYNAKLAR)/veriyolu/*.v \
 					$(KAYNAKLAR)/cevre_birimleri/pwm/*.v \
 					$(KAYNAKLAR)/cevre_birimleri/spi/*.v \
@@ -43,6 +42,8 @@ else ifeq ($(MODULE),test_veriyolu)
 	TOPLEVEL        := veriyolu
 else ifeq ($(MODULE),test_spi_denetleyici)
 	TOPLEVEL        := spi_denetleyici
+else ifeq ($(MODULE),test_sifreleme_birimi)
+	TOPLEVEL        := sifreleme_birimi
 else
     $(error A module was not provided)
 endif
