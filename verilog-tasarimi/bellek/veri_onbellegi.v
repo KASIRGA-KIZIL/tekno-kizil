@@ -145,7 +145,6 @@ assign cache_valid_w = valid_r[l1v_adr_i[`ADR]];
 assign cache_dirty_w = dirty_r[l1v_adr_i[`ADR]];
 assign cache_hit_w = tag_r[l1v_adr_i[`ADR]]==l1v_adr_i[`TAG];
 
-
 integer loop_counter;
 always @* begin
     bib_veri_next = l1v_veri_o;
@@ -320,7 +319,6 @@ always @(*) begin
                 cs_yaz_next_r = 1'b0;
                 yaz_en_next_r = 1'b1;
                 cs_oku_next_r = 1'b1;
-
             end
             // Bibden gelen veri yazilacak
             else begin
@@ -330,7 +328,6 @@ always @(*) begin
                 cs_yaz_next_r = 1'b0;
                 yaz_en_next_r = 1'b1;
                 cs_oku_next_r = 1'b1;
-
             end
         end
 
@@ -338,22 +335,16 @@ always @(*) begin
             // Bellekten gelen veri okunacak
             if(anabellek_veri_kullan_r) begin
                 yaz_adres_next_r = anabellek_adr_r[`ADR];
-                yaz_tag_next_r = anabellek_adr_r[`TAG];
-                tag_next_r[l1v_adr_i[`ADR]] = anabellek_adr_r[`TAG];
                 cs_yaz_next_r = 1'b1;
                 yaz_en_next_r = 1'b0;
                 cs_oku_next_r = 1'b0;
-
             end
             // Bibden gelen veri okunacak
             else begin
                 yaz_adres_next_r = l1v_adr_i[`ADR];
-                yaz_tag_next_r = l1v_adr_i[`TAG];
-                tag_next_r[l1v_adr_i[`ADR]] = anabellek_adr_r[`TAG];
                 cs_yaz_next_r = 1'b1;
                 yaz_en_next_r = 1'b0;
                 cs_oku_next_r = 1'b0;
-
             end
         end
 
