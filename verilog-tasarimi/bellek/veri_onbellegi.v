@@ -24,7 +24,8 @@ module veri_onbellegi(
 reg [31:0] bib_veri_next;
 reg [511:0] dirty_r, dirty_next_r;
 reg [511:0] valid_r, valid_next_r;
-
+reg  [7:0] tag_r [511:0];
+reg  [7:0] tag_next_r [511:0]; 
 
 reg [ 8:0] yaz_adres_next_r;
 reg [ 7:0] yaz_tag_next_r;
@@ -45,6 +46,7 @@ reg [2:0] durum_r, durum_next_r;
 
 wire cache_dirty_w;
 wire cache_valid_w;
+wire cache_hit_w;
 
 localparam BEKLE = 3'd0,
            CACHE_OKU = 3'd1,
@@ -141,8 +143,10 @@ assign l1v_durdur_o = (~basladi && l1v_sec_i) || ~(durum_r == BITTI);
 
 assign cache_valid_w = valid_r[l1v_adr_i[`ADR]];
 assign cache_dirty_w = dirty_r[l1v_adr_i[`ADR]];
+assign cache_hit_w = tag_r[l1v_adr_i[`ADR]]==l1v_adr_i[`TAG];
 
 
+integer loop_counter;
 always @* begin
     bib_veri_next = l1v_veri_o;
     durum_next_r = durum_r;
@@ -154,35 +158,41 @@ always @* begin
     case(durum_r)
         BEKLE: begin
             // Yazma istegi
-            // Cache oku
-            if(l1v_sec_i && (|(l1v_veri_maske_i)) && (!cache_valid_w || (cache_valid_w && !cache_dirty_w)) && (&l1v_veri_maske_i))
+            if(l1v_sec_i && (|(l1v_veri_maske_i)) && (!cache_valid_w || (cache_valid_w && !cache_dirty_w)) && (&l1v_veri_maske_i)) begin
                 durum_next_r = CACHE_YAZ;
+            end
 
-            if(l1v_sec_i && (|(l1v_veri_maske_i)) && (!cache_valid_w || (cache_valid_w && !cache_dirty_w)) && ~(&l1v_veri_maske_i))
+            if(l1v_sec_i && (|(l1v_veri_maske_i)) && (!cache_valid_w || (cache_valid_w && !cache_dirty_w)) && ~(&l1v_veri_maske_i)) begin
                 durum_next_r = BELLEK_OKU;
+            end
 
-            if(l1v_sec_i && (|(l1v_veri_maske_i)) && (cache_valid_w && cache_dirty_w))
-                durum_next_r = CACHE_OKU;
-
-            // Okuma istegi
-            // Bellek Oku
-            if(l1v_sec_i && !(|(l1v_veri_maske_i)) && !cache_valid_w)
-                durum_next_r = BELLEK_OKU;
-
-            // Cache oku
-            if(l1v_sec_i && !(|(l1v_veri_maske_i)) && cache_valid_w)
-                durum_next_r = CACHE_OKU;
-        end
-
-        CACHE_OKU: begin
-            // Okuma
-            if(!(|(l1v_veri_maske_i))) begin
-                if(c_oku_tag_w==l1v_adr_i[`TAG])
-                    durum_next_r = BITTI;
+            if(l1v_sec_i && (|(l1v_veri_maske_i)) && (cache_valid_w && cache_dirty_w)) begin
+                if(tag_r[l1v_adr_i[`ADR]]==l1v_adr_i[`TAG])
+                    durum_next_r = CACHE_YAZ;
                 else begin
                     if(cache_dirty_w) begin
                         durum_next_r = BELLEK_YAZ;
-                        anabellek_adr_next_r = {c_oku_tag_w,l1v_adr_i[`ADR]};
+                        anabellek_adr_next_r = {tag_r[l1v_adr_i[`ADR]],l1v_adr_i[`ADR]};
+                        anabellek_veri_next_r = data_out_w;
+                        anabellek_veri_kullan_next_r = 1'b1;
+                    end
+                end
+            end
+
+            // Okuma istegi
+            // Bellek Oku
+            if(l1v_sec_i && !(|(l1v_veri_maske_i)) && !cache_valid_w) begin
+                durum_next_r = BELLEK_OKU;
+            end
+
+            // Cache oku
+            if(l1v_sec_i && !(|(l1v_veri_maske_i)) && cache_valid_w) begin
+                if(tag_r[l1v_adr_i[`ADR]]==l1v_adr_i[`TAG])
+                    durum_next_r = CACHE_OKU;
+                else begin
+                    if(cache_dirty_w) begin
+                        durum_next_r = BELLEK_YAZ;
+                        anabellek_adr_next_r = {tag_r[l1v_adr_i[`ADR]],l1v_adr_i[`ADR]};
                         anabellek_veri_next_r = data_out_w;
                         anabellek_veri_kullan_next_r = 1'b1;
                     end
@@ -190,21 +200,13 @@ always @* begin
                         durum_next_r = BELLEK_OKU;
                 end
             end
-            // Yazma
-            else begin
-                if(c_oku_tag_w==l1v_adr_i[`TAG])
-                    durum_next_r = CACHE_YAZ;
-                else begin
-                    if(cache_dirty_w) begin
-                        durum_next_r = BELLEK_YAZ;
-                        anabellek_adr_next_r = {c_oku_tag_w,l1v_adr_i[`ADR]};
-                        anabellek_veri_next_r = data_out_w;
-                        anabellek_veri_kullan_next_r = 1'b1;
-                    end
-                end
-            end
+        end
+
+        CACHE_OKU: begin
+            durum_next_r = BITTI;
             bib_veri_next  = data_out_w;
         end
+
         CACHE_YAZ: begin
             // Okuma
             if(!(|(l1v_veri_maske_i))) begin
@@ -270,7 +272,6 @@ always @* begin
         end
     endcase
 end
-
 always @(posedge clk_i) begin
     l1v_veri_o <= bib_veri_next;
     if(rst_i) begin
@@ -304,6 +305,10 @@ always @(*) begin
     iomem_addr_o_next_r   = iomem_addr_o_r;
 
     iomem_wstrb_o_next_r    = iomem_wstrb_o_r;
+    
+    for(loop_counter=0 ; loop_counter<512 ; loop_counter=loop_counter+1) begin 
+        tag_next_r[loop_counter] <= tag_r[loop_counter];
+    end
 
     case(durum_next_r)
         CACHE_YAZ: begin
@@ -311,6 +316,7 @@ always @(*) begin
             if(anabellek_veri_kullan_r) begin
                 yaz_adres_next_r = anabellek_adr_r[`ADR];
                 yaz_tag_next_r = anabellek_adr_r[`TAG];
+                tag_next_r[l1v_adr_i[`ADR]] = anabellek_adr_r[`TAG];
                 cs_yaz_next_r = 1'b0;
                 yaz_en_next_r = 1'b1;
                 cs_oku_next_r = 1'b1;
@@ -320,6 +326,7 @@ always @(*) begin
             else begin
                 yaz_adres_next_r = l1v_adr_i[`ADR];
                 yaz_tag_next_r = l1v_adr_i[`TAG];
+                tag_next_r[l1v_adr_i[`ADR]] = l1v_adr_i[`TAG];
                 cs_yaz_next_r = 1'b0;
                 yaz_en_next_r = 1'b1;
                 cs_oku_next_r = 1'b1;
@@ -332,6 +339,7 @@ always @(*) begin
             if(anabellek_veri_kullan_r) begin
                 yaz_adres_next_r = anabellek_adr_r[`ADR];
                 yaz_tag_next_r = anabellek_adr_r[`TAG];
+                tag_next_r[l1v_adr_i[`ADR]] = anabellek_adr_r[`TAG];
                 cs_yaz_next_r = 1'b1;
                 yaz_en_next_r = 1'b0;
                 cs_oku_next_r = 1'b0;
@@ -341,6 +349,7 @@ always @(*) begin
             else begin
                 yaz_adres_next_r = l1v_adr_i[`ADR];
                 yaz_tag_next_r = l1v_adr_i[`TAG];
+                tag_next_r[l1v_adr_i[`ADR]] = anabellek_adr_r[`TAG];
                 cs_yaz_next_r = 1'b1;
                 yaz_en_next_r = 1'b0;
                 cs_oku_next_r = 1'b0;
@@ -371,17 +380,21 @@ always @(posedge clk_i) begin
         yaz_en_r    <= 1'b0;
         cs_oku_r    <= 1'b1;
         iomem_wstrb_o_r      <= 4'b0;
-    end else begin
+        for(loop_counter=0 ; loop_counter<512 ; loop_counter=loop_counter+1) begin 
+            tag_r[loop_counter] <= 0;
+        end
+    end 
+    else begin
         yaz_adres_r <= yaz_adres_next_r;
         yaz_tag_r   <= yaz_tag_next_r;
         yaz_en_r    <= yaz_en_next_r;
         cs_oku_r    <= cs_oku_next_r;
-
         iomem_wstrb_o_r   <= iomem_wstrb_o_next_r;
-
         iomem_addr_o_r  <= iomem_addr_o_next_r;
         iomem_wdata_o_r   <= iomem_wdata_o_next_r ;
-
+        for(loop_counter=0 ; loop_counter<512 ; loop_counter=loop_counter+1) begin
+            tag_r[loop_counter] <= tag_next_r[loop_counter];
+        end
     end
 end
 
