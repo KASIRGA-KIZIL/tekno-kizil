@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
-`define TAG 18:11
-`define ADR 10:2
+`define TAG 18:10
+`define ADR 9:2
 
 module veri_onbellegi(
     input clk_i,
@@ -22,14 +22,18 @@ module veri_onbellegi(
     input              iomem_ready_i
 );
 reg [31:0] bib_veri_next;
-reg [511:0] dirty_r, dirty_next_r;
-reg [511:0] valid_r, valid_next_r;
+reg [1:0] dirty_r [255:0]; 
+reg [1:0] dirty_next_r [255:0];
+reg [1:0] valid_r [255:0];
+reg [1:0] valid_next_r [255:0];
+reg [255:0] lru_r, lru_next_r;
 
-
-reg [ 8:0] yaz_adres_next_r;
-reg [ 7:0] yaz_tag_next_r;
-reg        cs_yaz_next_r;
-reg        yaz_en_next_r;
+reg [ 7:0] yaz_adres_next_r;
+reg [ 8:0] yaz_tag_next_r;
+reg        cs_yaz0_next_r;
+reg        cs_yaz1_next_r;
+reg        yaz_en0_next_r;
+reg        yaz_en1_next_r;
 reg        cs_oku_next_r;
 
 reg [18:2] iomem_addr_o_next_r;
@@ -42,9 +46,8 @@ reg [3:0]  iomem_wstrb_o_r;
 
 reg [2:0] durum_r, durum_next_r;
 
-
-wire cache_dirty_w;
-wire cache_valid_w;
+wire cache_dirty0_w, cache_dirty1_w;
+wire cache_valid0_w, cache_valid1_w;
 
 localparam BEKLE = 3'd0,
            CACHE_OKU = 3'd1,
@@ -60,16 +63,18 @@ assign iomem_wdata_o   = iomem_wdata_o_r;
 assign iomem_wstrb_o   = iomem_wstrb_o_r;
 
 
-wire [8:0] c_oku_adres_w = l1v_adr_i[`ADR];
+wire [7:0] c_oku_adres_w = l1v_adr_i[`ADR];
 
-wire [7:0] c_oku_tag_w;
+wire [8:0] c_oku_tag0_w;
+wire [8:0] c_oku_tag1_w;
 
-wire [31:0] data_out_w;
-wire oku_valid_w;
+wire [31:0] data_out0_w;
+wire [31:0] data_out1_w;
 
-reg [8:0] yaz_adres_r;
-reg [7:0] yaz_tag_r;
-reg yaz_en_r;
+reg [7:0] yaz_adres_r;
+reg [8:0] yaz_tag_r;
+reg yaz_en0_r;
+reg yaz_en1_r;
 reg cs_oku_r;
 wire [3:0] veri_maske_w = (durum_r==BELLEK_OKU) ? 4'b1111 : l1v_veri_maske_i;
 
@@ -82,44 +87,57 @@ wire dummy;
 wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : l1v_veri_i;
 
 
-`ifdef COCOTB_SIM
-    sram_40b_512_1w_1r_sky130_verilator sram(
+// `ifdef COCOTB_SIM
+//     sram_40b_512_1w_1r_sky130_verilator sram(
+//         // write port
+//         .clk0       (clk_i),
+//         .csb0       (cs_yaz0_next_r),
+//         .wmask0     ({1'b1, veri_maske_w}),
+//         .spare_wen0 (yaz_en0_next_r),
+//         // zaten islemci durmus olucagi icin kontrole gerek yok
+//         .addr0      (yaz_adres_next_r),
+//         .din0       ({1'bx, yaz_tag_next_r, data_in_w}),
+//         // read port
+//         .clk1  (clk_i),
+//         .csb1  (cs_oku_next_r),
+//         .addr1 (c_oku_adres_w),
+//         .dout1 ({dummy, c_oku_tag0_w, data_out0_w})
+//     );
+// `else
+    sram_41b_256_1w_1r_sky130 sram0(
         // write port
         .clk0       (clk_i),
-        .csb0       (cs_yaz_next_r),
-        .wmask0     ({1'b1, veri_maske_w}),
-        .spare_wen0 (yaz_en_next_r),
-        // zaten islemci durmus olucagi icin kontrole gerek yok
+        .csb0       (cs_yaz0_next_r),
+        .wmask0     ({2'b1, veri_maske_w}),
+        .spare_wen0 (yaz_en0_next_r),
         .addr0      (yaz_adres_next_r),
         .din0       ({1'bx, yaz_tag_next_r, data_in_w}),
         // read port
         .clk1  (clk_i),
         .csb1  (cs_oku_next_r),
         .addr1 (c_oku_adres_w),
-        .dout1 ({dummy, c_oku_tag_w, data_out_w})
+        .dout1 ({dummy, c_oku_tag0_w, data_out0_w})
     );
-`else
-    sram_40b_512_1w_1r_sky130 sram(
+    sram_41b_256_1w_1r_sky130 sram1(
         // write port
         .clk0       (clk_i),
-        .csb0       (cs_yaz_next_r),
-        .wmask0     ({1'b1, veri_maske_w}),
-        .spare_wen0 (yaz_en_next_r),
-        // zaten islemci durmus olucagi icin kontrole gerek yok
+        .csb0       (cs_yaz1_next_r),
+        .wmask0     ({2'b1, veri_maske_w}),
+        .spare_wen0 (yaz_en1_next_r),
         .addr0      (yaz_adres_next_r),
         .din0       ({1'bx, yaz_tag_next_r, data_in_w}),
         // read port
         .clk1  (clk_i),
         .csb1  (cs_oku_next_r),
         .addr1 (c_oku_adres_w),
-        .dout1 ({dummy, c_oku_tag_w, data_out_w})
+        .dout1 ({dummy, c_oku_tag1_w, data_out1_w})
     );
       /*
     // word size: 40, 512 words, simple dp
     blk_mem_gen_0 blk0(
         // write port
         .clka(clk_i),
-        .ena(!cs_yaz_next_r),
+        .ena(!cs_yaz0_next_r),
         .wea({1'b1, veri_maske_w}),
         .addra(yaz_adres_next_r),
         .dina({yaz_tag_next_r, data_in_w}),
@@ -127,11 +145,11 @@ wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : l
         .clkb(clk_i),
         .enb(!cs_oku_next_r),
         .addrb(c_oku_adres_w),
-        .doutb({c_oku_tag_w, data_out_w})
+        .doutb({c_oku_tag0_w, data_out0_w})
     );
       */
 
-`endif
+// `endif
 
 // okumada hit varsa bile 1 cycle durmali -> CACHE_OKU
 // not: fazladan durdur silinebilir
@@ -139,51 +157,58 @@ reg basladi;
 assign l1v_durdur_o = (~basladi && l1v_sec_i) || ~(durum_r == BITTI);
 
 
-assign cache_valid_w = valid_r[l1v_adr_i[`ADR]];
-assign cache_dirty_w = dirty_r[l1v_adr_i[`ADR]];
+assign cache_valid0_w = valid_r[l1v_adr_i[`ADR]][0];
+assign cache_dirty0_w = dirty_r[l1v_adr_i[`ADR]][0];
 
+assign cache_valid1_w = valid_r[l1v_adr_i[`ADR]][1];
+assign cache_dirty1_w = dirty_r[l1v_adr_i[`ADR]][1];
 
 always @* begin
     bib_veri_next = l1v_veri_o;
     durum_next_r = durum_r;
-    valid_next_r = valid_r;
-    dirty_next_r = dirty_r;
+    valid_next_r[0] = valid_r[0];
+    valid_next_r[1] = valid_r[1];
+    dirty_next_r[0] = dirty_r[0];
+    dirty_next_r[1] = dirty_r[1];
     anabellek_adr_next_r = anabellek_adr_r;
     anabellek_veri_next_r = anabellek_veri_r;
     anabellek_veri_kullan_next_r = 1'b0;
+    lru_next_r = lru_r;
     case(durum_r)
         BEKLE: begin
             // Yazma istegi
             // Cache oku
-            if(l1v_sec_i && (|(l1v_veri_maske_i)) && (!cache_valid_w || (cache_valid_w && !cache_dirty_w)) && (&l1v_veri_maske_i))
+            if(l1v_sec_i && (|(l1v_veri_maske_i)) && ((!cache_valid0_w && !cache_valid1_w) || ((cache_valid0_w && !cache_dirty0_w) && (cache_valid1_w && !cache_dirty1_w))) && (&l1v_veri_maske_i))
                 durum_next_r = CACHE_YAZ;
 
-            if(l1v_sec_i && (|(l1v_veri_maske_i)) && (!cache_valid_w || (cache_valid_w && !cache_dirty_w)) && ~(&l1v_veri_maske_i))
+            if(l1v_sec_i && (|(l1v_veri_maske_i)) && ((!cache_valid0_w && !cache_valid1_w) || ((cache_valid0_w && !cache_dirty0_w) && (cache_valid1_w && !cache_dirty1_w))) && ~(&l1v_veri_maske_i))
                 durum_next_r = BELLEK_OKU;
 
-            if(l1v_sec_i && (|(l1v_veri_maske_i)) && (cache_valid_w && cache_dirty_w))
+            if(l1v_sec_i && (|(l1v_veri_maske_i)) && ((cache_valid0_w && cache_dirty0_w) || (cache_valid1_w && cache_dirty1_w)))
                 durum_next_r = CACHE_OKU;
 
             // Okuma istegi
             // Bellek Oku
-            if(l1v_sec_i && !(|(l1v_veri_maske_i)) && !cache_valid_w)
+            if(l1v_sec_i && !(|(l1v_veri_maske_i)) && !cache_valid0_w && !cache_valid1_w)
                 durum_next_r = BELLEK_OKU;
 
             // Cache oku
-            if(l1v_sec_i && !(|(l1v_veri_maske_i)) && cache_valid_w)
+            if(l1v_sec_i && !(|(l1v_veri_maske_i)) && (cache_valid0_w || cache_valid1_w))
                 durum_next_r = CACHE_OKU;
         end
 
         CACHE_OKU: begin
             // Okuma
             if(!(|(l1v_veri_maske_i))) begin
-                if(c_oku_tag_w==l1v_adr_i[`TAG])
+                if(c_oku_tag0_w==l1v_adr_i[`TAG] || c_oku_tag1_w==l1v_adr_i[`TAG]) begin
                     durum_next_r = BITTI;
+                    lru_next_r[`ADR] = c_oku_tag1_w==l1v_adr_i[`TAG];
+                end
                 else begin
-                    if(cache_dirty_w) begin
+                    if(cache_dirty0_w && cache_dirty1_w) begin
                         durum_next_r = BELLEK_YAZ;
-                        anabellek_adr_next_r = {c_oku_tag_w,l1v_adr_i[`ADR]};
-                        anabellek_veri_next_r = data_out_w;
+                        anabellek_adr_next_r = lru_r[`ADR] ? {c_oku_tag0_w,l1v_adr_i[`ADR]} : {c_oku_tag1_w,l1v_adr_i[`ADR]};
+                        anabellek_veri_next_r = lru_r[`ADR] ? data_out0_w : data_out1_w;
                         anabellek_veri_kullan_next_r = 1'b1;
                     end
                     else
@@ -192,31 +217,48 @@ always @* begin
             end
             // Yazma
             else begin
-                if(c_oku_tag_w==l1v_adr_i[`TAG])
+                if(c_oku_tag0_w==l1v_adr_i[`TAG] || c_oku_tag1_w==l1v_adr_i[`TAG])
                     durum_next_r = CACHE_YAZ;
                 else begin
-                    if(cache_dirty_w) begin
+                    if(cache_dirty0_w && cache_dirty1_w) begin
                         durum_next_r = BELLEK_YAZ;
-                        anabellek_adr_next_r = {c_oku_tag_w,l1v_adr_i[`ADR]};
-                        anabellek_veri_next_r = data_out_w;
+                        anabellek_adr_next_r = lru_r[`ADR] ? {c_oku_tag0_w,l1v_adr_i[`ADR]} : {c_oku_tag1_w,l1v_adr_i[`ADR]};
+                        anabellek_veri_next_r = lru_r[`ADR] ? data_out0_w : data_out1_w;
                         anabellek_veri_kullan_next_r = 1'b1;
                     end
                 end
             end
-            bib_veri_next  = data_out_w;
+            bib_veri_next  = c_oku_tag0_w==l1v_adr_i[`TAG] ? data_out0_w : data_out1_w;
         end
+
         CACHE_YAZ: begin
             // Okuma
             if(!(|(l1v_veri_maske_i))) begin
-                durum_next_r = CACHE_OKU;
-                dirty_next_r[l1v_adr_i[`ADR]] = 1'b0;
-                valid_next_r[l1v_adr_i[`ADR]] = 1'b1;
+                if(c_oku_tag0_w==l1v_adr_i[`TAG] || c_oku_tag1_w==l1v_adr_i[`TAG]) begin
+                    durum_next_r = CACHE_OKU;
+                    dirty_next_r[l1v_adr_i[`ADR]][(c_oku_tag1_w==l1v_adr_i[`TAG])] = 1'b0;
+                    valid_next_r[l1v_adr_i[`ADR]][(c_oku_tag1_w==l1v_adr_i[`TAG])] = 1'b1;
+                end
+                else begin
+                    durum_next_r = CACHE_OKU;
+                    dirty_next_r[l1v_adr_i[`ADR]][lru_r[`ADR]] = 1'b0;
+                    valid_next_r[l1v_adr_i[`ADR]][lru_r[`ADR]] = 1'b1;
+                end
             end
             // Yazma
             else begin
-                durum_next_r = BITTI;
-                dirty_next_r[l1v_adr_i[`ADR]] = 1'b1;
-                valid_next_r[l1v_adr_i[`ADR]] = 1'b1;
+                if(c_oku_tag0_w==l1v_adr_i[`TAG] || c_oku_tag1_w==l1v_adr_i[`TAG]) begin
+                    lru_next_r[`ADR] = (c_oku_tag1_w==l1v_adr_i[`TAG]);
+                    durum_next_r = BITTI;
+                    dirty_next_r[l1v_adr_i[`ADR]][c_oku_tag1_w==l1v_adr_i[`TAG]] = 1'b1;
+                    valid_next_r[l1v_adr_i[`ADR]][c_oku_tag1_w==l1v_adr_i[`TAG]] = 1'b1;
+                end
+                else begin
+                    lru_next_r[`ADR] = ~lru_r[`ADR];
+                    durum_next_r = BITTI;
+                    dirty_next_r[l1v_adr_i[`ADR]][lru_r[`ADR]] = 1'b1;
+                    valid_next_r[l1v_adr_i[`ADR]][lru_r[`ADR]] = 1'b1;
+                end
             end
         end
 
@@ -275,21 +317,27 @@ always @(posedge clk_i) begin
     l1v_veri_o <= bib_veri_next;
     if(rst_i) begin
         durum_r <= 0;
-        valid_r <= 0;
-        dirty_r <= 0;
+        valid_r[0] <= 0;
+        valid_r[1] <= 0;
+        dirty_r[0] <= 0;
+        dirty_r[1] <= 0;
         anabellek_adr_r <= 0;
         anabellek_veri_r <= 0;
         anabellek_veri_kullan_r <= 0;
         basladi <= 1'b0;
+        lru_r <= 0;
     end
     else begin
-        dirty_r <= dirty_next_r;
         durum_r <= durum_next_r;
-        valid_r <= valid_next_r;
+        dirty_r[0] <= dirty_next_r[0];
+        dirty_r[1] <= dirty_next_r[1];
+        valid_r[0] <= valid_next_r[0];
+        valid_r[1] <= valid_next_r[1];
         anabellek_adr_r <= anabellek_adr_next_r;
         anabellek_veri_r <= anabellek_veri_next_r;
         anabellek_veri_kullan_r <= anabellek_veri_kullan_next_r;
         basladi <= ~(durum_r == BEKLE);
+        lru_r <= lru_next_r;
     end
 end
 
@@ -297,8 +345,10 @@ end
 always @(*) begin
     yaz_adres_next_r = yaz_adres_r;
     yaz_tag_next_r   = yaz_tag_r;
-    cs_yaz_next_r    = 1'b1;
-    yaz_en_next_r    = yaz_en_r;
+    cs_yaz0_next_r   = 1'b1;
+    cs_yaz1_next_r   = 1'b1;
+    yaz_en0_next_r   = yaz_en0_r;
+    yaz_en1_next_r   = yaz_en1_r;
     cs_oku_next_r    = 1'b1;
     iomem_wdata_o_next_r    = iomem_wdata_o_r;
     iomem_addr_o_next_r   = iomem_addr_o_r;
@@ -311,20 +361,17 @@ always @(*) begin
             if(anabellek_veri_kullan_r) begin
                 yaz_adres_next_r = anabellek_adr_r[`ADR];
                 yaz_tag_next_r = anabellek_adr_r[`TAG];
-                cs_yaz_next_r = 1'b0;
-                yaz_en_next_r = 1'b1;
-                cs_oku_next_r = 1'b1;
-
             end
             // Bibden gelen veri yazilacak
             else begin
                 yaz_adres_next_r = l1v_adr_i[`ADR];
                 yaz_tag_next_r = l1v_adr_i[`TAG];
-                cs_yaz_next_r = 1'b0;
-                yaz_en_next_r = 1'b1;
-                cs_oku_next_r = 1'b1;
-
             end
+            cs_oku_next_r = 1'b1;
+            cs_yaz0_next_r = lru_r[`ADR] ? 1'b0 : 1'b1;
+            yaz_en0_next_r = lru_r[`ADR] ? 1'b1 : 1'b0;
+            cs_yaz1_next_r = ~lru_r[`ADR] ? 1'b0 : 1'b1;
+            yaz_en1_next_r = ~lru_r[`ADR] ? 1'b1 : 1'b0;
         end
 
         CACHE_OKU: begin
@@ -332,20 +379,17 @@ always @(*) begin
             if(anabellek_veri_kullan_r) begin
                 yaz_adres_next_r = anabellek_adr_r[`ADR];
                 yaz_tag_next_r = anabellek_adr_r[`TAG];
-                cs_yaz_next_r = 1'b1;
-                yaz_en_next_r = 1'b0;
-                cs_oku_next_r = 1'b0;
-
             end
             // Bibden gelen veri okunacak
             else begin
                 yaz_adres_next_r = l1v_adr_i[`ADR];
                 yaz_tag_next_r = l1v_adr_i[`TAG];
-                cs_yaz_next_r = 1'b1;
-                yaz_en_next_r = 1'b0;
-                cs_oku_next_r = 1'b0;
-
             end
+            cs_oku_next_r = 1'b0;
+            cs_yaz0_next_r = 1'b1;
+            yaz_en0_next_r = 1'b0;
+            cs_yaz1_next_r = 1'b1;
+            yaz_en1_next_r = 1'b0;
         end
 
         BELLEK_OKU: begin
@@ -368,13 +412,15 @@ always @(posedge clk_i) begin
     if(rst_i)begin
         yaz_adres_r <= 0;
         yaz_tag_r   <= 0;
-        yaz_en_r    <= 1'b0;
+        yaz_en0_r    <= 1'b0;
+        yaz_en1_r    <= 1'b0;
         cs_oku_r    <= 1'b1;
         iomem_wstrb_o_r      <= 4'b0;
     end else begin
         yaz_adres_r <= yaz_adres_next_r;
         yaz_tag_r   <= yaz_tag_next_r;
-        yaz_en_r    <= yaz_en_next_r;
+        yaz_en0_r    <= yaz_en0_next_r;
+        yaz_en1_r    <= yaz_en1_next_r;
         cs_oku_r    <= cs_oku_next_r;
 
         iomem_wstrb_o_r   <= iomem_wstrb_o_next_r;
