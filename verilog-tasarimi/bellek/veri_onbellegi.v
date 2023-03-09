@@ -22,10 +22,10 @@ module veri_onbellegi(
     input              iomem_ready_i
 );
 reg [31:0] bib_veri_next;
-reg [1:0] dirty_r [255:0]; 
-reg [1:0] dirty_next_r [255:0];
-reg [1:0] valid_r [255:0];
-reg [1:0] valid_next_r [255:0];
+reg [255:0] dirty_r [1:0]; 
+reg [255:0] dirty_next_r [1:0];
+reg [255:0] valid_r [1:0];
+reg [255:0] valid_next_r [1:0];
 reg [255:0] lru_r, lru_next_r;
 
 reg [ 7:0] yaz_adres_next_r;
@@ -157,11 +157,11 @@ reg basladi;
 assign l1v_durdur_o = (~basladi && l1v_sec_i) || ~(durum_r == BITTI);
 
 
-assign cache_valid0_w = valid_r[l1v_adr_i[`ADR]][0];
-assign cache_dirty0_w = dirty_r[l1v_adr_i[`ADR]][0];
+assign cache_valid0_w = valid_r[0][l1v_adr_i[`ADR]];
+assign cache_dirty0_w = dirty_r[0][l1v_adr_i[`ADR]];
 
-assign cache_valid1_w = valid_r[l1v_adr_i[`ADR]][1];
-assign cache_dirty1_w = dirty_r[l1v_adr_i[`ADR]][1];
+assign cache_valid1_w = valid_r[1][l1v_adr_i[`ADR]];
+assign cache_dirty1_w = dirty_r[1][l1v_adr_i[`ADR]];
 
 always @* begin
     bib_veri_next = l1v_veri_o;
@@ -236,13 +236,13 @@ always @* begin
             if(!(|(l1v_veri_maske_i))) begin
                 if(c_oku_tag0_w==l1v_adr_i[`TAG] || c_oku_tag1_w==l1v_adr_i[`TAG]) begin
                     durum_next_r = CACHE_OKU;
-                    dirty_next_r[l1v_adr_i[`ADR]][(c_oku_tag1_w==l1v_adr_i[`TAG])] = 1'b0;
-                    valid_next_r[l1v_adr_i[`ADR]][(c_oku_tag1_w==l1v_adr_i[`TAG])] = 1'b1;
+                    dirty_next_r[(c_oku_tag1_w==l1v_adr_i[`TAG])][l1v_adr_i[`ADR]] = 1'b0;
+                    valid_next_r[(c_oku_tag1_w==l1v_adr_i[`TAG])][l1v_adr_i[`ADR]] = 1'b1;
                 end
                 else begin
                     durum_next_r = CACHE_OKU;
-                    dirty_next_r[l1v_adr_i[`ADR]][lru_r[`ADR]] = 1'b0;
-                    valid_next_r[l1v_adr_i[`ADR]][lru_r[`ADR]] = 1'b1;
+                    dirty_next_r[lru_r[`ADR]][l1v_adr_i[`ADR]] = 1'b0;
+                    valid_next_r[lru_r[`ADR]][l1v_adr_i[`ADR]] = 1'b1;
                 end
             end
             // Yazma
@@ -250,14 +250,14 @@ always @* begin
                 if(c_oku_tag0_w==l1v_adr_i[`TAG] || c_oku_tag1_w==l1v_adr_i[`TAG]) begin
                     lru_next_r[`ADR] = (c_oku_tag1_w==l1v_adr_i[`TAG]);
                     durum_next_r = BITTI;
-                    dirty_next_r[l1v_adr_i[`ADR]][c_oku_tag1_w==l1v_adr_i[`TAG]] = 1'b1;
-                    valid_next_r[l1v_adr_i[`ADR]][c_oku_tag1_w==l1v_adr_i[`TAG]] = 1'b1;
+                    dirty_next_r[c_oku_tag1_w==l1v_adr_i[`TAG]][l1v_adr_i[`ADR]] = 1'b1;
+                    valid_next_r[c_oku_tag1_w==l1v_adr_i[`TAG]][l1v_adr_i[`ADR]] = 1'b1;
                 end
                 else begin
                     lru_next_r[`ADR] = ~lru_r[`ADR];
                     durum_next_r = BITTI;
-                    dirty_next_r[l1v_adr_i[`ADR]][lru_r[`ADR]] = 1'b1;
-                    valid_next_r[l1v_adr_i[`ADR]][lru_r[`ADR]] = 1'b1;
+                    dirty_next_r[lru_r[`ADR]][l1v_adr_i[`ADR]] = 1'b1;
+                    valid_next_r[lru_r[`ADR]][l1v_adr_i[`ADR]] = 1'b1;
                 end
             end
         end
@@ -411,6 +411,7 @@ end
 always @(posedge clk_i) begin
     if(rst_i)begin
         yaz_adres_r <= 0;
+        
         yaz_tag_r   <= 0;
         yaz_en0_r    <= 1'b0;
         yaz_en1_r    <= 1'b0;
