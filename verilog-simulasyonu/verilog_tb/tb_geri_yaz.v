@@ -51,7 +51,6 @@ module tb_geri_yaz();
         $display("cyo_yaz_adres_o: %h",  cyo_yaz_adres_o);
         $display("cyo_yaz_deger_o: %h",  cyo_yaz_deger_o);
         $display("cyo_yaz_yazmac_o: %h", cyo_yaz_yazmac_o);      
-        
     
         yrt_mikroislem_i=3'b010;
         #10;
@@ -65,7 +64,6 @@ module tb_geri_yaz();
         $display("cyo_yaz_deger_o: %h",  cyo_yaz_deger_o);
         $display("cyo_yaz_yazmac_o: %h", cyo_yaz_yazmac_o); 
         
-       
         //cyo_yaz_yazmac_o=1;
         $display("cyo_yaz_adres_o: %h",  cyo_yaz_adres_o);
         $display("cyo_yaz_deger_o: %h",  cyo_yaz_deger_o);
@@ -77,7 +75,6 @@ module tb_geri_yaz();
         $display("cyo_yaz_deger_o: %h",  cyo_yaz_deger_o);
         $display("cyo_yaz_yazmac_o: %h", cyo_yaz_yazmac_o);      
         
-    
         yrt_mikroislem_i=3'b110;
         #10;
         $display("cyo_yaz_adres_o: %h",  cyo_yaz_adres_o);
