@@ -57,7 +57,7 @@ async def anabellek(dut):
                                     dut.main_memory.ram[cadr_int].value = int(cval,2)
                                     cadr_hex   = "{0:#0{1}x}".format(int(cadr,2),10)
                                     cval_hex   = "{0:#0{1}x}".format(int(cval,2),10)
-                                    # print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval} ")
+                                    print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval} ")
                         await RisingEdge(dut.clk_i)
                         with open(f"{test_name}.sign", 'w') as d, open(f"{test_name}.signadr", 'w') as b:
                             begin_adr = (test["begin_sign_adr"]-0x40000000)//4
@@ -75,17 +75,13 @@ async def anabellek(dut):
                                 b.write(f"{row_adr}\n")
                         break
                 except  Exception as e:
-                    print(e)
+                    print("[EXCEPTION] ",e)
 
                 await RisingEdge(dut.clk_i)
                 if(not dut.soc.cek.coz_yazmacoku_dut.ddb_durdur_i.value):
-                    print("a")
                     if(not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value):
-                        print("b")
                         if(not first):
-                            print("c")
                             if((not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value) and (not prebosalt)):
-                                print("d")
                                 try:
                                     address     = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.debug_ps.value.integer,10)
                                     instruction = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.gtr_buyruk_i.value.integer,10)

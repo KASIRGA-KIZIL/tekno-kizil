@@ -32,8 +32,6 @@ from testler.riscv_tests       import riscv_tests
 TIMEOUT = 200000
 tests = {}
 
-# tests.update(uart_test)
-# tests.update(riscv_tests)
 tests.update(riscv_tests)
 
 @cocotb.coroutine

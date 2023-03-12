@@ -8,8 +8,8 @@ carp_bol = {'carp_bol':{
 }}
 yaz_oku_1 = {'yaz_oku_1':{
     "TEST_FILE": "../testler/el-yapimi-testler/build/yaz_oku_1.S.hex",
-    "fail_adr": 0x4000005c,
-    "pass_adr": 0x40000074,
+    "fail_adr": 0x40000058,
+    "pass_adr": 0x40000070,
     "buyruklar": []
 }}
 timer_oku = {'timer_oku':{
