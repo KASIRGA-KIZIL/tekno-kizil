@@ -22,13 +22,7 @@ module spi_denetleyici (
    output spi_cs_o,
    output spi_sck_o
    );
-// `ifdef COCOTB_SIM
-// initial begin
-//   $dumpfile ("spi_denetleyici.vcd");
-//   $dumpvars (0, spi_denetleyici);
-//   #1;
-// end
-// `endif
+   
     // Yazmac adresleri
     localparam [4:0]
     SPI_CTRL = 5'h00,
@@ -58,7 +52,7 @@ module spi_denetleyici (
     assign      wb_ack_o    = wb_ack_o_r;
     assign      spi_cs_o    = spi_cs_o_r;
     assign      spi_sck_o   = spi_sck_o_r;
-    assign      spi_mosi_o  = spi_wdata[0];
+    assign      spi_mosi_o  = spi_wdata[31];
 
     // Sayaclar
     reg [15:0] clock_ctr, clock_ctr_next;
@@ -200,7 +194,7 @@ module spi_denetleyici (
                             state_next = WRITE;
                             if(spi_sck_o_r == ~(cpol^cpha))begin
                                 bit_ctr_next = bit_ctr - 4'b1;
-                                spi_wdata_next = {1'b0,spi_wdata[31:1]};
+                                spi_wdata_next = {spi_wdata[30:0],1'b0};
                             end
                         end
                     end
@@ -223,7 +217,7 @@ module spi_denetleyici (
                                 state_next       = IDLE;
                                 clock_ctr_next   = 16'b0;
                                 // flow bitti ne olursa olsun tail kaydir
-                                miso_buffer_next[miso_tail] = spi_rdata>>({(2'd3-length[1:0]),3'b0});// Buraya daha iyi bi cozum?
+                                miso_buffer_next[miso_tail] = ({spi_rdata[7:0],spi_rdata[15:8],spi_rdata[23:16],spi_rdata[31:24]})>>({(2'd3-length[1:0]),3'b0});// Buraya daha iyi bi cozum?
                                 miso_tail_next = miso_tail + 4'd1;
                                 // islem tamamlandi cmd buffer kaydir
                                 cmd_buffer_next [0] = cmd_buffer[1];
@@ -244,7 +238,7 @@ module spi_denetleyici (
                             state_next = READ;
                             if(spi_sck_o_r == (cpol^cpha)) begin
                                 bit_ctr_next    = bit_ctr - 4'b1;
-                                spi_rdata_next  = {spi_miso_i,spi_rdata[31:1]};
+                                spi_rdata_next  = {spi_rdata[30:0],spi_miso_i};
                             end
                         end
                     end
@@ -292,10 +286,10 @@ module spi_denetleyici (
                 SPI_WDAT:begin
                     if(wb_we_i & ~mosi_full)begin
                         //                                                                  TODO: 0 mı verilmeli yoksa aynı kalmalı? farketmemesi lazım?
-                        mosi_buffer_next[mosi_tail[2:0]][ 7: 0] = wb_sel_i[0] ? wb_dat_i[ 7: 0] : mosi_buffer[mosi_tail[2:0]];
-                        mosi_buffer_next[mosi_tail[2:0]][15: 8] = wb_sel_i[1] ? wb_dat_i[15: 8] : mosi_buffer[mosi_tail[2:0]];
-                        mosi_buffer_next[mosi_tail[2:0]][23:16] = wb_sel_i[2] ? wb_dat_i[23:16] : mosi_buffer[mosi_tail[2:0]];
-                        mosi_buffer_next[mosi_tail[2:0]][31:24] = wb_sel_i[3] ? wb_dat_i[31:24] : mosi_buffer[mosi_tail[2:0]];
+                        mosi_buffer_next[mosi_tail[2:0]][ 7: 0] = wb_sel_i[0] ? wb_dat_i[31:24] : mosi_buffer[mosi_tail[2:0]];
+                        mosi_buffer_next[mosi_tail[2:0]][15: 8] = wb_sel_i[1] ? wb_dat_i[23:16] : mosi_buffer[mosi_tail[2:0]];
+                        mosi_buffer_next[mosi_tail[2:0]][23:16] = wb_sel_i[2] ? wb_dat_i[15: 8] : mosi_buffer[mosi_tail[2:0]];
+                        mosi_buffer_next[mosi_tail[2:0]][31:24] = wb_sel_i[3] ? wb_dat_i[ 7: 0] : mosi_buffer[mosi_tail[2:0]];
                         mosi_tail_next = mosi_tail + 4'b1;
                     end
                 end
