@@ -4,7 +4,7 @@
 
 # sim
 TOPLEVEL_LANG = verilog
-SIM           = icarus
+SIM           = modelsim
 
 MODULE              := test_teknofest_wrapper
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi

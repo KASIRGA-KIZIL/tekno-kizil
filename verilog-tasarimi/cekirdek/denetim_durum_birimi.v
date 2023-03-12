@@ -39,10 +39,7 @@ module denetim_durum_birimi(
 );
 
     reg bos_basla;
-    reg gecersiz;
     reg durmus;
-
-    wire tmp = (gecersiz | yrt_yonlendir_gecersiz_i);
 
     wire yurut_yonlendir1   = (((cyo_rs1_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs1_adres_i != 0));
     wire geriyaz_yonlendir1 = (((cyo_rs1_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs1_adres_i != 0));
@@ -70,12 +67,11 @@ module denetim_durum_birimi(
     always @(posedge clk_i) begin
         if(rst_i)begin
             bos_basla <= 1'b1;
-            gecersiz  <= 1'b0;
             durmus    <= 1'b0;
         end else begin
             bos_basla <= 1'b0;
-            gecersiz  <= yrt_yonlendir_gecersiz_i ? 1'b1 : 1'b0;
-            durmus    <= durmus ? 1'b0 : durmali;
+            if(gtr_hazir_i)
+                durmus    <= durmus ? 1'b0 : durmali;
         end
     end
 endmodule

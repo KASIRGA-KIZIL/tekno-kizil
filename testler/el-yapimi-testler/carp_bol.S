@@ -2,7 +2,7 @@
 _start:
 # art arda carpma ve bolme yap
 
-# test 1
+test_1:
 addi	x7,x0,2
 mul     x7,x7,x7 # 4
 mul     x7,x7,x7 # 16
@@ -10,7 +10,7 @@ mul     x7,x7,x7 # 256
 addi    x6,x0,256
 bne     x7,x6,fail
 
-# test 2
+test_2:
 addi	x7,x0,2
 mul     x7,x7,x7   # 4
 div     x7,x7,x7   # 1
@@ -19,7 +19,7 @@ addi    x7, x7, -1 #0
 addi    x6,x0,0
 bne     x7,x6,fail
 
-# test 3
+test_3:
 addi	x7,x0,2
 mul     x7,x7,x7   # 4
 addi	x7,x0,2
