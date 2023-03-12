@@ -2,28 +2,28 @@
 _start:
 # art arda carpma ve bolme yap
 
-
-addi	x7,x0,170
-bne     x7,x7,fail
-addi    x1,x0,1
-
-addi    x7,x0,169
-j       tmp0
-tmp0:
-j       tmp1
-tmp1:
-j       tmp2
-tmp2:
-addi    x7, x7, 1
-addi    x7, x7, -1
-addi    x7, x7, -1
-mv      x6, x7
-addi    x7, x7, 1
-addi    x6, x6, 1
+# test 1
+addi	x7,x0,2
+mul     x7,x7,x7 # 4
+mul     x7,x7,x7 # 16
+mul     x7,x7,x7 # 256
+addi    x6,x0,256
 bne     x7,x6,fail
-mul     x6,x6,x1
-mul     x6,x6,x6
-div     x6,x6,x7
+
+# test 2
+addi	x7,x0,2
+mul     x7,x7,x7   # 4
+div     x7,x7,x7   # 1
+mul     x7,x7,x7   # 1
+addi    x7, x7, -1 #0
+addi    x6,x0,0
+bne     x7,x6,fail
+
+# test 3
+addi	x7,x0,2
+mul     x7,x7,x7   # 4
+addi	x7,x0,2
+addi    x6,x0,2
 beq     x7,x6,pass
 bne     x7,x6,fail
 
