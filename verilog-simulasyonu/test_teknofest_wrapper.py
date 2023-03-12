@@ -32,7 +32,7 @@ from testler.riscv_tests       import riscv_tests
 TIMEOUT = 200000
 tests = {}
 
-tests.update(carp_bol)
+tests.update(riscv_tests)
 
 @cocotb.coroutine
 async def buyruklari_oku():
