@@ -6,6 +6,8 @@
     "CLOCK_NET": "ref::$CLOCK_PORT",
     "SYNTH_STRATEGY": "AREA 0",
     "DESIGN_IS_CORE": false,
+    "FP_PDN_CORE_RING": false,
+    "RT_MAX_LAYER": "met4",
     "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
     "ROUTING_CORES": 8,
     "KLAYOUT_XOR_THREADS": 8,
