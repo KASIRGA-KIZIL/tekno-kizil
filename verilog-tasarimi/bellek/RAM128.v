@@ -1,45 +1,23 @@
-module RAM128_WRAPPER (
+module RAM128 (
     input CLK,
-    input WE0,
-    input [8:0] A0,
-    input [7:0] Di0,
-    output [7:0] Do0
+    input EN0,
+    input [3:0] WE0,
+    input [6:0] A0,
+    input [31:0] Di0,
+    output [31:0] Do0
 );
-    wire [6:0] address;
-    wire [1:0] select_byte;
-    
-    wire [31:0] data_in;
-    wire [3:0] write_en;
 
-    wire [31:0] data_out;
+    reg [31:0] RAM[0:127];
 
-    assign address = A0[8:2];
-    assign select_byte = A0[1:0];  
-
-    assign data_in = Di0 << select_byte;
-    assign write_en = WE0 << select_byte;
-
-    assign Do0 = data_out >> select_byte;
-
-    reg [6:0] address_r;
-    reg [1:0] select_byte_r;
-    reg [31:0] data_in_r;
-    reg [3:0] wen_r;
-
-    always@(posedge CLK) begin
-        address_r <= address;
-        select_byte_r <= select_byte;
-        data_in_r <= data_in;
-        wen_r <= write_en;
+    always @(posedge CLK) begin
+        if(EN0) begin
+            if(WE0[0]) RAM[A0] <= Di0[7:0];
+            if(WE0[1]) RAM[A0] <= Di0[15:8];
+            if(WE0[2]) RAM[A0] <= Di0[23:16];
+            if(WE0[3]) RAM[A0] <= Di0[31:24];
+        end
     end
 
-    RAM128 ram(
-        .CLK(CLK),
-        .EN0(1'b1),
-        .WE0(wen_r),
-        .A0(address_r),
-        .Di0(data_in_r),
-        .Do0(data_out)
-    );
+    assign Do0 = RAM[A0];
 
 endmodule
