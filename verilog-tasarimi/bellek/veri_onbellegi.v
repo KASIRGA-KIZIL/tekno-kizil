@@ -78,9 +78,9 @@ reg [31:0] anabellek_veri_r, anabellek_veri_next_r;
 reg anabellek_veri_kullan_r, anabellek_veri_kullan_next_r;
 
 wire dummy;
-wire [7:0] dummy_tag;
 
 wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : l1v_veri_i;
+
 
 `ifdef COCOTB_SIM
     sram_40b_512_1w_1r_sky130_verilator sram(
@@ -91,12 +91,12 @@ wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : l
         .spare_wen0 (yaz_en_next_r),
         // zaten islemci durmus olucagi icin kontrole gerek yok
         .addr0      (yaz_adres_next_r),
-        .din0       ({1'bx, 8'b0, data_in_w}),
+        .din0       ({1'bx, yaz_tag_next_r, data_in_w}),
         // read port
         .clk1  (clk_i),
         .csb1  (cs_oku_next_r),
         .addr1 (c_oku_adres_w),
-        .dout1 ({dummy, dummy_tag, data_out_w})
+        .dout1 ({dummy, c_oku_tag_w, data_out_w})
     );
 `else
     sram_40b_512_1w_1r_sky130 sram(
@@ -107,12 +107,12 @@ wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : l
         .spare_wen0 (yaz_en_next_r),
         // zaten islemci durmus olucagi icin kontrole gerek yok
         .addr0      (yaz_adres_next_r),
-        .din0       ({1'bx, 8'b0, data_in_w}),
+        .din0       ({1'bx, yaz_tag_next_r, data_in_w}),
         // read port
         .clk1  (clk_i),
         .csb1  (cs_oku_next_r),
         .addr1 (c_oku_adres_w),
-        .dout1 ({dummy, dummy_tag, data_out_w})
+        .dout1 ({dummy, c_oku_tag_w, data_out_w})
     );
       /*
     // word size: 40, 512 words, simple dp
@@ -132,16 +132,6 @@ wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : l
       */
 
 `endif
-
-    RAM128_WRAPPER RAM128_WRAPPER_dut (
-        .CLK (clk_i),
-        .WE0 (yaz_en_next_r),
-        .A0 (yaz_adres_next_r),
-        .Di0 (yaz_tag_next_r),
-        .Do0  (c_oku_tag_w)
-  );
-
-
 
 // okumada hit varsa bile 1 cycle durmali -> CACHE_OKU
 // not: fazladan durdur silinebilir
