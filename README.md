@@ -18,9 +18,9 @@ Ege Deveci
 
 ## Sistem Yapısı
 
-<p align="center"> <img src="./dokumanlar/sistem_yapisi_detayli.png"> </p>
+<p align="center"> <img src="./dokumanlar/sistem_yapisi_dtr.png"> </p>
 
 
 ## Çekirdek Yapısı
 
-<p align="center"> <img src="./dokumanlar/cekirdek_yapisi_detayli.png"> </p>
+<p align="center"> <img src="./dokumanlar/cekirdek_yapisi_dtr.png"> </p>
