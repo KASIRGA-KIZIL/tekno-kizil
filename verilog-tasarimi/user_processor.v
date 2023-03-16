@@ -57,6 +57,15 @@ module user_processor(
     wire [31:0] l1v_iomem_wdata;
     wire [31:0] l1v_iomem_rdata;
 
+    wire        csb0;
+    wire [ 8:0] addr0;
+    wire [ 4:0] wmask0;
+    wire        spare_wen0;
+    wire [40:0] din0;
+    wire        csb1;
+    wire [ 8:0] addr1;
+    wire [40:0] dout1;
+
     wire        l1b_iomem_valid;
     wire        l1b_iomem_ready;
     wire [18:2] l1b_iomem_addr;
@@ -175,7 +184,7 @@ module user_processor(
                            bib_adr[28] ? tmr_oku_veri :
                                          vy_oku_veri  ;
 
-    veri_onbellegi veri_onbellegi_dut (
+    veri_onbellegi_denetleyici veri_onbellegi_denetleyici_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),
 
@@ -191,7 +200,29 @@ module user_processor(
         .iomem_wstrb_o (l1v_iomem_wstrb ),
         .iomem_addr_o  (l1v_iomem_addr  ),
         .iomem_wdata_o (l1v_iomem_wdata ),
-        .iomem_rdata_i (l1v_iomem_rdata )
+        .iomem_rdata_i (l1v_iomem_rdata ),
+
+        .csb0       (csb0       ),
+        .addr0      (addr0      ),
+        .wmask0     (wmask0     ),
+        .spare_wen0 (spare_wen0 ),
+        .din0       (din0       ),
+        .csb1       (csb1       ),
+        .addr1      (addr1      ),
+        .dout1      (dout1      )
+    );
+
+    sram_40b_512_1w_1r_sky130 sram_40b_512_1w_1r_sky130_dut (
+        .clk0 (clk_i ),
+        .csb0       (csb0       ),
+        .addr0      (addr0      ),
+        .wmask0     (wmask0     ),
+        .spare_wen0 (spare_wen0 ),
+        .din0       (din0 ),
+        .clk1  (clk_i ),
+        .csb1  (csb1  ),
+        .addr1 (addr1 ),
+        .dout1 (dout1 )
     );
 
     anabellek_denetleyici abdd (

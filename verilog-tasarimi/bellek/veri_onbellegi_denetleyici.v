@@ -3,7 +3,7 @@
 `define TAG 18:11
 `define ADR 10:2
 
-module veri_onbellegi(
+module veri_onbellegi_denetleyici(
     input clk_i,
     input rst_i,
     // Bib <-> Buyruk Onbellegi Okuma
@@ -19,8 +19,18 @@ module veri_onbellegi(
     output wire [31:0] iomem_wdata_o,
     output wire [3:0]  iomem_wstrb_o,
     input       [31:0] iomem_rdata_i,
-    input              iomem_ready_i
+    input              iomem_ready_i,
+    // sram arayuzu
+    output wire        csb0,
+    output wire [ 8:0] addr0,
+    output wire [ 4:0] wmask0,
+    output wire        spare_wen0,
+    output wire [40:0] din0,
+    output wire        csb1,
+    output wire [ 8:0] addr1,
+    input  wire [40:0] dout1
 );
+
 reg [31:0] bib_veri_next;
 reg [511:0] dirty_r, dirty_next_r;
 reg [511:0] valid_r, valid_next_r;
@@ -81,57 +91,14 @@ wire dummy;
 
 wire [31:0] data_in_w = anabellek_veri_kullan_next_r ? anabellek_veri_next_r : l1v_veri_i;
 
-
-`ifdef COCOTB_SIM
-    sram_40b_512_1w_1r_sky130_verilator sram(
-        // write port
-        .clk0       (clk_i),
-        .csb0       (cs_yaz_next_r),
-        .wmask0     ({1'b1, veri_maske_w}),
-        .spare_wen0 (yaz_en_next_r),
-        // zaten islemci durmus olucagi icin kontrole gerek yok
-        .addr0      (yaz_adres_next_r),
-        .din0       ({1'bx, yaz_tag_next_r, data_in_w}),
-        // read port
-        .clk1  (clk_i),
-        .csb1  (cs_oku_next_r),
-        .addr1 (c_oku_adres_w),
-        .dout1 ({dummy, c_oku_tag_w, data_out_w})
-    );
-`else
-    sram_40b_512_1w_1r_sky130 sram(
-        // write port
-        .clk0       (clk_i),
-        .csb0       (cs_yaz_next_r),
-        .wmask0     ({1'b1, veri_maske_w}),
-        .spare_wen0 (yaz_en_next_r),
-        // zaten islemci durmus olucagi icin kontrole gerek yok
-        .addr0      (yaz_adres_next_r),
-        .din0       ({1'bx, yaz_tag_next_r, data_in_w}),
-        // read port
-        .clk1  (clk_i),
-        .csb1  (cs_oku_next_r),
-        .addr1 (c_oku_adres_w),
-        .dout1 ({dummy, c_oku_tag_w, data_out_w})
-    );
-      /*
-    // word size: 40, 512 words, simple dp
-    blk_mem_gen_0 blk0(
-        // write port
-        .clka(clk_i),
-        .ena(!cs_yaz_next_r),
-        .wea({1'b1, veri_maske_w}),
-        .addra(yaz_adres_next_r),
-        .dina({yaz_tag_next_r, data_in_w}),
-        // read port
-        .clkb(clk_i),
-        .enb(!cs_oku_next_r),
-        .addrb(c_oku_adres_w),
-        .doutb({c_oku_tag_w, data_out_w})
-    );
-      */
-
-`endif
+assign csb0   = cs_yaz_next_r;
+assign addr0  = yaz_adres_next_r;
+assign wmask0 = {1'b1, veri_maske_w};
+assign spare_wen0 = yaz_en_next_r;
+assign din0  = {1'bx, yaz_tag_next_r, data_in_w};
+assign csb1  = cs_oku_next_r;
+assign addr1 = c_oku_adres_w;
+assign {dummy, c_oku_tag_w, data_out_w} = dout1;
 
 // okumada hit varsa bile 1 cycle durmali -> CACHE_OKU
 // not: fazladan durdur silinebilir
