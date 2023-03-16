@@ -62,6 +62,26 @@ module user_processor(
     wire [18:2] l1b_iomem_addr;
     wire [31:0] l1b_iomem_rdata;
 
+    wire  we0;
+    wire [7:0] adr0;
+    wire [7:0] datai0;
+    wire [7:0] datao0;
+
+    wire  we1;
+    wire [7:0] adr1;
+    wire [7:0] datai1;
+    wire [7:0] datao1;
+
+    wire        ram512d0_we0;
+    wire [ 8:0] ram512d0_adr0;
+    wire [15:0] ram512d0_datai0;
+    wire [15:0] ram512d0_datao0;
+
+    wire        ram512d1_we0;
+    wire [ 8:0] ram512d1_adr0;
+    wire [15:0] ram512d1_datai0;
+    wire [15:0] ram512d1_datao0;
+
     cekirdek cek (
         .clk_i (clk_i),
         .rst_i (rst_i),
@@ -78,18 +98,69 @@ module user_processor(
         .bib_sec_o        (bib_sec          )
     );
 
-    buyruk_onbellegi buyruk_onbellegi_dut (
+    buyruk_onbellegi_denetleyici buyruk_onbellegi_denetleyici_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),
 
         .iomem_valid   (l1b_iomem_valid),
         .iomem_ready   (l1b_iomem_ready),
         .iomem_addr    (l1b_iomem_addr ),
-        .iomem_rdata   (l1b_iomem_rdata),
 
         .l1b_bekle_o   (l1b_bekle),
         .l1b_deger_o   (l1b_deger),
-        .l1b_adres_i   (l1b_adres)
+        .l1b_adres_i   (l1b_adres),
+
+        .we0_o    (we0    ),
+        .adr0_o   (adr0   ),
+        .datao0_i (datao0 ),
+
+        .we1_o    (we1    ),
+        .adr1_o   (adr1   ),
+        .datao1_i (datao1 ),
+
+        .ram512d0_we0_o    (ram512d0_we0   ),
+        .ram512d0_adr0_o   (ram512d0_adr0  ),
+        .ram512d0_datao0_i (ram512d0_datao0),
+
+        .ram512d1_we0_o    (ram512d1_we0   ),
+        .ram512d1_adr0_o   (ram512d1_adr0  ),
+        .ram512d1_datao0_i (ram512d1_datao0)
+    );
+
+    RAM512 RAM512_d0 (
+        .CLK(clk_i),
+        .EN0(1'b1),
+        .A0(ram512d0_adr0),
+        .Di0(iomem_rdata[15:0]),
+        .Do0(ram512d0_datao0),
+        .WE0({ram512d0_we0,ram512d0_we0})
+    );
+
+    RAM512 RAM512_d1 (
+        .CLK(clk_i),
+        .EN0(1'b1),
+        .A0(ram512d1_adr0),
+        .Di0(iomem_rdata[31:16]),
+        .Do0(ram512d1_datao0),
+        .WE0({ram512d1_we0,ram512d1_we0})
+    );
+
+    RAM256 bffram_t0( // even
+        .CLK(clk_i),
+        .EN0(1'b1),
+        .A0(adr0),
+        .Di0(l1b_adres[18:11]),
+        .Do0(datao0),
+        .WE0(we0)
+    );
+
+    RAM256 bffram_t1( // odd
+        .CLK(clk_i),
+        .EN0(1'b1),
+        .A0(adr1),
+        .Di0(l1b_adres[18:11]),
+        .Do0(datao1),
+        .WE0(we1)
     );
 
     assign l1v_sec = bib_adr[30]               ? bib_sec : 1'b0;

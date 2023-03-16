@@ -4,18 +4,33 @@
 `define TAG 18:11
 `define ADR 10:2
 
-module buyruk_onbellegi(
+module buyruk_onbellegi_denetleyici(
     input  wire        clk_i,
     input  wire        rst_i,
 
     output reg         iomem_valid,
     input  wire        iomem_ready,
     output reg  [18:2] iomem_addr,
-    input  wire [31:0] iomem_rdata,
 
     output reg         l1b_bekle_o,
     output wire [31:0] l1b_deger_o,
-    input  wire [18:1] l1b_adres_i
+    input  wire [18:1] l1b_adres_i,
+        // RAM256_T0
+        output wire       we0_o,
+        output wire [7:0] adr0_o,
+        input  wire [7:0] datao0_i,
+        // RAM256_T1
+        output wire       we1_o,
+        output wire [7:0] adr1_o,
+        input  wire [7:0] datao1_i,
+        // RAM512_D0
+        output wire        ram512d0_we0_o,
+        output wire [ 8:0] ram512d0_adr0_o,
+        input  wire [15:0] ram512d0_datao0_i,
+        // RAM512_D1
+        output wire        ram512d1_we0_o,
+        output wire [ 8:0] ram512d1_adr0_o,
+        input  wire [15:0] ram512d1_datao0_i
 );
     wire [15:0] data0;
     wire [15:0] data1;
@@ -103,37 +118,35 @@ module buyruk_onbellegi(
         endcase
     end
 
-    RAM512 bffram_d0(
-        .CLK(clk_i),
-        .EN0(1'b1),
-        .A0(d_addr0),
-        .Di0(iomem_rdata[15:0]),
-        .Do0(data0),
-        .WE0({wen,wen})
-    );
+    assign ram512d0_we0_o    = wen;
+    assign ram512d0_adr0_o   = d_addr0;
+    assign data0 = ram512d0_datao0_i;
 
-    RAM512 bffram_d1(
-        .CLK(clk_i),
-        .EN0(1'b1),
-        .A0(d_addr1),
-        .Di0(iomem_rdata[31:16]),
-        .Do0(data1),
-        .WE0({wen,wen})
-    );
+    assign ram512d1_we0_o    = wen;
+    assign ram512d1_adr0_o   = d_addr1;
+    assign data1 = ram512d1_datao0_i;
+
 
     RAM512_VALID bffram_v01 (
       .clk_i  (clk_i ),
       .rst_i  (rst_i ),
       //
       .wen_i  (wen   ),
-      .data_i ({1'b1,l1b_adres_i[`TAG]}),
       .wadr_i (iomem_addr[`ADR] ),
       //
       .data0_o ({valid0,tag0}),
       .radr0_i (data_addr0 ),
       //
       .data1_o ({valid1,tag1}),
-      .radr1_i (data_addr1 )
+      .radr1_i (data_addr1 ),
+      //
+      .we0_o    (we0_o ),
+      .adr0_o   (adr0_o ),
+      .datao0_i (datao0_i ),
+      //
+      .we1_o    (we1_o ),
+      .adr1_o   (adr1_o ),
+      .datao1_i ( datao1_i)
     );
 
 endmodule
