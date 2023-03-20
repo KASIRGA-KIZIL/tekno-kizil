@@ -53,7 +53,7 @@ module user_processor(
     wire [15:0] ram512d1_datai0;
     wire [15:0] ram512d1_datao0;
 
-    wire [18:1] l1b_adres;
+    wire [7:0] l1b_tag_adr;
 
     cekirdek_ramsiz cek_ramsiz (
       .clk (clk ),
@@ -62,46 +62,46 @@ module user_processor(
       .iomem_valid (iomem_valid ),
       .iomem_ready (iomem_ready ),
       .iomem_wstrb (iomem_wstrb ),
-      .iomem_addr (iomem_addr ),
+      .iomem_addr  (iomem_addr  ),
       .iomem_wdata (iomem_wdata ),
       .iomem_rdata (iomem_rdata ),
 
-      .l1b_adres_o(l1b_adres),
+      .l1b_tag_adr_o(l1b_tag_adr),
 
-      .csb0 (csb0 ),
-      .addr0 (addr0 ),
-      .wmask0 (wmask0 ),
+      .csb0       (csb0       ),
+      .addr0      (addr0      ),
+      .wmask0     (wmask0     ),
       .spare_wen0 (spare_wen0 ),
-      .din0 (din0 ),
-      .csb1 (csb1 ),
-      .addr1 (addr1 ),
-      .dout1 (dout1 ),
+      .din0       (din0       ),
+      .csb1       (csb1       ),
+      .addr1      (addr1      ),
+      .dout1      (dout1      ),
 
-      .we0_o (we0 ),
-      .adr0_o (adr0 ),
+      .we0_o    (we0    ),
+      .adr0_o   (adr0   ),
       .datao0_i (datao0 ),
 
-      .we1_o (we1 ),
-      .adr1_o (adr1 ),
+      .we1_o    (we1    ),
+      .adr1_o   (adr1   ),
       .datao1_i (datao1 ),
 
-      .ram512d0_we0_o (ram512d0_we0 ),
-      .ram512d0_adr0_o (ram512d0_adr0 ),
+      .ram512d0_we0_o    (ram512d0_we0    ),
+      .ram512d0_adr0_o   (ram512d0_adr0   ),
       .ram512d0_datao0_i (ram512d0_datao0 ),
-      .ram512d1_we0_o (ram512d1_we0 ),
-      .ram512d1_adr0_o (ram512d1_adr0 ),
+      .ram512d1_we0_o    (ram512d1_we0    ),
+      .ram512d1_adr0_o   (ram512d1_adr0   ),
       .ram512d1_datao0_i (ram512d1_datao0 ),
 
       .uart_tx_o (uart_tx_o ),
       .uart_rx_i (uart_rx_i ),
 
-      .spi_cs_o (spi_cs_o ),
-      .spi_sck_o (spi_sck_o ),
+      .spi_cs_o   (spi_cs_o   ),
+      .spi_sck_o  (spi_sck_o  ),
       .spi_mosi_o (spi_mosi_o ),
       .spi_miso_i (spi_miso_i ),
 
-      .pwm0_o (pwm0_o ),
-      .pwm1_o  ( pwm1_o)
+      .pwm0_o  (pwm0_o ),
+      .pwm1_o  (pwm1_o )
     );
 
     RAM512 RAM512_d0 (
@@ -126,7 +126,7 @@ module user_processor(
         .CLK(clk),
         .EN0(1'b1),
         .A0(adr0),
-        .Di0(l1b_adres[18:11]),
+        .Di0(l1b_tag_adr),
         .Do0(datao0),
         .WE0(we0)
     );
@@ -135,7 +135,7 @@ module user_processor(
         .CLK(clk),
         .EN0(1'b1),
         .A0(adr1),
-        .Di0(l1b_adres[18:11]),
+        .Di0(l1b_tag_adr),
         .Do0(datao1),
         .WE0(we1)
     );

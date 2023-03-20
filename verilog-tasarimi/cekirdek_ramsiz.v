@@ -14,7 +14,7 @@ module cekirdek_ramsiz(
     input  [31:0] iomem_rdata,
     //
 
-    output wire [18:1] l1b_adres_o,
+    output wire [7:0] l1b_tag_adr_o,
 
     // sram arayuzu
     output wire        csb0,
@@ -68,7 +68,7 @@ module cekirdek_ramsiz(
     wire [31:0] l1b_deger;
     wire [18:1] l1b_adres;
 
-    assign l1b_adres_o = l1b_adres;
+    assign l1b_tag_adr_o = l1b_adres[18:11];
 
     wire [31:0] l1v_oku_veri;
     wire        l1v_sec;

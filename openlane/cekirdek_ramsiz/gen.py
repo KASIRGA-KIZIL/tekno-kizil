@@ -4,15 +4,15 @@ import shutil
 import subprocess
 
 DESIGN_NAME = 'cekirdek_ramsiz'
-MAIN_SRC_PATH = "../verilog-tasarimi"
-OPENLANE_HOME = os.environ['OPENLANE_HOME']
-OPENLANE_DESIGN = OPENLANE_HOME + "/designs" + f"/{DESIGN_NAME}"
-TARGET_SRC_PATH = OPENLANE_DESIGN+'/src'
+MAIN_SRC_PATH = "../../verilog-tasarimi"
+TARGET_SRC_PATH = f"./{DESIGN_NAME}"+'/src'
 
 # create design folder
-if not os.path.exists(OPENLANE_DESIGN):
-    os.makedirs(OPENLANE_DESIGN)
+if not os.path.exists(DESIGN_NAME):
+    os.makedirs(f"./{DESIGN_NAME}")
     os.makedirs(TARGET_SRC_PATH)
+else:
+   print("[ERROR] Folder exists.")
 
 # copy all verilog files
 for root, dirs, files in os.walk(MAIN_SRC_PATH):
@@ -21,5 +21,5 @@ for root, dirs, files in os.walk(MAIN_SRC_PATH):
       shutil.copy2(path_file,TARGET_SRC_PATH)
 
 
-shutil.copy2(f"./{DESIGN_NAME}/pin_order.cfg",OPENLANE_DESIGN)
-shutil.copy2(f"./{DESIGN_NAME}/config.json",OPENLANE_DESIGN)
+shutil.copy2(f"./pin_order.cfg",f"./{DESIGN_NAME}")
+shutil.copy2(f"./config.json",f"./{DESIGN_NAME}")
