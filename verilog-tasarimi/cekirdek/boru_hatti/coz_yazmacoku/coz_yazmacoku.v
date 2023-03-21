@@ -44,9 +44,9 @@ module coz_yazmacoku(
     // 30:29, 27, 25, 21:20, 14:12, 6:2
     wire [`BUYRUK_COZ_BIT-1:0] buyruk_coz_w = {gtr_buyruk_i[30:29], gtr_buyruk_i[27], gtr_buyruk_i[25], gtr_buyruk_i[21:20], gtr_buyruk_i[14:12], gtr_buyruk_i[6:2]};
 
-    reg [`MI_BIT-1:0] mikroislem_sonraki_r = 0;
+    reg [`MI_BIT-1:0] mikroislem_sonraki_r;
 
-    reg [31:0] imm_r = 0;
+    reg [31:0] imm_r;
 
     wire [31:0] rs1_deger_w; // okunan 1. yazmac
     wire [31:0] rs2_deger_w; // okunan 2. yazmac
@@ -177,8 +177,8 @@ module coz_yazmacoku(
 
     always @(posedge clk_i) begin
         if (rst_i) begin
-            yrt_mikroislem_o      <= 0;
-            yrt_lt_ltu_eq_o       <= 0;
+            yrt_mikroislem_o <= `NOP_MI;
+            yrt_lt_ltu_eq_o  <= 0;
         end
         else begin
             if(!ddb_durdur_i) begin

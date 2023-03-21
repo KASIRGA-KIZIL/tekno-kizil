@@ -73,11 +73,13 @@ module getir (
         case(cyo_buyruk_next[6:2])
             5'b11011: begin buyruk_tipi_r = `J_Tipi;   end // jal
             5'b11001: begin buyruk_tipi_r = `I_Tipi;   end // jalr I tipinde
+            5'b11000: begin buyruk_tipi_r = `B_Tipi;   end // B-tipi
             default:  begin buyruk_tipi_r = `I_Tipi; end
         endcase
         case(buyruk_tipi_r)
             `I_Tipi:   begin imm_r = {{6{cyo_buyruk_next[   31]}}, cyo_buyruk_next[31:20]};                           end
             `J_Tipi:   begin imm_r = {cyo_buyruk_next[17:12], cyo_buyruk_next[   20], cyo_buyruk_next[30:21], 1'b0};  end
+            `B_Tipi:   begin imm_r = {{6{cyo_buyruk_next[   31]}}, cyo_buyruk_next[    7], cyo_buyruk_next[30:25], cyo_buyruk_next[11: 8], 1'b0}; end
             default:   begin imm_r = 18'hxxxx;                                                                        end
         endcase
     end

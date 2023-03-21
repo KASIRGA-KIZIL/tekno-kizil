@@ -165,8 +165,6 @@ module yurut(
     always @(posedge clk_i) begin
         if(rst_i) begin
             gy_mikroislem_o <= 0;
-            gy_rd_deger_o   <= 0;
-            gy_rd_adres_o   <= 0;
         end
         else begin
             if(!ddb_durdur_i)begin
