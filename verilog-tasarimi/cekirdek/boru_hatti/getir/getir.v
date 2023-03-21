@@ -77,10 +77,10 @@ module getir (
             default:  begin buyruk_tipi_r = `I_Tipi; end
         endcase
         case(buyruk_tipi_r)
-            `I_Tipi:   begin imm_r = {{6{cyo_buyruk_next[   31]}}, cyo_buyruk_next[31:20]};                           end
-            `J_Tipi:   begin imm_r = {cyo_buyruk_next[17:12], cyo_buyruk_next[   20], cyo_buyruk_next[30:21], 1'b0};  end
-            `B_Tipi:   begin imm_r = {{6{cyo_buyruk_next[   31]}}, cyo_buyruk_next[    7], cyo_buyruk_next[30:25], cyo_buyruk_next[11: 8], 1'b0}; end
-            default:   begin imm_r = 18'hxxxx;                                                                        end
+            `I_Tipi:   begin imm_r = {{7{cyo_buyruk_next[   31]}}, cyo_buyruk_next[31:21]};                                                 end
+            `B_Tipi:   begin imm_r = {{7{cyo_buyruk_next[   31]}}, cyo_buyruk_next[    7], cyo_buyruk_next[30:25], cyo_buyruk_next[11: 8]}; end
+            `J_Tipi:   begin imm_r = {cyo_buyruk_next[18:12], cyo_buyruk_next[   20], cyo_buyruk_next[30:21]};                              end
+            default:   begin imm_r = 18'hxxxx;                                                                                              end
         endcase
     end
 
