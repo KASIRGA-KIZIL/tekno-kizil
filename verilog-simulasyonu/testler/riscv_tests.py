@@ -1,7 +1,7 @@
 import glob
 
 
-insttestlist = ["auipc","jal","jalr","lui","andi","ori","xori","addi","slli","slti","sltiu","and","sll","xor","or","srl","sra","slt","sltu","srli","srai","sub","bgeu","bltu","blt","bne","beq","bge","add","mul","mulh","mulhu","mulhsu","div","divu","rem","remu","lw","lh","lb","lbu","lhu","sw","sb","sh", 'hmdst', 'rvrs', 'pkg', 'sladd', 'cntz', 'cntp','conv']
+insttestlist = ["lw","lh","lb","lbu","lhu","sw","sb","sh"]
 
 
 TESTS_FOLDER = "../testler/riscv-tests/isa"

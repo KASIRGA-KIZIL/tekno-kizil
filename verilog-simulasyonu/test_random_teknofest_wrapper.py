@@ -26,7 +26,9 @@ tests.update(random_tests)
 @cocotb.coroutine
 async def anabellek(dut):
     await RisingEdge(dut.clk_i)
+    print(len(tests))
     for test_name, test in tests.items():
+        print(test["finish_adr"])
         time_step = 0
         timout = 0
         prebosalt = 0
@@ -46,18 +48,29 @@ async def anabellek(dut):
                         dut.rst_ni.value = 0
                         await RisingEdge(dut.clk_i)
                         f.write('\n'.join(final_logs))
-                        for idx in range(0,512):
-                            if(dut.soc.veri_onbellegi_dut.dirty_r[idx].value.integer):
-                                if(dut.soc.veri_onbellegi_dut.valid_r[idx].value.integer):
-                                    cline = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr
-                                    ctag = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr[1:9]
-                                    cval = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr[9:41]
-                                    cadr = "0100000000000" + ctag + f'{idx:09b}' + "00"
-                                    cadr_int = (int(cadr,2) - 0x40000000)//4
-                                    dut.main_memory.ram[cadr_int].value = int(cval,2)
-                                    cadr_hex   = "{0:#0{1}x}".format(int(cadr,2),10)
-                                    cval_hex   = "{0:#0{1}x}".format(int(cval,2),10)
-                                    # print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval} ")
+                        for idx in range(0,256):
+                            if(dut.soc.veri_onbellegi_dut.valid_yol0_r[idx].value.integer and dut.soc.veri_onbellegi_dut.dirty_yol0_r[idx].value.integer):
+                                cline = dut.soc.veri_onbellegi_dut.vo1.RAM[idx].value.binstr
+                                ctag  = dut.soc.veri_onbellegi_dut.vo1.RAM[idx].value.binstr[0:9]
+                                cval  = dut.soc.veri_onbellegi_dut.vo1.RAM[idx].value.binstr[9:41]
+                                cadr  = "0100000000000" + ctag + f'{idx:08b}' + "00"
+                                cadr_int = (int(cadr,2) - 0x40000000)//4
+                                cadr_hex   = "{0:#0{1}x}".format(int(cadr,2),10)
+                                cval_hex   = "{0:#0{1}x}".format(int(cval,2),10)
+                                print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval} cline:{cline} cacheidx:{idx} way0")
+                                dut.main_memory.ram[cadr_int].value = int(cval,2)
+                        for idx in range(0,256):
+                            if(dut.soc.veri_onbellegi_dut.valid_yol1_r[idx].value.integer and dut.soc.veri_onbellegi_dut.dirty_yol1_r[idx].value.integer):
+                                cline = dut.soc.veri_onbellegi_dut.vo2.RAM[idx].value.binstr
+                                ctag  = dut.soc.veri_onbellegi_dut.vo2.RAM[idx].value.binstr[0:9]
+                                cval  = dut.soc.veri_onbellegi_dut.vo2.RAM[idx].value.binstr[9:41]
+                                cadr  = "0100000000000" + ctag + f'{idx:08b}' + "00"
+                                cadr_int = (int(cadr,2) - 0x40000000)//4
+                                cadr_hex   = "{0:#0{1}x}".format(int(cadr,2),10)
+                                cval_hex   = "{0:#0{1}x}".format(int(cval,2),10)
+                                print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval} cline:{cline} cacheidx:{idx} way1")
+                                dut.main_memory.ram[cadr_int].value = int(cval,2)
+
                         await RisingEdge(dut.clk_i)
                         with open(f"{test_name}.sign", 'w') as d, open(f"{test_name}.signadr", 'w') as b:
                             begin_adr = (test["begin_sign_adr"]-0x40000000)//4
@@ -79,13 +92,9 @@ async def anabellek(dut):
 
                 await RisingEdge(dut.clk_i)
                 if(not dut.soc.cek.coz_yazmacoku_dut.ddb_durdur_i.value):
-                    print("a")
                     if(not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value):
-                        print("b")
                         if(not first):
-                            print("c")
                             if((not dut.soc.cek.coz_yazmacoku_dut.ddb_bosalt_i.value) and (not prebosalt)):
-                                print("d")
                                 try:
                                     address     = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.debug_ps.value.integer,10)
                                     instruction = "{0:#0{1}x}".format(dut.soc.cek.coz_yazmacoku_dut.gtr_buyruk_i.value.integer,10)
@@ -128,5 +137,6 @@ async def test_random_teknofest_wrapper(dut):
     dut.rst_ni.value = 1
     blk = cocotb.start_soon(anabellek(dut))
     await blk
+    print("[OUTSIDE BLK] ")
     return_code = await compare_logs("./")
     return_code = await compare_signs("./")

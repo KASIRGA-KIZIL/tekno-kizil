@@ -4,9 +4,9 @@
 
 # sim
 TOPLEVEL_LANG = verilog
-SIM           = icarus
+SIM           = modelsim
 
-MODULE              := test_bolme_birimi
+MODULE              := test_random_teknofest_wrapper
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
@@ -19,6 +19,7 @@ VERILOG_SOURCES +=  ../cevreleyici/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
+					$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
 					$(KAYNAKLAR)/veriyolu/*.v \
 					$(KAYNAKLAR)/cevre_birimleri/pwm/*.v \
 					$(KAYNAKLAR)/cevre_birimleri/spi/*.v \
