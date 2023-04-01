@@ -43,7 +43,6 @@ module getir (
     reg         buyruk_jal_tipi;
     reg         buyruk_jalr_tipi;
 
-    wire buyruk_hizali = ~ps[1]; // ps 4un kat mi
     wire buyruk_ctipi = ~(l1b_deger_i [ 1: 0] == 2'b11);
 
     wire [31:0] cyo_buyruk_next = buyruk_ctipi ? buyruk_genis : l1b_deger_i;
