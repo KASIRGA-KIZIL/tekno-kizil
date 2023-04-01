@@ -6,25 +6,23 @@ module cekirdek_ramsiz(
     input clk,
     input resetn,
 
-    output        iomem_valid,
-    input         iomem_ready,
-    output [ 3:0] iomem_wstrb,
-    output [31:0] iomem_addr,
-    output [31:0] iomem_wdata,
-    input  [31:0] iomem_rdata,
-    //
+    output wire        iomem_valid,
+    input  wire        iomem_ready,
+    output wire [ 3:0] iomem_wstrb,
+    output wire [31:0] iomem_addr,
+    output wire [31:0] iomem_wdata,
+    input  wire [31:0] iomem_rdata,
 
     output wire [7:0] l1b_tag_adr_o,
 
-    // sram arayuzu
-    output wire        csb0,
-    output wire [ 8:0] addr0,
-    output wire [ 4:0] wmask0,
-    output wire        spare_wen0,
-    output wire [40:0] din0,
-    output wire        csb1,
-    output wire [ 8:0] addr1,
-    input  wire [40:0] dout1,
+    // Veri onbellegi Arayuzu
+    output wire        yol0_EN0,
+    output wire        yol1_EN0,
+    output wire [ 7:0] yol_A0 ,
+    output wire [40:0] yol_Di0,
+    input  wire [40:0] yol0_Do0,
+    input  wire [40:0] yol1_Do0,
+    output wire [ 3:0] yol_WE0,
 
     // RAM256_T0
     output wire       we0_o,
@@ -43,16 +41,16 @@ module cekirdek_ramsiz(
     output wire [ 8:0] ram512d1_adr0_o,
     input  wire [15:0] ram512d1_datao0_i,
 
-    output uart_tx_o,
-    input  uart_rx_i,
+    output wire uart_tx_o,
+    input  wire uart_rx_i,
 
-    output spi_cs_o,
-    output spi_sck_o,
-    output spi_mosi_o,
-    input spi_miso_i,
+    output wire spi_cs_o,
+    output wire spi_sck_o,
+    output wire spi_mosi_o,
+    input  wire spi_miso_i,
 
-    output pwm0_o,
-    output pwm1_o
+    output wire pwm0_o,
+    output wire pwm1_o
 );
     wire clk_i = clk;
     wire rst_i = ~resetn;
@@ -169,14 +167,13 @@ module cekirdek_ramsiz(
         .iomem_wdata_o (l1v_iomem_wdata ),
         .iomem_rdata_i (l1v_iomem_rdata ),
 
-        .csb0       (csb0       ),
-        .addr0      (addr0      ),
-        .wmask0     (wmask0     ),
-        .spare_wen0 (spare_wen0 ),
-        .din0       (din0       ),
-        .csb1       (csb1       ),
-        .addr1      (addr1      ),
-        .dout1      (dout1      )
+        .yol0_EN0 (yol0_EN0 ),
+        .yol1_EN0 (yol1_EN0 ),
+        .yol_A0   (yol_A0   ),
+        .yol_Di0  (yol_Di0  ),
+        .yol0_Do0 (yol0_Do0 ),
+        .yol1_Do0 (yol1_Do0 ),
+        .yol_WE0  (yol_WE0  )
     );
 
 

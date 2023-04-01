@@ -46,18 +46,34 @@ async def anabellek(dut):
                         dut.rst_ni.value = 0
                         await RisingEdge(dut.clk_i)
                         f.write('\n'.join(final_logs))
-                        for idx in range(0,512):
-                            if(dut.soc.veri_onbellegi_dut.dirty_r[idx].value.integer):
-                                if(dut.soc.veri_onbellegi_dut.valid_r[idx].value.integer):
-                                    cline = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr
-                                    ctag = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr[1:9]
-                                    cval = dut.soc.veri_onbellegi_dut.sram.mem[idx].value.binstr[9:41]
-                                    cadr = "0100000000000" + ctag + f'{idx:09b}' + "00"
-                                    cadr_int = (int(cadr,2) - 0x40000000)//4
-                                    dut.main_memory.ram[cadr_int].value = int(cval,2)
-                                    cadr_hex   = "{0:#0{1}x}".format(int(cadr,2),10)
-                                    cval_hex   = "{0:#0{1}x}".format(int(cval,2),10)
-                                    print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval} ")
+                        for idx in range(0,256):
+                            if(dut.soc.cek_ramsiz.veri_onbellegi_denetleyici_dut.valid_yol0_r[idx].value.integer and dut.soc.cek_ramsiz.veri_onbellegi_denetleyici_dut.dirty_yol0_r[idx].value.integer):
+                                yol0_tag_80 = dut.soc.vffram_t0_0.RAM[idx].value.binstr
+                                yol0_tag_9  = dut.soc.vffram_t0_1.RAM[idx].value.binstr
+                                yol0_data_15_0  = dut.soc.vffram_d0_0.RAM[idx].value.binstr
+                                yol0_data_31_16 = dut.soc.vffram_d0_1.RAM[idx].value.binstr
+                                ctag  = yol0_tag_9 + yol0_tag_80
+                                cval  = yol0_data_31_16 + yol0_data_15_0
+                                cadr  = "0100000000000" + ctag + f'{idx:08b}' + "00"
+                                cadr_int = (int(cadr,2) - 0x40000000)//4
+                                cadr_hex   = "{0:#0{1}x}".format(int(cadr,2),10)
+                                cval_hex   = "{0:#0{1}x}".format(int(cval,2),10)
+                                print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval}  cacheidx:{idx} way0")
+                                dut.main_memory.ram[cadr_int].value = int(cval,2)
+                        for idx in range(0,256):
+                            if(dut.soc.cek_ramsiz.veri_onbellegi_denetleyici_dut.valid_yol1_r[idx].value.integer and dut.soc.cek_ramsiz.veri_onbellegi_denetleyici_dut.dirty_yol1_r[idx].value.integer):
+                                yol1_tag_80 = dut.soc.vffram_t1_0.RAM[idx].value.binstr
+                                yol1_tag_9  = dut.soc.vffram_t1_1.RAM[idx].value.binstr
+                                yol1_data_15_0  = dut.soc.vffram_d1_0.RAM[idx].value.binstr
+                                yol1_data_31_16 = dut.soc.vffram_d1_1.RAM[idx].value.binstr
+                                ctag  = yol1_tag_9 + yol1_tag_80
+                                cval  = yol1_data_31_16 + yol1_data_15_0
+                                cadr  = "0100000000000" + ctag + f'{idx:08b}' + "00"
+                                cadr_int = (int(cadr,2) - 0x40000000)//4
+                                cadr_hex   = "{0:#0{1}x}".format(int(cadr,2),10)
+                                cval_hex   = "{0:#0{1}x}".format(int(cval,2),10)
+                                print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval} cacheidx:{idx} way1")
+                                dut.main_memory.ram[cadr_int].value = int(cval,2)
                         await RisingEdge(dut.clk_i)
                         with open(f"{test_name}.sign", 'w') as d, open(f"{test_name}.signadr", 'w') as b:
                             begin_adr = (test["begin_sign_adr"]-0x40000000)//4

@@ -19,9 +19,17 @@ module veri_onbellegi_denetleyici(
     output wire [31:0] iomem_wdata_o,
     output wire [3:0]  iomem_wstrb_o,
     input       [31:0] iomem_rdata_i,
-    input              iomem_ready_i
+    input              iomem_ready_i,
+    // Cache Arayuzu
+    output wire        yol0_EN0,
+    output wire        yol1_EN0,
+    output wire [ 7:0] yol_A0 ,
+    output wire [40:0] yol_Di0,
+    input  wire [40:0] yol0_Do0,
+    input  wire [40:0] yol1_Do0,
+    output wire [ 3:0] yol_WE0
 );
-localparam  BOY = 2'b00, // Bekle, Cache Oku, Cache Yaz
+localparam  BOY        = 2'b00, // Bekle, Cache Oku, Cache Yaz
             BELLEK_OKU = 2'b01,
             BELLEK_YAZ = 2'b10;
 
@@ -31,13 +39,13 @@ reg [1:0] durum_next_r;
 reg [255:0] valid_yol0_r, valid_yol0_next_r;
 reg [255:0] valid_yol1_r, valid_yol1_next_r;
 
-reg [255:0] dirty_yol0_r, dirty_yol0_next_r; 
-reg [255:0] dirty_yol1_r, dirty_yol1_next_r; 
+reg [255:0] dirty_yol0_r, dirty_yol0_next_r;
+reg [255:0] dirty_yol1_r, dirty_yol1_next_r;
 
-reg [255:0] lru_r, lru_next_r; 
+reg [255:0] lru_r, lru_next_r;
 
 // cache cikis sinyalleri
-wire [31:0] data_out_yol0_w; 
+wire [31:0] data_out_yol0_w;
 wire [31:0] data_out_yol1_w;
 wire [8:0] oku_tag_yol0_w;
 wire [8:0] oku_tag_yol1_w;
@@ -52,37 +60,24 @@ reg [3:0] wmask_yaz_r, wmask_yaz_next_r;
 reg [31:0] bib_veri_r, bib_veri_next_r;
 
 // bellek output registerlari
-reg [18:2] iomem_addr_r, iomem_addr_next_r; 
+reg [18:2] iomem_addr_r, iomem_addr_next_r;
 reg [31:0] iomem_wdata_r, iomem_wdata_next_r;
 
-// Önbellek 1. yol
-RAM256_Veri vo1(
-    .CLK(clk_i),
-    .RST(rst_i),
-    .EN0(yaz_en_yol0_next_r),
-    .WE0(wmask_yaz_next_r),
-    .A0(l1v_adr_i[`ADRV]),
-    .Di0({l1v_adr_i[`TAGV], yaz_cache_veri_next_r}),
-    .Do0({oku_tag_yol0_w, data_out_yol0_w})
-);
 
-// Önbellek 2. yol
-RAM256_Veri vo2(
-    .CLK(clk_i),
-    .RST(rst_i),
-    .EN0(yaz_en_yol1_next_r),
-    .WE0(wmask_yaz_next_r),
-    .A0(l1v_adr_i[`ADRV]),
-    .Di0({l1v_adr_i[`TAGV], yaz_cache_veri_next_r}),
-    .Do0({oku_tag_yol1_w, data_out_yol1_w})
-);
+    assign yol0_EN0 = yaz_en_yol0_next_r;
+    assign yol1_EN0 = yaz_en_yol1_next_r;
+    assign yol_WE0  = wmask_yaz_next_r;
+    assign yol_A0   = l1v_adr_i[`ADRV];
+    assign yol_Di0  = {l1v_adr_i[`TAGV], yaz_cache_veri_next_r};
+    assign {oku_tag_yol0_w, data_out_yol0_w} =  yol0_Do0;
+    assign {oku_tag_yol1_w, data_out_yol1_w} =  yol1_Do0;
 
 wire [7:0] ADRES = l1v_adr_i[`ADRV];
 
-wire cache_valid_yol0_w = valid_yol0_r[ADRES]; 
+wire cache_valid_yol0_w = valid_yol0_r[ADRES];
 wire cache_valid_yol1_w = valid_yol1_r[ADRES];
 
-wire tag_hit_yol0_w = (l1v_adr_i[`TAGV]==oku_tag_yol0_w) && cache_valid_yol0_w; 
+wire tag_hit_yol0_w = (l1v_adr_i[`TAGV]==oku_tag_yol0_w) && cache_valid_yol0_w;
 wire tag_hit_yol1_w = (l1v_adr_i[`TAGV]==oku_tag_yol1_w) && cache_valid_yol1_w;
 
 wire cache_dirty_yol0_w = dirty_yol0_r[ADRES];
@@ -91,7 +86,7 @@ wire cache_dirty_yol1_w = dirty_yol1_r[ADRES];
 wire lru_sec0_w = lru_r[ADRES];
 
 assign iomem_valid_o = (durum_r == BELLEK_OKU) || (durum_r == BELLEK_YAZ);
-assign iomem_wstrb_o = (durum_r == BELLEK_YAZ) ? 4'b1111 : 4'b0; 
+assign iomem_wstrb_o = (durum_r == BELLEK_YAZ) ? 4'b1111 : 4'b0;
 
 assign l1v_veri_o = bib_veri_next_r;
 assign l1v_durdur_o = (durum_next_r != BOY) || (durum_r != BOY);
@@ -150,7 +145,7 @@ always@* begin
                     if((lru_sec0_w && cache_dirty_yol0_w) || (!lru_sec0_w && cache_dirty_yol1_w)) begin
                         durum_next_r = BELLEK_YAZ;
                         iomem_wdata_next_r = lru_sec0_w ? data_out_yol0_w : data_out_yol1_w;
-                        iomem_addr_next_r = lru_sec0_w ? {oku_tag_yol0_w,l1v_adr_i[`ADRV]} 
+                        iomem_addr_next_r = lru_sec0_w ? {oku_tag_yol0_w,l1v_adr_i[`ADRV]}
                                                             : {oku_tag_yol1_w,l1v_adr_i[`ADRV]};
                     end
 
@@ -172,7 +167,7 @@ always@* begin
                         durum_next_r = BELLEK_OKU;
                         iomem_addr_next_r = l1v_adr_i;
                     end
-                end            
+                end
             end
 
             // Okuma istegi
@@ -192,11 +187,11 @@ always@* begin
                     if((lru_sec0_w && cache_dirty_yol0_w) || (!lru_sec0_w && cache_dirty_yol1_w)) begin
                         durum_next_r = BELLEK_YAZ;
                         iomem_wdata_next_r = lru_sec0_w ? data_out_yol0_w : data_out_yol1_w;
-                        iomem_addr_next_r = lru_sec0_w ? {oku_tag_yol0_w,l1v_adr_i[`ADRV]} 
+                        iomem_addr_next_r = lru_sec0_w ? {oku_tag_yol0_w,l1v_adr_i[`ADRV]}
                                                             : {oku_tag_yol1_w,l1v_adr_i[`ADRV]};
                     end
 
-                    // LRU olmayan temiz 
+                    // LRU olmayan temiz
                     if(((lru_sec0_w && !cache_dirty_yol0_w) || (!lru_sec0_w && !cache_dirty_yol1_w))) begin
                         durum_next_r = BELLEK_OKU;
                         iomem_addr_next_r = l1v_adr_i;
@@ -274,8 +269,8 @@ always@* begin
                         valid_yol1_next_r[ADRES] = ~lru_sec0_w ? 1'b1 : valid_yol1_r[ADRES];
                         dirty_yol1_next_r[ADRES] = ~lru_sec0_w ? 1'b1 : valid_yol1_r[ADRES];
                         lru_next_r[ADRES] = ~lru_r[ADRES];
-                    end 
-                    
+                    end
+
                     if(~(&l1v_veri_maske_i)) begin
                         durum_next_r = BELLEK_OKU;
                         // Byte okuma istegini bellekten oku
@@ -284,7 +279,8 @@ always@* begin
                 end
             end
         end
-
+        default: begin
+        end
     endcase
 end
 
@@ -319,7 +315,7 @@ always@(posedge clk_i) begin
         iomem_addr_r <= iomem_addr_next_r;
         iomem_wdata_r <= iomem_wdata_next_r;
     end
-    
+
 end
 
 endmodule

@@ -1,4 +1,4 @@
-module RAM256 (
+module RAM256x8 (
     input CLK,
     input EN0,
     input WE0,
