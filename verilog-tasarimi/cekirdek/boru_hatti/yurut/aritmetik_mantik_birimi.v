@@ -29,7 +29,7 @@ module aritmetik_mantik_birimi(
     wire  elde_cla = (kontrol_i == `AMB_CIKARMA);
 
     `ifdef OPENLANE
-        toplayici toplayici_sky130(
+        toplayici_sky130 sklanksy_toplayici(
             .a_in(deger1_top),
             .b_in(deger2_top),
             .sum (sonuc_top)
