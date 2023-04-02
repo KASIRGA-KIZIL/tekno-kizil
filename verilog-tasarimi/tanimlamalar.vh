@@ -363,5 +363,5 @@
 // SORUN_YOK 0 olmak zorunda.
 
 
-// `define OPENLANE 0
-// `define FPGA     0
+// `define OPENLANE
+// `define FPGA
