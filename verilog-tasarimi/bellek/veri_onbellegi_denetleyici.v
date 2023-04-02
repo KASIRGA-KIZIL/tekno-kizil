@@ -294,11 +294,7 @@ always@(posedge clk_i) begin
         lru_r <= 256'd0;
         yaz_en_yol0_r <= 1'b0;
         yaz_en_yol1_r <= 1'b0;
-        yaz_cache_veri_r <= 32'd0;
         wmask_yaz_r <= 4'b0;
-        bib_veri_r <= 32'd0;
-        iomem_addr_r <= 17'd0;
-        iomem_wdata_r <= 32'd0;
     end
     else begin
         durum_r <= durum_next_r;
