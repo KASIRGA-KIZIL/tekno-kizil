@@ -364,3 +364,4 @@
 
 
 // `define OPENLANE 0
+// `define FPGA     0

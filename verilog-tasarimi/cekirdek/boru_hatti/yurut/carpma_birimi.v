@@ -40,14 +40,35 @@ module carpma_birimi (
         endcase
     end
 
-    carp_biriktir cbd (
-      .clk_i (clk_i ),
-      .rst_i (rst_i ),
-      .durdur_i(durdur_i),
-      .IN1 (deger1 ),
-      .IN2 (deger2 ),
-      .result  ( sonuc)
-    );
+    `ifdef FPGA
+        wire [66:0] a = {{34{deger1[32]}},deger1};
+        wire [66:0] b = {{34{deger2[32]}},deger2};
+        reg  [32:0] biriktirici;
+        reg  [66:0] regli_sonuc;
+        wire [67:0] carpma_sonucu = ((a) * (b)) + {35'b0,biriktirici};
+        assign sonuc = regli_sonuc;
+        always @(posedge clk_i) begin
+            if(rst_i)begin
+                biriktirici <= 33'b0;
+            end else begin
+                if(~durdur_i)
+                    biriktirici <= carpma_sonucu[32:0];
+            end
+            if(~durdur_i)
+                regli_sonuc <= carpma_sonucu[66:0];
+        end
+    `else
+        carp_biriktir cbd (
+            .clk_i (clk_i ),
+            .rst_i (rst_i ),
+            .durdur_i(durdur_i),
+            .IN1 (deger1 ),
+            .IN2 (deger2 ),
+            .result  ( sonuc)
+        );
+    `endif
+
+
     always @(posedge clk_i) begin
         if(~durdur_i)
             kontrol <= kontrol_i;
