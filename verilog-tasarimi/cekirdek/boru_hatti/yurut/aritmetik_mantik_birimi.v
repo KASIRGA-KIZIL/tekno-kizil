@@ -23,18 +23,24 @@ module aritmetik_mantik_birimi(
     wire [31:0] sonuc_sltu;
 
     // Aritmetik Sinyalleri
-    wire [31:0] deger2_cla;
-    wire [31:0] sonuc_cla;
+    wire [32:0] deger2_top = (kontrol_i == `AMB_CIKARMA) ? {~deger2_i,1'b1} : {deger2_i,1'b0};
+    wire [32:0] deger1_top = (kontrol_i == `AMB_CIKARMA) ? { deger1_i,1'b1} : {deger1_i,1'b0};
+    wire [32:0] sonuc_top;
     wire  elde_cla = (kontrol_i == `AMB_CIKARMA);
 
-    carry_lookahead_toplayici cla(
-        .deger1_i(deger1_i),
-        .deger2_i(deger2_cla),
-        .elde_i  (elde_cla),
-        .sonuc_o (sonuc_cla)
-    );
-
-    assign deger2_cla = (kontrol_i == `AMB_CIKARMA) ? ~deger2_i : deger2_i;
+    `ifdef OPENLANE
+        toplayici toplayici_sky130(
+            .a_in(deger1_top),
+            .b_in(deger2_top),
+            .sum (sonuc_top)
+        );
+    `else
+        toplayici sklanksy_toplayici(
+            .a_in(deger1_top),
+            .b_in(deger2_top),
+            .sum (sonuc_top)
+        );
+    `endif
 
     assign sonuc_xor  =          deger1_i   ^   deger2_i;
     assign sonuc_or   =          deger1_i   |   deger2_i;
@@ -45,7 +51,7 @@ module aritmetik_mantik_birimi(
     assign sonuc_slt  = ($signed(deger1_i)  <   $signed(deger2_i)) ? 32'b1 : 32'b0;
     assign sonuc_sltu = (       (deger1_i)  <          (deger2_i)) ? 32'b1 : 32'b0;
 
-    assign sonuc_o = (kontrol_i == `AMB_CIKARMA) | (kontrol_i == `AMB_TOPLAMA) ? sonuc_cla :
+    assign sonuc_o = (kontrol_i == `AMB_CIKARMA) | (kontrol_i == `AMB_TOPLAMA) ? sonuc_top[32:1] :
                      (kontrol_i == `AMB_XOR    )                             ? sonuc_xor :
                      (kontrol_i == `AMB_OR     )                             ? sonuc_or  :
                      (kontrol_i == `AMB_AND    )                             ? sonuc_and :

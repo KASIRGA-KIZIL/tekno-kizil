@@ -94,6 +94,8 @@ assign l1v_durdur_o = (durum_next_r != BOY) || (durum_r != BOY);
 assign iomem_addr_o = iomem_addr_r;
 assign iomem_wdata_o = iomem_wdata_r;
 
+wire hit_yol0 = (cache_valid_yol0_w && tag_hit_yol0_w);
+wire hit_yol1 = (cache_valid_yol1_w && tag_hit_yol1_w);
 
 always@* begin
     durum_next_r = durum_r;
@@ -121,7 +123,7 @@ always@* begin
         BOY: begin
             // Yazma istegi
             if(l1v_sec_i && (|l1v_veri_maske_i)) begin
-                if(cache_valid_yol0_w && tag_hit_yol0_w) begin
+                if(hit_yol0) begin
                     yaz_cache_veri_next_r = l1v_veri_i;
                     yaz_en_yol0_next_r = 1'b1;
                     wmask_yaz_next_r = l1v_veri_maske_i;
@@ -130,7 +132,7 @@ always@* begin
                     lru_next_r[ADRES] = 1'b0;
                 end
 
-                if(cache_valid_yol1_w && tag_hit_yol1_w) begin
+                if(hit_yol1) begin
                     yaz_cache_veri_next_r = l1v_veri_i;
                     yaz_en_yol1_next_r = 1'b1;
                     wmask_yaz_next_r = l1v_veri_maske_i;
@@ -140,7 +142,7 @@ always@* begin
                 end
 
                 // Hit yoksa lruya gore yaz
-                if((((!tag_hit_yol0_w) && cache_valid_yol0_w) && ((!tag_hit_yol1_w) && cache_valid_yol1_w)) || (!cache_valid_yol1_w || !cache_valid_yol0_w)) begin
+                if(~hit_yol0 & ~hit_yol1) begin
                     // LRU olmayan Kirli
                     if((lru_sec0_w && cache_dirty_yol0_w) || (!lru_sec0_w && cache_dirty_yol1_w)) begin
                         durum_next_r = BELLEK_YAZ;
@@ -172,17 +174,17 @@ always@* begin
 
             // Okuma istegi
             if(l1v_sec_i && ~(|l1v_veri_maske_i)) begin
-                if(cache_valid_yol0_w && tag_hit_yol0_w) begin
+                if(hit_yol0) begin
                     bib_veri_next_r = data_out_yol0_w;
                     lru_next_r[ADRES] = 1'b0;
                 end
 
-                if(cache_valid_yol1_w && tag_hit_yol1_w) begin
+                if(hit_yol1) begin
                     bib_veri_next_r = data_out_yol1_w;
                     lru_next_r[ADRES] = 1'b1;
                 end
 
-                if((((!tag_hit_yol0_w) && cache_valid_yol0_w) && ((!tag_hit_yol1_w) && cache_valid_yol1_w)) || (!cache_valid_yol1_w || !cache_valid_yol0_w)) begin
+                if(~hit_yol0 & ~hit_yol1) begin
                     // LRU olmayan Kirli
                     if((lru_sec0_w && cache_dirty_yol0_w) || (!lru_sec0_w && cache_dirty_yol1_w)) begin
                         durum_next_r = BELLEK_YAZ;

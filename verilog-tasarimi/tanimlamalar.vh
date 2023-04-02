@@ -361,3 +361,6 @@
 `define ATLAMALIYDI   2'd1
 `define SORUN_YOK     2'd0
 // SORUN_YOK 0 olmak zorunda.
+
+
+// `define OPENLANE 0
