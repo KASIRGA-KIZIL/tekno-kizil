@@ -6,6 +6,7 @@
 module veri_onbellegi_denetleyici(
     input clk_i,
     input rst_i,
+
     // Bib <-> Buyruk Onbellegi Okuma
     output wire  [31:0] l1v_veri_o,
     output wire        l1v_durdur_o,
@@ -13,6 +14,7 @@ module veri_onbellegi_denetleyici(
     input  wire [18:2] l1v_adr_i,
     input  wire [ 3:0] l1v_veri_maske_i,
     input  wire        l1v_sec_i,
+
     // Anabellek Denetleyici <-> buyruk onbellegi
     output wire [18:2] iomem_addr_o,
     output wire        iomem_valid_o,
@@ -20,14 +22,27 @@ module veri_onbellegi_denetleyici(
     output wire [3:0]  iomem_wstrb_o,
     input       [31:0] iomem_rdata_i,
     input              iomem_ready_i,
-    // Cache Arayuzu
+
+    // veri+tag Arayuzu
     output wire        yol0_EN0,
     output wire        yol1_EN0,
     output wire [ 7:0] yol_A0 ,
     output wire [40:0] yol_Di0,
     input  wire [40:0] yol0_Do0,
     input  wire [40:0] yol1_Do0,
-    output wire [ 3:0] yol_WE0
+    output wire [ 3:0] yol_WE0,
+
+    // dirty+lru+valid arayuzu
+    input  wire lru_i,
+    output reg  lru_o,
+    input  wire yol0_valid_i,
+    output reg  yol0_valid_o,
+    input  wire yol0_dirty_i,
+    output reg  yol0_dirty_o,
+    input  wire yol1_valid_i,
+    output reg  yol1_valid_o,
+    input  wire yol1_dirty_i,
+    output reg  yol1_dirty_o
 );
 localparam  BOY        = 2'b00, // Bekle, Cache Oku, Cache Yaz
             BELLEK_OKU = 2'b01,
@@ -35,14 +50,6 @@ localparam  BOY        = 2'b00, // Bekle, Cache Oku, Cache Yaz
 
 reg [1:0] durum_r;
 reg [1:0] durum_next_r;
-
-reg [255:0] valid_yol0_r, valid_yol0_next_r;
-reg [255:0] valid_yol1_r, valid_yol1_next_r;
-
-reg [255:0] dirty_yol0_r, dirty_yol0_next_r;
-reg [255:0] dirty_yol1_r, dirty_yol1_next_r;
-
-reg [255:0] lru_r, lru_next_r;
 
 // cache cikis sinyalleri
 wire [31:0] data_out_yol0_w;
@@ -74,16 +81,16 @@ reg [31:0] iomem_wdata_r, iomem_wdata_next_r;
 
 wire [7:0] ADRES = l1v_adr_i[`ADRV];
 
-wire cache_valid_yol0_w = valid_yol0_r[ADRES];
-wire cache_valid_yol1_w = valid_yol1_r[ADRES];
+wire cache_valid_yol0_w = yol0_valid_i;
+wire cache_valid_yol1_w = yol1_valid_i;
 
 wire tag_hit_yol0_w = (l1v_adr_i[`TAGV]==oku_tag_yol0_w) && cache_valid_yol0_w;
 wire tag_hit_yol1_w = (l1v_adr_i[`TAGV]==oku_tag_yol1_w) && cache_valid_yol1_w;
 
-wire cache_dirty_yol0_w = dirty_yol0_r[ADRES];
-wire cache_dirty_yol1_w = dirty_yol1_r[ADRES];
+wire cache_dirty_yol0_w = yol0_dirty_i;
+wire cache_dirty_yol1_w = yol1_dirty_i;
 
-wire lru_sec0_w = lru_r[ADRES];
+wire lru_sec0_w = lru_i;
 
 assign iomem_valid_o = (durum_r == BELLEK_OKU) || (durum_r == BELLEK_YAZ);
 assign iomem_wstrb_o = (durum_r == BELLEK_YAZ) ? 4'b1111 : 4'b0;
@@ -99,14 +106,6 @@ wire hit_yol1 = (cache_valid_yol1_w && tag_hit_yol1_w);
 
 always@* begin
     durum_next_r = durum_r;
-
-    valid_yol0_next_r = valid_yol0_r;
-    valid_yol1_next_r = valid_yol1_r;
-
-    dirty_yol0_next_r = dirty_yol0_r;
-    dirty_yol1_next_r = dirty_yol1_r;
-
-    lru_next_r = lru_r;
 
     yaz_en_yol0_next_r = 1'b0;
     yaz_en_yol1_next_r = 1'b0;
@@ -127,18 +126,18 @@ always@* begin
                     yaz_cache_veri_next_r = l1v_veri_i;
                     yaz_en_yol0_next_r = 1'b1;
                     wmask_yaz_next_r = l1v_veri_maske_i;
-                    valid_yol0_next_r[ADRES] = 1'b1;
-                    dirty_yol0_next_r[ADRES] = 1'b1;
-                    lru_next_r[ADRES] = 1'b0;
+                    yol0_valid_o = 1'b1;
+                    yol0_dirty_o = 1'b1;
+                    lru_o = 1'b0;
                 end
 
                 if(hit_yol1) begin
                     yaz_cache_veri_next_r = l1v_veri_i;
                     yaz_en_yol1_next_r = 1'b1;
                     wmask_yaz_next_r = l1v_veri_maske_i;
-                    valid_yol1_next_r[ADRES] = 1'b1;
-                    dirty_yol1_next_r[ADRES] = 1'b1;
-                    lru_next_r[ADRES] = 1'b1;
+                    yol1_valid_o = 1'b1;
+                    yol1_dirty_o = 1'b1;
+                    lru_o = 1'b1;
                 end
 
                 // Hit yoksa lruya gore yaz
@@ -157,11 +156,11 @@ always@* begin
                         yaz_en_yol0_next_r = lru_sec0_w;
                         yaz_en_yol1_next_r = !lru_sec0_w;
                         wmask_yaz_next_r = 4'b1111;
-                        valid_yol0_next_r[ADRES] = lru_sec0_w ? 1'b1 : valid_yol0_r[ADRES];
-                        dirty_yol0_next_r[ADRES] = lru_sec0_w ? 1'b1 : valid_yol0_r[ADRES];
-                        valid_yol1_next_r[ADRES] = ~lru_sec0_w ? 1'b1 : valid_yol1_r[ADRES];
-                        dirty_yol1_next_r[ADRES] = ~lru_sec0_w ? 1'b1 : valid_yol1_r[ADRES];
-                        lru_next_r[ADRES] = ~lru_r[ADRES];
+                        yol0_valid_o = lru_sec0_w ? 1'b1 : yol0_valid_i;
+                        yol0_dirty_o = lru_sec0_w ? 1'b1 : yol0_valid_i;
+                        yol1_valid_o = ~lru_sec0_w ? 1'b1 : yol1_valid_i;
+                        yol1_dirty_o = ~lru_sec0_w ? 1'b1 : yol1_valid_i;
+                        lru_o = ~lru_i;
                     end
 
                     // LRU olmayan temiz ama word yazilmayacak, geri kalan bytelarin bellekten okunmasi gerek
@@ -176,12 +175,12 @@ always@* begin
             if(l1v_sec_i && ~(|l1v_veri_maske_i)) begin
                 if(hit_yol0) begin
                     bib_veri_next_r = data_out_yol0_w;
-                    lru_next_r[ADRES] = 1'b0;
+                    lru_o = 1'b0;
                 end
 
                 if(hit_yol1) begin
                     bib_veri_next_r = data_out_yol1_w;
-                    lru_next_r[ADRES] = 1'b1;
+                    lru_o = 1'b1;
                 end
 
                 if(~hit_yol0 & ~hit_yol1) begin
@@ -213,11 +212,11 @@ always@* begin
                     yaz_en_yol0_next_r = lru_sec0_w;
                     yaz_en_yol1_next_r = !lru_sec0_w;
                     wmask_yaz_next_r = 4'b1111;
-                    valid_yol0_next_r[ADRES] = lru_sec0_w ? 1'b1 : valid_yol0_r[ADRES];
-                    dirty_yol0_next_r[ADRES] = lru_sec0_w ? 1'b0 : valid_yol0_r[ADRES];
-                    valid_yol1_next_r[ADRES] = ~lru_sec0_w ? 1'b1 : valid_yol1_r[ADRES];
-                    dirty_yol1_next_r[ADRES] = ~lru_sec0_w ? 1'b0 : valid_yol1_r[ADRES];
-                    lru_next_r[ADRES] = ~lru_r[ADRES];
+                    yol0_valid_o = lru_sec0_w ? 1'b1 : yol0_valid_i;
+                    yol0_dirty_o = lru_sec0_w ? 1'b0 : yol0_valid_i;
+                    yol1_valid_o = ~lru_sec0_w ? 1'b1 : yol1_valid_i;
+                    yol1_dirty_o = ~lru_sec0_w ? 1'b0 : yol1_valid_i;
+                    lru_o = ~lru_i;
                     // veriyi cikisa ver
                     bib_veri_next_r = iomem_rdata_i;
                 end
@@ -240,11 +239,11 @@ always@* begin
                         default: begin
                         end
                     endcase
-                    valid_yol0_next_r[ADRES] = lru_sec0_w ? 1'b1 : valid_yol0_r[ADRES];
-                    dirty_yol0_next_r[ADRES] = lru_sec0_w ? 1'b0 : valid_yol0_r[ADRES];
-                    valid_yol1_next_r[ADRES] = ~lru_sec0_w ? 1'b1 : valid_yol1_r[ADRES];
-                    dirty_yol1_next_r[ADRES] = ~lru_sec0_w ? 1'b0 : valid_yol1_r[ADRES];
-                    lru_next_r[ADRES] = ~lru_r[ADRES];
+                    yol0_valid_o = lru_sec0_w ? 1'b1 : yol0_valid_i;
+                    yol0_dirty_o = lru_sec0_w ? 1'b0 : yol0_valid_i;
+                    yol1_valid_o = ~lru_sec0_w ? 1'b1 : yol1_valid_i;
+                    yol1_dirty_o = ~lru_sec0_w ? 1'b0 : yol1_valid_i;
+                    lru_o = ~lru_i;
                 end
             end
         end
@@ -266,11 +265,11 @@ always@* begin
                         yaz_en_yol0_next_r = lru_sec0_w;
                         yaz_en_yol1_next_r = !lru_sec0_w;
                         yaz_cache_veri_next_r = l1v_veri_i;
-                        valid_yol0_next_r[ADRES] = lru_sec0_w ? 1'b1 : valid_yol0_r[ADRES];
-                        dirty_yol0_next_r[ADRES] = lru_sec0_w ? 1'b1 : valid_yol0_r[ADRES];
-                        valid_yol1_next_r[ADRES] = ~lru_sec0_w ? 1'b1 : valid_yol1_r[ADRES];
-                        dirty_yol1_next_r[ADRES] = ~lru_sec0_w ? 1'b1 : valid_yol1_r[ADRES];
-                        lru_next_r[ADRES] = ~lru_r[ADRES];
+                        yol0_valid_o = lru_sec0_w ? 1'b1 : yol0_valid_i;
+                        yol0_dirty_o = lru_sec0_w ? 1'b1 : yol0_valid_i;
+                        yol1_valid_o = ~lru_sec0_w ? 1'b1 : yol1_valid_i;
+                        yol1_dirty_o = ~lru_sec0_w ? 1'b1 : yol1_valid_i;
+                        lru_o = ~lru_i;
                     end
 
                     if(~(&l1v_veri_maske_i)) begin
@@ -289,22 +288,12 @@ end
 always@(posedge clk_i) begin
     if(rst_i) begin
         durum_r <= BOY;
-        valid_yol0_r <= 256'd0;
-        valid_yol1_r <= 256'd0;
-        dirty_yol0_r <= 256'd0;
-        dirty_yol1_r <= 256'd0;
-        lru_r <= 256'd0;
         yaz_en_yol0_r <= 1'b0;
         yaz_en_yol1_r <= 1'b0;
         wmask_yaz_r <= 4'b0;
     end
     else begin
         durum_r <= durum_next_r;
-        valid_yol0_r <= valid_yol0_next_r;
-        valid_yol1_r <= valid_yol1_next_r;
-        dirty_yol0_r <= dirty_yol0_next_r;
-        dirty_yol1_r <= dirty_yol1_next_r;
-        lru_r <= lru_next_r;
         yaz_en_yol0_r <= yaz_en_yol0_next_r;
         yaz_en_yol1_r <= yaz_en_yol1_next_r;
         yaz_cache_veri_r <= yaz_cache_veri_next_r;

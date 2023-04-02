@@ -47,7 +47,7 @@ async def anabellek(dut):
                         await RisingEdge(dut.clk_i)
                         f.write('\n'.join(final_logs))
                         for idx in range(0,256):
-                            if(dut.soc.cek_ramsiz.veri_onbellegi_denetleyici_dut.valid_yol0_r[idx].value.integer and dut.soc.cek_ramsiz.veri_onbellegi_denetleyici_dut.dirty_yol0_r[idx].value.integer):
+                            if(dut.soc.vffram_valid_0.RAM[idx].value.integer and dut.soc.vffram_dirty_0.RAM[idx].value.integer):
                                 yol0_tag_80 = dut.soc.vffram_t0_0.RAM[idx].value.binstr
                                 yol0_tag_9  = dut.soc.vffram_t0_1.RAM[idx].value.binstr
                                 yol0_data_15_0  = dut.soc.vffram_d0_0.RAM[idx].value.binstr
@@ -61,7 +61,7 @@ async def anabellek(dut):
                                 print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval}  cacheidx:{idx} way0")
                                 dut.main_memory.ram[cadr_int].value = int(cval,2)
                         for idx in range(0,256):
-                            if(dut.soc.cek_ramsiz.veri_onbellegi_denetleyici_dut.valid_yol1_r[idx].value.integer and dut.soc.cek_ramsiz.veri_onbellegi_denetleyici_dut.dirty_yol1_r[idx].value.integer):
+                            if(dut.soc.vffram_valid_1.RAM[idx].value.integer and dut.soc.vffram_dirty_1.RAM[idx].value.integer):
                                 yol1_tag_80 = dut.soc.vffram_t1_0.RAM[idx].value.binstr
                                 yol1_tag_9  = dut.soc.vffram_t1_1.RAM[idx].value.binstr
                                 yol1_data_15_0  = dut.soc.vffram_d1_0.RAM[idx].value.binstr

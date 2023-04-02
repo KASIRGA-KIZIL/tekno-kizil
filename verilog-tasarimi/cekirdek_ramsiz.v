@@ -24,6 +24,18 @@ module cekirdek_ramsiz(
     input  wire [40:0] yol1_Do0,
     output wire [ 3:0] yol_WE0,
 
+    // dirty+lru+valid arayuzu
+    input  wire lru_i,
+    output wire lru_o,
+    input  wire yol0_valid_i,
+    output wire yol0_valid_o,
+    input  wire yol0_dirty_i,
+    output wire yol0_dirty_o,
+    input  wire yol1_valid_i,
+    output wire yol1_valid_o,
+    input  wire yol1_dirty_i,
+    output wire yol1_dirty_o,
+
     // RAM256_T0
     output wire       we0_o,
     output wire [7:0] adr0_o,
@@ -173,7 +185,18 @@ module cekirdek_ramsiz(
         .yol_Di0  (yol_Di0  ),
         .yol0_Do0 (yol0_Do0 ),
         .yol1_Do0 (yol1_Do0 ),
-        .yol_WE0  (yol_WE0  )
+        .yol_WE0  (yol_WE0  ),
+
+        .lru_i (lru_i ),
+        .lru_o (lru_o ),
+        .yol0_valid_i (yol0_valid_i ),
+        .yol0_valid_o (yol0_valid_o ),
+        .yol0_dirty_i (yol0_dirty_i ),
+        .yol0_dirty_o (yol0_dirty_o ),
+        .yol1_valid_i (yol1_valid_i ),
+        .yol1_valid_o (yol1_valid_o ),
+        .yol1_dirty_i (yol1_dirty_i ),
+        .yol1_dirty_o  ( yol1_dirty_o)
     );
 
 
