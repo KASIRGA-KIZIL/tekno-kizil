@@ -161,22 +161,12 @@ module user_processor(
         .WE0(we1)
     );
 
-
     RAM256x8 vffram_t0_0(
         .CLK(clk),
         .EN0(yol0_EN0),
         .A0 (yol_A0  ),
         .Di0(yol_Di0 [39:32]),
         .Do0(yol0_Do0[39:32]),
-        .WE0(yol0_EN0)
-    );
-
-    RAM256x1 vffram_t0_1(
-        .CLK(clk),
-        .EN0(yol0_EN0),
-        .A0 (yol_A0  ),
-        .Di0(yol_Di0 [40]),
-        .Do0(yol0_Do0[40]),
         .WE0(yol0_EN0)
     );
 
@@ -189,14 +179,6 @@ module user_processor(
         .WE0(yol1_EN0)
     );
 
-    RAM256x1 vffram_t1_1(
-        .CLK(clk),
-        .EN0(yol1_EN0),
-        .A0 (yol_A0  ),
-        .Di0(yol_Di0 [40]),
-        .Do0(yol1_Do0[40]),
-        .WE0(yol1_EN0)
-    );
 
     RAM256x16 vffram_d0_0(
         .CLK(clk),
@@ -234,54 +216,36 @@ module user_processor(
         .WE0(yol_WE0[3:2])
     );
 
-    RAM256x1_rst vffram_lru(
-        .CLK(clk),
-        .RST(~resetn),
-        .EN0(yol1_EN0 | yol0_EN0),
-        .A0 (yol_A0  ),
-        .Di0(lru_ddo),
-        .Do0(lru_din),
-        .WE0(yol1_EN0 | yol0_EN0)
-    );
 
-    RAM256x1_rst vffram_valid_0(
-        .CLK(clk),
-        .RST(~resetn),
-        .EN0(yol0_EN0),
-        .A0 (yol_A0  ),
-        .Di0(yol0_valid_ddo),
-        .Do0(yol0_valid_din),
-        .WE0(yol0_EN0)
-    );
+    // t1_d1_v1_x_lru_t0_d0_v0
+    wire [7:0] combined_data_yeni;
+    wire [7:0] combined_data_okunan;
+    assign combined_data_yeni[0] =  yol0_EN0             ? yol0_valid_ddo : combined_data_okunan[0];
+    assign combined_data_yeni[1] =  yol0_EN0             ? yol0_dirty_ddo : combined_data_okunan[1];
+    assign combined_data_yeni[2] =  yol0_EN0             ? yol_Di0 [40]   : combined_data_okunan[2];
+    assign combined_data_yeni[3] = (yol0_EN0 | yol1_EN0) ? lru_ddo        : combined_data_okunan[3];
+    assign combined_data_yeni[4] = 1'bx;
+    assign combined_data_yeni[5] =  yol1_EN0             ? yol1_valid_ddo : combined_data_okunan[5];
+    assign combined_data_yeni[6] =  yol1_EN0             ? yol1_dirty_ddo : combined_data_okunan[6];
+    assign combined_data_yeni[7] =  yol1_EN0             ? yol_Di0 [40]   : combined_data_okunan[7];
 
-    RAM256x1_rst vffram_valid_1(
-        .CLK(clk),
-        .RST(~resetn),
-        .EN0(yol1_EN0),
-        .A0 (yol_A0  ),
-        .Di0(yol1_valid_ddo),
-        .Do0(yol1_valid_din),
-        .WE0(yol1_EN0)
-    );
+    assign yol0_valid_din = combined_data_okunan[0];
+    assign yol0_dirty_din = combined_data_okunan[1];
+    assign yol0_Do0[40]   = combined_data_okunan[2];
+    assign lru_din        = combined_data_okunan[3];
 
-    RAM256x1_rst vffram_dirty_0(
-        .CLK(clk),
-        .RST(~resetn),
-        .EN0(yol0_EN0),
-        .A0 (yol_A0  ),
-        .Di0(yol0_dirty_ddo),
-        .Do0(yol0_dirty_din),
-        .WE0(yol0_EN0)
-    );
+    assign yol1_valid_din = combined_data_okunan[5];
+    assign yol1_dirty_din = combined_data_okunan[6];
+    assign yol1_Do0[40]   = combined_data_okunan[7];
 
-    RAM256x1_rst vffram_dirty_1(
+
+    RAM256x8 vffram_combined(
         .CLK(clk),
-        .RST(~resetn),
-        .EN0(yol1_EN0),
+        .EN0(yol0_EN0 | yol1_EN0),
         .A0 (yol_A0  ),
-        .Di0(yol1_dirty_ddo),
-        .Do0(yol1_dirty_din),
-        .WE0(yol1_EN0)
+        .Di0(combined_data_yeni),
+        .Do0(combined_data_okunan),
+        .WE0(yol0_EN0 | yol1_EN0)
     );
 
 endmodule

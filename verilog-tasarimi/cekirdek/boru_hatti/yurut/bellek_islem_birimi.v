@@ -49,7 +49,7 @@ module bellek_islem_birimi(
                           (adr_i[1:0] == 2'b10) ? 4'b0100 :
                                                   4'b1000 ;
 
-    assign bitti_o = basla_i ? ~bib_durdur_i : 1'b1;
+    assign bitti_o = ~bib_durdur_i;
 
     assign bib_sec_o = (ddb_durdur_i) ? 1'b0 : basla_i;
 

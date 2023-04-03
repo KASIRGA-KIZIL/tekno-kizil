@@ -44,9 +44,10 @@ module veri_onbellegi_denetleyici(
     input  wire yol1_dirty_i,
     output reg  yol1_dirty_o
 );
-localparam  BOY        = 2'b00, // Bekle, Cache Oku, Cache Yaz
-            BELLEK_OKU = 2'b01,
-            BELLEK_YAZ = 2'b10;
+localparam  RESET      = 2'b00,
+            BOY        = 2'b01, // RST, Bekle, Cache Oku, Cache Yaz
+            BELLEK_OKU = 2'b10,
+            BELLEK_YAZ = 2'b11;
 
 reg [1:0] durum_r;
 reg [1:0] durum_next_r;
@@ -70,11 +71,12 @@ reg [31:0] bib_veri_r, bib_veri_next_r;
 reg [18:2] iomem_addr_r, iomem_addr_next_r;
 reg [31:0] iomem_wdata_r, iomem_wdata_next_r;
 
+reg [7:0] counter;
 
     assign yol0_EN0 = yaz_en_yol0_next_r;
     assign yol1_EN0 = yaz_en_yol1_next_r;
     assign yol_WE0  = wmask_yaz_next_r;
-    assign yol_A0   = l1v_adr_i[`ADRV];
+    assign yol_A0   = (durum_r == RESET) ? counter : l1v_adr_i[`ADRV];
     assign yol_Di0  = {l1v_adr_i[`TAGV], yaz_cache_veri_next_r};
     assign {oku_tag_yol0_w, data_out_yol0_w} =  yol0_Do0;
     assign {oku_tag_yol1_w, data_out_yol1_w} =  yol1_Do0;
@@ -104,6 +106,7 @@ assign iomem_wdata_o = iomem_wdata_r;
 wire hit_yol0 = (cache_valid_yol0_w && tag_hit_yol0_w);
 wire hit_yol1 = (cache_valid_yol1_w && tag_hit_yol1_w);
 
+
 always@* begin
     durum_next_r = durum_r;
 
@@ -118,7 +121,23 @@ always@* begin
     iomem_addr_next_r = iomem_addr_r;
     iomem_wdata_next_r = iomem_wdata_r;
 
+    yol0_valid_o = 1'b0;
+    yol1_valid_o = 1'b0;
+    yol0_dirty_o = 1'b0;
+    yol1_dirty_o = 1'b0;
+    lru_o        = 1'b0;
     case(durum_r)
+        RESET: begin
+            yol0_valid_o = 1'b0;
+            yol1_valid_o = 1'b0;
+            yol0_dirty_o = 1'b0;
+            yol1_dirty_o = 1'b0;
+            lru_o        = 1'b0;
+
+            yaz_en_yol0_next_r = 1'b1;
+            yaz_en_yol1_next_r = 1'b1;
+            durum_next_r = (counter == 8'hff) ? BOY : RESET;
+        end
         BOY: begin
             // Yazma istegi
             if(l1v_sec_i && (|l1v_veri_maske_i)) begin
@@ -239,8 +258,8 @@ always@* begin
                         default: begin
                         end
                     endcase
-                    yol0_valid_o = lru_sec0_w ? 1'b1 : yol0_valid_i;
-                    yol0_dirty_o = lru_sec0_w ? 1'b0 : yol0_valid_i;
+                    yol0_valid_o =  lru_sec0_w ? 1'b1 : yol0_valid_i;
+                    yol0_dirty_o =  lru_sec0_w ? 1'b0 : yol0_valid_i;
                     yol1_valid_o = ~lru_sec0_w ? 1'b1 : yol1_valid_i;
                     yol1_dirty_o = ~lru_sec0_w ? 1'b0 : yol1_valid_i;
                     lru_o = ~lru_i;
@@ -262,11 +281,11 @@ always@* begin
                     if(&l1v_veri_maske_i) begin
                         durum_next_r = BOY;
                         // Bib'in verisini cache'e yaz
-                        yaz_en_yol0_next_r = lru_sec0_w;
+                        yaz_en_yol0_next_r =  lru_sec0_w;
                         yaz_en_yol1_next_r = !lru_sec0_w;
                         yaz_cache_veri_next_r = l1v_veri_i;
-                        yol0_valid_o = lru_sec0_w ? 1'b1 : yol0_valid_i;
-                        yol0_dirty_o = lru_sec0_w ? 1'b1 : yol0_valid_i;
+                        yol0_valid_o =  lru_sec0_w ? 1'b1 : yol0_valid_i;
+                        yol0_dirty_o =  lru_sec0_w ? 1'b1 : yol0_valid_i;
                         yol1_valid_o = ~lru_sec0_w ? 1'b1 : yol1_valid_i;
                         yol1_dirty_o = ~lru_sec0_w ? 1'b1 : yol1_valid_i;
                         lru_o = ~lru_i;
@@ -280,19 +299,19 @@ always@* begin
                 end
             end
         end
-        default: begin
-        end
     endcase
 end
 
 always@(posedge clk_i) begin
     if(rst_i) begin
-        durum_r <= BOY;
+        durum_r <= RESET;
         yaz_en_yol0_r <= 1'b0;
         yaz_en_yol1_r <= 1'b0;
         wmask_yaz_r <= 4'b0;
+        counter     <= 8'b0;
     end
     else begin
+        counter <= (counter != 8'hff) ? (counter + 8'b1) : counter;
         durum_r <= durum_next_r;
         yaz_en_yol0_r <= yaz_en_yol0_next_r;
         yaz_en_yol1_r <= yaz_en_yol1_next_r;

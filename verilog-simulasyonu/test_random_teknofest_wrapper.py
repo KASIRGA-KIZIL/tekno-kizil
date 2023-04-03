@@ -47,9 +47,11 @@ async def anabellek(dut):
                         await RisingEdge(dut.clk_i)
                         f.write('\n'.join(final_logs))
                         for idx in range(0,256):
-                            if(dut.soc.vffram_valid_0.RAM[idx].value.integer and dut.soc.vffram_dirty_0.RAM[idx].value.integer):
+                            valid    = int((dut.soc.vffram_combined.RAM[idx].value.binstr)[-1],2)
+                            dirty    = int((dut.soc.vffram_combined.RAM[idx].value.binstr)[-2],2)
+                            if(valid and dirty):
                                 yol0_tag_80 = dut.soc.vffram_t0_0.RAM[idx].value.binstr
-                                yol0_tag_9  = dut.soc.vffram_t0_1.RAM[idx].value.binstr
+                                yol0_tag_9  = dut.soc.vffram_combined.RAM[idx].value.binstr[-3]
                                 yol0_data_15_0  = dut.soc.vffram_d0_0.RAM[idx].value.binstr
                                 yol0_data_31_16 = dut.soc.vffram_d0_1.RAM[idx].value.binstr
                                 ctag  = yol0_tag_9 + yol0_tag_80
@@ -61,9 +63,11 @@ async def anabellek(dut):
                                 print(f"Writing back: Adr:{cadr_hex} idx:{cadr_int} val:{cval_hex} ctag: {ctag} cval:{cval}  cacheidx:{idx} way0")
                                 dut.main_memory.ram[cadr_int].value = int(cval,2)
                         for idx in range(0,256):
-                            if(dut.soc.vffram_valid_1.RAM[idx].value.integer and dut.soc.vffram_dirty_1.RAM[idx].value.integer):
+                            valid    = int((dut.soc.vffram_combined.RAM[idx].value.binstr)[2],2)
+                            dirty    = int((dut.soc.vffram_combined.RAM[idx].value.binstr)[1],2)
+                            if(valid and dirty):
                                 yol1_tag_80 = dut.soc.vffram_t1_0.RAM[idx].value.binstr
-                                yol1_tag_9  = dut.soc.vffram_t1_1.RAM[idx].value.binstr
+                                yol1_tag_9  = dut.soc.vffram_combined.RAM[idx].value.binstr[0]
                                 yol1_data_15_0  = dut.soc.vffram_d1_0.RAM[idx].value.binstr
                                 yol1_data_31_16 = dut.soc.vffram_d1_1.RAM[idx].value.binstr
                                 ctag  = yol1_tag_9 + yol1_tag_80
