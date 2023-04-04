@@ -56,9 +56,11 @@ module denetim_durum_birimi(
 
     wire durmali = (yrt_yonlendir_gecersiz_i && (yurut_yonlendir1 || yurut_yonlendir2));
 
-    assign gtr_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~durmus && durmali);
-    assign cyo_durdur_o = ~yrt_hazir_i || ~gtr_hazir_i || (~durmus && durmali);
-    assign yrt_durdur_o = ~gtr_hazir_i;
+    reg [7:0] counter;
+
+    assign gtr_durdur_o = (counter != 8'hff) ? 1'b1 : ~yrt_hazir_i || ~gtr_hazir_i || (~durmus && durmali);
+    assign cyo_durdur_o = (counter != 8'hff) ? 1'b1 : ~yrt_hazir_i || ~gtr_hazir_i || (~durmus && durmali);
+    assign yrt_durdur_o = (counter != 8'hff) ? 1'b1 : ~gtr_hazir_i;
 
     assign gtr_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
     assign cyo_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
@@ -68,7 +70,9 @@ module denetim_durum_birimi(
         if(rst_i)begin
             bos_basla <= 1'b1;
             durmus    <= 1'b0;
+            counter   <= 8'b0;
         end else begin
+            counter <= (counter != 8'hff) ? (counter + 8'b1) : counter;
             bos_basla <= 1'b0;
             if(gtr_hazir_i)
                 durmus    <= durmus ? 1'b0 : durmali;

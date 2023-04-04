@@ -49,7 +49,8 @@ module bellek_islem_birimi(
                           (adr_i[1:0] == 2'b10) ? 4'b0100 :
                                                   4'b1000 ;
 
-    assign bitti_o = ~bib_durdur_i;
+
+    assign bitti_o = basla_i ? ~bib_durdur_i : 1'b1;
 
     assign bib_sec_o = (ddb_durdur_i) ? 1'b0 : basla_i;
 
@@ -64,7 +65,7 @@ module bellek_islem_birimi(
                      (kontrol_i == `BIB_LW ) ? bib_veri_i :
                      (kontrol_i == `BIB_LBU) ? lbu_sonuc  :
                      (kontrol_i == `BIB_LHU) ? lhu_sonuc  :
-                                             bib_veri_i  ;
+                                              bib_veri_i  ;
 
     assign bib_veri_o = (kontrol_i == `BIB_SB)  ? (deger_i << (mylog2(sb_mask)*8))           :
                         (kontrol_i == `BIB_SH)  ? ((sh_mask[3]) ? (deger_i << 16) : deger_i ):
