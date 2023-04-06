@@ -44,25 +44,21 @@ module user_processor(
     wire yol1_dirty_din;
     wire yol1_dirty_ddo;
 
-    wire  we0;
-    wire [7:0] adr0;
-    wire [7:0] datai0;
-    wire [7:0] datao0;
+    wire        yol0_we;
+    wire [ 7:0] yol0_wadr;
+    wire [41:0] yol0_data;
+    wire [ 7:0] yol0_radr0;
+    wire [41:0] yol0_data0;
+    wire [ 7:0] yol0_radr1;
+    wire [41:0] yol0_data1;
 
-    wire  we1;
-    wire [7:0] adr1;
-    wire [7:0] datai1;
-    wire [7:0] datao1;
-
-    wire        ram512d0_we0;
-    wire [ 8:0] ram512d0_adr0;
-    wire [15:0] ram512d0_datai0;
-    wire [15:0] ram512d0_datao0;
-
-    wire        ram512d1_we0;
-    wire [ 8:0] ram512d1_adr0;
-    wire [15:0] ram512d1_datai0;
-    wire [15:0] ram512d1_datao0;
+    wire        yol1_we;
+    wire [ 7:0] yol1_wadr;
+    wire [41:0] yol1_data;
+    wire [ 7:0] yol1_radr0;
+    wire [41:0] yol1_data0;
+    wire [ 7:0] yol1_radr1;
+    wire [41:0] yol1_data1;
 
     wire [7:0] l1b_tag_adr;
 
@@ -76,8 +72,6 @@ module user_processor(
         .iomem_addr  (iomem_addr  ),
         .iomem_wdata (iomem_wdata ),
         .iomem_rdata (iomem_rdata ),
-
-        .l1b_tag_adr_o(l1b_tag_adr),
 
         .yol0_EN0 (yol0_EN0 ),
         .yol1_EN0 (yol1_EN0 ),
@@ -98,20 +92,21 @@ module user_processor(
         .yol1_dirty_i (yol1_dirty_din ),
         .yol1_dirty_o (yol1_dirty_ddo ),
 
-        .we0_o    (we0    ),
-        .adr0_o   (adr0   ),
-        .datao0_i (datao0 ),
+        .yol0_we_o   (yol0_we ),
+        .yol0_wadr_o (yol0_wadr ),
+        .yol0_data_o (yol0_data ),
+        .yol0_radr0_o (yol0_radr0 ),
+        .yol0_data0_i (yol0_data0 ),
+        .yol0_radr1_o (yol0_radr1 ),
+        .yol0_data1_i (yol0_data1 ),
 
-        .we1_o    (we1    ),
-        .adr1_o   (adr1   ),
-        .datao1_i (datao1 ),
-
-        .ram512d0_we0_o    (ram512d0_we0    ),
-        .ram512d0_adr0_o   (ram512d0_adr0   ),
-        .ram512d0_datao0_i (ram512d0_datao0 ),
-        .ram512d1_we0_o    (ram512d1_we0    ),
-        .ram512d1_adr0_o   (ram512d1_adr0   ),
-        .ram512d1_datao0_i (ram512d1_datao0 ),
+        .yol1_we_o   (yol1_we ),
+        .yol1_wadr_o (yol1_wadr ),
+        .yol1_data_o (yol1_data ),
+        .yol1_radr0_o (yol1_radr0 ),
+        .yol1_data0_i (yol1_data0 ),
+        .yol1_radr1_o (yol1_radr1 ),
+        .yol1_data1_i (yol1_data1),
 
         .uart_tx_o (uart_tx_o ),
         .uart_rx_i (uart_rx_i ),
@@ -125,40 +120,25 @@ module user_processor(
         .pwm1_o  (pwm1_o )
     );
 
-    RAM512 RAM512_d0 (
-        .CLK(clk),
-        .EN0(1'b1),
-        .A0(ram512d0_adr0),
-        .Di0(iomem_rdata[15:0]),
-        .Do0(ram512d0_datao0),
-        .WE0({ram512d0_we0,ram512d0_we0})
+    RAM256_buyruk RAM256_buyruk_yol0 (
+      .clk_i (clk ),
+      .we_i    (yol0_we ),
+      .wadr_i  (yol0_wadr ),
+      .data_i  (yol0_data ),
+      .radr0_i (yol0_radr0 ),
+      .data0_o (yol0_data0 ),
+      .radr1_i (yol0_radr1 ),
+      .data1_o (yol0_data1 )
     );
-
-    RAM512 RAM512_d1 (
-        .CLK(clk),
-        .EN0(1'b1),
-        .A0(ram512d1_adr0),
-        .Di0(iomem_rdata[31:16]),
-        .Do0(ram512d1_datao0),
-        .WE0({ram512d1_we0,ram512d1_we0})
-    );
-
-    RAM256x8 bffram_t0( // even
-        .CLK(clk),
-        .EN0(1'b1),
-        .A0(adr0),
-        .Di0(l1b_tag_adr),
-        .Do0(datao0),
-        .WE0(we0)
-    );
-
-    RAM256x8 bffram_t1( // odd
-        .CLK(clk),
-        .EN0(1'b1),
-        .A0(adr1),
-        .Di0(l1b_tag_adr),
-        .Do0(datao1),
-        .WE0(we1)
+    RAM256_buyruk RAM256_buyruk_yol1 (
+      .clk_i (clk ),
+      .we_i    (yol1_we ),
+      .wadr_i  (yol1_wadr ),
+      .data_i  (yol1_data ),
+      .radr0_i (yol1_radr0 ),
+      .data0_o (yol1_data0 ),
+      .radr1_i (yol1_radr1 ),
+      .data1_o (yol1_data1 )
     );
 
     RAM256x8 vffram_t0_0(
