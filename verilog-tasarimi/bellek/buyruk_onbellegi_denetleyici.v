@@ -40,6 +40,7 @@ module buyruk_onbellegi_denetleyici(
 );
     reg [255:0] lru;
     reg  [8:0] counter;
+    wire [7:0] lru_adr = iomem_addr[`L1B_ADR];
     wire hizasiz_okuma = l1b_adres_i[1];
     wire [18:2] sonraki_adres = l1b_adres_i[18:2]+1;
 
@@ -72,8 +73,8 @@ module buyruk_onbellegi_denetleyici(
     assign yol0_wadr_o = (counter != 9'd256) ? counter[7:0] : iomem_addr[`L1B_ADR];
     assign yol1_wadr_o = (counter != 9'd256) ? counter[7:0] : iomem_addr[`L1B_ADR];
 
-    assign yol0_we_o = (counter != 9'd256) ? 1'b1 : ~lru[sonraki_adres[`L1B_ADR]] & iomem_ready;
-    assign yol1_we_o = (counter != 9'd256) ? 1'b1 :  lru[sonraki_adres[`L1B_ADR]] & iomem_ready;
+    assign yol0_we_o = (counter != 9'd256) ? 1'b1 : ~lru[lru_adr] & iomem_ready;
+    assign yol1_we_o = (counter != 9'd256) ? 1'b1 :  lru[lru_adr] & iomem_ready;
 
     assign yol0_data_o = (counter != 9'd256) ? {1'b0,iomem_addr[`L1B_TAG],iomem_rdata} : {1'b1,iomem_addr[`L1B_TAG],iomem_rdata};
     assign yol1_data_o = (counter != 9'd256) ? {1'b0,iomem_addr[`L1B_TAG],iomem_rdata} : {1'b1,iomem_addr[`L1B_TAG],iomem_rdata};
@@ -81,16 +82,15 @@ module buyruk_onbellegi_denetleyici(
     assign iomem_valid = l1b_bekle_o;
     assign iomem_addr = hizasiz_okuma ? (~(hit_yol0_0|hit_yol1_0) ? l1b_adres_i[18:2] : sonraki_adres) : l1b_adres_i[18:2];
 
-    wire [7:0] lru_wadr = iomem_addr[`L1B_ADR];
     always @(posedge clk_i) begin
         if(rst_i)begin
             counter <= 9'b0;
             lru     <= 256'b0;
         end else begin
             counter <= (counter != 9'd256) ? (counter + 9'b1) : counter;
-            lru[lru_wadr] <= ((yol1_we_o|yol0_we_o)&yol0_we_o) ? 1'b0 :
-                             ((yol1_we_o|yol0_we_o)&yol1_we_o) ? 1'b1 :
-                                                                 lru[lru_wadr];
+            lru[lru_adr] <= ((yol1_we_o|yol0_we_o)&yol0_we_o) ? 1'b0 :
+                            ((yol1_we_o|yol0_we_o)&yol1_we_o) ? 1'b1 :
+                                                                lru[lru_adr];
         end
     end
 
