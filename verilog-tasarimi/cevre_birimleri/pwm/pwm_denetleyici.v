@@ -10,7 +10,7 @@
 `define STANDART 2'b01
 `define KALP_ATISI 2'b10
 
-`define STEP 1
+`define STEP 32'd1
 
 module pwm_denetleyici(
     input clk_i,
@@ -374,7 +374,7 @@ module pwm_denetleyici(
       .threshold_counter_2 (pwm_threshold_1_2_r),
       .period_counter      (pwm_period_1_r),
       .step                (`STEP),
-      .increment_step      (pwm_step_1_r),
+      .increment_step      ({{20{1'b0}}, pwm_step_1_r}),
       .pwm_signal          (pwm0_kalp_atisi_w)
     );
 
@@ -399,7 +399,7 @@ module pwm_denetleyici(
         .threshold_counter_2 (pwm_threshold_2_2_r),
         .period_counter      (pwm_period_2_r),
         .step                (`STEP),
-        .increment_step      (pwm_step_2_r),
+        .increment_step      ({{20{1'b0}}, pwm_step_2_r}),
         .pwm_signal          (pwm1_kalp_atisi_w)
     );
 

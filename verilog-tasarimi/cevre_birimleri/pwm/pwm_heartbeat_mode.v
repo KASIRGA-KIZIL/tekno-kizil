@@ -4,7 +4,7 @@
 // Bu modul acik kaynakli https://github.com/SerdarUnal132/pwm_openmpw reposundan alinmistir
 
 module pwm_heartbeat_mode #(
-  parameter Resolution = 16
+  parameter Resolution = 32
 ) (
   input                         clk_i,
   input                         rst_ni,
