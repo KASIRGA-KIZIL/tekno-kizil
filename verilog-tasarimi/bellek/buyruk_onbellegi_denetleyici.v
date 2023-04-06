@@ -73,8 +73,8 @@ module buyruk_onbellegi_denetleyici(
     assign yol0_wadr_o = (counter != 9'd256) ? counter[7:0] : iomem_addr[`L1B_ADR];
     assign yol1_wadr_o = (counter != 9'd256) ? counter[7:0] : iomem_addr[`L1B_ADR];
 
-    assign yol0_we_o = (counter != 9'd256) ? 1'b1 : ~lru[lru_adr] & iomem_ready;
-    assign yol1_we_o = (counter != 9'd256) ? 1'b1 :  lru[lru_adr] & iomem_ready;
+    assign yol0_we_o = (counter != 9'd256) ? 1'b1 :  lru[lru_adr] & iomem_ready;
+    assign yol1_we_o = (counter != 9'd256) ? 1'b1 : ~lru[lru_adr] & iomem_ready;
 
     assign yol0_data_o = (counter != 9'd256) ? {1'b0,iomem_addr[`L1B_TAG],iomem_rdata} : {1'b1,iomem_addr[`L1B_TAG],iomem_rdata};
     assign yol1_data_o = (counter != 9'd256) ? {1'b0,iomem_addr[`L1B_TAG],iomem_rdata} : {1'b1,iomem_addr[`L1B_TAG],iomem_rdata};
@@ -88,9 +88,9 @@ module buyruk_onbellegi_denetleyici(
             lru     <= 256'b0;
         end else begin
             counter <= (counter != 9'd256) ? (counter + 9'b1) : counter;
-            lru[lru_adr] <= ((yol1_we_o|yol0_we_o)&yol0_we_o) ? 1'b0 :
-                            ((yol1_we_o|yol0_we_o)&yol1_we_o) ? 1'b1 :
-                                                                lru[lru_adr];
+            lru[lru_adr] <= yol0_we_o ? 1'b0 :
+                            yol1_we_o ? 1'b1 :
+                                        lru[lru_adr];
         end
     end
 

@@ -18,6 +18,7 @@ from testler.el_yapimi_testler import btb_loopy
 from testler.el_yapimi_testler import uart_test
 from testler.el_yapimi_testler import pwm_demo
 from testler.el_yapimi_testler import compres_0
+from testler.el_yapimi_testler import iki_yollu_okuma
 
 from testler.riscv_tests       import riscv_tests
 # from testler.riscv_arch_tests  import riscv_arch_tests

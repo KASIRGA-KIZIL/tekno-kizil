@@ -44,6 +44,12 @@ compres_0 = {'compres_0':{
     "pass_adr": 0x40000090,
     "buyruklar": []
 }}
+iki_yollu_okuma = {'iki_yollu_okuma':{
+    "TEST_FILE": "../testler/el-yapimi-testler/build/iki_yollu_okuma.S.hex",
+    "fail_adr": 0x401f00f8,
+    "pass_adr": 0x40000b18,
+    "buyruklar": []
+}}
 
 ########################################
 # Sonsuz test. TIMEOUT bekleniyor.
