@@ -158,7 +158,8 @@ module yurut(
 
     assign gtr_atlanan_ps_o = amb_sonuc_w[18:1];
 
-    assign cyo_yonlendir_deger_o = rd_deger_sonraki_w;
+    assign cyo_yonlendir_deger_o = (cyo_mikroislem_i[`DAL] == `DAL_JAL )|(cyo_mikroislem_i[`DAL] == `DAL_JALR) ? {8'h40,5'b0,cyo_ps_artmis_i,1'b0}:
+                                                                                                                  rd_deger_sonraki_w;
 
     assign ddb_yonlendir_gecersiz_o = (cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA);
 
