@@ -28,13 +28,7 @@ module aritmetik_mantik_birimi(
     wire [32:0] sonuc_top;
     wire  elde_cla = (kontrol_i == `AMB_CIKARMA);
 
-    `ifdef OPENLANE
-        toplayici_sky130 sklanksy_toplayici(
-            .a_in(deger1_top),
-            .b_in(deger2_top),
-            .sum (sonuc_top)
-        );
-    `elsif FPGA
+    `ifdef FPGA
         assign sonuc_top = deger2_top + deger1_top;
     `else
         toplayici sklanksy_toplayici(
