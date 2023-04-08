@@ -13,6 +13,8 @@ module cekirdek_ramsiz(
     output wire [31:0] iomem_wdata,
     input  wire [31:0] iomem_rdata,
 
+    output wire [7:0] l1b_tag_adr_o,
+
     // Veri onbellegi Arayuzu
     output wire        yol0_EN0,
     output wire        yol1_EN0,
@@ -34,23 +36,22 @@ module cekirdek_ramsiz(
     input  wire yol1_dirty_i,
     output wire yol1_dirty_o,
 
-
-    // RAM256_yol0
-    output wire        yol0_we_o,    //
-    output wire [ 7:0] yol0_wadr_o,  //
-    output wire [41:0] yol0_data_o,  //
-    output wire [ 7:0] yol0_radr0_o, //
-    input  wire [41:0] yol0_data0_i, //
-    output wire [ 7:0] yol0_radr1_o, //
-    input  wire [41:0] yol0_data1_i, //
-    // RAM256_yol1
-    output wire        yol1_we_o,    //
-    output wire [ 7:0] yol1_wadr_o,  //
-    output wire [41:0] yol1_data_o,  //
-    output wire [ 7:0] yol1_radr0_o, //
-    input  wire [41:0] yol1_data0_i, //
-    output wire [ 7:0] yol1_radr1_o, //
-    input  wire [41:0] yol1_data1_i,
+    // RAM256_T0
+    output wire       we0_o,
+    output wire [7:0] adr0_o,
+    input  wire [7:0] datao0_i,
+    // RAM256_T1
+    output wire       we1_o,
+    output wire [7:0] adr1_o,
+    input  wire [7:0] datao1_i,
+    // RAM512_D0
+    output wire        ram512d0_we0_o,
+    output wire [ 8:0] ram512d0_adr0_o,
+    input  wire [15:0] ram512d0_datao0_i,
+    // RAM512_D1
+    output wire        ram512d1_we0_o,
+    output wire [ 8:0] ram512d1_adr0_o,
+    input  wire [15:0] ram512d1_datao0_i,
 
     output wire uart_tx_o,
     input  wire uart_rx_i,
@@ -76,6 +77,8 @@ module cekirdek_ramsiz(
     wire        l1b_bekle;
     wire [31:0] l1b_deger;
     wire [18:1] l1b_adres;
+
+    assign l1b_tag_adr_o = l1b_adres[18:11];
 
     wire [31:0] l1v_oku_veri;
     wire        l1v_sec;
@@ -123,27 +126,26 @@ module cekirdek_ramsiz(
         .iomem_valid   (l1b_iomem_valid),
         .iomem_ready   (l1b_iomem_ready),
         .iomem_addr    (l1b_iomem_addr ),
-        .iomem_rdata   (l1b_iomem_rdata),
 
         .l1b_bekle_o   (l1b_bekle),
         .l1b_deger_o   (l1b_deger),
         .l1b_adres_i   (l1b_adres),
 
-        .yol0_we_o   (yol0_we_o ),
-        .yol0_wadr_o (yol0_wadr_o ),
-        .yol0_data_o (yol0_data_o ),
-        .yol0_radr0_o (yol0_radr0_o ),
-        .yol0_data0_i (yol0_data0_i ),
-        .yol0_radr1_o (yol0_radr1_o ),
-        .yol0_data1_i (yol0_data1_i ),
+        .we0_o    (we0_o    ),
+        .adr0_o   (adr0_o   ),
+        .datao0_i (datao0_i ),
 
-        .yol1_we_o   (yol1_we_o ),
-        .yol1_wadr_o (yol1_wadr_o ),
-        .yol1_data_o (yol1_data_o ),
-        .yol1_radr0_o (yol1_radr0_o ),
-        .yol1_data0_i (yol1_data0_i ),
-        .yol1_radr1_o (yol1_radr1_o ),
-        .yol1_data1_i (yol1_data1_i)
+        .we1_o    (we1_o    ),
+        .adr1_o   (adr1_o   ),
+        .datao1_i (datao1_i ),
+
+        .ram512d0_we0_o    (ram512d0_we0_o    ),
+        .ram512d0_adr0_o   (ram512d0_adr0_o   ),
+        .ram512d0_datao0_i (ram512d0_datao0_i ),
+
+        .ram512d1_we0_o    (ram512d1_we0_o    ),
+        .ram512d1_adr0_o   (ram512d1_adr0_o   ),
+        .ram512d1_datao0_i (ram512d1_datao0_i )
     );
 
 

@@ -1,97 +1,152 @@
 // buyruk_onbellegi.v
 `timescale 1ns / 1ps
 
-`define L1B_TAG 18:10
-`define L1B_ADR 9:2
-
-`define YOL_TAG   40:32
-`define YOL_DATA  31:0
-`define YOL_VALID 41
+`define TAG 18:11
+`define ADR 10:2
 
 module buyruk_onbellegi_denetleyici(
-    input  wire        clk_i, //
-    input  wire        rst_i, //
+    input  wire        clk_i,
+    input  wire        rst_i,
 
-    output wire         iomem_valid, //
-    input  wire         iomem_ready, //
-    output wire  [18:2] iomem_addr,  //
-    input  wire  [31:0] iomem_rdata, //
+    output reg         iomem_valid,
+    input  wire        iomem_ready,
+    output reg  [18:2] iomem_addr,
 
-    output wire        l1b_bekle_o, //
-    output wire [31:0] l1b_deger_o, //
-    input  wire [18:1] l1b_adres_i, //
-
-    // RAM256_yol0
-    output wire        yol0_we_o,    //
-    output wire [ 7:0] yol0_wadr_o,  //
-    output wire [41:0] yol0_data_o,  //
-    output wire [ 7:0] yol0_radr0_o, //
-    input  wire [41:0] yol0_data0_i, //
-    output wire [ 7:0] yol0_radr1_o, //
-    input  wire [41:0] yol0_data1_i, //
-    // RAM256_yol1
-    output wire        yol1_we_o,    //
-    output wire [ 7:0] yol1_wadr_o,  //
-    output wire [41:0] yol1_data_o,  //
-    output wire [ 7:0] yol1_radr0_o, //
-    input  wire [41:0] yol1_data0_i, //
-    output wire [ 7:0] yol1_radr1_o, //
-    input  wire [41:0] yol1_data1_i  //
+    output reg         l1b_bekle_o,
+    output wire [31:0] l1b_deger_o,
+    input  wire [18:1] l1b_adres_i,
+        // RAM256_T0
+        output wire       we0_o,
+        output wire [7:0] adr0_o,
+        input  wire [7:0] datao0_i,
+        // RAM256_T1
+        output wire       we1_o,
+        output wire [7:0] adr1_o,
+        input  wire [7:0] datao1_i,
+        // RAM512_D0
+        output wire        ram512d0_we0_o,
+        output wire [ 8:0] ram512d0_adr0_o,
+        input  wire [15:0] ram512d0_datao0_i,
+        // RAM512_D1
+        output wire        ram512d1_we0_o,
+        output wire [ 8:0] ram512d1_adr0_o,
+        input  wire [15:0] ram512d1_datao0_i
 );
-    reg [255:0] lru;
-    reg  [8:0] counter;
-    wire [7:0] lru_adr = iomem_addr[`L1B_ADR];
-    wire hizasiz_okuma = l1b_adres_i[1];
-    wire [18:2] sonraki_adres = l1b_adres_i[18:2]+1;
+    wire [15:0] data0;
+    wire [15:0] data1;
 
-    assign yol0_radr0_o = l1b_adres_i  [`L1B_ADR];
-    assign yol0_radr1_o = sonraki_adres[`L1B_ADR];
+    assign l1b_deger_o = l1b_adres_i[1] ? {data0,data1} : {data1,data0};
 
-    assign yol1_radr0_o = l1b_adres_i  [`L1B_ADR];
-    assign yol1_radr1_o = sonraki_adres[`L1B_ADR];
+    localparam  READMEM0   = 3'd0,
+                READMEM1   = 3'd1,
+                READCACHE  = 3'd2;
 
-    wire hit_yol0_0 = (l1b_adres_i  [`L1B_TAG] == yol0_data0_i[`YOL_TAG]) & yol0_data0_i[`YOL_VALID];
-    wire hit_yol0_1 = (sonraki_adres[`L1B_TAG] == yol0_data1_i[`YOL_TAG]) & yol0_data1_i[`YOL_VALID];
-    wire hit_yol1_0 = (l1b_adres_i  [`L1B_TAG] == yol1_data0_i[`YOL_TAG]) & yol1_data0_i[`YOL_VALID];
-    wire hit_yol1_1 = (sonraki_adres[`L1B_TAG] == yol1_data1_i[`YOL_TAG]) & yol1_data1_i[`YOL_VALID];
+    reg [2:0] state;
+    reg [2:0] next;
 
-    assign l1b_bekle_o = (counter != 9'd256) ? 1'b1 :
-                          hizasiz_okuma ? ~((hit_yol0_0&hit_yol0_1)|
-                                            (hit_yol0_0&hit_yol1_1)|
-                                            (hit_yol1_0&hit_yol0_1)|
-                                            (hit_yol1_0&hit_yol1_1)):
-                                           ~(hit_yol0_0|hit_yol1_0);
+    reg  [ 8:0] d_addr0;
+    reg  [ 8:0] d_addr1;
+    wire [ 8:0] data_addr0 = l1b_adres_i[`ADR] + {{8{1'b0}},l1b_adres_i[1]};
+    wire [ 8:0] data_addr1 = l1b_adres_i[`ADR];
 
 
-    wire [31:0] hizali_data = hit_yol0_0 ? yol0_data0_i[`YOL_DATA] : yol1_data0_i[`YOL_DATA];
+    wire valid0;
+    wire valid1;
+    wire [7:0] tag0;
+    wire [7:0] tag1;
 
-    wire [15:0] data_alt = hit_yol0_0 ? yol0_data0_i[31:16] : yol1_data0_i[31:16];
-    wire [15:0] data_ust = hit_yol0_1 ? yol0_data1_i[15: 0] : yol1_data1_i[15: 0];
-
-    assign l1b_deger_o = hizasiz_okuma ? {data_ust,data_alt} : hizali_data;
-
-    assign yol0_wadr_o = (counter != 9'd256) ? counter[7:0] : iomem_addr[`L1B_ADR];
-    assign yol1_wadr_o = (counter != 9'd256) ? counter[7:0] : iomem_addr[`L1B_ADR];
-
-    assign yol0_we_o = (counter != 9'd256) ? 1'b1 :  lru[lru_adr] & iomem_ready;
-    assign yol1_we_o = (counter != 9'd256) ? 1'b1 : ~lru[lru_adr] & iomem_ready;
-
-    assign yol0_data_o = (counter != 9'd256) ? {1'b0,iomem_addr[`L1B_TAG],iomem_rdata} : {1'b1,iomem_addr[`L1B_TAG],iomem_rdata};
-    assign yol1_data_o = (counter != 9'd256) ? {1'b0,iomem_addr[`L1B_TAG],iomem_rdata} : {1'b1,iomem_addr[`L1B_TAG],iomem_rdata};
-
-    assign iomem_valid = l1b_bekle_o;
-    assign iomem_addr = hizasiz_okuma ? (~(hit_yol0_0|hit_yol1_0) ? l1b_adres_i[18:2] : sonraki_adres) : l1b_adres_i[18:2];
+    reg wen;
+    wire data0_ready = (l1b_adres_i[`TAG] === tag0) && valid0;
+    wire data1_ready = (l1b_adres_i[`TAG] === tag1) && valid1;
 
     always @(posedge clk_i) begin
-        if(rst_i)begin
-            counter <= 9'b0;
-            lru     <= 256'b0;
-        end else begin
-            counter <= (counter != 9'd256) ? (counter + 9'b1) : counter;
-            lru[lru_adr] <= yol0_we_o ? 1'b0 :
-                            yol1_we_o ? 1'b1 :
-                                        lru[lru_adr];
-        end
+        if(rst_i) state <= READMEM0;
+        else      state <= next;
     end
+
+    always @(*) begin
+        case(state)
+            READMEM0: begin
+                if(iomem_ready)
+                    next = READCACHE;
+                else
+                    next = READMEM0;
+            end
+            READMEM1: begin
+                if(iomem_ready)
+                    next = READCACHE;
+                else
+                    next = READMEM1;
+            end
+            READCACHE: begin
+                if(~data0_ready)
+                    next = READMEM0;
+                else if(~data1_ready)
+                    next = READMEM1;
+                else
+                    next = READCACHE;
+            end
+            default: next = READMEM0;
+        endcase
+        case(state)
+            READMEM0: begin
+                iomem_addr  = {l1b_adres_i[`TAG],data_addr0};
+                iomem_valid = 1'b1;
+                d_addr0 = iomem_addr[`ADR];
+                d_addr1 = iomem_addr[`ADR];
+                l1b_bekle_o = 1'b1;
+                wen = iomem_ready;
+            end
+            READMEM1: begin
+                iomem_addr  = {l1b_adres_i[`TAG],data_addr1};
+                iomem_valid = 1'b1;
+                d_addr0 = iomem_addr[`ADR];
+                d_addr1 = iomem_addr[`ADR];
+                l1b_bekle_o = 1'b1;
+                wen = iomem_ready;
+            end
+            READCACHE: begin
+                iomem_addr  = l1b_adres_i[18:2];
+                iomem_valid = 1'b0;
+                d_addr0 = data_addr0;
+                d_addr1 = data_addr1;
+                l1b_bekle_o = ~(data0_ready && data1_ready);
+                wen = 1'b0;
+            end
+            default: begin
+            end
+        endcase
+    end
+
+    assign ram512d0_we0_o    = wen;
+    assign ram512d0_adr0_o   = d_addr0;
+    assign data0 = ram512d0_datao0_i;
+
+    assign ram512d1_we0_o    = wen;
+    assign ram512d1_adr0_o   = d_addr1;
+    assign data1 = ram512d1_datao0_i;
+
+
+    RAM512_VALID bffram_v01 (
+      .clk_i  (clk_i ),
+      .rst_i  (rst_i ),
+      //
+      .wen_i  (wen   ),
+      .wadr_i (iomem_addr[`ADR] ),
+      //
+      .data0_o ({valid0,tag0}),
+      .radr0_i (data_addr0 ),
+      //
+      .data1_o ({valid1,tag1}),
+      .radr1_i (data_addr1 ),
+      //
+      .we0_o    (we0_o ),
+      .adr0_o   (adr0_o ),
+      .datao0_i (datao0_i ),
+      //
+      .we1_o    (we1_o ),
+      .adr1_o   (adr1_o ),
+      .datao1_i ( datao1_i)
+    );
 
 endmodule
