@@ -3,7 +3,7 @@ import os
 import shutil
 import subprocess
 
-DESIGN_NAME = 'cekirdek_ramsiz'
+DESIGN_NAME = 'user_processor'
 MAIN_SRC_PATH = "../../verilog-tasarimi"
 TARGET_SRC_PATH = f"./{DESIGN_NAME}"+'/src'
 
