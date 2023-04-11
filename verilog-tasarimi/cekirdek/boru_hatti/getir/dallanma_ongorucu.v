@@ -38,14 +38,17 @@ module dallanma_ongorucu(
     reg [18:1] ps [1:0];
 
     // ras
-    reg [18:1] ras       [3:0];
+    reg [18:1] ras [3:0];
 
     // Ongoru tablolari
     reg [ 1:0] sayaclar [31:0]; // branch target buffer
     reg [ 6:0] ght            ; // global history table
     reg [1:0]  ght_ptr        ; // global history table pointer
 
-    wire [ 4:0] sayac_oku_adr     = ps_i[5:1] ^ ght[4:0];
+    // Local history table
+    reg [5:1] local_history_table [31:0];
+    
+    wire [ 4:0] sayac_oku_adr     = local_history_table[ps_i[5:1]]; // ps_i[5:1] ^ ght[4:0];
     assign ongorulen_ps_gecerli_o = (buyruk_jal_tipi_i || buyruk_jalr_tipi_i) ? 1'b1 : sayaclar[sayac_oku_adr][1];
     assign ongorulen_ps_o         = ras_pop ? ras[0] : (ps_i+imm_i);
 
@@ -55,12 +58,13 @@ module dallanma_ongorucu(
     wire tahmin_dogru          = atladi_tahmin_dogru || atlamadi_tahmin_dogru;
 
     reg [2:0] ght_counter;
-    wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ ght[ght_ptr+:5];
+    wire [ 4:0] sayac_yaz_adr = local_history_table[ps_i[5:1]]; // ps[`YURUT][5:1] ^ ght[ght_ptr+:5];
     integer loop_counter;
     always@(posedge clk_i) begin
         if(rst_i) begin
             for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin
                 sayaclar[loop_counter] <= 2'b00;
+                local_history_table[loop_counter] <= 5'b0;
             end
             ght <= 0;
             ght_ptr <= 0;
@@ -107,6 +111,7 @@ module dallanma_ongorucu(
                 if(!(buyruk_jal_tipi_i || buyruk_jalr_tipi_i)) begin
                     ght[6:0] <= {ght[5:0], sayaclar[sayac_oku_adr][1]};
                     ght_ptr <= ght_ptr + 2'd1;
+                    local_history_table[ps_i[5:1]] <= sayaclar[sayac_oku_adr][1];
                 end
             end
         end
