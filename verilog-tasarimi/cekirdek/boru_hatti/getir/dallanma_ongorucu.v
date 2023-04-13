@@ -62,6 +62,10 @@ module dallanma_ongorucu(
             for(loop_counter=0; loop_counter<32; loop_counter=loop_counter+1) begin
                 sayaclar[loop_counter] <= 2'b00;
             end
+            ras[0] <= 0;
+            ras[1] <= 0;
+            ras[2] <= 0;
+            ras[3] <= 0;
             ght <= 0;
             ght_ptr <= 0;
         end else begin
