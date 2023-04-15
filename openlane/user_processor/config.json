@@ -1,7 +1,7 @@
 {
     "DESIGN_NAME": "user_processor",
     "VERILOG_FILES": "dir::src/*.v",
-    "CLOCK_PERIOD": 42,
+    "CLOCK_PERIOD": 25,
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "ref::$CLOCK_PORT",
     "SYNTH_STRATEGY": "AREA 0",
@@ -25,7 +25,6 @@
     "PL_TARGET_DENSITY": 0.30,
     "GRT_ALLOW_CONGESTION": 1,
 
-    "SYNTH_READ_BLACKBOX_LIB": 1,
+    "SYNTH_READ_BLACKBOX_LIB": 1
 
-    "DIODE_INSERTION_STRATEGY": 0
 }
