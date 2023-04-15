@@ -363,5 +363,14 @@
 // SORUN_YOK 0 olmak zorunda.
 
 
-// `define OPENLANE
-`define FPGA
+//`define FPGA
+
+//`define OPENLANE
+
+`ifdef OPENLANE
+    `define GATE _sky130
+`else
+    `define GATE
+`endif
+
+

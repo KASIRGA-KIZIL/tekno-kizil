@@ -31,7 +31,7 @@ module aritmetik_mantik_birimi(
     `ifdef FPGA
         assign sonuc_top = deger2_top + deger1_top;
     `else
-        toplayici sklanksy_toplayici(
+        toplayici`GATE sklanksy_toplayici(
             .a_in(deger1_top),
             .b_in(deger2_top),
             .sum (sonuc_top)

@@ -1,6 +1,7 @@
 // user_processor.v (islemci)
 `timescale 1ns / 1ps
 
+`include "tanimlamalar.vh"
 
 module user_processor(
     input wire clk,
@@ -125,54 +126,48 @@ module user_processor(
         .pwm1_o  (pwm1_o )
     );
 
-    RAM512 RAM512_d0 (
+    RAM512x16_ASYNC`GATE RAM512_d0 (
         .CLK(clk),
-        .EN0(1'b1),
         .A0(ram512d0_adr0),
         .Di0(iomem_rdata[15:0]),
         .Do0(ram512d0_datao0),
         .WE0({ram512d0_we0,ram512d0_we0})
     );
 
-    RAM512 RAM512_d1 (
+    RAM512x16_ASYNC`GATE RAM512_d1 (
         .CLK(clk),
-        .EN0(1'b1),
         .A0(ram512d1_adr0),
         .Di0(iomem_rdata[31:16]),
         .Do0(ram512d1_datao0),
         .WE0({ram512d1_we0,ram512d1_we0})
     );
 
-    RAM256x8 bffram_t0( // even
+    RAM256x8_ASYNC`GATE bffram_t0( // even
         .CLK(clk),
-        .EN0(1'b1),
         .A0(adr0),
         .Di0(l1b_tag_adr),
         .Do0(datao0),
         .WE0(we0)
     );
 
-    RAM256x8 bffram_t1( // odd
+    RAM256x8_ASYNC`GATE bffram_t1( // odd
         .CLK(clk),
-        .EN0(1'b1),
         .A0(adr1),
         .Di0(l1b_tag_adr),
         .Do0(datao1),
         .WE0(we1)
     );
 
-    RAM256x8 vffram_t0_0(
+    RAM256x8_ASYNC`GATE vffram_t0_0(
         .CLK(clk),
-        .EN0(yol0_EN0),
         .A0 (yol_A0  ),
         .Di0(yol_Di0 [39:32]),
         .Do0(yol0_Do0[39:32]),
         .WE0(yol0_EN0)
     );
 
-    RAM256x8 vffram_t1_0(
+    RAM256x8_ASYNC`GATE vffram_t1_0(
         .CLK(clk),
-        .EN0(yol1_EN0),
         .A0 (yol_A0  ),
         .Di0(yol_Di0 [39:32]),
         .Do0(yol1_Do0[39:32]),
@@ -180,40 +175,36 @@ module user_processor(
     );
 
 
-    RAM256x16 vffram_d0_0(
+    RAM256x16_ASYNC`GATE vffram_d0_0(
         .CLK(clk),
-        .EN0(yol0_EN0),
         .A0 (yol_A0  ),
         .Di0(yol_Di0 [15:0]),
         .Do0(yol0_Do0[15:0]),
-        .WE0(yol_WE0[1:0])
+        .WE0(yol_WE0[1:0] & {yol0_EN0,yol0_EN0})
     );
 
-    RAM256x16 vffram_d0_1(
+    RAM256x16_ASYNC`GATE vffram_d0_1(
         .CLK(clk),
-        .EN0(yol0_EN0),
         .A0 (yol_A0  ),
         .Di0(yol_Di0 [31:16]),
         .Do0(yol0_Do0[31:16]),
-        .WE0(yol_WE0[3:2])
+        .WE0(yol_WE0[3:2] & {yol0_EN0,yol0_EN0})
     );
 
-    RAM256x16 vffram_d1_0(
+    RAM256x16_ASYNC`GATE vffram_d1_0(
         .CLK(clk),
-        .EN0(yol1_EN0),
         .A0 (yol_A0  ),
         .Di0(yol_Di0 [15:0]),
         .Do0(yol1_Do0[15:0]),
-        .WE0(yol_WE0[1:0])
+        .WE0(yol_WE0[1:0] & {yol1_EN0,yol1_EN0})
     );
 
-    RAM256x16 vffram_d1_1(
+    RAM256x16_ASYNC`GATE vffram_d1_1(
         .CLK(clk),
-        .EN0(yol1_EN0),
         .A0 (yol_A0  ),
         .Di0(yol_Di0 [31:16]),
         .Do0(yol1_Do0[31:16]),
-        .WE0(yol_WE0[3:2])
+        .WE0(yol_WE0[3:2] & {yol1_EN0,yol1_EN0})
     );
 
 
@@ -239,9 +230,8 @@ module user_processor(
     assign yol1_Do0[40]   = combined_data_okunan[7];
 
 
-    RAM256x8 vffram_combined(
+    RAM256x8_ASYNC`GATE vffram_combined(
         .CLK(clk),
-        .EN0(yol0_EN0 | yol1_EN0),
         .A0 (yol_A0  ),
         .Di0(combined_data_yeni),
         .Do0(combined_data_okunan),

@@ -19,7 +19,7 @@ module uart_denetleyici (
     input  wire uart_rx_i,
     output wire uart_tx_o
 );
-
+    wire uart_rx = uart_tx_o;
     reg [15:0] baud_div;
 
     reg tx_en;
@@ -56,7 +56,7 @@ module uart_denetleyici (
       .data_o  (rx_data  ),
       .full_o  (rx_full  ),
       .empty_o (rx_empty ),
-      .rx_i    (uart_rx_i)
+      .rx_i    (uart_rx)
     );
 
 
@@ -66,8 +66,11 @@ module uart_denetleyici (
             baud_div <= 16'b0;
             rx_en    <= 1'b0;
             tx_en    <= 1'b0;
+            rx_re    <= 1'b0;
+            tx_we    <= 1'b0;
         end else begin
-            tx_we <= 1'b0;
+            rx_re    <= 1'b0;
+            tx_we    <= 1'b0;
             if(wb_cyc_i) begin
                 case(wb_adr_i)
                     2'h0: begin

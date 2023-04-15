@@ -1,3 +1,7 @@
+
+`include "tanimlamalar.vh"
+
+`ifndef OPENLANE
 module toplayici(
 	input  [32:0] a_in,
 	input  [32:0] b_in,
@@ -1279,3 +1283,4 @@ module adder_tree_32(
     assign sum = n129_tree_32^n135_tree_32;
     assign n135_tree_32 = a_in[32]^b_in[32];
 endmodule // adder_tree_32
+`endif

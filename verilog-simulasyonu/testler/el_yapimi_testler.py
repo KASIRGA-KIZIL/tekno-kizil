@@ -55,7 +55,7 @@ iki_yollu_okuma = {'iki_yollu_okuma':{
 # Sonsuz test. TIMEOUT bekleniyor.
 
 uart_test = {'uart_test':{
-    "TEST_FILE": "../testler/uart-demo/uart_demo_static.hex",
+    "TEST_FILE": "../testler/uart-demo/main_static.hex",
     "fail_adr": 0x40f00060,
     "pass_adr": 0x40f00074,
     "buyruklar": []

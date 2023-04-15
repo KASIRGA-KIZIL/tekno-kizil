@@ -6,10 +6,13 @@
 TOPLEVEL_LANG = verilog
 SIM           = icarus
 
-MODULE              := test_random_teknofest_wrapper
+MODULE              := test_teknofest_wrapper
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
 KAYNAKLAR            = ../verilog-tasarimi
 SIM_BUILD            = ./build
+
+# MODELSIM DO NOT SUPPORT THE CURRENT SKY130 PDK FILE. FILE NEEDS TO BE A PARSED ONE. USE ICARUS VERILOG FOR GATE LEVEL SIMULATION
+
 VERILOG_SOURCES +=  ../cevreleyici/*.v \
 					$(KAYNAKLAR)/*.v \
 					$(KAYNAKLAR)/cekirdek/*.v \
@@ -23,7 +26,13 @@ VERILOG_SOURCES +=  ../cevreleyici/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
 					$(KAYNAKLAR)/cevre_birimleri/pwm/*.v \
 					$(KAYNAKLAR)/cevre_birimleri/spi/*.v \
-					$(KAYNAKLAR)/cevre_birimleri/uart/*.v
+					$(KAYNAKLAR)/cevre_birimleri/uart/*.v \
+					../openlane/model.v \
+					../openlane/toplayici_sky130.v \
+					../openlane/block_definitions.v
+
+VERILOG_INCLUDE_DIRS += ../openlane
+VERILOG_INCLUDE_DIRS += ../openlane/sky130_fd_sc_hd
 
 ifeq ($(MODULE), test_cekirdek)
 	TOPLEVEL        := cekirdek
@@ -45,23 +54,28 @@ else ifeq ($(MODULE),test_spi_denetleyici)
 	TOPLEVEL        := spi_denetleyici
 else ifeq ($(MODULE),test_sifreleme_birimi)
 	TOPLEVEL        := sifreleme_birimi
+else ifeq ($(MODULE),test_RAM512x16_ASYNC)
+# TOP=RAM512x16_ASYNC_sky130 -> GATE level sim.   TOP=RAM512x16_ASYNC -> Behavioural sim.
+	TOPLEVEL        := RAM512x16_ASYNC_sky130
 else
     $(error A module was not provided)
 endif
 
+
 # Set module parameters
 # [TODO] DOESN'T WORK -> define SIMULATION
 ifeq ($(SIM),icarus)
-    COMPILE_ARGS += -DSIMULATION
+	COMPILE_ARGS += -DSIMULATION -DFUNCTIONAL
 else ifeq ($(SIM),modelsim)
-    SIM_ARGS += +define+SIMULATION
+	SIM_ARGS += +define+SIMULATION
 	WAVES     = 1
 else ifeq ($(SIM),verilator)
-    COMPILE_ARGS += -DSIMULATION
+	COMPILE_ARGS += -DSIMULATION -DFUNCTIONAL
 	EXTRA_ARGS += --trace-fst --trace-structs
 else
-    $(error A valid simulator (verilator,icarus,questa,modelsim) was not provided)
+	$(error A valid simulator (verilator,icarus,questa,modelsim) was not provided)
 endif
+
 
 # Python variables and cocotb make files
 export RANDOM_SEED := 123456789
