@@ -69,12 +69,12 @@ module uart_denetleyici (
             rx_re    <= 1'b0;
             tx_we    <= 1'b0;
         end else begin
+            wb_ack_o <= wb_stb_i & !wb_ack_o;
             rx_re    <= 1'b0;
             tx_we    <= 1'b0;
             if(wb_cyc_i) begin
                 case(wb_adr_i)
                     2'h0: begin
-                        wb_ack_o <= wb_stb_i & !wb_ack_o;
                         if(wb_stb_i & wb_we_i & !wb_ack_o) begin
                             tx_en    <=   wb_sel_i[0]    ? wb_dat_i[0]     : tx_en;
                             rx_en    <=   wb_sel_i[0]    ? wb_dat_i[1]     : rx_en;
@@ -83,13 +83,11 @@ module uart_denetleyici (
                         wb_dat_o <= {baud_div, 14'b0, rx_en, tx_en};
                     end
                     2'h1: begin
-                        wb_ack_o <= wb_stb_i & !wb_ack_o;
                         wb_dat_o <= {28'b0,rx_empty,rx_full,tx_empty,tx_full};
                     end
                     2'h2: begin
                         if(wb_stb_i & !wb_ack_o) begin
                             if(~rx_empty)begin
-                                wb_ack_o <= wb_stb_i & !wb_ack_o;
                                 wb_dat_o <= {24'b0,rx_data};
                                 rx_re <= 1'b1;
                             end
@@ -98,7 +96,6 @@ module uart_denetleyici (
                     2'h3: begin
                         if(wb_stb_i & wb_we_i & !wb_ack_o) begin
                             if(~tx_full) begin
-                                wb_ack_o <= wb_stb_i & !wb_ack_o;
                                 tx_we    <=   wb_sel_i[0]    ? 1'b1     : 1'b0;
                             end
                         end
