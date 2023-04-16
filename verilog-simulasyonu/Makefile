@@ -4,7 +4,7 @@
 
 # sim
 TOPLEVEL_LANG = verilog
-SIM           = icarus
+SIM           = modelsim
 
 MODULE              := test_teknofest_wrapper
 VERILOG_INCLUDE_DIRS = ../verilog-tasarimi
@@ -32,8 +32,9 @@ VERILOG_SOURCES +=  ../cevreleyici/*.v \
 					../openlane/toplayici_sky130.v \
 					../openlane/block_definitions.v
 
-VERILOG_INCLUDE_DIRS += ../openlane
-VERILOG_INCLUDE_DIRS += ../openlane/sky130_fd_sc_hd
+# GATE level simulasyon icin aktive edin
+# VERILOG_INCLUDE_DIRS += ../openlane
+# VERILOG_INCLUDE_DIRS += ../openlane/sky130_fd_sc_hd
 
 ifeq ($(MODULE), test_cekirdek)
 	TOPLEVEL        := cekirdek

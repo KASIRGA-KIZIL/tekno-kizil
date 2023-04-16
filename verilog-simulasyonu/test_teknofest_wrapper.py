@@ -33,7 +33,7 @@ from testler.el_yapimi_testler import uart_test
 TIMEOUT = 200000
 tests = {}
 
-tests.update(riscv_tests)
+tests.update(uart_test)
 
 @cocotb.coroutine
 async def buyruklari_oku():

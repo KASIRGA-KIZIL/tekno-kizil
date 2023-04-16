@@ -17,6 +17,16 @@ int main()
         if(i == 5)
             break;
     }
+    i = 0;
     ee_printf("done");
-    while(1);
+    while(1){
+        getchar();
+        i = i + 1;
+        if(i == 4)
+            break;
+    }
+    ee_printf("f");
+    while(1){
+        ee_printf("%c", getchar());
+    }
 }
