@@ -129,6 +129,14 @@ module spi_denetleyici (
                                 spi_sck_o_r_next = cpol;
                                 spi_cs_o_r_next = 1'b0;
                                 state_next = READ;
+                            end else if(~miso_en & ~mosi_en & (|cmd_tail))begin
+                                clock_ctr_next = sck_div;
+                                bit_ctr_next = 4'd8;
+                                byte_ctr_next = (length>9'd3)? 3'd3 : {1'b0,length[1:0]};
+                                flow_ctr_next = length;
+                                spi_sck_o_r_next = cpol;
+                                spi_cs_o_r_next = 1'b0;
+                                state_next = DUMMY;
                             end else begin
                                 clock_ctr_next = 16'b0;
                                 bit_ctr_next = 4'd0;
@@ -238,6 +246,32 @@ module spi_denetleyici (
                             if(spi_sck_o_r == (cpol^cpha)) begin
                                 bit_ctr_next    = bit_ctr - 4'b1;
                                 spi_rdata_next  = {spi_rdata[30:0],spi_miso_i};
+                            end
+                        end
+                    end
+                    DUMMY:begin
+                        clock_ctr_next  = sck_div;
+                        if(bit_ctr == 4'b0) begin // Byte tamamlandi
+                            if(byte_ctr == 3'b0)begin
+                                byte_ctr_next = 3'd3;
+                            end
+                            if(flow_ctr > 9'd0) begin // Sonraki byte
+                                clock_ctr_next = sck_div;
+                                bit_ctr_next = 4'd8;
+                                flow_ctr_next = flow_ctr - 9'd1;
+                                state_next = DUMMY;
+                            end else begin // Tum bytelar okundu
+                                state_next       = IDLE;
+                                clock_ctr_next   = 16'b0;
+                                cmd_tail_next = cmd_tail - 4'b1;
+                                spi_cs_o_r_next  = ~cs_active;
+                                spi_sck_o_r_next = cpol;
+                            end
+                        end else begin
+                            spi_sck_o_r_next  = ~spi_sck_o_r;
+                            state_next = DUMMY;
+                            if(spi_sck_o_r == (cpol^cpha)) begin
+                                bit_ctr_next    = bit_ctr - 4'b1;
                             end
                         end
                     end
