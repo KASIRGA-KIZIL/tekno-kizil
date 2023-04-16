@@ -67,7 +67,7 @@ module user_processor(
 
     wire [7:0] l1b_tag_adr;
 
-    cekirdek_ramsiz cek_ramsiz (
+    islemci_belleksiz isl_blksiz (
         .clk (clk ),
         .resetn (resetn ),
 

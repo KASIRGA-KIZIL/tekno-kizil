@@ -2,7 +2,7 @@
 `timescale 1ns / 1ps
 
 
-module cekirdek_ramsiz(
+module islemci_belleksiz(
     input clk,
     input resetn,
 

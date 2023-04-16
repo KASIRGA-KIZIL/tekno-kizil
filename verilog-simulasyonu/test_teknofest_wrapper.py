@@ -55,10 +55,10 @@ async def anabellek(dut):
         dut.rst_ni.value = 1
         while(1):
             try:
-                if(tests[test]["pass_adr"] == dut.soc.cek_ramsiz.cek.getir_dut.debug_ps.value.integer):
+                if(tests[test]["pass_adr"] == dut.soc.isl_blksiz.cek.getir_dut.debug_ps.value.integer):
                     print("[TEST] ", test, " passed")
                     break
-                if(tests[test]["fail_adr"] == dut.soc.cek_ramsiz.cek.getir_dut.debug_ps.value.integer):
+                if(tests[test]["fail_adr"] == dut.soc.isl_blksiz.cek.getir_dut.debug_ps.value.integer):
                     print("[TEST] ", test, " FAILED")
                     assert 0
                     break
@@ -68,7 +68,7 @@ async def anabellek(dut):
             timout = timout + 1
             if(timout > TIMEOUT):
                 print("[TEST] ", test, " FAILED TIMOUT")
-                print("current PC: ", dut.soc.cek_ramsiz.cek.getir_dut.debug_ps.value.integer)
+                print("current PC: ", dut.soc.isl_blksiz.cek.getir_dut.debug_ps.value.integer)
                 assert 0
                 break
 

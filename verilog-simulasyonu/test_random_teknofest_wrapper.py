@@ -41,7 +41,7 @@ async def anabellek(dut):
             dut.rst_ni.value = 1
             while(1):
                 try:
-                    if(test["finish_adr"] == dut.soc.cek_ramsiz.cek.getir_dut.debug_ps.value.integer):
+                    if(test["finish_adr"] == dut.soc.isl_blksiz.cek.getir_dut.debug_ps.value.integer):
                         print("[FINISHED] ")
                         dut.rst_ni.value = 0
                         await RisingEdge(dut.clk_i)
@@ -98,26 +98,26 @@ async def anabellek(dut):
                     print("[EXCEPTION] ",e)
 
                 await RisingEdge(dut.clk_i)
-                if(not dut.soc.cek_ramsiz.cek.arka_taraf_dut.coz_yazmacoku_dut.ddb_durdur_i.value):
-                    if(not dut.soc.cek_ramsiz.cek.arka_taraf_dut.coz_yazmacoku_dut.ddb_bosalt_i.value):
+                if(not dut.soc.isl_blksiz.cek.arka_taraf_dut.coz_yazmacoku_dut.ddb_durdur_i.value):
+                    if(not dut.soc.isl_blksiz.cek.arka_taraf_dut.coz_yazmacoku_dut.ddb_bosalt_i.value):
                         if(not first):
-                            if((not dut.soc.cek_ramsiz.cek.arka_taraf_dut.coz_yazmacoku_dut.ddb_bosalt_i.value) and (not prebosalt)):
+                            if((not dut.soc.isl_blksiz.cek.arka_taraf_dut.coz_yazmacoku_dut.ddb_bosalt_i.value) and (not prebosalt)):
                                 try:
-                                    address     = "{0:#0{1}x}".format(dut.soc.cek_ramsiz.cek.arka_taraf_dut.coz_yazmacoku_dut.debug_ps.value.integer,10)
-                                    instruction = "{0:#0{1}x}".format(dut.soc.cek_ramsiz.cek.arka_taraf_dut.coz_yazmacoku_dut.gtr_buyruk_i.value.integer,10)
+                                    address     = "{0:#0{1}x}".format(dut.soc.isl_blksiz.cek.arka_taraf_dut.coz_yazmacoku_dut.debug_ps.value.integer,10)
+                                    instruction = "{0:#0{1}x}".format(dut.soc.isl_blksiz.cek.arka_taraf_dut.coz_yazmacoku_dut.gtr_buyruk_i.value.integer,10)
                                     final_logs.append(f"{time_step}   {address}   {instruction}")
                                     time_step = time_step + 1
                                 except:
                                     pass
                         first = 0
 
-                if(not dut.soc.cek_ramsiz.cek.arka_taraf_dut.coz_yazmacoku_dut.ddb_durdur_i.value):
-                    prebosalt = dut.soc.cek_ramsiz.cek.arka_taraf_dut.coz_yazmacoku_dut.ddb_bosalt_i.value
+                if(not dut.soc.isl_blksiz.cek.arka_taraf_dut.coz_yazmacoku_dut.ddb_durdur_i.value):
+                    prebosalt = dut.soc.isl_blksiz.cek.arka_taraf_dut.coz_yazmacoku_dut.ddb_bosalt_i.value
 
                 timout = timout + 1
                 if(timout > TIMEOUT):
                     print("[TEST] ", test_name, " FAILED TIMOUT")
-                    ps     = "{0:#0{1}x}".format(dut.soc.cek_ramsiz.cek.getir_dut.debug_ps.value.integer,10)
+                    ps     = "{0:#0{1}x}".format(dut.soc.isl_blksiz.cek.getir_dut.debug_ps.value.integer,10)
                     print("current PC: ", ps)
                     f.write('\n'.join(final_logs))
                     f.close()
