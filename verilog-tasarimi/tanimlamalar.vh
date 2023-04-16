@@ -353,7 +353,7 @@
 // DDB sabitleri
 `define YON_GERIYAZ  2'b00
 `define YON_YURUT    2'b01
-`define YON_HICBISEY 2'b10
+`define YON_YOK 2'b10
 
 // Dallanma Ongorucu Sabitleri
 `define YANLIS_ATLADI 2'd3

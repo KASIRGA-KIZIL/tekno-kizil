@@ -45,13 +45,13 @@ module denetim_durum_birimi(
     wire geriyaz_yonlendir1 = (((cyo_rs1_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs1_adres_i != 0));
     assign cyo_yonlendir_kontrol1_o = (~yrt_yonlendir_gecersiz_i && yurut_yonlendir1) ? `YON_YURUT :
                                       (geriyaz_yonlendir1)                            ? `YON_GERIYAZ :
-                                                                                        `YON_HICBISEY;
+                                                                                        `YON_YOK;
 
     wire yurut_yonlendir2   = (((cyo_rs2_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs2_adres_i != 0));
     wire geriyaz_yonlendir2 = (((cyo_rs2_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs2_adres_i != 0));
     assign cyo_yonlendir_kontrol2_o = (~yrt_yonlendir_gecersiz_i && yurut_yonlendir2) ? `YON_YURUT :
                                       (geriyaz_yonlendir2)                            ? `YON_GERIYAZ :
-                                                                                        `YON_HICBISEY;
+                                                                                        `YON_YOK;
 
 
     wire durmali = (yrt_yonlendir_gecersiz_i && (yurut_yonlendir1 || yurut_yonlendir2));

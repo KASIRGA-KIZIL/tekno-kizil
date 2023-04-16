@@ -53,12 +53,12 @@ module coz_yazmacoku(
 
     wire [31:0] deger1_tmp_w = (ddb_yonlendir_kontrol1_i == `YON_GERIYAZ   ) ? gy_yaz_deger_i       :
                                (ddb_yonlendir_kontrol1_i == `YON_YURUT     ) ? yrt_yonlendir_deger_i:
-                               (ddb_yonlendir_kontrol1_i == `YON_HICBISEY  ) ? rs1_deger_w          :
+                               (ddb_yonlendir_kontrol1_i == `YON_YOK  ) ? rs1_deger_w          :
                                                                                rs1_deger_w;
 
     wire [31:0] deger2_tmp_w = (ddb_yonlendir_kontrol2_i  == `YON_GERIYAZ  ) ? gy_yaz_deger_i        :
                                (ddb_yonlendir_kontrol2_i  == `YON_YURUT    ) ? yrt_yonlendir_deger_i :
-                               (ddb_yonlendir_kontrol2_i  == `YON_HICBISEY ) ? rs2_deger_w           :
+                               (ddb_yonlendir_kontrol2_i  == `YON_YOK ) ? rs2_deger_w           :
                                                                                rs2_deger_w;
 
     wire sec_pc = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) || (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PCIMM);
