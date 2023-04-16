@@ -35,7 +35,8 @@ module spi_denetleyici (
     localparam [2:0]
     IDLE  = 3'b001,
     WRITE = 3'b010,
-    READ  = 3'b100;
+    READ  = 3'b100,
+    DUMMY = 3'b111;
 
     // SPI donanim yazmaclari
     reg  [ 2:0] state, state_next;
