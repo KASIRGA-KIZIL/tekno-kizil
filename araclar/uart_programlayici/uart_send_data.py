@@ -1,7 +1,7 @@
 import serial
 
 port = '/dev/ttyUSB1'
-baud_rate = 115200 #9600
+baud_rate = 9600
 file = "dene.hex"
 program_sequence = "TEKNOFEST"
 file_format = 1
