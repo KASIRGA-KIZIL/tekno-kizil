@@ -2,6 +2,12 @@
 `include "tanimlamalar.vh"
 
 `ifndef OPENLANE
+// https://github.com/tdene/synth_opt_adders tarafindan olusturulmus optimize toplayici
+/*
+	width = 33
+	f = forest(width, alias = "sklansky")
+	f.hdl('adder_mapped.v', optimization = 0, mapping = "sky130_fd_sc_hd") # ayrica aynisinin behavioural versiyonu
+*/
 module toplayici(
 	input  [32:0] a_in,
 	input  [32:0] b_in,

@@ -69,6 +69,7 @@ module yurut(
     wire [31:0] yzh_deger1;
     wire [31:0] yzh_deger2;
 
+    // Carpma girislerini yzh kontrol eder. Eger yzh operasyonu ise carpma ona baglanir
     wire [31:0] carp_deger1 = (cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA   ) ? cyo_deger1_i  :
                               (cyo_mikroislem_i[`BIRIM] == `BIRIM_YAPAYZEKA) ? yzh_deger1    :
                                                                                32'bx;
@@ -139,6 +140,7 @@ module yurut(
       .bitti_o  (bol_bitti_w)
     );
 
+    // dallanma kosullari
     assign gtr_atlanan_ps_gecerli_o = (cyo_mikroislem_i[`DAL] == `DAL_EQ  ) ?  cyo_lt_ltu_eq_i[0]:
                                       (cyo_mikroislem_i[`DAL] == `DAL_NE  ) ? !cyo_lt_ltu_eq_i[0]:
                                       (cyo_mikroislem_i[`DAL] == `DAL_LT  ) ?  cyo_lt_ltu_eq_i[2]:
@@ -150,6 +152,7 @@ module yurut(
                                       (cyo_mikroislem_i[`DAL] == `DAL_YOK ) ?  1'b0              :
                                                                                1'b0; // x veya ? yerine 0 cunku dallanma_kosulu surekli okunuyor. Kazayla 1 verirsek gecmis olsun.
 
+    // geri yaza gidecek verinin secilmesi
     wire [31:0] rd_deger_sonraki_w = (cyo_mikroislem_i[`BIRIM] == `BIRIM_AMB      ) ? amb_sonuc_w      :
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_BOLME    ) ? bol_sonuc_w      :
                                      (cyo_mikroislem_i[`BIRIM] == `BIRIM_SIFRELEME) ? sifreleme_sonuc_w:
@@ -161,6 +164,7 @@ module yurut(
     assign cyo_yonlendir_deger_o = (cyo_mikroislem_i[`DAL] == `DAL_JAL )|(cyo_mikroislem_i[`DAL] == `DAL_JALR) ? {8'h40,5'b0,cyo_ps_artmis_i,1'b0}:
                                                                                                                   rd_deger_sonraki_w;
 
+    // Carpma islemi fiziksel olarak yonlendirilemez
     assign ddb_yonlendir_gecersiz_o = (cyo_mikroislem_i[`BIRIM] == `BIRIM_CARPMA);
 
     always @(posedge clk_i) begin
@@ -179,6 +183,7 @@ module yurut(
 
     assign ddb_hazir_o = yzh_bitti & bol_bitti_w & bib_bitti;
 
+    // Burasi sadece debug icin. Verilog sinyallerini Waveform'da gosterir.
     `ifdef COCOTB_SIM
         wire [31:0] debug_ps = {8'h40,5'b0,gtr_atlanan_ps_o,1'b0} ;
         reg [88*13:1] micro_str;

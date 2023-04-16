@@ -6,6 +6,9 @@
 0x20020000 = PWM  = 00100000000000100000000000000000
 0x20010000 = SPI  = 00100000000000010000000000000000
 0x20000000 = UART = 00100000000000000000000000000000
+
+Yanlizca gerekli bitlere bakilmasi yeterli.
+Wishbone master gerekli cevre birimlerine gore OPTIMIZE edildi.
 */
 module wishbone_master(
     input [0:0] clk_i,
@@ -38,7 +41,7 @@ module wishbone_master(
     input      [0:0]  pwm_ack_i ,
     input      [31:0] pwm_dat_i
 );
-
+    // ADRESLERE gore sinyallerin muxlanmasi
     reg  cyc;
 
     wire ack = (vy_adres_i[17:16] == 2'b00) ? uart_ack_i :
@@ -89,12 +92,12 @@ module wishbone_master(
 
     always @(*) begin
         case(state)
-            IDLE: begin
+            IDLE: begin // Kimseyle konusma
                 stb_o    = 1'b0;
                 cyc      = 1'b0;
                 durdur_r = 1'b0;
             end
-            BUS: begin
+            BUS: begin // Istek geldiyse bus moduna gec
                 stb_o    = 1'b1;
                 cyc      = 1'b1;
                 durdur_r = (next==IDLE) ? 1'b0 : 1'b1;

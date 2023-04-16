@@ -35,6 +35,7 @@ module buyruk_onbellegi_denetleyici(
     wire [15:0] data0;
     wire [15:0] data1;
 
+    // Hizasiz erisimlerde 16 bitlerin yerini degistir.
     assign l1b_deger_o = l1b_adres_i[1] ? {data0,data1} : {data1,data0};
 
     localparam  READMEM0   = 3'd0,
@@ -46,7 +47,7 @@ module buyruk_onbellegi_denetleyici(
 
     reg  [ 8:0] d_addr0, d_addr0_next;
     reg  [ 8:0] d_addr1, d_addr1_next;
-    wire [ 8:0] data_addr0 = l1b_adres_i[`ADR] + {{8{1'b0}},l1b_adres_i[1]};
+    wire [ 8:0] data_addr0 = l1b_adres_i[`ADR] + {{8{1'b0}},l1b_adres_i[1]}; // Eger hizasiz erisim ise 1 yukardaki satira eris.
     wire [ 8:0] data_addr1 = l1b_adres_i[`ADR];
 
     wire valid0;
@@ -59,7 +60,7 @@ module buyruk_onbellegi_denetleyici(
     wire data1_ready = (l1b_adres_i[`TAG] === tag1) && valid1;
 
     always @(posedge clk_i) begin
-        if(rst_i) begin 
+        if(rst_i) begin
             state <= READMEM0;
             wen <= 1'b0;
             d_addr1 <= 9'd0;
@@ -139,26 +140,26 @@ module buyruk_onbellegi_denetleyici(
     assign data1 = ram512d1_datao0_i;
 
 
-    RAM512_VALID bffram_v01 (
-      .clk_i  (clk_i ),
-      .rst_i  (rst_i ),
-      //
-      .wen_i  (wen_next   ),
-      .wadr_i (iomem_addr[`ADR] ),
-      //
-      .data0_o ({valid0,tag0}),
-      .radr0_i (data_addr0 ),
-      //
-      .data1_o ({valid1,tag1}),
-      .radr1_i (data_addr1 ),
-      //
-      .we0_o    (we0_o ),
-      .adr0_o   (adr0_o ),
-      .datao0_i (datao0_i ),
-      //
-      .we1_o    (we1_o ),
-      .adr1_o   (adr1_o ),
-      .datao1_i ( datao1_i)
+    tag_denetleyici tagden_dut (
+        .clk_i  (clk_i ),
+        .rst_i  (rst_i ),
+        //
+        .wen_i  (wen_next   ),
+        .wadr_i (iomem_addr[`ADR] ),
+        //
+        .data0_o ({valid0,tag0}),
+        .radr0_i (data_addr0 ),
+        //
+        .data1_o ({valid1,tag1}),
+        .radr1_i (data_addr1 ),
+        //
+        .we0_o    (we0_o ),
+        .adr0_o   (adr0_o ),
+        .datao0_i (datao0_i ),
+        //
+        .we1_o    (we1_o ),
+        .adr1_o   (adr1_o ),
+        .datao1_i ( datao1_i)
     );
 
 endmodule

@@ -2,10 +2,12 @@
 `timescale 1ns / 1ps
 
 
+// CEKIRDEK+VERIYOLU
 module islemci_belleksiz(
     input clk,
     input resetn,
 
+    // Ana bellek Arayuzu
     output wire        iomem_valid,
     input  wire        iomem_ready,
     output wire [ 3:0] iomem_wstrb,
@@ -53,6 +55,8 @@ module islemci_belleksiz(
     output wire [ 8:0] ram512d1_adr0_o,
     input  wire [15:0] ram512d1_datao0_i,
 
+
+    // Cevre birimi sinyalleri
     output wire uart_tx_o,
     input  wire uart_rx_i,
 
@@ -67,6 +71,7 @@ module islemci_belleksiz(
     wire clk_i = clk;
     wire rst_i = ~resetn;
 
+    // Bellek Islem Birimi sinyalleri
     wire [31:0] bib_yaz_veri;
     wire [31:0] bib_oku_veri;
     wire [31:0] bib_adr;
@@ -74,23 +79,28 @@ module islemci_belleksiz(
     wire        bib_durdur;
     wire        bib_sec;
 
+    // L1 BUyruk onbellegi sinyalleri
     wire        l1b_bekle;
     wire [31:0] l1b_deger;
     wire [18:1] l1b_adres;
 
     assign l1b_tag_adr_o = l1b_adres[18:11];
 
+    // L1 Veri onbellegi sinyalleri
     wire [31:0] l1v_oku_veri;
     wire        l1v_sec;
     wire        l1v_durdur;
 
+    // Veriyolu sinyalleri
     wire [31:0] vy_oku_veri;
     wire        vy_sec;
     wire        vy_durdur;
 
+    // Timer sinyalleri
     wire [31:0] tmr_oku_veri;
     wire        tmr_sec;
 
+    // L1 veri onbellegi <-> anabellek denetleyici
     wire        l1v_iomem_valid;
     wire        l1v_iomem_ready;
     wire [ 3:0] l1v_iomem_wstrb;
@@ -98,11 +108,13 @@ module islemci_belleksiz(
     wire [31:0] l1v_iomem_wdata;
     wire [31:0] l1v_iomem_rdata;
 
+    // L1 buyruk onbellegi <-> anabellek denetleyici
     wire        l1b_iomem_valid;
     wire        l1b_iomem_ready;
     wire [18:2] l1b_iomem_addr;
     wire [31:0] l1b_iomem_rdata;
 
+    // ISLEMCI+VERIYOLU
     cekirdek cek (
         .clk_i (clk_i),
         .rst_i (rst_i),
@@ -148,15 +160,16 @@ module islemci_belleksiz(
         .ram512d1_datao0_i (ram512d1_datao0_i )
     );
 
-
+    // ADDRESS Araligina gore secme sinyalleri
     assign l1v_sec = bib_adr[30]               ? bib_sec : 1'b0;
     assign vy_sec  = bib_adr[29]&&~bib_adr[28] ? bib_sec : 1'b0;
     assign tmr_sec = bib_adr[28]               ? bib_sec : 1'b0;
 
+    // Durdur sinyalinin nereden cekirdege iletilecegi adres araligina gore secilir
     assign bib_durdur = bib_adr[30] ? l1v_durdur :
                         bib_adr[28] ?   1'b0     :
                                       vy_durdur  ;
-
+    // Okunan verinin nereden cekirdege iletilecegi adres araligina gore secilir
     assign bib_oku_veri  = bib_adr[30] ? l1v_oku_veri :
                            bib_adr[28] ? tmr_oku_veri :
                                          vy_oku_veri  ;
@@ -199,7 +212,7 @@ module islemci_belleksiz(
         .yol1_dirty_o  ( yol1_dirty_o)
     );
 
-
+    // TIMER, L1B, L1V <-> Anabellek konusmasini kontrol eder
     anabellek_denetleyici abdd (
         .clk_i (clk_i ),
         .rst_i (rst_i ),
@@ -228,7 +241,7 @@ module islemci_belleksiz(
         .l1v_iomem_rdata (l1v_iomem_rdata )
     );
 
-
+    // Wishbone master <-> UART, PWM, SPI
     veriyolu  veriyolu_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),

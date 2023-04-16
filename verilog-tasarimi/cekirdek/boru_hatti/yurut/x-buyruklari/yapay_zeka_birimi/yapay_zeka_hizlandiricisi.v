@@ -25,7 +25,7 @@ module yapay_zeka_hizlandiricisi(
 );
 
     reg [3:0] sayac;
-
+    // konvolusyon islemi her zaman sabit uzunlukta surer
     assign bitti_o = (sayac == `YAPAY_ZEKA_RUN_GECIKMESI) || (kontrol_i != `YZH_RUN);
 
     reg rst_veri;

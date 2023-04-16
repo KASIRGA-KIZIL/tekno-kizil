@@ -3,7 +3,8 @@
 
 `include "tanimlamalar.vh"
 
-
+// 1 bit start bit 8 veri bit no parity ve 1 stop bit
+// gonderme circular queue araciligi ile yapilir.
 module uart_tx (
     input  wire         clk_i,
     input  wire         rst_i,
@@ -30,16 +31,7 @@ module uart_tx (
                DATA_5     = 5'd7,
                DATA_6     = 5'd8,
                DATA_7     = 5'd9,
-               STOP_BIT0  = 5'd10,
-               STOP_BIT1  = 5'd11,
-               STOP_BIT2  = 5'd12,
-               STOP_BIT3  = 5'd13,
-               STOP_BIT4  = 5'd14,
-               STOP_BIT5  = 5'd15,
-               STOP_BIT6  = 5'd16,
-               STOP_BIT7  = 5'd17,
-               STOP_BIT8  = 5'd18,
-               STOP_BIT9  = 5'd19;
+               STOP_BIT0  = 5'd10;
 
     reg [7:0]  queue [31:0];
 
@@ -69,7 +61,7 @@ module uart_tx (
                 queue[write_ptr] <= data_i;
             end
             if(uart_clk_pulse)begin
-                if((state == STOP_BIT9) && (next == IDLE))
+                if((state == STOP_BIT0) && (next == IDLE))
                     read_ptr <= read_ptr + 1;
             end
             if(counter == baud_div_i) begin
@@ -95,16 +87,7 @@ module uart_tx (
             DATA_5:             next = DATA_6;
             DATA_6:             next = DATA_7;
             DATA_7:             next = STOP_BIT0;
-            STOP_BIT0:          next = STOP_BIT1;
-            STOP_BIT1:          next = STOP_BIT2;
-            STOP_BIT2:          next = STOP_BIT3;
-            STOP_BIT3:          next = STOP_BIT4;
-            STOP_BIT4:          next = STOP_BIT5;
-            STOP_BIT5:          next = STOP_BIT6;
-            STOP_BIT6:          next = STOP_BIT7;
-            STOP_BIT7:          next = STOP_BIT8;
-            STOP_BIT8:          next = STOP_BIT9;
-            STOP_BIT9:          next = IDLE;
+            STOP_BIT0:          next = IDLE;
             default:            next = IDLE;
         endcase
     end
@@ -120,16 +103,7 @@ module uart_tx (
             DATA_5:    tx_o = queue[read_ptr][5];
             DATA_6:    tx_o = queue[read_ptr][6];
             DATA_7:    tx_o = queue[read_ptr][7];
-            STOP_BIT0,
-            STOP_BIT1,
-            STOP_BIT2,
-            STOP_BIT3,
-            STOP_BIT4,
-            STOP_BIT5,
-            STOP_BIT6,
-            STOP_BIT7,
-            STOP_BIT8,
-            STOP_BIT9: tx_o = 1'b1;
+            STOP_BIT0: tx_o = 1'b1;
             default:   tx_o = 1'b1;
         endcase
     end

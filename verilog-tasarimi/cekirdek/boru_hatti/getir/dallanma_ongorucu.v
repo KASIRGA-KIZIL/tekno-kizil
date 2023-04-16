@@ -5,8 +5,14 @@
 `define CYO   0
 `define YURUT 1
 
-// yrt   buyrugu bj ise kontrol et.  a.k.a tahmin_et_i       == 1
-// getir buyrugu bj ise tahmin et.   a.k.a tahmin_et[`YURUT] == 1
+// Dallanma ve atlama buyruklarinin tahmininden sorumlu.
+// Ayrica return adress stack (RAS) kullanarak fonksiyonlardan donusu hizlandirir.
+
+// Calisma mantigi:
+// getirdeki buyruk branch veya jump ise tahmin  et.  a.k.a tahmin_et_i       == 1
+// yurutteki buyruk branch veya jump ise kontrol et.  a.k.a tahmin_et[`YURUT] == 1
+//    Kontrol ederken tahmin yanlis ise HATA DUZELT hatanin ne oldugunu bulur.
+//    gerekli hata duzeltme sinyali gonderilir ve global history table sayaclari ve dizisi guncellenir.
 
 module dallanma_ongorucu(
     input  wire rst_i,
@@ -55,7 +61,7 @@ module dallanma_ongorucu(
     wire tahmin_dogru          = atladi_tahmin_dogru || atlamadi_tahmin_dogru;
 
     reg [2:0] ght_counter;
-    wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ ght[ght_ptr+:5];
+    wire [ 4:0] sayac_yaz_adr = ps[`YURUT][5:1] ^ ght[ght_ptr+:5]; // Burada yanlizca alt bitlere erisilcek. Ust bitler sadece geri sarmak icin gerekli.
     integer loop_counter;
     always@(posedge clk_i) begin
         if(rst_i) begin
@@ -71,7 +77,7 @@ module dallanma_ongorucu(
         end else begin
             if(tahmin_et[`YURUT]) begin
                 ght_ptr <= ght_ptr - 2'd1;
-                if(~tahmin_dogru) begin
+                if(~tahmin_dogru) begin // tahmin yanlis ise history table'i geri sar
                     ght_ptr <= 2'd0;
                     ght[0] <= atlanan_ps_gecerli_i;
                     for(ght_counter=1 ;ght_counter<5; ght_counter=ght_counter+1) begin
@@ -81,6 +87,7 @@ module dallanma_ongorucu(
                         ght[ght_counter] <= 1'd0;
                     end
                 end
+                // sayaclari branch'ler icin guncelle
                 if(~atladi_tahmin_dogru   &&  (sayaclar[sayac_yaz_adr] != 2'b00)) begin
                     if(!buyruk_jalr_tipi_i || !buyruk_jal_tipi_i)
                         sayaclar[sayac_yaz_adr] <= sayaclar[sayac_yaz_adr] -  2'b1;
@@ -108,7 +115,7 @@ module dallanma_ongorucu(
                 if(ras_push && ras_pop) begin
                     ras[0] <= ps_i + (buyruk_ctipi_i ? 18'd1 : 18'd2);
                 end
-                if(!(buyruk_jal_tipi_i || buyruk_jalr_tipi_i)) begin
+                if(!(buyruk_jal_tipi_i || buyruk_jalr_tipi_i)) begin // Sadece branchler de ght'yi guncelle
                     ght[6:0] <= {ght[5:0], sayaclar[sayac_oku_adr][1]};
                     ght_ptr <= ght_ptr + 2'd1;
                 end
@@ -117,13 +124,13 @@ module dallanma_ongorucu(
     end
 
     always@(*) begin
-        if(tahmin_et[`YURUT]) begin
+        if(tahmin_et[`YURUT]) begin // Tahmin sonucunu kontrol et
             hata_duzelt_o = ( atlanan_ps_gecerli_i &&  (ps[`CYO] == atlanan_ps_i)                                  ) ? `SORUN_YOK     :
                             ( ongorulen_ps_gecerli[`YURUT] &&  ~atlanan_ps_gecerli_i                               ) ? `ATLAMAMALIYDI :
                             (~ongorulen_ps_gecerli[`YURUT] &&   atlanan_ps_gecerli_i &&  (ps[`CYO] != atlanan_ps_i)) ? `ATLAMALIYDI   :
                             ( ongorulen_ps_gecerli[`YURUT] &&   atlanan_ps_gecerli_i &&  (ps[`CYO] != atlanan_ps_i)) ? `YANLIS_ATLADI :
                                                                                                                        `SORUN_YOK;
-        end else begin
+        end else begin // Tahmin yoksa sorun da yok
             hata_duzelt_o = `SORUN_YOK;
         end
     end
@@ -133,7 +140,7 @@ module dallanma_ongorucu(
             ongorulen_ps_gecerli <= 0;
             tahmin_et            <= 0;
             buyruk_ctipi         <= 0;
-        end else begin
+        end else begin // Gerekli sinyalleri pipe'line gibi otele. Bu sayede sinyallerin disari cikip dolanmasina gerek yok. Yosys optimizasyonu.
             if(~ddb_durdur_i) begin
                 tahmin_et[`CYO]            <= (|hata_duzelt_o) ? 1'b0 : tahmin_et_i;
                 buyruk_ctipi[`CYO]         <= buyruk_ctipi_i;
@@ -148,6 +155,6 @@ module dallanma_ongorucu(
         end
     end
 
-    assign yrt_ps_o           = ps[`YURUT];
-    assign yrt_buyruk_ctipi_o = buyruk_ctipi[`YURUT];
+    assign yrt_ps_o           = ps[`YURUT]; // Eger geri sarilcak ise yurutteki buyrugun ps'si gerekli.
+    assign yrt_buyruk_ctipi_o = buyruk_ctipi[`YURUT];  // Ps+2 mi yoksa PS+4 mu
 endmodule

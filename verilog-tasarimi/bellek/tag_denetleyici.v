@@ -1,10 +1,9 @@
-//
+// Tag denetleyici
+// Ayni anda iki farkli adresteki tag'leri okumak icin 2 tane 256 satirlik RAM'i kontrol eder
+// RAM'lerden birisi tek adresleri oteki cift olan adresleri depolamak icin kullanilir.
+// Bu sayede Unaligned/Hizasiz okuma yapilabilir.
 
-
-// Yan sanayi iki portlu ram.
-// 2 portlu ram gibi kullanmayin.
-
-module RAM512_VALID (
+module tag_denetleyici (
     input wire clk_i,
     input wire rst_i,
     // Port 0: W
@@ -16,14 +15,14 @@ module RAM512_VALID (
     // Port 1: R
     output wire [8:0] data1_o,
     input  wire [8:0] radr1_i,
-        // RAM256_T0
-        output wire       we0_o,
-        output wire [7:0] adr0_o,
-        input  wire [7:0] datao0_i,
-        // RAM256_T1
-        output wire       we1_o,
-        output wire [7:0] adr1_o,
-        input  wire [7:0] datao1_i
+    // RAM256_T0
+    output wire       we0_o,
+    output wire [7:0] adr0_o,
+    input  wire [7:0] datao0_i,
+    // RAM256_T1
+    output wire       we1_o,
+    output wire [7:0] adr1_o,
+    input  wire [7:0] datao1_i
 );
     reg [511:0] RAM;
 
@@ -40,7 +39,7 @@ module RAM512_VALID (
             if(wen_i) RAM[wadr_i] <= 1'b1;
     end
 
-
+    // Gerekli kosullar matematiksel olarak bulunmus olup gerekli ispat en altta gosterilmistir.
     wire [7:0] tag0 = (~radr0_i[0]) ? tage : tago;
     wire [7:0] tag1 = (((~radr0_i[0]) & (radr0_i == radr1_i)) || (( radr0_i[0]) & (radr0_i != radr1_i))) ? tage : tago;
 
@@ -66,7 +65,7 @@ endmodule
 
 
 /*
-
+    // Tek adreslere ve cift adreslere nasil yazilmasi gerektiginin ispatlanmasi ve gerekli pattern'in gosterilmesi.
     radr0_i = l1b_adres_i[`ADR] + {{8{1'b0}},l1b_adres_i[1]};
     radr1_i = l1b_adres_i[`ADR];
 
@@ -99,6 +98,5 @@ endmodule
         5 -> 0101 -> o -> 2
         6 -> 0110 -> e --> 3
         7 -> 0111 -> o -> 3
-
 
 */

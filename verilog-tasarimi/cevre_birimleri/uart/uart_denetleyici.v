@@ -3,7 +3,7 @@
 
 `include "tanimlamalar.vh"
 
-
+// Bu modulun tek gorevi wishbone sinyallerini UART registerlarina yazmak
 module uart_denetleyici (
     input wire clk_i,
     input wire rst_i,
@@ -19,7 +19,6 @@ module uart_denetleyici (
     input  wire uart_rx_i,
     output wire uart_tx_o
 );
-    wire uart_rx = uart_tx_o;
     reg [15:0] baud_div;
 
     reg tx_en;
@@ -56,7 +55,7 @@ module uart_denetleyici (
       .data_o  (rx_data  ),
       .full_o  (rx_full  ),
       .empty_o (rx_empty ),
-      .rx_i    (uart_rx)
+      .rx_i    (uart_rx_i)
     );
 
 
@@ -72,10 +71,10 @@ module uart_denetleyici (
             rx_re    <= 1'b0;
             tx_we    <= 1'b0;
             if(wb_cyc_i) begin
-                wb_ack_o <= wb_stb_i & !wb_ack_o;
+                wb_ack_o <= wb_stb_i & !wb_ack_o; // butun islemler 1 cycle surer ve ack sinyali cyc'dan hemen sonra gonderilir.
                 case(wb_adr_i)
                     2'h0: begin
-                        if(wb_stb_i & wb_we_i & !wb_ack_o) begin
+                        if(wb_stb_i & wb_we_i & !wb_ack_o) begin // SB,SH,SW buyruklarini destekle
                             tx_en    <=   wb_sel_i[0]    ? wb_dat_i[0]     : tx_en;
                             rx_en    <=   wb_sel_i[0]    ? wb_dat_i[1]     : rx_en;
                             baud_div <= (&wb_sel_i[3:2]) ? wb_dat_i[31:16] : baud_div;

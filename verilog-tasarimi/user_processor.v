@@ -67,6 +67,7 @@ module user_processor(
 
     wire [7:0] l1b_tag_adr;
 
+    // CEKIRDEK+VERIYOLU
     islemci_belleksiz isl_blksiz (
         .clk (clk ),
         .resetn (resetn ),
@@ -125,6 +126,11 @@ module user_processor(
         .pwm0_o  (pwm0_o ),
         .pwm1_o  (pwm1_o )
     );
+
+    // RAM isimleri:
+    //    d0   -> data bellegi 0 inci bank
+    //    t0   -> tag  bellegi 0 inci bank
+    //    t0_1 -> tag  bellegi 0 inci bank 1 inci parca
 
     RAM512x16_ASYNC`GATE RAM512_d0 (
         .CLK(clk),
@@ -207,10 +213,12 @@ module user_processor(
         .WE0(yol_WE0[3:2] & {yol1_EN0,yol1_EN0})
     );
 
-
+    // 8 bitlik RAM'e yol1_tag0, yol1_diry, yol1_valid, x, lru_bit, yol0_tag0, yol0_diry, yol0_valid
+    // Bu sayede yine RAM256x8 modulu kullanilabilmistir.
     // t1_d1_v1_x_lru_t0_d0_v0
     wire [7:0] combined_data_yeni;
     wire [7:0] combined_data_okunan;
+    // Her yol kendi we sinyaline ihtiyac duyar. Bundan dolayi we sinyalleri ortaklanmistir.
     assign combined_data_yeni[0] =  yol0_EN0             ? yol0_valid_ddo : combined_data_okunan[0];
     assign combined_data_yeni[1] =  yol0_EN0             ? yol0_dirty_ddo : combined_data_okunan[1];
     assign combined_data_yeni[2] =  yol0_EN0             ? yol_Di0 [40]   : combined_data_okunan[2];

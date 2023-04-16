@@ -19,6 +19,7 @@ module carpma_birimi (
 
     reg [1:0] kontrol;
 
+    // Carpmalari 33 bit signed yap. Unsigned ise 32 bit'lik sinyalleri 33 e genislet
     always @(*) begin
         case(kontrol_i)
         `CARPMA_MUL: begin

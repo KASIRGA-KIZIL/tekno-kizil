@@ -5,6 +5,8 @@
 
 // Modul taniminda sinyallerin nereden geldigi isminde ddb_ -> denetim durum biriminden gelen/giden sinyal
 // cyo_l1b_adr -> hem coze hem l1b'ye giden sinyal
+
+// Buyruk onbellegi denetleyici hizasiz okuma yapabildigi icin getir basit tutulmustur.
 module getir (
     input  wire clk_i,
     input  wire rst_i,
@@ -52,7 +54,7 @@ module getir (
     wire [6:2] btipi = buyruk_ctipi ? buyruk_genis[6:2] : l1b_deger_i[6:2];
     reg [2:0] buyruk_tipi_r;
     always @(*) begin
-        buyruk_jal_tipi        = 1'b0;
+        buyruk_jal_tipi     = 1'b0;
         tahmin_et           = 1'b0;
         buyruk_jalr_tipi    = 1'b0;
         case(btipi)
@@ -70,9 +72,9 @@ module getir (
         endcase
         // Buyruk tipine gore anlik sec
         case(cyo_buyruk_next[6:2])
-            5'b11011: begin buyruk_tipi_r = `J_Tipi;   end // jal
-            5'b11001: begin buyruk_tipi_r = `I_Tipi;   end // jalr I tipinde
-            5'b11000: begin buyruk_tipi_r = `B_Tipi;   end // B-tipi
+            5'b11011: begin buyruk_tipi_r = `J_Tipi; end // jal
+            5'b11001: begin buyruk_tipi_r = `I_Tipi; end // jalr I tipinde
+            5'b11000: begin buyruk_tipi_r = `B_Tipi; end // B-tipi
             default:  begin buyruk_tipi_r = `I_Tipi; end
         endcase
         case(buyruk_tipi_r)
@@ -90,6 +92,7 @@ module getir (
     wire ras_push;
     wire ras_pop;
 
+    // Buradaki esitlikler RISCV ISA manuelinden alinmis olup genelde C compiler'indan cikan kodlarla uyumluluk gostermektedir.
     assign rd_link = (!buyruk_ctipi && ((cyo_buyruk_next[11:7] == 5'd1) || (cyo_buyruk_next[11:7] == 5'd5)));
     assign rs1_link = (!buyruk_ctipi && ((cyo_buyruk_next[19:15] == 5'd1) || (cyo_buyruk_next[19:15] == 5'd5)));
     assign rd_esitdegil_rs1 = (!buyruk_ctipi && buyruk_jalr_tipi && (cyo_buyruk_next[11:7] != cyo_buyruk_next[19:15]));
@@ -129,7 +132,7 @@ module getir (
             ps_artmis = ps + 18'd2; // son bit yok b100 -> b10 oluyor.
         end
         case(hata_duzelt)
-            `YANLIS_ATLADI: begin
+            `YANLIS_ATLADI: begin // Yurtten atlanan ps kullanilmali
                 ps_next = yrt_atlanan_ps_i;
                 ddb_yanlis_tahmin_o = 1'b1;
             end
@@ -162,7 +165,7 @@ module getir (
     always @(posedge clk_i) begin
         if (rst_i) begin
             ps               <= 18'b0;
-            cyo_buyruk_o     <= `EBREAK; // NOP ile ayni. 0-> LB buyruguyla cakisiyor.
+            cyo_buyruk_o     <= `EBREAK; // NOP ile ayni. 0 vermek LB buyruguyla cakisir.
         end else if(~ddb_durdur_i) begin
             ps               <= ps_next;
             cyo_buyruk_o     <= ddb_bosalt_i ? `EBREAK : cyo_buyruk_next;
@@ -172,7 +175,7 @@ module getir (
     end
 
 
-    // compressed buyruklari genislet
+    // compressed buyruklari genislet. Buradaki genisletmeler RISCV ISA manuelinden alinmistir.
     always @(l1b_deger_i[15:0]) begin
         casez(l1b_deger_i[15:0])
             //`C_EBREAK,
@@ -210,6 +213,7 @@ module getir (
         endcase
     end
 
+    // Burasi sadece debug icin. Verilog sinyallerini Waveform'da gosterir.
     `ifdef COCOTB_SIM
         reg [88*13:1] ctipi_coz_str;
         wire [31:0] debug_ps = {8'h40,5'b0,ps[18:1],1'b0};

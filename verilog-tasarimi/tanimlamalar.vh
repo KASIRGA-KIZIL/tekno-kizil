@@ -1,5 +1,23 @@
+// FPGA veya OPENLANE define edilmediyse OpenLane'in davranissal modeli aktiftir.
+// Sadece FPGA define edildiyse FPGA'e optimize edilir.
+// Sadece OPENLANE define edildiyse OPENLANE'e optimize edilir.
+
+// AYNI ANDA IKISINI DE DEFINE EDILMESI ILLEGALDIR. YAPMAYIN
+
+
+//`define FPGA
+
+//`define OPENLANE
+
+`ifdef OPENLANE
+    `define GATE _sky130
+`else
+    `define GATE
+`endif
+
 
 // RV32IMCX Buyruklari
+
 `define ADD        32'b0000000??????????000?????0110011
 `define ADDI       32'b?????????????????000?????0010011
 `define AND        32'b0000000??????????111?????0110011
@@ -12,10 +30,6 @@
 `define BLTU       32'b?????????????????110?????1100011
 `define BNE        32'b?????????????????001?????1100011
 
-// C_JALR     ve C_EBREAK ve C_ADD
-// C_MV       ve C_JR
-// C_ADDI     ve C_NOP
-// C_LUI      ve C_ADDI16SP
 `define C_EBREAK   16'b1001000000000010
 `define C_JALR     16'b1001?????0000010
 `define C_ADD      16'b1001??????????10
@@ -97,8 +111,8 @@
 `define CONV_RUN   32'b0000000_00000_00000_100_?????_0001011
 
 
-// op ve funclarin tum bitlerine bakmamak guvenli mi?
-// Cozulmesi gereken bitler 14 bit 30:29, 27, 25, 21:20, 14:12, 6:2
+// Buyruklarin cozulmesi icin gereken bitler 14 bit
+// 30:29, 27, 25, 21:20, 14:12, 6:2
 `define BUYRUK_COZ_BIT 14
 
 `define EBREAK_COZ      14'b00000100011100
@@ -162,9 +176,10 @@
 `define JAL_COZ         14'b?????????11011
 `define LUI_COZ         14'b?????????01101
 
-`define GECERSIZ 28'b0000000000000000000000000
 
-//////////// Mikro islemler
+// Mikroislemler
+`define MI_BIT 28
+
 `define GERIYAZ   01:00
 `define YAZMAC    02:02
 `define OPERAND   04:03
@@ -176,8 +191,6 @@
 `define BIB       21:19
 `define SIFRELEME 24:22
 `define CONV      27:25
-
-`define MI_BIT 28
 
 `define GERIYAZ_KAYNAK_YOK    2'd0
 `define GERIYAZ_KAYNAK_YURUT  2'd1
@@ -260,6 +273,9 @@
 `define YZH_RUN    3'h4
 `define YZH_YOK    3'h0
 
+`define GECERSIZ `MI_BIT'hxxxx_xxx
+
+// REG AMB buyruklari
 `define ADD_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_TOPLAMA, `DAL_YOK, `BIRIM_AMB, `OPERAND_REG,   `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define SUB_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_CIKARMA, `DAL_YOK, `BIRIM_AMB, `OPERAND_REG,   `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define AND_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_AND    , `DAL_YOK, `BIRIM_AMB, `OPERAND_REG,   `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
@@ -273,6 +289,7 @@
 `define AUIPC_MI {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_TOPLAMA, `DAL_YOK, `BIRIM_AMB, `OPERAND_PCIMM, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define LUI_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_GECIR  , `DAL_YOK, `BIRIM_AMB, `OPERAND_IMM,   `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 
+// Immediate AMB buyruklari
 `define ADDI_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_TOPLAMA, `DAL_YOK, `BIRIM_AMB, `OPERAND_IMM, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define ANDI_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_AND    , `DAL_YOK, `BIRIM_AMB, `OPERAND_IMM, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define ORI_MI    {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_OR     , `DAL_YOK, `BIRIM_AMB, `OPERAND_IMM, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
@@ -283,11 +300,11 @@
 `define SRLI_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_SRL    , `DAL_YOK, `BIRIM_AMB, `OPERAND_IMM, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define XORI_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_XOR    , `DAL_YOK, `BIRIM_AMB, `OPERAND_IMM, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 
+// Bolme Birimi buyruklari
 `define DIV_MI  {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_DIV , `AMB_YOK, `DAL_YOK, `BIRIM_BOLME, `OPERAND_REG, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define DIVU_MI {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_DIVU, `AMB_YOK, `DAL_YOK, `BIRIM_BOLME, `OPERAND_REG, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define REM_MI  {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_REM , `AMB_YOK, `DAL_YOK, `BIRIM_BOLME, `OPERAND_REG, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
 `define REMU_MI {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_REMU, `AMB_YOK, `DAL_YOK, `BIRIM_BOLME, `OPERAND_REG, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_YURUT}
-
 
 // Modified Booth Dadda Carpici buyruklari
 `define MUL_MI    {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_MUL   , `BOLME_YOK, `AMB_YOK, `DAL_YOK, `BIRIM_CARPMA, `OPERAND_REG, `YAZMAC_YAZ, `GERIYAZ_KAYNAK_CARP}
@@ -306,9 +323,8 @@
 `define SW_MI  {`YZH_YOK, `SIFRELEME_YOK, `BIB_SW , `CARPMA_YOK, `BOLME_YOK, `AMB_YOK, `DAL_YOK, `BIRIM_BIB, `OPERAND_IMM, `YAZMAC_YAZMA, `GERIYAZ_KAYNAK_YOK}
 
 // Out-of-order BIB buyruklari
-// Bizim islemci in-order oldugu icin bu buyruklari implement etmemize gerek yok, bos birakin
+// Bizim islemci in-order oldugu icin bu buyruklari implement etmemize gerek yok, NOPLA
 //`define FENCE_MI   {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK , `CARPMA_YOK, `BOLME_YOK, `AMB_YOK, `DAL_YOK, `BIRIM_SISTEM, `OPERAND_REG, `YAZMAC_YAZMA, `GERIYAZ_KAYNAK_YOK}
-//`define FENCE_I_MI {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK , `CARPMA_YOK, `BOLME_YOK, `AMB_YOK, `DAL_YOK, `BIRIM_SISTEM, `OPERAND_REG, `YAZMAC_YAZMA, `GERIYAZ_KAYNAK_YOK}
 
 // Dallanma buyruklari PC+IMM AMB'de hesaplaniyor
 `define BEQ_MI  {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK, `CARPMA_YOK, `BOLME_YOK, `AMB_TOPLAMA, `DAL_EQ  , `BIRIM_AMB, `OPERAND_PCIMM, `YAZMAC_YAZMA, `GERIYAZ_KAYNAK_YURUT}
@@ -339,7 +355,11 @@
 //`define EBREAK_MI {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK , `CARPMA_YOK, `BOLME_YOK, `AMB_YOK, `DAL_YOK, `BIRIM_SISTEM, `OPERAND_PCIMM, `YAZMAC_YAZMA, `GERIYAZ_KAYNAK_YOK  }
 //`define ECALL_MI  {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK , `CARPMA_YOK, `BOLME_YOK, `AMB_YOK, `DAL_YOK, `BIRIM_SISTEM, `OPERAND_PCIMM, `YAZMAC_YAZMA, `GERIYAZ_KAYNAK_YOK  }
 
+// Islem yapmadan bitirilen buyruklar
 `define NOP_MI  {`YZH_YOK, `SIFRELEME_YOK, `BIB_YOK , `CARPMA_YOK, `BOLME_YOK, `AMB_YOK, `DAL_YOK, `BIRIM_AMB, `OPERAND_PCIMM, `YAZMAC_YAZMA, `GERIYAZ_KAYNAK_YOK  }
+
+
+// Diger SABITLER
 
 // Buyruk tipleri
 `define I_Tipi   3'b000
@@ -361,16 +381,3 @@
 `define ATLAMALIYDI   2'd1
 `define SORUN_YOK     2'd0
 // SORUN_YOK 0 olmak zorunda.
-
-
-//`define FPGA
-
-//`define OPENLANE
-
-`ifdef OPENLANE
-    `define GATE _sky130
-`else
-    `define GATE
-`endif
-
-

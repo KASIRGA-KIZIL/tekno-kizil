@@ -41,7 +41,7 @@ module cekirdek(
     wire  gtr_hazir_w;
 
 
-
+    // COZ/ YURUT/ GERIYAZ
     arka_taraf arka_taraf_dut (
       .clk_i (clk_i ),
       .rst_i (rst_i ),
@@ -61,7 +61,7 @@ module cekirdek(
       .bib_veri_maske_o (bib_veri_maske_o ),
       .bib_sec_o        (bib_sec_o        )
     );
-
+    // GETIR
     getir getir_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),

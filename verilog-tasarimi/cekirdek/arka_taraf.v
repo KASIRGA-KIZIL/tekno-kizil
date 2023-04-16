@@ -64,6 +64,7 @@ module arka_taraf(
 
     wire [4:0] gy_rd_adres_w;
 
+
     geri_yaz geri_yaz_dut (
         .yrt_rd_adres_i    (gy_rd_adres_w    ),
         .yrt_rd_deger_i    (gy_rd_deger_w    ),
@@ -134,6 +135,7 @@ module arka_taraf(
         .ddb_rs2_adres_o          (cyo_rs2_adres_w )
     );
 
+    // Durdurma/ bosaltma ve yonlendirmeden sorumlu. Bunlari yaparak hazard onler vs.
     denetim_durum_birimi denetim_durum_birimi_dut (
         .clk_i (clk_i ),
         .rst_i (rst_i ),

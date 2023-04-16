@@ -33,6 +33,7 @@ module anabellek_denetleyici(
 );
     reg switch;
 
+    // SWITCH'e gore gerekli sinyallerin mux'lanmasi. Timer'in onceligi var.
     assign iomem_wstrb = timer_iomem_valid ? 4'b0 : ((switch == `VERI) ? l1v_iomem_wstrb : 4'b0);
 
     assign iomem_wdata = l1v_iomem_wdata;
@@ -52,7 +53,7 @@ module anabellek_denetleyici(
         if(rst_i) begin
             switch <= `BUYRUK;
         end else begin
-            case({l1b_iomem_valid,l1v_iomem_valid})
+            case({l1b_iomem_valid,l1v_iomem_valid}) // Switch baskasi kullanmiyor ise isteyene doner
                 2'b00: switch <= `BUYRUK;
                 2'b01: switch <= `VERI;
                 2'b10: switch <= `BUYRUK;

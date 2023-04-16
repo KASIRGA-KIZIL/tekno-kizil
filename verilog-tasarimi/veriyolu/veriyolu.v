@@ -2,8 +2,8 @@
 `timescale 1ns / 1ps
 
 `include "tanimlamalar.vh"
-// TODO: TAGLERI EKLE
 
+// Wishbone master ve cevre birimleri arasindaki konusma
 module veriyolu(
     input clk_i,
     input rst_i,
@@ -29,7 +29,7 @@ module veriyolu(
 
 );
 
-    // TODO wb_adr bit sayisi azaltilabilir
+    // Wishbone sinyalleri
     wire [ 7:0] wb_adr;
     wire [31:0] wb_dat;
     wire        wb_we ;
@@ -93,7 +93,7 @@ module veriyolu(
         .uart_rx_i  (uart_rx_i ),
         .uart_tx_o  (uart_tx_o )
     );
-    
+
     pwm_denetleyici pwm_denetleyici_dut (
         .clk_i(clk_i),
         .rst_i(rst_i),

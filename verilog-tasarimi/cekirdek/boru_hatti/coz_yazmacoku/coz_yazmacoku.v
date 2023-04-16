@@ -136,7 +136,7 @@ module coz_yazmacoku(
             `JAL_COZ:        begin mikroislem_sonraki_r = `JAL_MI;       end
             `LUI_COZ:        begin mikroislem_sonraki_r = `LUI_MI;       end
             default:         begin
-                mikroislem_sonraki_r  = 28'hxxxx_xxx;
+                mikroislem_sonraki_r  = `GECERSIZ;
                 // buraya gelirsek exception olmustur. Handle edilmesi gerek. Normalde jump yapilir exception handler'a.
             end
         endcase
@@ -205,6 +205,7 @@ module coz_yazmacoku(
         .yaz_i        (gy_yaz_yazmac_i)
     );
 
+    // Burasi sadece debug icin. Verilog sinyallerini Waveform'da gosterir.
     `ifdef COCOTB_SIM
         wire [31:0] debug_ps = {8'h40,5'b0,gtr_ps_i,1'b0} ;
         reg [88*13:1] coz_str;

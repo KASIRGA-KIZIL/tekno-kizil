@@ -3,7 +3,8 @@
 
 `include "tanimlamalar.vh"
 
-
+// RX paketleri circuilar bir queue ya konulur.
+//
 module uart_rx (
     input  wire         clk_i,
     input  wire         rst_i,

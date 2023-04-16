@@ -40,9 +40,10 @@ module denetim_durum_birimi(
 
     reg bos_basla;
     reg durmus;
-
+    // Eger ileriki bir asamada bulunan verinin adres esitse ve yazma yapiliyor ise yonlendirilmesi. X0 haric.
     wire yurut_yonlendir1   = (((cyo_rs1_adres_i == yrt_rd_adres_i) && yrt_yaz_yazmac_i) && (cyo_rs1_adres_i != 0));
     wire geriyaz_yonlendir1 = (((cyo_rs1_adres_i == gy_rd_adres_i ) && gy_yaz_yazmac_i ) && (cyo_rs1_adres_i != 0));
+    // Nereye yonlendirilecegi
     assign cyo_yonlendir_kontrol1_o = (~yrt_yonlendir_gecersiz_i && yurut_yonlendir1) ? `YON_YURUT :
                                       (geriyaz_yonlendir1)                            ? `YON_GERIYAZ :
                                                                                         `YON_YOK;
@@ -58,13 +59,15 @@ module denetim_durum_birimi(
 
     reg [7:0] counter;
 
+    // Baslangicta 256 cevrim islemci durdurulur. Cache'lerdeki valid bitlerinin temizlenmesi icin.
+    // Carpma islemi yonlendirme istendiyse getir ve coz durmali. Carpmanin yurutte yonlendirmesi yok.
+
     assign gtr_durdur_o = (counter != 8'hff) ? 1'b1 : ~yrt_hazir_i || ~gtr_hazir_i || (~durmus && durmali);
     assign cyo_durdur_o = (counter != 8'hff) ? 1'b1 : ~yrt_hazir_i || ~gtr_hazir_i || (~durmus && durmali);
     assign yrt_durdur_o = (counter != 8'hff) ? 1'b1 : ~gtr_hazir_i;
 
-    assign gtr_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
-    assign cyo_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ;
-
+    assign gtr_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ; // Baslangicta pipeline'lar bosaltilmali.
+    assign cyo_bosalt_o = bos_basla || gtr_yanlis_tahmin_i ; // Baslangicta pipeline'lar bosaltilmali.
 
     always @(posedge clk_i) begin
         if(rst_i)begin
@@ -75,7 +78,7 @@ module denetim_durum_birimi(
             counter <= (counter != 8'hff) ? (counter + 8'b1) : counter;
             bos_basla <= 1'b0;
             if(gtr_hazir_i)
-                durmus    <= durmus ? 1'b0 : durmali;
+                durmus    <= durmus ? 1'b0 : durmali; // Getir hazir ise ve islemci durmus ise artik durmasina gerek yok. Artik durmus degil.
         end
     end
 endmodule
