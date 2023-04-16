@@ -14,16 +14,18 @@ SIM_BUILD            = ./build
 # MODELSIM DO NOT SUPPORT THE CURRENT SKY130 PDK FILE. FILE NEEDS TO BE A PARSED ONE. USE ICARUS VERILOG FOR GATE LEVEL SIMULATION
 
 VERILOG_SOURCES +=  ../cevreleyici/*.v \
+					$(KAYNAKLAR)/*.vh \
 					$(KAYNAKLAR)/*.v \
 					$(KAYNAKLAR)/cekirdek/*.v \
 					$(KAYNAKLAR)/bellek/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
+					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/yapay_zeka_birimi/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/coz_yazmacoku/*.v \
-					$(KAYNAKLAR)/veriyolu/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/geri_yaz/*.v \
+					$(KAYNAKLAR)/veriyolu/*.v \
 					$(KAYNAKLAR)/cevre_birimleri/pwm/*.v \
 					$(KAYNAKLAR)/cevre_birimleri/spi/*.v \
 					$(KAYNAKLAR)/cevre_birimleri/uart/*.v \
