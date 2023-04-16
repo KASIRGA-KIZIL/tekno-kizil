@@ -6,7 +6,7 @@
 module spi_denetleyici (
    input clk_i,
    input rst_i,
-
+   // Wishbone arayüzü
    input  [ 4:0] wb_adr_i,
    input  [31:0] wb_dat_i,
    input         wb_we_i,
@@ -88,6 +88,7 @@ module spi_denetleyici (
    
    integer loop_counter;
    always@*begin
+      // varsayilan degerleri ata
       for(loop_counter=0; loop_counter<8; loop_counter=loop_counter+1) begin
          miso_buffer_next[loop_counter] = miso_buffer[loop_counter];
          mosi_buffer_next[loop_counter] = mosi_buffer[loop_counter];
@@ -112,7 +113,9 @@ module spi_denetleyici (
       if(spi_en)begin
          if(clock_ctr == 0)begin
             case(state)
+               // hazirda bekle
                IDLE :begin
+                  // yazma komutu basla
                   if(mosi_en & ~miso_en & ~mosi_empty)begin
                      clock_ctr_next = sck_div;
                      bit_ctr_next = 4'd8;
@@ -123,6 +126,7 @@ module spi_denetleyici (
                      state_next = WRITE;
                      spi_wdata_next = mosi_buffer[0];
                   end else if(miso_en & ~mosi_en & ~miso_full)begin
+                     // okuma komutu basla
                      clock_ctr_next = sck_div;
                      bit_ctr_next = 4'd8;
                      byte_ctr_next = (length>9'd3)? 3'd3 : {1'b0,length[1:0]};
@@ -131,6 +135,7 @@ module spi_denetleyici (
                      spi_cs_o_r_next = 1'b0;
                      state_next = READ;
                   end else if(~miso_en & ~mosi_en & (|cmd_tail))begin
+                     // bos dongu
                      clock_ctr_next = sck_div;
                      bit_ctr_next = 4'd8;
                      byte_ctr_next = (length>9'd3)? 3'd3 : {1'b0,length[1:0]};
@@ -148,6 +153,7 @@ module spi_denetleyici (
                      spi_sck_o_r_next = cpol;
                   end
                end
+               // yazma
                WRITE:begin
                   clock_ctr_next  = sck_div;
                   if(bit_ctr == 4'b0) begin // Byte tamamlandi
@@ -206,6 +212,7 @@ module spi_denetleyici (
                      end
                   end
                end
+               // okuma
                READ :begin
                   clock_ctr_next  = sck_div;
                   if(bit_ctr == 4'b0) begin // Byte tamamlandi
@@ -250,6 +257,7 @@ module spi_denetleyici (
                      end
                   end
                end
+               // bos dongu
                DUMMY:begin
                   clock_ctr_next  = sck_div;
                   if(bit_ctr == 4'b0) begin // Byte tamamlandi
@@ -284,7 +292,7 @@ module spi_denetleyici (
             clock_ctr_next = clock_ctr - 16'b1;
          end
       end
-      
+      // veriyolundan spi'a erisildi
       if(wb_cyc_i & wb_stb_i & ~wb_ack_o_r)begin
          wb_ack_o_r_next = 1'b1;
          case(wb_adr_i[4:0])
@@ -305,7 +313,9 @@ module spi_denetleyici (
             end
             SPI_RDAT:begin
                if(~wb_we_i & ~miso_empty)begin
+                  // bufferdan veriyoluna veri aktar
                   wb_dat_o_r_next = miso_buffer[0];
+                  // fifo'yu kaydir
                   miso_buffer_next[0] = miso_buffer[1];
                   miso_buffer_next[1] = miso_buffer[2];
                   miso_buffer_next[2] = miso_buffer[3];
@@ -314,24 +324,29 @@ module spi_denetleyici (
                   miso_buffer_next[5] = miso_buffer[6];
                   miso_buffer_next[6] = miso_buffer[7];
                   miso_buffer_next[7] = 32'd0;
+                  // fifo kuyrugunu azalt
                   miso_tail_next = miso_tail - 4'd1;
                end
             end
             SPI_WDAT:begin
                if(wb_we_i & ~mosi_full)begin
+                  // fifo kuyruguna yazma verisi sakla
                   mosi_buffer_next[mosi_tail[2:0]][ 7: 0] = wb_sel_i[0] ? wb_dat_i[31:24] : mosi_buffer[mosi_tail[2:0]];
                   mosi_buffer_next[mosi_tail[2:0]][15: 8] = wb_sel_i[1] ? wb_dat_i[23:16] : mosi_buffer[mosi_tail[2:0]];
                   mosi_buffer_next[mosi_tail[2:0]][23:16] = wb_sel_i[2] ? wb_dat_i[15: 8] : mosi_buffer[mosi_tail[2:0]];
                   mosi_buffer_next[mosi_tail[2:0]][31:24] = wb_sel_i[3] ? wb_dat_i[ 7: 0] : mosi_buffer[mosi_tail[2:0]];
+                  // fifo kuyrugunu artir
                   mosi_tail_next = mosi_tail + 4'b1;
                end
             end
             SPI_CMD :begin
                if(wb_we_i & ~cmd_full)begin
+                  // komut fifosuna sakla
                   cmd_buffer_next[cmd_tail[2:0]][ 7: 0] = wb_sel_i[0] ? wb_dat_i[ 7: 0] : 8'b0;
                   cmd_buffer_next[cmd_tail[2:0]][15: 8] = wb_sel_i[1] ? wb_dat_i[15: 8] : 8'b0;
                   cmd_buffer_next[cmd_tail[2:0]][23:16] = wb_sel_i[2] ? wb_dat_i[23:16] : 8'b0;
                   cmd_buffer_next[cmd_tail[2:0]][31:24] = wb_sel_i[3] ? wb_dat_i[31:24] : 8'b0;
+                  // fifo kuyrugunu artir
                   cmd_tail_next = cmd_tail + 4'b1;
                end else begin
                   wb_dat_o_r_next = cmd;
@@ -342,7 +357,7 @@ module spi_denetleyici (
             end
          endcase
       end
-      
+      // yalnizca 1 cevrimlik ack sinyali icin
       if(wb_ack_o_r)begin
          wb_ack_o_r_next = 1'b0;
       end
