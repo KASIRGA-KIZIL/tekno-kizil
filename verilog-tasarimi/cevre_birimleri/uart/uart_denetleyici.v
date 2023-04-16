@@ -69,10 +69,10 @@ module uart_denetleyici (
             rx_re    <= 1'b0;
             tx_we    <= 1'b0;
         end else begin
-            wb_ack_o <= wb_stb_i & !wb_ack_o;
             rx_re    <= 1'b0;
             tx_we    <= 1'b0;
             if(wb_cyc_i) begin
+                wb_ack_o <= wb_stb_i & !wb_ack_o;
                 case(wb_adr_i)
                     2'h0: begin
                         if(wb_stb_i & wb_we_i & !wb_ack_o) begin
