@@ -56,6 +56,8 @@ module bolme_birimi(
    
          case({cevrim_r[18], cevrim_r[0]})
             2'b01: begin // ilk cevrim
+		         //Isaretli bolme yapiliyorsa ve isatetler farkliysa sayilarin negatifi aliniyor ve sifirla genisletiliyor.
+		         //Cikarma isleminde tasmalari onlemek icin sifirla bir bit genisletme yapiliyor.
    	      	if(islem_i[1] & bolen_i[31]) begin
    	      	   bolen_sonraki_r = {1'b0,tmp_bolen};
    	      	end
@@ -73,7 +75,9 @@ module bolme_birimi(
    	      	cevrim_sonraki_r = cevrim_r<<1;
             end
    
-            2'b00: begin // boluyor
+            2'b00: begin // Bolme islemi yapiliyor.
+		         //Cevirim sayisini dusurmek icin bir cevirimde iki adim ilerleniyor.
+		//Birinci adim
                fark1_sonraki_r = {fark_r[31:0], bolunen_r[32]} - bolen_r;
    	         gecici_fark1_r = fark1_sonraki_r;
    	         bolunen1_sonraki_r = bolunen_r<<1;
@@ -85,7 +89,7 @@ module bolme_birimi(
    	         else begin
    	            bolunen1_sonraki_r[0] = 1;
    	         end
-
+                 // İkinici adim
    	         fark_sonraki_r = {fark1_sonraki_r[31:0], bolunen1_sonraki_r[32]} - bolen_r;
                gecici_fark_r = fark_sonraki_r;
                bolunen_sonraki_r = bolunen1_sonraki_r<<1;
@@ -101,7 +105,7 @@ module bolme_birimi(
    	         cevrim_sonraki_r = cevrim_r<<1;
             end
    
-            2'b10: begin // son cevrim
+            2'b10: begin // son cevrim. Islem girisine gore sonuclar ataniyor.
                casez({islem_i, (isaret_bolen_r ^ isaret_bolunen_r)})
    	            {`BOLME_DIVU, 1'b?}: sonuc = bolunen1_r;
    	            {`BOLME_REMU, 1'b?}: sonuc = fark1_r;
