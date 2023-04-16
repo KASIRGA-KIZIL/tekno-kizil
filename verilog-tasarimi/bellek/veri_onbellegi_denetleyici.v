@@ -44,10 +44,10 @@ module veri_onbellegi_denetleyici(
     input  wire yol1_dirty_i,
     output reg  yol1_dirty_o
 );
-localparam  RESET      = 2'b00,
-            BOY        = 2'b01, // RST, Bekle, Cache Oku, Cache Yaz
-            BELLEK_OKU = 2'b10,
-            BELLEK_YAZ = 2'b11;
+localparam  RESET      = 2'b00, // Onbellekleri Resetle
+            BOY        = 2'b01, // Bekle, Cache Oku, Cache Yaz
+            BELLEK_OKU = 2'b10, // Bellek Oku
+            BELLEK_YAZ = 2'b11; // BelleK Yaz
 
 reg [1:0] durum_r;
 reg [1:0] durum_next_r;
@@ -71,15 +71,8 @@ reg [31:0] bib_veri_r, bib_veri_next_r;
 reg [18:2] iomem_addr_r, iomem_addr_next_r;
 reg [31:0] iomem_wdata_r, iomem_wdata_next_r;
 
+// Sifirlama sayaci
 reg [7:0] counter;
-
-    assign yol0_EN0 = yaz_en_yol0_next_r;
-    assign yol1_EN0 = yaz_en_yol1_next_r;
-    assign yol_WE0  = wmask_yaz_next_r;
-    assign yol_A0   = (durum_r == RESET) ? counter : l1v_adr_i[`ADRV];
-    assign yol_Di0  = {l1v_adr_i[`TAGV], yaz_cache_veri_next_r};
-    assign {oku_tag_yol0_w, data_out_yol0_w} =  yol0_Do0;
-    assign {oku_tag_yol1_w, data_out_yol1_w} =  yol1_Do0;
 
 wire [7:0] ADRES = l1v_adr_i[`ADRV];
 
@@ -94,6 +87,17 @@ wire cache_dirty_yol1_w = yol1_dirty_i;
 
 wire lru_sec0_w = lru_i;
 
+wire hit_yol0 = (cache_valid_yol0_w && tag_hit_yol0_w);
+wire hit_yol1 = (cache_valid_yol1_w && tag_hit_yol1_w);
+
+assign yol0_EN0 = yaz_en_yol0_next_r;
+assign yol1_EN0 = yaz_en_yol1_next_r;
+assign yol_WE0  = wmask_yaz_next_r;
+assign yol_A0   = (durum_r == RESET) ? counter : l1v_adr_i[`ADRV];
+assign yol_Di0  = {l1v_adr_i[`TAGV], yaz_cache_veri_next_r};
+assign {oku_tag_yol0_w, data_out_yol0_w} =  yol0_Do0;
+assign {oku_tag_yol1_w, data_out_yol1_w} =  yol1_Do0;
+
 assign iomem_valid_o = (durum_r == BELLEK_OKU) || (durum_r == BELLEK_YAZ);
 assign iomem_wstrb_o = (durum_r == BELLEK_YAZ) ? 4'b1111 : 4'b0;
 
@@ -102,10 +106,6 @@ assign l1v_durdur_o = (durum_next_r != BOY) || (durum_r != BOY);
 
 assign iomem_addr_o = iomem_addr_r;
 assign iomem_wdata_o = iomem_wdata_r;
-
-wire hit_yol0 = (cache_valid_yol0_w && tag_hit_yol0_w);
-wire hit_yol1 = (cache_valid_yol1_w && tag_hit_yol1_w);
-
 
 always@* begin
     durum_next_r = durum_r;
@@ -139,7 +139,7 @@ always@* begin
             durum_next_r = (counter == 8'hff) ? BOY : RESET;
         end
         BOY: begin
-            // Yazma istegi
+            // Yazma (Store) istegi
             if(l1v_sec_i && (|l1v_veri_maske_i)) begin
                 if(hit_yol0) begin
                     yaz_cache_veri_next_r = l1v_veri_i;
@@ -190,7 +190,7 @@ always@* begin
                 end
             end
 
-            // Okuma istegi
+            // Okuma (Load) istegi
             if(l1v_sec_i && ~(|l1v_veri_maske_i)) begin
                 if(hit_yol0) begin
                     bib_veri_next_r = data_out_yol0_w;
@@ -222,7 +222,7 @@ always@* begin
         end
 
         BELLEK_OKU: begin
-            // okuma
+            // Okuma (Load) istegi
             if(!(|l1v_veri_maske_i)) begin
                 if(iomem_ready_i) begin
                     durum_next_r = BOY;
@@ -240,7 +240,7 @@ always@* begin
                     bib_veri_next_r = iomem_rdata_i;
                 end
             end
-            // yazma
+            // Yazma (Store) istegi
             else begin
                 if(iomem_ready_i && ~(&l1v_veri_maske_i)) begin
                     durum_next_r = BOY;
@@ -268,14 +268,14 @@ always@* begin
         end
 
         BELLEK_YAZ: begin
-            // okuma
+            // Okuma (Load) istegi
             if(!(|(l1v_veri_maske_i))) begin
                 if(iomem_ready_i) begin
                     durum_next_r = BELLEK_OKU;
                     iomem_addr_next_r = l1v_adr_i;
                 end
             end
-            // Yazma
+            // Yazma (Store) istegi
             else begin
                 if(iomem_ready_i) begin
                     if(&l1v_veri_maske_i) begin
