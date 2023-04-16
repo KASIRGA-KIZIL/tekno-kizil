@@ -41,7 +41,6 @@ module spi_denetleyici (
     reg  [ 2:0] state, state_next;
     reg  [31:0] mosi_buffer[7:0],mosi_buffer_next[7:0],miso_buffer[7:0],miso_buffer_next[7:0]; 
     reg  [ 3:0] mosi_tail, mosi_tail_next, miso_tail, miso_tail_next;
-    reg         mosi_shift,miso_shift;
     reg  [31:0] wb_dat_o_r, wb_dat_o_r_next;
     reg         wb_ack_o_r,wb_ack_o_r_next;
     reg [31:0]  spi_rdata, spi_rdata_next; // fifo in
