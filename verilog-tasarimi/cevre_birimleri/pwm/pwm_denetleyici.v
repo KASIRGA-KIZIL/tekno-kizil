@@ -15,7 +15,7 @@
 module pwm_denetleyici(
    input clk_i,
    input rst_i,
-   
+
    // adresleri wishboneda secsek ve burada daha fazla giris cikis olsa her bir yazmac icin?
    // hangisi daha iyi?
    // wishbone <-> pwm_denetleyici
@@ -27,105 +27,105 @@ module pwm_denetleyici(
    output        wb_ack_o,
    input         wb_stb_i, //
    input  [ 3:0] wb_sel_i, //
-   
+
    // pwm_denetleyici <-> user_processor
    output pwm0_o, // 0x20020028
    output pwm1_o  // 0x2002002c adresten okunabilmesi lazim
-   
-   
+);
+
    wire [7:0] wb_yaz_w = {wb_cyc_i, wb_stb_i & wb_we_i & !wb_ack_o, wb_adr_i};
    wire [7:0] wb_oku_w = {wb_cyc_i, ~wb_we_i, wb_adr_i};
-   
+
    reg [31:0] wb_oku_veri_r = 0;
    reg [31:0] wb_oku_veri_next_r = 0;
    assign wb_dat_o = wb_oku_veri_r;
-   
+
    reg wb_ack_r = 0;
    reg wb_ack_next_r = 0;
    assign wb_ack_o = wb_ack_r;
-   
+
    // PWM0
    wire [1:0]  wb_pwm_control_1_w = wb_dat_i[1:0];
    wire [31:0] wb_pwm_period_1_w = wb_dat_i[31:0];
    wire [31:0] wb_pwm_threshold_1_1_w = wb_dat_i[31:0];
    wire [31:0] wb_pwm_threshold_1_2_w = wb_dat_i[31:0];
    wire [11:0] wb_pwm_step_1_w = wb_dat_i[11:0];
-   
+
    // PWM1
    wire [1:0]  wb_pwm_control_2_w = wb_dat_i[1:0];
    wire [31:0] wb_pwm_period_2_w = wb_dat_i[31:0];
    wire [31:0] wb_pwm_threshold_2_1_w = wb_dat_i[31:0];
    wire [31:0] wb_pwm_threshold_2_2_w = wb_dat_i[31:0];
    wire [11:0] wb_pwm_step_2_w = wb_dat_i[11:0];
-   
+
    // PWM yazmaclari
    reg [1:0] pwm_control_1_r = 0;
    reg [1:0] pwm_control_2_r = 0;
-   
+
    reg [31:0] pwm_period_1_r = 0;
    reg [31:0] pwm_period_2_r = 0;
-   
+
    reg [31:0] pwm_threshold_1_1_r = 0;
    reg [31:0] pwm_threshold_1_2_r = 0;
-   
+
    reg [31:0] pwm_threshold_2_1_r = 0;
    reg [31:0] pwm_threshold_2_2_r = 0;
-   
+
    reg [11:0] pwm_step_1_r = 0;
    reg [11:0] pwm_step_2_r = 0;
-   
+
    reg pwm_output_1_r = 0;
    reg pwm_output_2_r = 0;
-   
+
    assign pwm0_o = pwm_output_1_r;
    assign pwm1_o = pwm_output_2_r;
-   
+
    wire pwm0_standart_w;
    wire pwm0_kalp_atisi_w;
    wire pwm1_standart_w;
    wire pwm1_kalp_atisi_w;
-   
+
    wire resetn_w = ~rst_i;
    wire standart_aktif1_w   = pwm_control_1_r[0];
    wire kalp_atisi_aktif1_w = pwm_control_1_r[1];
    wire standart_aktif2_w   = pwm_control_2_r[0];
    wire kalp_atisi_aktif2_w = pwm_control_2_r[1];
-   
+
    // Yazmac sonraki degerleri
    reg [1:0] pwm_control_1_next_r = 0;
    reg [1:0] pwm_control_2_next_r = 0;
-   
+
    reg [31:0] pwm_period_1_next_r = 0;
    reg [31:0] pwm_period_2_next_r = 0;
-   
+
    reg [31:0] pwm_threshold_1_1_next_r = 0;
    reg [31:0] pwm_threshold_1_2_next_r = 0;
-   
+
    reg [31:0] pwm_threshold_2_1_next_r = 0;
    reg [31:0] pwm_threshold_2_2_next_r = 0;
-   
+
    reg [11:0] pwm_step_1_next_r = 0;
    reg [11:0] pwm_step_2_next_r = 0;
-   
+
    reg pwm_output_1_next_r = 0;
    reg pwm_output_2_next_r = 0;
-   
+
    always @* begin
       pwm_control_1_next_r     = pwm_control_1_r;
       pwm_period_1_next_r      = pwm_period_1_r;
       pwm_threshold_1_1_next_r = pwm_threshold_1_1_r;
       pwm_threshold_1_2_next_r = pwm_threshold_1_2_r;
       pwm_step_1_next_r        = pwm_step_1_r;
-      
+
       pwm_control_2_next_r     = pwm_control_2_r;
       pwm_period_2_next_r      = pwm_period_2_r;
       pwm_threshold_2_1_next_r = pwm_threshold_2_1_r;
       pwm_threshold_2_2_next_r = pwm_threshold_2_2_r;
       pwm_step_2_next_r        = pwm_step_2_r;
-      
+
       wb_oku_veri_next_r = wb_oku_veri_r;
       wb_ack_next_r = 0;
-      
+
       // PWM yazmaclarina yazma islemleri
       if(wb_cyc_i) begin
          case(wb_yaz_w)
@@ -204,15 +204,15 @@ module pwm_denetleyici(
             /*
             // 0x20020028 --> pwm_output_1
             8'he8: begin //8'b11_10_1000: begin
-      
+
             end
             // 0x2002002c --> pwm_output_2
             8'hec: begin //8'b11_10_1100: begin
-      
+
             end
             */
          endcase
-      
+
          // PWM yazmaclarindan okuma islemleri
          case(wb_oku_w)
             // 0x20020000 --> pwm_control_1
@@ -277,7 +277,7 @@ module pwm_denetleyici(
             end
          endcase
       end
-      
+
       // PWM0 durumlari
       case(pwm_control_1_r)
          `BOSTA: begin // default varken bosta durumu olmasina gerek yok aslinda
@@ -293,7 +293,7 @@ module pwm_denetleyici(
             pwm_output_1_next_r = 0;
          end
       endcase
-      
+
       // PWM1 durumlari
       case(pwm_control_2_r)
          `BOSTA: begin
@@ -310,48 +310,48 @@ module pwm_denetleyici(
          end
       endcase
    end
-   
+
    always @(posedge clk_i) begin
       if(rst_i) begin
          pwm_output_1_r <= 0;
          pwm_output_2_r <= 0;
-      
+
          pwm_control_1_r     <= 0;
          pwm_period_1_r      <= 0;
          pwm_threshold_1_1_r <= 0;
          pwm_threshold_1_2_r <= 0;
          pwm_step_1_r        <= 0;
-      
+
          pwm_control_2_r     <= 0;
          pwm_period_2_r      <= 0;
          pwm_threshold_2_1_r <= 0;
          pwm_threshold_2_2_r <= 0;
          pwm_step_2_r        <= 0;
-      
+
          wb_oku_veri_r       <= 0;
          wb_ack_r      <= 0;
       end
       else begin
          pwm_output_1_r <= pwm_output_1_next_r;
          pwm_output_2_r <= pwm_output_2_next_r;
-      
+
          pwm_control_1_r     <= pwm_control_1_next_r;
          pwm_period_1_r      <= pwm_period_1_next_r;
          pwm_threshold_1_1_r <= pwm_threshold_1_1_next_r;
          pwm_threshold_1_2_r <= pwm_threshold_1_2_next_r;
          pwm_step_1_r        <= pwm_step_1_next_r;
-      
+
          pwm_control_2_r     <= pwm_control_2_next_r;
          pwm_period_2_r      <= pwm_period_2_next_r;
          pwm_threshold_2_1_r <= pwm_threshold_2_1_next_r;
          pwm_threshold_2_2_r <= pwm_threshold_2_2_next_r;
          pwm_step_2_r        <= pwm_step_2_next_r;
-      
+
          wb_oku_veri_r       <= wb_oku_veri_next_r;
          wb_ack_r      <= wb_ack_next_r;
       end
    end
-   
+
    // PWM0 ICIN
    pwm_standard_mode #(
       .Resolution          (`RESOLUTION)
@@ -363,7 +363,7 @@ module pwm_denetleyici(
       .step                (`STEP),
       .pwm_signal          (pwm0_standart_w)
    );
-   
+
    pwm_heartbeat_mode #(
       .Resolution          (`RESOLUTION)
    ) phm0 (
@@ -376,7 +376,7 @@ module pwm_denetleyici(
       .increment_step      ({{20{1'b0}}, pwm_step_1_r}),
       .pwm_signal          (pwm0_kalp_atisi_w)
    );
-   
+
    // PWM1 ICIN
    pwm_standard_mode #(
       .Resolution          (`RESOLUTION)
@@ -388,7 +388,7 @@ module pwm_denetleyici(
       .step                (`STEP),
       .pwm_signal          (pwm1_standart_w)
    );
-   
+
    pwm_heartbeat_mode #(
       .Resolution          (`RESOLUTION)
    ) phm1 (
