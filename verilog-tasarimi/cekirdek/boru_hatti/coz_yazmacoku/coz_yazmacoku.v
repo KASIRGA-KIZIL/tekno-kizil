@@ -6,12 +6,12 @@
 module coz_yazmacoku(
    input wire clk_i,
    input wire rst_i,
-   
+
    // GETIR'den gelen sinyaller
    input wire [31:0] gtr_buyruk_i,
    input wire [18:1] gtr_ps_i,
    input wire [18:1] gtr_ps_artmis_i,  // Rd=PC+4/2 islemi icin gerekli
-   
+
    // YURUT'e giden sinyaller
    output reg [`MI_BIT-1:0] yrt_mikroislem_o,         // mikroislem buyruklara ait tum bilgiyi bitleriyle veriyor
    output reg [       31:0] yrt_deger1_o,             // Yurut birim girdileri. Yonlendirme ve Immediate secilmis son degerler.
@@ -19,18 +19,18 @@ module coz_yazmacoku(
    output reg [        2:0] yrt_lt_ltu_eq_o,          // Dallanma ve atlama icin gerekli. Degerler arasindaki iliski. lt_ltu_eq_i: {lessthan,lt_unsigned, equal}
    output reg               yrt_yapay_zeka_en_o,      // Yapay zeka biriminin rs2 icin yazma(enable) sinyali
    output reg [       31:0] yrt_rs2_o,
-   
+
    //
    output reg [18:1] yrt_ps_artmis_o,      // GERIYAZ'a kadar giden sinyaller
    output reg [ 4:0] yrt_rd_adres_o,       // GERIYAZ'a kadar giden sinyaller
    //
    input wire [31:0] yrt_yonlendir_deger_i, // Yonlendirme (Forwarding) sinyalleri
-   
+
    // GERIYAZ'dan gelen sinyaller
    input wire [ 4:0] gy_yaz_adres_i,     // Rd'nin adresi
    input wire [31:0] gy_yaz_deger_i,     // Rd'nin degeri
    input wire        gy_yaz_yazmac_i,           // Rd'ye sonuc yazilacak mi
-   
+
    // Denetim Durum Birimi sinyalleri
    input  wire       ddb_durdur_i,             // COZ'u durdur
    input  wire       ddb_bosalt_i,             // COZ'u bosalt
@@ -42,34 +42,34 @@ module coz_yazmacoku(
 
    // 30:29, 27, 25, 21:20, 14:12, 6:2
    wire [`BUYRUK_COZ_BIT-1:0] buyruk_coz_w = {gtr_buyruk_i[30:29], gtr_buyruk_i[27], gtr_buyruk_i[25], gtr_buyruk_i[21:20], gtr_buyruk_i[14:12], gtr_buyruk_i[6:2]};
-   
+
    reg [`MI_BIT-1:0] mikroislem_sonraki_r;
-   
+
    reg [31:0] imm_r;
-   
+
    wire [31:0] rs1_deger_w; // okunan 1. yazmac
    wire [31:0] rs2_deger_w; // okunan 2. yazmac
-   
+
    wire [31:0] deger1_tmp_w = (ddb_yonlendir_kontrol1_i == `YON_GERIYAZ ) ? gy_yaz_deger_i        :
                               (ddb_yonlendir_kontrol1_i == `YON_YURUT   ) ? yrt_yonlendir_deger_i :
                               (ddb_yonlendir_kontrol1_i == `YON_YOK     ) ? rs1_deger_w           :
                                                                             rs1_deger_w;
-   
+
    wire [31:0] deger2_tmp_w = (ddb_yonlendir_kontrol2_i  == `YON_GERIYAZ ) ? gy_yaz_deger_i        :
                               (ddb_yonlendir_kontrol2_i  == `YON_YURUT   ) ? yrt_yonlendir_deger_i :
                               (ddb_yonlendir_kontrol2_i  == `YON_YOK )     ? rs2_deger_w           :
                                                                              rs2_deger_w;
-   
+
    wire sec_pc = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PC) || (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PCIMM);
    wire [31:0] deger1_w = sec_pc ? {8'h40, 5'b0, gtr_ps_i, 1'b0} : deger1_tmp_w;
-   
+
    wire sec_imm = (mikroislem_sonraki_r[`OPERAND] == `OPERAND_IMM) || (mikroislem_sonraki_r[`OPERAND] == `OPERAND_PCIMM);
    wire [31:0] deger2_w = sec_imm ? imm_r : deger2_tmp_w;
-   
+
    wire lt_w  = ($signed(deger1_tmp_w) < $signed(deger2_tmp_w));
    wire ltu_w = (deger1_tmp_w  < deger2_tmp_w);
    wire eq_w  = (deger1_tmp_w === deger2_tmp_w);
-   
+
    always @* begin
       // Cozulmesi gereken bitler 14 bit 30:29, 27, 25, 21:20, 14:12, 6:2
       // bitleri en tamam olandan olmayana kadar gitmek gerek.
@@ -140,10 +140,10 @@ module coz_yazmacoku(
          end
       endcase
    end
-   
+
    assign ddb_rs1_adres_o = gtr_buyruk_i[19:15];
    assign ddb_rs2_adres_o = gtr_buyruk_i[24:20];
-   
+
    // Anlik secmek icin buyruk tipini belirle
    reg [2:0] buyruk_tipi_r;
    always @(*) begin
@@ -160,7 +160,7 @@ module coz_yazmacoku(
          5'b11100: begin buyruk_tipi_r = `SYS_Tipi; end // SYSTEM buyruklari
          default:  begin buyruk_tipi_r = `I_Tipi;   end // Dallanmayi onlemek icin default(NOP) deger B veya J tipi olmamali.
       endcase
-      
+
       // Buyruk tipine gore anlik sec
       case(buyruk_tipi_r)
          `SYS_Tipi: begin imm_r = {{15{gtr_buyruk_i[   31]}}, gtr_buyruk_i[19:15], gtr_buyruk_i[31:20]};                            end
@@ -172,8 +172,8 @@ module coz_yazmacoku(
          default:   begin imm_r = 32'hxxxxxxxx;                                                                                     end
       endcase
    end
-   
-   
+
+
    always @(posedge clk_i) begin
       if (rst_i) begin
          yrt_mikroislem_o <= `NOP_MI;
@@ -192,9 +192,10 @@ module coz_yazmacoku(
          end
       end
    end
-   
+
    yazmac_obegi yo(
       .clk_i        (clk_i),
+      .rst_i        (rst_i),
       .oku1_adr_i   (gtr_buyruk_i[19:15]),
       .oku2_adr_i   (gtr_buyruk_i[24:20]),
       .oku1_deger_o (rs1_deger_w),
@@ -203,7 +204,7 @@ module coz_yazmacoku(
       .yaz_deger_i  (gy_yaz_deger_i),
       .yaz_i        (gy_yaz_yazmac_i)
    );
-   
+
    // Burasi sadece debug icin. Verilog sinyallerini Waveform'da gosterir.
    `ifdef COCOTB_SIM
        wire [31:0] debug_ps = {8'h40,5'b0,gtr_ps_i,1'b0} ;
@@ -274,5 +275,5 @@ module coz_yazmacoku(
            endcase
        end
    `endif
-   
+
 endmodule
