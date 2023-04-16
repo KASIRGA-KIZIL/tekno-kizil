@@ -2,10 +2,10 @@
 // Sadece FPGA define edildiyse FPGA'e optimize edilir.
 // Sadece OPENLANE define edildiyse OPENLANE'e optimize edilir.
 
-// AYNI ANDA IKISINI DE DEFINE EDILMESI ILLEGALDIR. YAPMAYIN
+// AYNI ANDA IKISININ DE DEFINE EDILMESI ILLEGALDIR. YAPMAYIN
 
 
-//`define FPGA
+`define FPGA
 
 //`define OPENLANE
 
