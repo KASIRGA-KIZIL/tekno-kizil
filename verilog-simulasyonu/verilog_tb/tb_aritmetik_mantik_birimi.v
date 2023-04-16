@@ -2,7 +2,7 @@
 
 `include "tanimlamalar.vh"
 
-module tb_aritmatik_matik_birimi();
+module tb_aritmetik_mantik_birimi();
 
     reg [3:0] kontrol_i;
     
