@@ -5,7 +5,9 @@
 
 #include "ee_printf.h"
 
-
+void finished(){
+    while(1);
+}
 int main()
 {
     int i = 0;
@@ -14,9 +16,11 @@ int main()
     while(1){
         getchar();
         i = i + 1;
-        if(i == 5)
+        if(i == 100)
             break;
     }
+    __asm__("ebreak");
+    finished();
     i = 0;
     ee_printf("done");
     while(1){

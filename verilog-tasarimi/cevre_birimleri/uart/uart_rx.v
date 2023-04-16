@@ -82,7 +82,7 @@ module uart_rx (
             start_r <= 1'b1;
             if(~start_r) begin
                 uart_clk_pulse <= 1'b1;
-                counter <= baud_div_i >> 2;
+                counter <= baud_div_i;
             end
         end
     end
