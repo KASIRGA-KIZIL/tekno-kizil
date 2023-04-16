@@ -1,3 +1,5 @@
+// Icarus verilog kapi seviyesi simulasyonda ayri dosyalar bulunma sorununa yol actigi icin
+// butun Kapi seviyesi RAM modelleri ve bu dosyaya konulmustur.
 
 `ifdef OPENLANE
 
