@@ -19,7 +19,6 @@ VERILOG_SOURCES +=  ../cevreleyici/*.v \
 					$(KAYNAKLAR)/cekirdek/*.v \
 					$(KAYNAKLAR)/bellek/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/*.v \
-					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/sifreleme_birimi/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/yurut/x-buyruklari/yapay_zeka_birimi/*.v \
 					$(KAYNAKLAR)/cekirdek/boru_hatti/getir/*.v \
