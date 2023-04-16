@@ -44,27 +44,39 @@ module buyruk_onbellegi_denetleyici(
     reg [2:0] state;
     reg [2:0] next;
 
-    reg  [ 8:0] d_addr0;
-    reg  [ 8:0] d_addr1;
+    reg  [ 8:0] d_addr0, d_addr0_next;
+    reg  [ 8:0] d_addr1, d_addr1_next;
     wire [ 8:0] data_addr0 = l1b_adres_i[`ADR] + {{8{1'b0}},l1b_adres_i[1]};
     wire [ 8:0] data_addr1 = l1b_adres_i[`ADR];
-
 
     wire valid0;
     wire valid1;
     wire [7:0] tag0;
     wire [7:0] tag1;
 
-    reg wen;
+    reg wen, wen_next;
     wire data0_ready = (l1b_adres_i[`TAG] === tag0) && valid0;
     wire data1_ready = (l1b_adres_i[`TAG] === tag1) && valid1;
 
     always @(posedge clk_i) begin
-        if(rst_i) state <= READMEM0;
-        else      state <= next;
+        if(rst_i) begin 
+            state <= READMEM0;
+            wen <= 1'b0;
+            d_addr1 <= 9'd0;
+            d_addr0 <= 9'd0;
+        end
+        else begin
+            state <= next;
+            wen <= wen_next;
+            d_addr1 <= d_addr1_next;
+            d_addr0 <= d_addr0_next;
+        end
     end
 
     always @(*) begin
+        wen_next = 1'b0;
+        d_addr1_next = 9'd0;
+        d_addr0_next = 9'd0;
         case(state)
             READMEM0: begin
                 if(iomem_ready)
@@ -92,38 +104,38 @@ module buyruk_onbellegi_denetleyici(
             READMEM0: begin
                 iomem_addr  = {l1b_adres_i[`TAG],data_addr0};
                 iomem_valid = 1'b1;
-                d_addr0 = iomem_addr[`ADR];
-                d_addr1 = iomem_addr[`ADR];
+                d_addr0_next = iomem_addr[`ADR];
+                d_addr1_next = iomem_addr[`ADR];
                 l1b_bekle_o = 1'b1;
-                wen = iomem_ready;
+                wen_next = iomem_ready;
             end
             READMEM1: begin
                 iomem_addr  = {l1b_adres_i[`TAG],data_addr1};
                 iomem_valid = 1'b1;
-                d_addr0 = iomem_addr[`ADR];
-                d_addr1 = iomem_addr[`ADR];
+                d_addr0_next = iomem_addr[`ADR];
+                d_addr1_next = iomem_addr[`ADR];
                 l1b_bekle_o = 1'b1;
-                wen = iomem_ready;
+                wen_next = iomem_ready;
             end
             READCACHE: begin
                 iomem_addr  = l1b_adres_i[18:2];
                 iomem_valid = 1'b0;
-                d_addr0 = data_addr0;
-                d_addr1 = data_addr1;
+                d_addr0_next = data_addr0;
+                d_addr1_next = data_addr1;
                 l1b_bekle_o = ~(data0_ready && data1_ready);
-                wen = 1'b0;
+                wen_next = 1'b0;
             end
             default: begin
             end
         endcase
     end
 
-    assign ram512d0_we0_o    = wen;
-    assign ram512d0_adr0_o   = d_addr0;
+    assign ram512d0_we0_o    = wen_next;
+    assign ram512d0_adr0_o   = d_addr0_next;
     assign data0 = ram512d0_datao0_i;
 
-    assign ram512d1_we0_o    = wen;
-    assign ram512d1_adr0_o   = d_addr1;
+    assign ram512d1_we0_o    = wen_next;
+    assign ram512d1_adr0_o   = d_addr1_next;
     assign data1 = ram512d1_datao0_i;
 
 
@@ -131,7 +143,7 @@ module buyruk_onbellegi_denetleyici(
       .clk_i  (clk_i ),
       .rst_i  (rst_i ),
       //
-      .wen_i  (wen   ),
+      .wen_i  (wen_next   ),
       .wadr_i (iomem_addr[`ADR] ),
       //
       .data0_o ({valid0,tag0}),
