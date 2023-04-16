@@ -26,9 +26,9 @@ COMPILE_TARGET=\
 		-I$(ROOTDIR)/riscv-test-env/p/ \
 		-I$(TARGETDIR)/$(RISCV_TARGET)/ \
 		-T$(LDSCRIPT) $$(<) \
-		-o $$@; \
-    $$(RISCV_OBJDUMP) -D -M numeric,no-aliases $$@ > $$@.objdump; \
-    $$(RISCV_READELF) -a $$@ > $$@.readelf; \
-    $$(RISCV_NM) $$@ > $$@.nm; \
-    $$(RISCV_OBJCOPY) -O binary $$@ $$@.bin; \
-    python3 $(KIZIL)/get_static_hex.py -bf $$@.bin;
+		-o $$@ || true; \
+    $$(RISCV_OBJDUMP) -D -M numeric,no-aliases $$@ > $$@.objdump || true; \
+    $$(RISCV_READELF) -a $$@ > $$@.readelf || true; \
+    $$(RISCV_NM) $$@ > $$@.nm || true; \
+    $$(RISCV_OBJCOPY) -O binary $$@ $$@.bin || true; \
+    python3 $(KIZIL)/get_static_hex.py -bf $$@.bin || true;

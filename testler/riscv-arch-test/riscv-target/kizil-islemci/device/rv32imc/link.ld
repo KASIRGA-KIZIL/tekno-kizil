@@ -12,8 +12,6 @@
    specifically one of the entires in bfd/cpu-mips.c */
 
 OUTPUT_ARCH( "riscv" )
-GROUP("libgcc.a")
-ENTRY(_start)
 
 /*----------------------------------------------------------------------*/
 /* Sections                                                             */
