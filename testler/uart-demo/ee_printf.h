@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 
-#define CPU_CLK 100000000
+#define CPU_CLK 125000000
 #define BAUD_RATE 115200
 
 #define UART_STATUS_BASE      0x20000004

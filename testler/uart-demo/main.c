@@ -13,14 +13,7 @@ int main()
     int i = 0;
     init_uart();
     ee_printf("hello");
-    while(1){
-        getchar();
-        i = i + 1;
-        if(i == 100)
-            break;
-    }
-    __asm__("ebreak");
-    finished();
+    
     i = 0;
     ee_printf("done");
     while(1){
