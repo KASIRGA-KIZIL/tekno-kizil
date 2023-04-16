@@ -21,7 +21,7 @@
 RISCVTOOLS=$(RISCV)
 # Flag: RISCVTYPE
 #   Type of toolchain to use
-RISCVTYPE=/home/shc/projects/riscv32im-toolchain/_install/bin/riscv32-unknown-elf
+RISCVTYPE=riscv32-unknown-elf
 # Flag: OUTFLAG
 #	Use this flag to define how to to get an executable (e.g -o)
 OUTFLAG= -o
