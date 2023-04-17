@@ -20,33 +20,31 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module teknofest_wrapper_basys3(
-  input  clk,
+  input  clk_i,
   input  rst_ni,
   input  program_rx_i,
+  output prog_mode_led_o,
 
   output uart_tx_o,
   input  uart_rx_i,
-
-  output pwm0_o,
-  output pwm1_o,
 
   output spi_cs_o,
   output spi_sck_o,
   output spi_mosi_o,
   input  spi_miso_i,
 
-  output prog_mode_led_o
+  output pwm0_o,
+  output pwm1_o
 );
 
-
-wire clk_i;
+// 60 MHz clocking wizard ip
+wire clk_wiz_o;
 wire dummy;
-
 clk_wiz_0 dutclk (
-      .clk_out1(clk_i),
-      .clk_in1(clk),
-      .reset(~rst_ni),
-      .locked(dummy)
+  .clk_out1(clk_wiz_o),
+  .clk_in1(clk_i),
+  .reset(~rst_ni),
+  .locked(dummy)
 );
 
 localparam RAM_DELAY = 16;
@@ -63,7 +61,7 @@ parameter [31:0] RAM_BASE_ADDR = 32'h4000_0000;
 parameter [31:0] RAM_MASK_ADDR = 32'h000f_ffff;
 parameter [31:0] CHIP_IO_BASE_ADDR = SPI_BASE_ADDR + SPI_MASK_ADDR;
 parameter [31:0] CHIP_IO_MASK_ADDR = RAM_BASE_ADDR + RAM_MASK_ADDR;
-parameter RAM_DEPTH = 'h2000;
+parameter RAM_DEPTH = 'h5000; // basyse sigmadigi icin ram boyutu azaltildi
 
 (* mark_debug = "yes" *) wire        iomem_valid;
 (* mark_debug = "yes" *) wire        iomem_ready;
@@ -83,9 +81,8 @@ wire   prog_system_reset;
 wire   rst_n;
 assign rst_n = prog_system_reset & rst_ni;
 
-
 user_processor soc (
-  .clk           (clk_i        ),
+  .clk           (clk_wiz_o    ),
   .resetn        (rst_n        ),
   .iomem_valid   (iomem_valid  ),
   .iomem_ready   (iomem_ready  ),
@@ -108,7 +105,7 @@ wire ram_ready_check;
 
 assign ram_ready_check = iomem_valid & iomem_ready & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE_ADDR);
 
-always @(posedge clk_i) begin
+always @(posedge clk_wiz_o) begin
   if (!rst_ni) begin
     ram_shift_q <= {RAM_DELAY{1'b0}};
   end else begin
@@ -117,7 +114,7 @@ always @(posedge clk_i) begin
   end
 end
 
-always @(posedge clk_i) begin
+always @(posedge clk_wiz_o) begin
   if (!rst_n) begin
     ram_ready <= 1'b0;
   end else begin
@@ -135,17 +132,20 @@ assign main_mem_wstrb = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE
 
 assign main_mem_rd_en = iomem_valid & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE_ADDR) & ~(|iomem_wstrb);
 
+
+
+
 teknofest_ram_basys3 #(
   .NB_COL(4),
   .COL_WIDTH(8),
   .RAM_DEPTH(RAM_DEPTH),
-  .INIT_FILE("")
+  .INIT_FILE("")  //Yüklenecek program?n yolu
 ) main_memory
 (
-  .clk_i           (clk_i ),
+  .clk_i           (clk_wiz_o),
   .rst_ni          (rst_ni),
-  .wr_addr         (iomem_addr[clogb2(RAM_DEPTH*4)-1:2]),
-  .rd_addr         (iomem_addr[clogb2(RAM_DEPTH*4)-1:2]),
+  .wr_addr         (iomem_addr[$clog2(RAM_DEPTH*4)-1:2]),
+  .rd_addr         (iomem_addr[$clog2(RAM_DEPTH*4)-1:2]),
   .wr_data         (iomem_wdata),
 
   .wr_strb         (main_mem_wstrb   ),
@@ -156,7 +156,7 @@ teknofest_ram_basys3 #(
   .prog_mode_led_o (prog_mode_led_o  )
 );
 
-always @(posedge clk_i) begin
+always @(posedge clk_wiz_o) begin
   if (!rst_n) begin
     timer <= 64'h0;
   end else begin
@@ -164,10 +164,5 @@ always @(posedge clk_i) begin
   end
 end
 
-function integer clogb2;
-  input integer depth;
-    for (clogb2=0; depth>0; clogb2=clogb2+1)
-      depth = depth >> 1;
-endfunction
-
 endmodule
+

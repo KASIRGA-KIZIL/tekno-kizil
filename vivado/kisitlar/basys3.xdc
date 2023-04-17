@@ -1,8 +1,8 @@
 ## basys3.xdc
 
 # CLOCK
-set_property PACKAGE_PIN W5 [get_ports clk]
-	set_property IOSTANDARD LVCMOS33 [get_ports clk]
+set_property PACKAGE_PIN W5 [get_ports clk_i]
+	set_property IOSTANDARD LVCMOS33 [get_ports clk_i]
 	create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk]
 
 # RESET
@@ -38,3 +38,4 @@ set_property PACKAGE_PIN P17 [get_ports spi_mosi_o]
 	set_property IOSTANDARD LVCMOS33 [get_ports spi_mosi_o]
 set_property PACKAGE_PIN R18 [get_ports spi_miso_i]
 	set_property IOSTANDARD LVCMOS33 [get_ports spi_miso_i]
+
