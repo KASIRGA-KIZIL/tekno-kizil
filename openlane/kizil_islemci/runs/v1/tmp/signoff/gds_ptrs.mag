@@ -1,0 +1,6 @@
+<< properties >>
+string FIXED_BBOX 0 0 500000 500000
+string GDS_END 429387224
+string GDS_FILE /openlane/designs/kizil_islemci/runs/v1/results/signoff/user_processor.magic.gds
+string GDS_START 1765476
+<< end >>

@@ -1,0 +1,22 @@
+OpenROAD 0264023b6c2a8ae803b8d440478d657387277d93 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO]: Reading ODB at '/openlane/designs/kizil_islemci/runs/v1/tmp/placement/8-resizer.odb'...
+Placement Analysis
+---------------------------------
+total displacement          0.0 u
+average displacement        0.0 u
+max displacement            0.0 u
+original HPWL         6503544.8 u
+legalized HPWL        6634789.4 u
+delta HPWL                    2 %
+
+[INFO DPL-0020] Mirrored 43482 instances
+[INFO DPL-0021] HPWL before          6634789.4 u
+[INFO DPL-0022] HPWL after           6503544.8 u
+[INFO DPL-0023] HPWL delta               -2.0 %
+Setting global connections for newly added cells...
+Writing OpenROAD database to /openlane/designs/kizil_islemci/runs/v1/results/placement/user_processor.odb...
+Writing netlist to /openlane/designs/kizil_islemci/runs/v1/results/placement/user_processor.nl.v...
+Writing powered netlist to /openlane/designs/kizil_islemci/runs/v1/results/placement/user_processor.pnl.v...
+Writing layout to /openlane/designs/kizil_islemci/runs/v1/results/placement/user_processor.def...

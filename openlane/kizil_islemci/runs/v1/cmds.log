@@ -1,0 +1,148 @@
+Mon Apr 17 14:54:51 UTC 2023 - Executing "openroad -exit -no_init -python /openlane/scripts/odbpy/lefutil.py get_metal_layers -o /openlane/designs/kizil_islemci/runs/v1/tmp/layers.list /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef"
+
+Mon Apr 17 14:54:51 UTC 2023 - Executing "/openlane/scripts/mergeLef.py -o /openlane/designs/kizil_islemci/runs/v1/tmp/merged.nom.lef -i /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef {/home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_fd_sc_hd.lef /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_ef_sc_hd.lef} |& tee /dev/null"
+
+Mon Apr 17 14:54:52 UTC 2023 - Executing "/openlane/scripts/mergeLef.py -o /openlane/designs/kizil_islemci/runs/v1/tmp/merged.min.lef -i /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__min.tlef {/home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_fd_sc_hd.lef /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_ef_sc_hd.lef} |& tee /dev/null"
+
+Mon Apr 17 14:54:52 UTC 2023 - Executing "/openlane/scripts/mergeLef.py -o /openlane/designs/kizil_islemci/runs/v1/tmp/merged.max.lef -i /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__max.tlef {/home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_fd_sc_hd.lef /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_ef_sc_hd.lef} |& tee /dev/null"
+
+Mon Apr 17 14:54:52 UTC 2023 - Executing "python3 /openlane/scripts/mergeLib.py --output /openlane/designs/kizil_islemci/runs/v1/tmp/synthesis/merged.lib --name sky130A_merged /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+
+Mon Apr 17 14:54:52 UTC 2023 - Executing "python3 /openlane/scripts/libtrim.py --cell-file /openlane/designs/kizil_islemci/runs/v1/tmp/synthesis/trimmed.lib.exclude.list --output /openlane/designs/kizil_islemci/runs/v1/tmp/synthesis/trimmed.lib /openlane/designs/kizil_islemci/runs/v1/tmp/synthesis/merged.lib"
+
+Mon Apr 17 14:54:52 UTC 2023 - Executing "python3 /openlane/scripts/libtrim.py --cell-file /openlane/designs/kizil_islemci/runs/v1/tmp/cts/cts.lib.exclude.list --output /openlane/designs/kizil_islemci/runs/v1/tmp/cts/cts.lib /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+
+Mon Apr 17 14:54:52 UTC 2023 - Executing "python3 /openlane/scripts/new_tracks.py -i /home/mehmet/OpenLane/pdks/sky130A/libs.tech/openlane/sky130_fd_sc_hd/tracks.info -o /openlane/designs/kizil_islemci/runs/v1/tmp/routing/config.tracks"
+
+Mon Apr 17 14:54:52 UTC 2023 - Executing "echo {OpenLane dc8e6bb151df7ee2b93d7e9d6a15abf6f224db4d} > /openlane/designs/kizil_islemci/runs/v1/OPENLANE_VERSION"
+
+Mon Apr 17 14:54:52 UTC 2023 - Executing "sed -E {s/^([[:space:]]+)pg_pin(.*)/\1pin\2\n\1    direction : "inout";/g} /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib > /openlane/designs/kizil_islemci/runs/v1/tmp/synthesis/1-sky130_fd_sc_hd__tt_025C_1v80.no_pg.lib"
+
+Mon Apr 17 14:54:53 UTC 2023 - Executing "sed -E {s/^([[:space:]]+)pg_pin(.*)/\1pin\2\n\1    direction : "inout";/g} /openlane/designs/kizil_islemci/runs/v1/tmp/synthesis/trimmed.lib > /openlane/designs/kizil_islemci/runs/v1/tmp/synthesis/1-trimmed.no_pg.lib"
+
+Mon Apr 17 14:54:53 UTC 2023 - Executing "yosys -c /openlane/scripts/yosys/synth.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/synthesis/1-synthesis.log"
+
+Mon Apr 17 14:59:47 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/results\/synthesis\/user_processor.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 14:59:47 UTC 2023 - Executing "sed -i.bak /defparam/d /openlane/designs/kizil_islemci/runs/v1/results/synthesis/user_processor.v"
+
+Mon Apr 17 14:59:48 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/sta.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/synthesis/2-sta.log"
+
+Mon Apr 17 15:01:10 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/floorplan.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/floorplan/3-initial_fp.log"
+
+Mon Apr 17 15:01:16 UTC 2023 - Executing "openroad -exit -no_init -python /openlane/scripts/odbpy/defutil.py extract_core_dims --output-data /openlane/designs/kizil_islemci/runs/v1/tmp/dimensions.txt --input-lef /openlane/designs/kizil_islemci/runs/v1/tmp/merged.nom.lef /openlane/designs/kizil_islemci/runs/v1/tmp/floorplan/3-initial_fp.def"
+
+Mon Apr 17 15:01:18 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/ioplacer.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/floorplan/4-io.log"
+
+Mon Apr 17 15:01:21 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/tapcell.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/floorplan/5-tap.log"
+
+Mon Apr 17 15:01:25 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/pdn.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/floorplan/6-pdn.log"
+
+Mon Apr 17 15:01:57 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/gpl.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/placement/7-global.log"
+
+Mon Apr 17 15:07:27 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/resizer.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/placement/8-resizer.log"
+
+Mon Apr 17 15:09:36 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/tmp\/placement\/8-resizer.nl.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 15:09:36 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/dpl.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/placement/9-detailed.log"
+
+Mon Apr 17 15:09:42 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/results\/placement\/user_processor.nl.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 15:09:42 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/cts.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/cts/10-cts.log"
+
+Mon Apr 17 15:24:12 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/resizer_timing.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/cts/11-resizer.log"
+
+Mon Apr 17 15:27:40 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/tmp\/cts\/11-user_processor.resized.nl.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 15:27:40 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/resizer_routing_design.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/routing/12-resizer_design.log"
+
+Mon Apr 17 15:39:29 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/tmp\/12-user_processor.nl.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 15:39:29 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/resizer_routing_timing.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/routing/13-resizer_timing.log"
+
+Mon Apr 17 15:50:24 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/tmp\/13-user_processor.nl.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 15:50:24 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/dpl.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/routing/14-diode_legalization.log"
+
+Mon Apr 17 15:50:30 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/tmp\/routing\/diode.nl.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 15:50:30 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/groute.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/routing/15-global.log"
+
+Mon Apr 17 15:55:01 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/write_views.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/routing/15-global_write_netlist.log"
+
+Mon Apr 17 15:55:03 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/tmp\/routing\/global.nl.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 15:55:03 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/fill.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/routing/17-fill.log"
+
+Mon Apr 17 15:55:12 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/tmp\/routing\/17-fill.nl.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 15:55:12 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/droute.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/routing/18-detailed.log"
+
+Mon Apr 17 16:52:23 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/results\/routing\/user_processor.nl.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 16:52:23 UTC 2023 - Executing "python3 /openlane/scripts/drc_rosetta.py tr to_klayout -o /openlane/designs/kizil_islemci/runs/v1/reports/routing/drt.klayout.xml --design-name user_processor /openlane/designs/kizil_islemci/runs/v1/reports/routing/drt.drc"
+
+Mon Apr 17 16:52:23 UTC 2023 - Executing "openroad -exit -no_init -python /openlane/scripts/odbpy/wire_lengths.py --report-out /openlane/designs/kizil_islemci/runs/v1/reports/routing/19-wire_lengths.csv --input-lef /openlane/designs/kizil_islemci/runs/v1/tmp/merged.nom.lef --output-def /dev/null --output /openlane/designs/kizil_islemci/runs/v1/results/routing/user_processor.odb /openlane/designs/kizil_islemci/runs/v1/results/routing/user_processor.odb |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/routing/19-wire_lengths.log"
+
+Mon Apr 17 16:52:31 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/rcx.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/20-parasitics_extraction.min.log"
+
+Mon Apr 17 16:53:12 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/sta_multi_corner.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/21-rcx_mcsta.min.log"
+
+Mon Apr 17 17:05:22 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/rcx.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/22-parasitics_extraction.max.log"
+
+Mon Apr 17 17:06:02 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/sta_multi_corner.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/23-rcx_mcsta.max.log"
+
+Mon Apr 17 17:18:26 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/rcx.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/24-parasitics_extraction.nom.log"
+
+Mon Apr 17 17:19:06 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/sta_multi_corner.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/25-rcx_mcsta.nom.log"
+
+Mon Apr 17 17:31:26 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/sta.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/26-rcx_sta.log"
+
+Mon Apr 17 17:34:41 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/irdrop.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/27-irdrop.log"
+
+Mon Apr 17 17:35:00 UTC 2023 - Executing "magic -noconsole -dnull -rcfile /home/mehmet/OpenLane/pdks/sky130A/libs.tech/magic/sky130A.magicrc < /openlane/scripts/magic/def/mag_gds.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/28-gdsii.log"
+
+Mon Apr 17 17:37:26 UTC 2023 - Executing "magic -noconsole -dnull -rcfile /home/mehmet/OpenLane/pdks/sky130A/libs.tech/magic/sky130A.magicrc < /openlane/scripts/magic/gds/mag_with_pointers.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/28-gds_ptrs.log"
+
+Mon Apr 17 17:39:55 UTC 2023 - Executing "sed -i.bak -n {/^<< properties >>/,/^<< end >>/p} /openlane/designs/kizil_islemci/runs/v1/tmp/signoff/gds_ptrs.mag"
+
+Mon Apr 17 17:39:55 UTC 2023 - Executing "magic -noconsole -dnull -rcfile /home/mehmet/OpenLane/pdks/sky130A/libs.tech/magic/sky130A.magicrc < /openlane/scripts/magic/mag/lef.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/28-lef.log"
+
+Mon Apr 17 17:41:46 UTC 2023 - Executing "magic -noconsole -dnull -rcfile /home/mehmet/OpenLane/pdks/sky130A/libs.tech/magic/sky130A.magicrc < /openlane/scripts/magic/lef/maglef.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/28-maglef.log"
+
+Mon Apr 17 17:41:46 UTC 2023 - Executing "python3 /openlane/scripts/klayout/stream_out.py --output /openlane/designs/kizil_islemci/runs/v1/results/signoff/user_processor.klayout.gds --tech-file /home/mehmet/OpenLane/pdks/sky130A/libs.tech/klayout/tech/sky130A.lyt --def-layer-map-file /home/mehmet/OpenLane/pdks/sky130A/libs.tech/klayout/tech/sky130A.map --props-file /home/mehmet/OpenLane/pdks/sky130A/libs.tech/klayout/tech/sky130A.lyp --top user_processor --with-gds-file /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/gds/sky130_fd_sc_hd.gds --input-lef /openlane/designs/kizil_islemci/runs/v1/tmp/merged.nom.lef /openlane/designs/kizil_islemci/runs/v1/results/routing/user_processor.def |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/29-gdsii-klayout.log"
+
+Mon Apr 17 17:42:02 UTC 2023 - Executing "klayout -b -r /openlane/scripts/klayout/xor.drc -rd a=/openlane/designs/kizil_islemci/runs/v1/results/signoff/user_processor.gds -rd b=/openlane/designs/kizil_islemci/runs/v1/results/signoff/user_processor.klayout.gds -rd jobs=18 -rd rdb_out=/openlane/designs/kizil_islemci/runs/v1/reports/signoff/30-xor.xml -rd ignore=81/14 -rd rpt_out=/openlane/designs/kizil_islemci/runs/v1/reports/signoff/30-xor.rpt |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/30-xor.log"
+
+Mon Apr 17 17:46:23 UTC 2023 - Executing "magic -noconsole -dnull -rcfile /home/mehmet/OpenLane/pdks/sky130A/libs.tech/magic/sky130A.magicrc < /openlane/scripts/magic/extract_spice.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/31-spice.log"
+
+Mon Apr 17 18:02:20 UTC 2023 - Executing "openroad -exit -no_init -python /openlane/scripts/odbpy/power_utils.py write_powered_def --output /openlane/designs/kizil_islemci/runs/v1/tmp/signoff/31-user_processor.p.def --input-lef /openlane/designs/kizil_islemci/runs/v1/tmp/merged.nom.lef --power-port VPWR --ground-port VGND --powered-netlist {} /openlane/designs/kizil_islemci/runs/v1/results/routing/user_processor.def |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/32-write_powered_def.log"
+
+Mon Apr 17 18:02:32 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/write_views.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/32-write_powered_verilog.log"
+
+Mon Apr 17 18:02:40 UTC 2023 - Executing "sed -i.bak -e {s/\(set ::env(CURRENT_NETLIST)\).*/\1 \/openlane\/designs\/kizil_islemci\/runs\/v1\/tmp\/signoff\/31-user_processor.nl.v/} /openlane/designs/kizil_islemci/runs/v1/config.tcl"
+
+Mon Apr 17 18:02:40 UTC 2023 - Executing "netgen -batch source /openlane/designs/kizil_islemci/runs/v1/tmp/signoff/34-setup_file.lef.lvs |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/34-lvs.lef.log"
+
+Mon Apr 17 18:05:11 UTC 2023 - Executing "magic -noconsole -dnull -rcfile /home/mehmet/OpenLane/pdks/sky130A/libs.tech/magic/sky130A.magicrc < /openlane/scripts/magic/drc.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/35-drc.log"
+
+Mon Apr 17 18:35:17 UTC 2023 - Executing "python3 /openlane/scripts/drc_rosetta.py magic to_tcl -o /openlane/designs/kizil_islemci/runs/v1/reports/signoff/drc.tcl /openlane/designs/kizil_islemci/runs/v1/reports/signoff/drc.rpt"
+
+Mon Apr 17 18:35:17 UTC 2023 - Executing "python3 /openlane/scripts/drc_rosetta.py magic to_tr -o /openlane/designs/kizil_islemci/runs/v1/reports/signoff/drc.tr /openlane/designs/kizil_islemci/runs/v1/reports/signoff/drc.rpt"
+
+Mon Apr 17 18:35:17 UTC 2023 - Executing "python3 /openlane/scripts/drc_rosetta.py tr to_klayout -o /openlane/designs/kizil_islemci/runs/v1/reports/signoff/drc.klayout.xml --design-name user_processor /openlane/designs/kizil_islemci/runs/v1/reports/signoff/drc.tr"
+
+Mon Apr 17 18:35:18 UTC 2023 - Executing "python3 /openlane/scripts/drc_rosetta.py magic to_rdb -o /openlane/designs/kizil_islemci/runs/v1/reports/signoff/drc.rdb /openlane/designs/kizil_islemci/runs/v1/reports/signoff/drc.rpt"
+
+Mon Apr 17 18:35:18 UTC 2023 - Executing "openroad -exit /openlane/scripts/openroad/antenna_check.tcl |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/36-antenna.log"
+
+Mon Apr 17 18:35:32 UTC 2023 - Executing "python3 /openlane/scripts/extract_antenna_violators.py --output /openlane/designs/kizil_islemci/runs/v1/reports/signoff/36-antenna_violators.rpt /openlane/designs/kizil_islemci/runs/v1/logs/signoff/36-antenna.log"
+
+Mon Apr 17 18:35:32 UTC 2023 - Executing "awk -v vdd=VPWR -v gnd=VGND -f /home/mehmet/OpenLane/pdks/sky130A/libs.tech/openlane/cvc/power.awk /openlane/designs/kizil_islemci/runs/v1/tmp/signoff/31-user_processor.nl.v > /openlane/designs/kizil_islemci/runs/v1/tmp/signoff/user_processor.power"
+
+Mon Apr 17 18:35:32 UTC 2023 - Executing "awk -f /home/mehmet/OpenLane/pdks/sky130A/libs.tech/openlane/cvc/cdl.awk /home/mehmet/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/cdl/sky130_fd_sc_hd.cdl /openlane/designs/kizil_islemci/runs/v1/results/signoff/user_processor.lef.spice > /openlane/designs/kizil_islemci/runs/v1/tmp/signoff/user_processor.cdl"
+
+Mon Apr 17 18:35:33 UTC 2023 - Executing "cvc_rv /home/mehmet/OpenLane/pdks/sky130A/libs.tech/openlane/cvc/cvcrc |& tee /dev/null /openlane/designs/kizil_islemci/runs/v1/logs/signoff/37-erc_screen.log"
+
+Mon Apr 17 18:35:41 UTC 2023 - Executing "python3 /openlane/scripts/generate_reports.py -d /openlane/designs/kizil_islemci --design_name user_processor --tag v1 --output_file /openlane/designs/kizil_islemci/runs/v1/reports/metrics.csv --man_report /openlane/designs/kizil_islemci/runs/v1/reports/manufacturability.rpt --run_path /openlane/designs/kizil_islemci/runs/v1"
+

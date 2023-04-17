@@ -1,0 +1,57 @@
+OpenROAD 0264023b6c2a8ae803b8d440478d657387277d93 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO ODB-0222] Reading LEF file: /openlane/designs/kizil_islemci/runs/v1/tmp/merged.max.lef
+[WARNING ODB-0220] WARNING (LEFPARS-2036): SOURCE statement is obsolete in version 5.6 and later.
+The LEF parser will ignore this statement.
+To avoid this warning in the future, remove this statement from the LEF file with version 5.6 or later. See file /openlane/designs/kizil_islemci/runs/v1/tmp/merged.max.lef at line 68353.
+
+[INFO ODB-0223]     Created 13 technology layers
+[INFO ODB-0224]     Created 25 technology vias
+[INFO ODB-0225]     Created 441 library cells
+[INFO ODB-0226] Finished LEF file:  /openlane/designs/kizil_islemci/runs/v1/tmp/merged.max.lef
+[INFO ODB-0127] Reading DEF file: /openlane/designs/kizil_islemci/runs/v1/results/routing/user_processor.def
+[INFO ODB-0128] Design: user_processor
+[INFO ODB-0094] 		Created 100000 Insts
+[INFO ODB-0094] 		Created 200000 Insts
+[INFO ODB-0094] 		Created 300000 Insts
+[INFO ODB-0094] 		Created 400000 Insts
+[INFO ODB-0094] 		Created 500000 Insts
+[INFO ODB-0094] 		Created 600000 Insts
+[INFO ODB-0094] 		Created 700000 Insts
+[INFO ODB-0097] 		Created 100000 Nets
+[INFO ODB-0130]     Created 114 pins.
+[INFO ODB-0131]     Created 715052 components and 3220982 component-terminals.
+[INFO ODB-0132]     Created 2 special nets and 2684000 connections.
+[INFO ODB-0133]     Created 161394 nets and 536266 connections.
+[INFO ODB-0134] Finished DEF file: /openlane/designs/kizil_islemci/runs/v1/results/routing/user_processor.def
+Using RCX ruleset '/home/mehmet/OpenLane/pdks/sky130A/libs.tech/openlane/rules.openrcx.sky130A.max.calibre'...
+[INFO RCX-0431] Defined process_corner X with ext_model_index 0
+[INFO RCX-0029] Defined extraction corner X
+[INFO RCX-0008] extracting parasitics of user_processor ...
+[INFO RCX-0435] Reading extraction model file /home/mehmet/OpenLane/pdks/sky130A/libs.tech/openlane/rules.openrcx.sky130A.max.calibre ...
+[INFO RCX-0436] RC segment generation user_processor (max_merge_res 50.0) ...
+[INFO RCX-0040] Final 909653 rc segments
+[INFO RCX-0439] Coupling Cap extraction user_processor ...
+[INFO RCX-0440] Coupling threshhold is 0.1000 fF, coupling capacitance less than 0.1000 fF will be grounded.
+[INFO RCX-0043] 1196084 wires to be extracted
+[INFO RCX-0442] 8% completion -- 97635 wires have been extracted
+[INFO RCX-0442] 16% completion -- 200858 wires have been extracted
+[INFO RCX-0442] 26% completion -- 311575 wires have been extracted
+[INFO RCX-0442] 37% completion -- 449862 wires have been extracted
+[INFO RCX-0442] 53% completion -- 634290 wires have been extracted
+[INFO RCX-0442] 60% completion -- 719201 wires have been extracted
+[INFO RCX-0442] 69% completion -- 828176 wires have been extracted
+[INFO RCX-0442] 80% completion -- 958441 wires have been extracted
+[INFO RCX-0442] 89% completion -- 1070316 wires have been extracted
+[INFO RCX-0442] 100% completion -- 1196084 wires have been extracted
+[INFO RCX-0045] Extract 161394 nets, 1070999 rsegs, 1070999 caps, 1464590 ccs
+[INFO RCX-0015] Finished extracting user_processor.
+Writing result to /openlane/designs/kizil_islemci/runs/v1/results/routing/mca/process_corner_max/user_processor.spef...
+Setting global connections for newly added cells...
+[WARNING] Did not save OpenROAD database!
+Writing extracted parasitics to /openlane/designs/kizil_islemci/runs/v1/results/routing/mca/process_corner_max/user_processor.spef...
+[INFO RCX-0016] Writing SPEF ...
+[INFO RCX-0042] 100000 nets finished
+[INFO RCX-0443] 161394 nets finished
+[INFO RCX-0017] Finished writing SPEF ...

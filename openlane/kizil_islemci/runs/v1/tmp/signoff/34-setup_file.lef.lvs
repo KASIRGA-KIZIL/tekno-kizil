@@ -1,0 +1,1 @@
+lvs {/openlane/designs/kizil_islemci/runs/v1/results/signoff/user_processor.spice user_processor} {/openlane/designs/kizil_islemci/runs/v1/tmp/signoff/31-user_processor.pnl.v user_processor} /home/mehmet/OpenLane/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl /openlane/designs/kizil_islemci/runs/v1/logs/signoff/34-user_processor.lef.lvs.log -json

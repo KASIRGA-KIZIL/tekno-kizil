@@ -1,0 +1,9 @@
+VPWR power 1.8
+VGND power 0.0
+#define std_input min@VGND max@VPWR
+clk input std_input
+iomem_ready input std_input
+resetn input std_input
+spi_miso_i input std_input
+uart_rx_i input std_input
+iomem_rdata[31:0] input std_input

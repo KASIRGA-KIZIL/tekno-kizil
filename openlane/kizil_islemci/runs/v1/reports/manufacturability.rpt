@@ -1,0 +1,17 @@
+Design Name: user_processor
+Run Directory: /openlane/designs/kizil_islemci/runs/v1
+----------------------------------------
+
+Magic DRC Summary:
+Source: /openlane/designs/kizil_islemci/runs/v1/reports/signoff/drc.rpt
+Total Magic DRC violations is 0
+----------------------------------------
+
+LVS Summary:
+Source: /openlane/designs/kizil_islemci/runs/v1/logs/signoff/34-user_processor.lef.lvs.log
+Number of nets: 162112                     |Number of nets: 162112                     
+Design is LVS clean.
+----------------------------------------
+
+Antenna Summary:
+No antenna report found.

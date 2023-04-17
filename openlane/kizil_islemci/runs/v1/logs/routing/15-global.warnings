@@ -1,0 +1,105 @@
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VPWR has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING GRT-0040] Net VGND has wires outside die area.
+[WARNING ANT-0009] Net _08341_ requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net _08451_ requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net _19453_ requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net _19472_ requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net _19474_ requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net vffram_d0_0.BANK0.m0.m3.X requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net vffram_d0_0.BANK0.m0.m6.X requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net vffram_d0_1.BANK1.m0.m0.X requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net vffram_d0_1.BANK1.m0.m1.X requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net vffram_d1_0.BANK0.m0.m1.X requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net vffram_d1_0.BANK0.m0.m2.X requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net vffram_d1_1.BANK1.m0.m1.X requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net37 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net37 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net43 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net49 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net55 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net62 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net3790 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net3792 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net3827 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net9752 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net10338 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net vffram_d1_0.BANK0.m0.m6.X requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net vffram_d1_1.BANK1.m0.m0.X requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net64 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net11307 requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net vffram_d0_0.BANK0.m0.m5.X requires more than 10 diodes per gate to repair violations.
+[WARNING ANT-0009] Net net11095 requires more than 10 diodes per gate to repair violations.

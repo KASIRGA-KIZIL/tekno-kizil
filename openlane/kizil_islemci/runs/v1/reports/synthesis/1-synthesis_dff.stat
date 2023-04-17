@@ -1,0 +1,44 @@
+
+62. Printing statistics.
+
+=== user_processor ===
+
+   Number of wires:              97441
+   Number of wire bits:         144275
+   Number of public wires:       45319
+   Number of public wire bits:   91827
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:             143519
+     $_ANDNOT_                   12156
+     $_AND_                        926
+     $_MUX_                      24746
+     $_NAND_                       614
+     $_NOR_                       2005
+     $_NOT_                       2501
+     $_ORNOT_                     1141
+     $_OR_                        6074
+     $_XNOR_                       949
+     $_XOR_                       2924
+     sky130_fd_sc_hd__a21o_1        96
+     sky130_fd_sc_hd__and2_1      5467
+     sky130_fd_sc_hd__and3_2       168
+     sky130_fd_sc_hd__and3b_2      336
+     sky130_fd_sc_hd__and4_2       693
+     sky130_fd_sc_hd__and4b_2     2079
+     sky130_fd_sc_hd__and4bb_2    2079
+     sky130_fd_sc_hd__clkbuf_2    2860
+     sky130_fd_sc_hd__conb_1       189
+     sky130_fd_sc_hd__dfxtp_2     5723
+     sky130_fd_sc_hd__dfxtp_4    42752
+     sky130_fd_sc_hd__diode_2       64
+     sky130_fd_sc_hd__dlclkp_1    5376
+     sky130_fd_sc_hd__dlxtn_1       19
+     sky130_fd_sc_hd__mux2_1      9583
+     sky130_fd_sc_hd__mux4_1     11022
+     sky130_fd_sc_hd__nor3b_2      168
+     sky130_fd_sc_hd__nor4b_2      714
+     sky130_fd_sc_hd__xnor2_1       32
+     sky130_fd_sc_hd__xor2_1        63
+

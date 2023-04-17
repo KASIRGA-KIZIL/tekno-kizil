@@ -1,0 +1,31 @@
+OpenROAD 0264023b6c2a8ae803b8d440478d657387277d93 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO ODB-0222] Reading LEF file: /openlane/designs/kizil_islemci/runs/v1/tmp/merged.nom.lef
+[WARNING ODB-0220] WARNING (LEFPARS-2036): SOURCE statement is obsolete in version 5.6 and later.
+The LEF parser will ignore this statement.
+To avoid this warning in the future, remove this statement from the LEF file with version 5.6 or later. See file /openlane/designs/kizil_islemci/runs/v1/tmp/merged.nom.lef at line 68353.
+
+[INFO ODB-0223]     Created 13 technology layers
+[INFO ODB-0224]     Created 25 technology vias
+[INFO ODB-0225]     Created 441 library cells
+[INFO ODB-0226] Finished LEF file:  /openlane/designs/kizil_islemci/runs/v1/tmp/merged.nom.lef
+[INFO ODB-0127] Reading DEF file: /openlane/designs/kizil_islemci/runs/v1/tmp/signoff/31-user_processor.p.def
+[INFO ODB-0128] Design: user_processor
+[INFO ODB-0094] 		Created 100000 Insts
+[INFO ODB-0094] 		Created 200000 Insts
+[INFO ODB-0094] 		Created 300000 Insts
+[INFO ODB-0094] 		Created 400000 Insts
+[INFO ODB-0094] 		Created 500000 Insts
+[INFO ODB-0094] 		Created 600000 Insts
+[INFO ODB-0094] 		Created 700000 Insts
+[INFO ODB-0097] 		Created 100000 Nets
+[INFO ODB-0130]     Created 114 pins.
+[INFO ODB-0131]     Created 715052 components and 3220982 component-terminals.
+[INFO ODB-0132]     Created 2 special nets and 2684000 connections.
+[INFO ODB-0133]     Created 161394 nets and 536266 connections.
+[INFO ODB-0134] Finished DEF file: /openlane/designs/kizil_islemci/runs/v1/tmp/signoff/31-user_processor.p.def
+Setting global connections for newly added cells...
+[WARNING] Did not save OpenROAD database!
+Writing netlist to /openlane/designs/kizil_islemci/runs/v1/tmp/signoff/31-user_processor.nl.v...
+Writing powered netlist to /openlane/designs/kizil_islemci/runs/v1/tmp/signoff/31-user_processor.pnl.v...

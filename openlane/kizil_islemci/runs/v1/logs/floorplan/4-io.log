@@ -1,0 +1,9 @@
+OpenROAD 0264023b6c2a8ae803b8d440478d657387277d93 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO]: Reading ODB at '/openlane/designs/kizil_islemci/runs/v1/tmp/floorplan/3-initial_fp.odb'...
+Found 0 macro blocks.
+Using 1u default distance from corners.
+[INFO PPL-0007] Random pin placement.
+Writing OpenROAD database to /openlane/designs/kizil_islemci/runs/v1/tmp/floorplan/4-io.odb...
+Writing layout to /openlane/designs/kizil_islemci/runs/v1/tmp/floorplan/4-io.def...
