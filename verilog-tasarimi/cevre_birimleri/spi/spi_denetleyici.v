@@ -118,7 +118,7 @@ module spi_denetleyici (
                   // yazma komutu basla
                   if(mosi_en & ~miso_en & ~mosi_empty)begin
                      clock_ctr_next = sck_div;
-                     bit_ctr_next = 4'd8;
+                     bit_ctr_next = 4'd8 + cpha;
                      byte_ctr_next = (length>9'd3)? 3'd3 : {1'b0,length[1:0]};
                      flow_ctr_next = length;
                      spi_sck_o_r_next = cpol;
@@ -128,7 +128,7 @@ module spi_denetleyici (
                   end else if(miso_en & ~mosi_en & ~miso_full)begin
                      // okuma komutu basla
                      clock_ctr_next = sck_div;
-                     bit_ctr_next = 4'd8;
+                                bit_ctr_next = 4'd8 + cpha;
                      byte_ctr_next = (length>9'd3)? 3'd3 : {1'b0,length[1:0]};
                      flow_ctr_next = length;
                      spi_sck_o_r_next = cpol;
@@ -137,7 +137,7 @@ module spi_denetleyici (
                   end else if(~miso_en & ~mosi_en & (|cmd_tail))begin
                      // bos dongu
                      clock_ctr_next = sck_div;
-                     bit_ctr_next = 4'd8;
+                     bit_ctr_next = 4'd8 + cpha;
                      byte_ctr_next = (length>9'd3)? 3'd3 : {1'b0,length[1:0]};
                      flow_ctr_next = length;
                      spi_sck_o_r_next = cpol;
@@ -208,7 +208,9 @@ module spi_denetleyici (
                      state_next = WRITE;
                      if(spi_sck_o_r == ~(cpol^cpha))begin
                         bit_ctr_next = bit_ctr - 4'b1;
-                        spi_wdata_next = {spi_wdata[30:0],1'b0};
+                        if(~cpha || bit_ctr != 9)begin
+                           spi_wdata_next = {spi_wdata[30:0],1'b0};
+                        end
                      end
                   end
                end
@@ -253,7 +255,9 @@ module spi_denetleyici (
                      state_next = READ;
                      if(spi_sck_o_r == (cpol^cpha)) begin
                         bit_ctr_next    = bit_ctr - 4'b1;
-                        spi_rdata_next  = {spi_rdata[30:0],spi_miso_i};
+                        if(~cpha || bit_ctr != 9)begin
+                           spi_rdata_next  = {spi_rdata[30:0],spi_miso_i};
+                        end
                      end
                   end
                end

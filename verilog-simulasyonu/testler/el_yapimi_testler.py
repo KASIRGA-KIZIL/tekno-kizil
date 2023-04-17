@@ -67,6 +67,19 @@ pwm_demo = {'pwm_demo':{
     "pass_adr": 0x40f00078,
     "buyruklar": []
 }}
+
+spi_demo = {'spi_demo':{
+    "TEST_FILE": "../testler/spi-demo/spi_demo_static.hex",
+    "fail_adr": 0x40f00060,
+    "pass_adr": 0x40f00078,
+    "buyruklar": []
+}}
+yapay_zeka = {'yapay_zeka':{
+    "TEST_FILE": "../testler/yapay-zeka-demo/main_static.hex",
+    "fail_adr": 0x40f00060,
+    "pass_adr": 0x40f00078,
+    "buyruklar": []
+}}
 ########################################
 
 ########################################
