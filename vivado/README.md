@@ -4,5 +4,4 @@ NEXYS A7-100T --> 60 MHz
 
 VCU 108 --> 125 MHz (programlayıcı uartı farklı --> 115200)
 
-BASYS3 --> 60 MHz
-
+BASYS3 --> 60 MHz (sığmadığı için rami daha az --> 0x20000 yerine 0x5000 satır)
