@@ -42,7 +42,8 @@ module teknofest_ram_vcu108 #(
   output prog_mode_led_o
     );
 
-localparam CPU_CLK   = 100_000_000;   //Default CPU frequency on FPGA
+localparam CPU_CLK   = 125_000_000;   //Default CPU frequency on FPGA
+// 125 MHz clock icin 9600 programlayici baudrate cok yavas kaliyordu
 localparam BAUD_RATE = 115200;          //Default Baud rate for programming on the run via UART
 
 reg [(NB_COL*COL_WIDTH)-1:0] ram [RAM_DEPTH-1:0];
@@ -303,3 +304,4 @@ simpleuart #(
 	);
 
 endmodule
+
