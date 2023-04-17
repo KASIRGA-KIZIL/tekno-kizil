@@ -224,7 +224,7 @@ wire [32:0] mcand = IN2;
 wire [33:0] mcand_1x;
 wire [33:0] mcand_2x;
 assign mcand_1x = {{1{mcand[32]}},  mcand};
-assign mcand_2x = {{0{mcand[32]}},  mcand, 1'b0}; // [TODO] 0 BOYUTLU WTF
+assign mcand_2x = {{0{mcand[32]}},  mcand, 1'b0};
 
 // Booth Radix-4 Partial Products. Multiplier selectors: mult[1] mult[0] 1'b0
 wire select_e_0, select_2x_0, tcomp0, select_ne_0, select_n2x_0;

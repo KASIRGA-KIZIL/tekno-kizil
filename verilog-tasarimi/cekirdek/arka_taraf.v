@@ -3,6 +3,7 @@
 
 `include "tanimlamalar.vh"
 
+// COZ-YAZMAC-OKU + YURUT + GERI-YAZ
 module arka_taraf(
    input wire clk_i,
    input wire rst_i,

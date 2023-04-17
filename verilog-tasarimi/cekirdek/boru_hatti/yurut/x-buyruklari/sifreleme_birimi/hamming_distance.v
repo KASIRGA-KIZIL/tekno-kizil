@@ -1,3 +1,4 @@
+// hamming_distance.v
 
 `timescale 1ns / 1ps
 

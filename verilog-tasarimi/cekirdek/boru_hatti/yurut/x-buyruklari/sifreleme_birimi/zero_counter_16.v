@@ -1,3 +1,4 @@
+// zero_counter_16.v
 
 // Kullanilan algoritma belirtilen makalede anlatilmaktadir.
 // https://ieeexplore.ieee.org/abstract/document/4539802

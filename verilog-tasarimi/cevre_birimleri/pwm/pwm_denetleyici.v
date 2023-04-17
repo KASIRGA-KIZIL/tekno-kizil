@@ -5,19 +5,23 @@
 
 `include "tanimlamalar.vh"
 
+// Cozunurluk 32 bit
 `define RESOLUTION 32
+
+// PWM Durumlari
 `define BOSTA 2'b00
 `define STANDART 2'b01
 `define KALP_ATISI 2'b10
 
+// Varsayilan PWM adim sayisi 1
 `define STEP 32'd1
 
+// Bu modul https://github.com/SerdarUnal132/pwm_openmpw reposundan alinan 
+// standart ve kalp atisi modundaki alt PWM modullerini kullanarak PWM yazmaclari ile denetler
 module pwm_denetleyici(
    input clk_i,
    input rst_i,
 
-   // adresleri wishboneda secsek ve burada daha fazla giris cikis olsa her bir yazmac icin?
-   // hangisi daha iyi?
    // wishbone <-> pwm_denetleyici
    input  [5:0]  wb_adr_i, // 32 bit adres gelmesine gerek yok, sadece son 6 bitine bakmak yeterli
    input  [31:0] wb_dat_i,
@@ -131,7 +135,7 @@ module pwm_denetleyici(
          case(wb_yaz_w)
             // 0x20020000 --> pwm_control_1
             8'hc0: begin //8'b11_00_0000: begin
-               pwm_control_1_next_r = wb_sel_i[0] ? wb_pwm_control_1_w[1:0] : pwm_control_1_r; // todo sh ust
+               pwm_control_1_next_r = wb_sel_i[0] ? wb_pwm_control_1_w[1:0] : pwm_control_1_r;
                wb_ack_next_r  = 1'b1;
             end
             // 0x20020004 --> pwm_control_2
@@ -313,8 +317,8 @@ module pwm_denetleyici(
 
    always @(posedge clk_i) begin
       if(rst_i) begin
-         pwm_output_1_r <= 0;
-         pwm_output_2_r <= 0;
+         pwm_output_1_r      <= 0;
+         pwm_output_2_r      <= 0;
 
          pwm_control_1_r     <= 0;
          pwm_period_1_r      <= 0;
@@ -329,11 +333,11 @@ module pwm_denetleyici(
          pwm_step_2_r        <= 0;
 
          wb_oku_veri_r       <= 0;
-         wb_ack_r      <= 0;
+         wb_ack_r            <= 0;
       end
       else begin
-         pwm_output_1_r <= pwm_output_1_next_r;
-         pwm_output_2_r <= pwm_output_2_next_r;
+         pwm_output_1_r      <= pwm_output_1_next_r;
+         pwm_output_2_r      <= pwm_output_2_next_r;
 
          pwm_control_1_r     <= pwm_control_1_next_r;
          pwm_period_1_r      <= pwm_period_1_next_r;
@@ -348,7 +352,7 @@ module pwm_denetleyici(
          pwm_step_2_r        <= pwm_step_2_next_r;
 
          wb_oku_veri_r       <= wb_oku_veri_next_r;
-         wb_ack_r      <= wb_ack_next_r;
+         wb_ack_r            <= wb_ack_next_r;
       end
    end
 
@@ -376,6 +380,7 @@ module pwm_denetleyici(
       .increment_step      ({{20{1'b0}}, pwm_step_1_r}),
       .pwm_signal          (pwm0_kalp_atisi_w)
    );
+
 
    // PWM1 ICIN
    pwm_standard_mode #(
