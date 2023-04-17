@@ -220,7 +220,7 @@ module spi_denetleyici (
                   if(bit_ctr == 4'b0) begin // Byte tamamlandi
                      byte_ctr_next = byte_ctr - 3'b1;
                      if(byte_ctr == 3'b0)begin // Buffer indexi doldu
-                        miso_buffer_next[miso_tail] = spi_rdata;
+                        miso_buffer_next[miso_tail] = ({spi_rdata[7:0],spi_rdata[15:8],spi_rdata[23:16],spi_rdata[31:24]})>>({(2'd3-length[1:0]),3'b0});
                         miso_tail_next = miso_tail + 4'd1;
                         byte_ctr_next = 3'd3;
                         spi_rdata_next = 32'd0;
