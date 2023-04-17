@@ -37,6 +37,16 @@ module teknofest_wrapper(
   output pwm1_o
 );
 
+// 60 MHz clocking wizard ip
+wire clk_wiz_o;
+wire dummy;
+clk_wiz_0 dutclk (
+  .clk_out1(clk_wiz_o),
+  .clk_in1(clk_i),
+  .reset(~rst_ni),
+  .locked(dummy)
+);
+
 localparam RAM_DELAY = 16;
 
 parameter integer MEM_WORDS = 4096;
@@ -72,7 +82,7 @@ wire   rst_n;
 assign rst_n = prog_system_reset & rst_ni;
 
 user_processor soc (
-  .clk           (clk_i        ),
+  .clk           (clk_wiz_o    ),
   .resetn        (rst_n        ),
   .iomem_valid   (iomem_valid  ),
   .iomem_ready   (iomem_ready  ),
@@ -95,7 +105,7 @@ wire ram_ready_check;
 
 assign ram_ready_check = iomem_valid & iomem_ready & ((iomem_addr & ~RAM_MASK_ADDR) == RAM_BASE_ADDR);
 
-always @(posedge clk_i) begin
+always @(posedge clk_wiz_o) begin
   if (!rst_ni) begin
     ram_shift_q <= {RAM_DELAY{1'b0}};
   end else begin
@@ -104,7 +114,7 @@ always @(posedge clk_i) begin
   end
 end
 
-always @(posedge clk_i) begin
+always @(posedge clk_wiz_o) begin
   if (!rst_n) begin
     ram_ready <= 1'b0;
   end else begin
@@ -132,7 +142,7 @@ teknofest_ram #(
   .INIT_FILE("")  //Yüklenecek program?n yolu
 ) main_memory
 (
-  .clk_i           (clk_i ),
+  .clk_i           (clk_wiz_o),
   .rst_ni          (rst_ni),
   .wr_addr         (iomem_addr[$clog2(RAM_DEPTH*4)-1:2]),
   .rd_addr         (iomem_addr[$clog2(RAM_DEPTH*4)-1:2]),
@@ -146,7 +156,7 @@ teknofest_ram #(
   .prog_mode_led_o (prog_mode_led_o  )
 );
 
-always @(posedge clk_i) begin
+always @(posedge clk_wiz_o) begin
   if (!rst_n) begin
     timer <= 64'h0;
   end else begin
@@ -155,3 +165,4 @@ always @(posedge clk_i) begin
 end
 
 endmodule
+
