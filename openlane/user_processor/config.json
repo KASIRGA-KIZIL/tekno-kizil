@@ -24,7 +24,6 @@
     "FP_SIZING": "absolute",
     "DIE_AREA": "0 0 2500 2500",
     "PL_TARGET_DENSITY": 0.34,
-    "GRT_ALLOW_CONGESTION": 1,
 
     "SYNTH_READ_BLACKBOX_LIB": 1
 }
