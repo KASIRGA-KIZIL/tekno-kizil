@@ -1,3 +1,11 @@
+
+## OPENLANE
+Openlane github dosyalari: ``` tekno-kizil/openlane/kizil_islemci```<br>
+Openlane Commiti: ```commit dc8e6bb151df7ee2b93d7e9d6a15abf6f224db4d (HEAD, tag: 2023.03.12)```
+
+
+
+
 Openlane dosyaları zip: 
 https://drive.google.com/drive/folders/1dEIMV9H3JBl-_G-wRf3G_0qm45DjGziY?usp=sharing
 
