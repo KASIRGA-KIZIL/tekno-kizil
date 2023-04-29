@@ -142,7 +142,7 @@ int t_printf(const char *format, ...)
 	va_end(ap);
 }
 
-#define CPU_CLK 50000000  // 50 Mhz 
+#define CPU_CLK 60000000  // 50 Mhz 
 #define BAUD_RATE 115200
 
 typedef union

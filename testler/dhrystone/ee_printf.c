@@ -24,7 +24,7 @@ limitations under the License.
 #define UART_RDATA       (*(volatile uint32_t*)0x20000008)
 #define UART_WDATA       (*(volatile uint32_t*)0x2000000c)
 
-#define CPU_CLK 25000000  // 50 Mhz 
+#define CPU_CLK 60000000  // 50 Mhz 
 #define BAUD_RATE 115200
 
 typedef union

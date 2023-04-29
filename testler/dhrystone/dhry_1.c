@@ -29,8 +29,8 @@ typedef double secs_ret;
 #define MYTIMEDIFF(fin, ini)       ((fin) - (ini))
 static CORETIMETYPE start_time_val, stop_time_val;
 
-#define EE_TICKS_PER_SEC 100000000
-#define HZ 100000000
+#define EE_TICKS_PER_SEC 60000000
+#define HZ 60000000
 
 void
 start_time(void)

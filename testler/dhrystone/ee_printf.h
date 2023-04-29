@@ -93,7 +93,7 @@ unsigned long int mytime()
 #define UART_RDATA       (*(volatile uint32_t*)0x20000008)
 #define UART_WDATA       (*(volatile uint32_t*)0x2000000c)
 
-#define CPU_CLK 100000000
+#define CPU_CLK 60000000
 #define BAUD_RATE 115200
 
 typedef union
