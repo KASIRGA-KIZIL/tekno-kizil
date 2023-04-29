@@ -1,9 +1,10 @@
 /*-- Assembler Linker --*/
 /*-- There is ram and rom --*/
 OUTPUT_ARCH( "riscv" )
+GROUP("libgcc.a")
 
 MEMORY{  
-    ram ( wxa!ri ) : ORIGIN = 0x40000000, LENGTH = 0x20000
+    ram ( wxa!ri ) : ORIGIN = 0x40000000, LENGTH = 0x80000
 }
 
 SECTIONS

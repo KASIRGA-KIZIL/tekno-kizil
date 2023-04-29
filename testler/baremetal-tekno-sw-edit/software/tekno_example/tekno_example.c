@@ -38,6 +38,19 @@ static int __strcmp(char* s1, char* s2, int len)
     return 1;
 }
 
+ 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+//#include <unistd.h> // notice this! you need it!
+
+//#include "intfract.h"
+
+#define clear() tekno_printf("\033[H\033[J")
+#define gotoxy(x,y) tekno_printf("\033[%d;%dH", (y), (x))
+
+
+
 int main()
 {
 	// Initializing uart
@@ -53,18 +66,56 @@ int main()
 	"<<<<<<<<<<<<<< TEKNOFEST 2023 CHIP DESIGN COMPETITION SOFTWARE EXAMPLE >>>>>>>>>>>>>>\n"
 	"-------------------------------------------------------------------------------------\n"); 
 	
+	/*uint32_t veri;
+    SPI_CTRL = 0x00036000D;
+    SPI_WDATA = 0x03;
+    SPI_CMD = 0x00002200;
+    SPI_WDATA = 0x00000000;
+    SPI_CMD = 0x00002202;
+    SPI_CMD = 0x00001007;
+    tekno_printf("#BASLA\n\n");
+    while(((SPI_STATUS>>3)%2));
+    veri = SPI_RDATA;
+    tekno_printf("DATA0: 0x%x\n",veri);
+    while(((SPI_STATUS>>3)%2));
+    veri = SPI_RDATA;
+    tekno_printf("DATA1: 0x%x\n",veri);
+    tekno_printf("\n#BITTI\n");*/
+    
+    while(1){
+    pwm_set_period_counter(0, 100000);
+    pwm_set_threshold_counter(0, 0, 5000);
+    pwm_set_threshold_counter(0, 1, 2000);
+    pwm_set_step_counter(0, 1);
+    pwm_set_control(0, PWM_HEARTBEAT);
+    
+    for(int i = 0; i<100; i++)
+        	tekno_printf("---------------");
+    
+    pwm_set_period_counter(0, 5000);
+    pwm_set_threshold_counter(0, 0, 5000);
+    pwm_set_threshold_counter(0, 1, 2000);
+    pwm_set_step_counter(0, 1);
+    pwm_set_control(0, PWM_HEARTBEAT);
+	}
+
+
+
+    //while(1);
+
+   /*int i=0;
+	
 	char cmd_buf[8];
 	
 	while(1)
     {
-        // butun komutlarin 8 bayta
-        // sigdigini varsayiyoruz
-        for (int i = 0 ; i < 8 ; i++)
-        {
+        //for (int i = 0 ; i < 10000000000 ; i++)
+        while(1)
+        { i++;
             while(uart_rxempty());
-            cmd_buf[i] = UART_RDATA;
-            tekno_printf("rx%d,%c\n",i,cmd_buf[i]);
-        }
+            //cmd_buf[i] = UART_RDATA;
+            tekno_printf("rx%d,%c\n",i,UART_RDATA);
+   			
         
         if (__strcmp(cmd_buf,"logo",sizeof("logo")-1))
         {
@@ -72,7 +123,7 @@ int main()
             break;
         }
 
-    }
+    }*/
 
 		uart_test();
 		spi_test();

@@ -89,10 +89,7 @@ Original Author: Shay Gal-on
 
 //#include "tekno.h"
 
-#include <stdint.h>
-
 #define size_t long
-#define CLOCKS_PER_SEC 60000000
 
 typedef signed short   ee_s16;
 typedef unsigned short ee_u16;
@@ -112,8 +109,8 @@ typedef size_t         ee_size_t;
 /* Configuration : CORE_TICKS
         Define type of return from the timing functions.
  */
-#define CORETIMETYPE uint64_t //ee_u32
-typedef uint64_t CORE_TICKS; //ee_u32 CORE_TICKS;
+#define CORETIMETYPE ee_u32
+typedef ee_u32 CORE_TICKS;
 
 /* Configuration : SEED_METHOD
         Defines method to get seed values that cannot be computed at compile

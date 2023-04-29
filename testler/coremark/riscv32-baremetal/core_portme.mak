@@ -21,13 +21,15 @@
 RISCVTOOLS=$(RISCV)
 # Flag: RISCVTYPE
 #   Type of toolchain to use
-RISCVTYPE=riscv32-unknown-elf
+RISCVTYPE=/home/shc/tekno/riscv-tekno/bin/riscv32-unknown-elf
+#/home/shc/projects/riscv32im-toolchain/_install/bin/riscv32-unknown-elf
 # Flag: OUTFLAG
 #	Use this flag to define how to to get an executable (e.g -o)
 OUTFLAG= -o
 # Flag: CC
 #	Use this flag to define compiler to use
-CC = $(RISCVTYPE)-gcc
+CC = $(RISCVTYPE)-gcc #/home/shc/tekno/riscv-tekno/bin/riscv32-unknown-elf #/home/shc/projects/llvm11custom/llvm-project/build/bin/clang -target riscv32 -march=rv32imc -mabi=ilp32 --sysroot=/home/shc/projects/riscv32im-toolchain/_install/riscv32-unknown-elf --gcc-toolchain=/home/shc/projects/riscv32im-toolchain/_install -Xclang -target-feature -Xclang +x
+#$(RISCVTYPE)-gcc
 # Flag: CFLAGS
 #	Use this flag to define compiler options. Note, you can add compiler options from the command line using XCFLAGS="other flags"
 #PORT_CFLAGS = -O2 -static -std=gnu99
@@ -38,7 +40,7 @@ PORT_CFLAGS = -O2 -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nost
 #-DPREALLOCATE=1
 #-mcmodel=medlow
 FLAGS_STR = "$(PORT_CFLAGS) $(XCFLAGS) $(XLFLAGS) $(LFLAGS_END)"
-CFLAGS = $(PORT_CFLAGS) -march=rv32im -mabi=ilp32 -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\" #-DCORE_DEBUG
+CFLAGS = $(PORT_CFLAGS) -march=rv32imc -mabi=ilp32 -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\" #-DCORE_DEBUG
 # -DITERATIONS=1000
 #Flag: LFLAGS_END
 #	Define any libraries needed for linking or other flags that should come at the end of the link line (e.g. linker scripts).
