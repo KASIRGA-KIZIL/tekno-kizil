@@ -34,6 +34,10 @@ Ege Deveci
 <p align="center"> <img src="./dokumanlar/cekirdek_yapisi_dtr.png"> </p>
 
 
+## CoreMark Karşılaştırma
+
+<p align="center"> <img src="./dokumanlar/coremark_karsilastirma.png"> </p>
+
 ## OPENLANE
 Openlane github dosyaları: ``` tekno-kizil/openlane/kizil_islemci```<br>
 Openlane commiti: ```commit dc8e6bb151df7ee2b93d7e9d6a15abf6f224db4d (HEAD, tag: 2023.03.12)```
