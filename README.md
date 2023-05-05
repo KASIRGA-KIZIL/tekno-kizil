@@ -2,19 +2,19 @@
 
 ## KASIRGA - KIZIL Takımı Teknofest 2023 Yonga Tasarımı
 
-KIZIL İşlemci Projesi
+**KIZIL İşlemci Projesi**
 
-Danışman: Prof. Dr. Oğuz Ergin
+**Danışman:** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Prof. Dr. Oğuz Ergin
 
-Takım Kaptanı: Seyyid Hikmet Çelik
+**Takım Kaptanı:** &nbsp;&nbsp;Seyyid Hikmet Çelik
 
-Emre Hakan Demirli
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Emre Hakan Demirli
 
-Mehmet Şakir Aslan
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Mehmet Şakir Aslan
 
-Ahmet Emre Oluk
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Ahmet Emre Oluk
 
-Ege Deveci
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Ege Deveci
 
 ## İşlemci Serimi
 
@@ -29,21 +29,22 @@ Ege Deveci
 <p align="center"> <img src="./dokumanlar/sistem_yapisi_dtr.png"> </p>
 
 
-## Çekirdek Yapısı
+## Çekirdek Yapısı - Boru Hattı
 
 <p align="center"> <img src="./dokumanlar/cekirdek_yapisi_dtr.png"> </p>
 
 
-## CoreMark Karşılaştırma
+## CoreMark Karşılaştırma Grafiği
 
 <p align="center"> <img src="./dokumanlar/coremark_karsilastirma.png"> </p>
 
 ## OPENLANE
-Openlane github dosyaları: ``` tekno-kizil/openlane/kizil_islemci```<br>
-Openlane commiti: ```commit dc8e6bb151df7ee2b93d7e9d6a15abf6f224db4d (HEAD, tag: 2023.03.12)```
+OpenLane github dosyaları: ``` tekno-kizil/openlane/kizil_islemci```<br>
+OpenLane commiti: ```commit dc8e6bb151df7ee2b93d7e9d6a15abf6f224db4d (HEAD, tag: 2023.03.12)```
 
+open_pdks commiti: ```commit e6f9c8876da77220403014b116761b0b2d79aab4```
 
-Openlane dosyaları zip: 
+OpenLane dosyaları zip: 
 https://drive.google.com/drive/folders/1dEIMV9H3JBl-_G-wRf3G_0qm45DjGziY?usp=sharing
 
 Alternatif link:
