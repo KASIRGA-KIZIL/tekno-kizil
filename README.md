@@ -20,7 +20,7 @@ Ege Deveci
 
 <p align="center"> <img src="./dokumanlar/islemci_serimi.png"> </p>
 
-## İşlemci Özellikleri
+## İşlemci Özellikleri
 
 <p align="center"> <img src="./dokumanlar/islemci_ozellikleri_tablo.png"> </p>
 
