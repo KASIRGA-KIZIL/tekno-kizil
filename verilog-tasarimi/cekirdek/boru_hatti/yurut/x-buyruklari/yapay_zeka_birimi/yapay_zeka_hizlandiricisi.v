@@ -3,7 +3,7 @@
 
 `include "tanimlamalar.vh"
 
-`define YAPAY_ZEKA_RUN_GECIKMESI 15
+`define YAPAY_ZEKA_RUN_GECIKMESI 17
 
 module yapay_zeka_hizlandiricisi(
    input wire clk_i,
