@@ -4,6 +4,8 @@
 
 **TEKNOFEST 2023 Çip Tasarım Yarışması Sayısal İşlemci Kategorisi Birincisi**
 
+<p align="center"> <img src="./dokumanlar/teknofest_odul.png"> </p>
+
 **KIZIL İşlemci Projesi**
 
 **Danışman:** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Prof. Dr. Oğuz Ergin
