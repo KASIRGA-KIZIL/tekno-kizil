@@ -3,6 +3,7 @@
 ## KASIRGA - KIZIL Takımı Teknofest 2023 Yonga Tasarımı
 
 **TEKNOFEST 2023 Çip Tasarım Yarışması Sayısal İşlemci Kategorisi Birincisi**
+
 **KIZIL İşlemci Projesi**
 
 **Danışman:** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Prof. Dr. Oğuz Ergin
