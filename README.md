@@ -20,16 +20,16 @@
 
 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Ege Deveci
 
-Youtube Sunum Videosu:
+**Youtube Sunum Videosu:**
 https://www.youtube.com/watch?v=Kw16yyKHfTI
 
-Yarışma Sitesi: 
+**Yarışma Sitesi:** 
 https://teknofest.org/tr/competitions/competition/121
 
-Şartname (TR): 
+**Şartname (TR):** 
 https://cdn.teknofest.org/media/upload/userFormUpload/Teknofest_%C3%87ip_%C5%9Eartnamesi_2023_v8_paylasilan_naLIQ.pdf
 
-Şartname (EN):
+**Şartname (EN):**
 https://cdn.teknofest.org/media/upload/userFormUpload/Teknofest_Chip_Specifications_2023_v5_paylasilan_kivby.pdf
 
 ## İşlemci Serimi
